@@ -1,0 +1,145 @@
+.tableContainer {
+    width: 100%;
+    margin: 0;
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #dbe5ee;
+    border-radius: 14px;
+    box-shadow: 0 12px 24px rgba(2, 6, 23, 0.06);
+}
+
+.empty {
+    width: 100%;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 1.1rem;
+    text-align: center;
+    color: #64748b;
+    background: #f8fafc;
+}
+
+.excelTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 980px;
+}
+
+.excelTable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #939699;
+    color: var(--letter);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.85rem 0.75rem;
+    text-align: left;
+}
+
+.excelTable td {
+    border-bottom: 1px solid var(--line);
+    padding: 0.8rem 0.75rem;
+    color: var(--letter);
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.excelTable tbody tr {
+    transition: background 0.2s ease;
+}
+
+.excelTable tbody tr:hover {
+    background: #f9fbfd;
+}
+
+.actionsCell {
+    width: 230px;
+}
+
+.buttonWrapper {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.startButton,
+.deleteButton {
+    border: none;
+    border-radius: 8px;
+    padding: 0.48rem 0.72rem;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.startButton {
+    background: var(--button-blue);
+    color: #ffffff;
+}
+
+.startButton:hover {
+    filter: brightness(1.06);
+}
+
+.deleteButton {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #ffffff;
+}
+
+.deleteButton:hover {
+    filter: brightness(1.06);
+}
+
+.deleteButton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+}
+
+.completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.scheduled {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.noAsistida {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.defaultStatus {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+@media (max-width: 900px) {
+    .actionsCell {
+        width: 200px;
+    }
+
+    .startButton,
+    .deleteButton {
+        padding: 0.45rem 0.6rem;
+        font-size: 0.7rem;
+    }
+}

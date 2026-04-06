@@ -1,0 +1,181 @@
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* elevar por encima de otros componentes (spinner, menús) */
+  z-index: 10001;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Caja del modal */
+.modalBox {
+  background: var(--modal-bg);
+  backdrop-filter: var(--blur);
+  padding: 1.5rem;
+  border-radius: var(--border-radius-lg);
+  width: min(820px, calc(100% - 2rem));
+  box-shadow: var(--modal-shadow);
+  border: var(--modal-border);
+  animation: slideUp 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  display: flex;
+  flex-direction: column;
+  /* Limitar altura para permitir scroll interno cuando el contenido es grande */
+  max-height: calc(100vh - 3rem);
+}
+
+/* Contenedor desplazable para el contenido del modal */
+.modalBody {
+  overflow: auto;
+  /* permitir que ocupe el espacio restante dentro de la caja */
+  flex: 1 1 auto;
+  padding-right: 0.25rem;
+}
+
+.modalTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--modal-title-color);
+  text-align: center;
+}
+
+.modalText {
+  margin: 0 0 1.25rem 0;
+  color: rgb(224, 2, 2);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.603), rgba(12, 126, 77, 0.625));
+  padding: 10px 20px;
+  border-radius: 20px;
+}
+
+.modalErrorList {
+  margin: 0 0 1.25rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+}
+
+.modalErrorItem {
+  color: #9f1239;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin-left: 1rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  /* Evitar que los botones se oculten al hacer scroll */
+  flex-shrink: 0;
+}
+
+.modalPrimary {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.modalPrimary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.modalPrimary:active {
+  transform: translateY(0);
+}
+
+.modalSecondary {
+  background: var(--secondary-color);
+  color: var(--modal-title-color);
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  text-shadow: none;
+}
+
+.modalSecondary:hover {
+  background: var(--secondary-hover);
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.modalSecondary:active {
+  transform: translateY(0);
+}
+
+/* Foco visible para accesibilidad */
+.modalPrimary:focus-visible,
+.modalSecondary:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive: ajustes en móvil */
+@media (max-width: 640px) {
+  .modalBox {
+    padding: 1.25rem;
+  }
+
+  .modalTitle {
+    font-size: 1.125rem;
+  }
+
+  .modalActions {
+    gap: 0.5rem;
+  }
+
+  .modalPrimary,
+  .modalSecondary {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Preferencia reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .modalOverlay,
+  .modalBox {
+    animation: none;
+  }
+}

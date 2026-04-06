@@ -1,0 +1,358 @@
+/* ==========================================================
+   Paleta de Colores - Modo Oscuro Profesional
+   Fondo: Negro Pizarra
+   Textos: Claros (Blanco/Gris)
+   Acentos: Verde Esmeralda y Azul Brillante
+   ========================================================== */
+
+:root {
+  /* Fondos y Capas */
+  --bg-main: #0f172a;       /* Negro Pizarra muy oscuro (Slate 900) */
+  --bg-card: #1e293b;       /* Un tono más claro para tarjetas y filas (Slate 800) */
+  --bg-hover: rgb(0, 80, 47);     /* Tono para hovers (Slate 700) */
+  
+  /* Textos */
+  --text-main: #f1f5f9;     /* Blanco grisáceo muy claro (Slate 100) */
+  --text-muted: #ffffff;    /* Gris medio para textos secundarios (Slate 400) */
+  
+  /* Colores de Acento */
+  --accent-green: #10b981;  /* Verde Esmeralda vibrante */
+  --accent-blue: #3b82f6;   /* Azul brillante */
+  
+  /* Bordes y Líneas */
+  --border-color: #ffffff;  /* Gris oscuro para divisiones (Slate 700) */
+}
+
+/* Tipografía global para el componente */
+.container {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--text-main);
+}
+
+/* ==========================================================
+   Contenedor Principal (Panel)
+   ========================================================== */
+.container {
+  padding: 30px;
+  background-color: var(--bg-card); /* Tarjeta principal ligeramente más clara que el fondo de la web */
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================
+   Header y Estadísticas
+   ========================================================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.headerTitle h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff; /* Blanco puro para el título principal */
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.headerTitle p {
+  color: var(--text-muted); /* Letras más claras/apagadas */
+  margin: 5px 0 0 0;
+  font-size: 15px;
+}
+
+.stats {
+  display: flex;
+  gap: 15px;
+}
+
+.statCard {
+  background-color: var(--bg-main); /* Fondo más oscuro dentro de la tarjeta */
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  min-width: 110px;
+  transition: transform 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-3px);
+  border-color: var(--text-muted);
+}
+
+.statValue {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-green); /* Valor resaltado en VERDE */
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* ==========================================================
+   Barras de Control (Búsqueda, Filtro, Botón)
+   ========================================================== */
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  align-items: center;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.searchIconInside {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  opacity: 0.6; /* Icono grisáceo */
+  filter: invert(1); /* Si el icono original es negro, esto lo hace blanco */
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 12px 12px 45px;
+  background-color: var(--bg-main); /* Input oscuro */
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-main); /* Letras claras al escribir */
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--accent-blue); /* Borde AZUL al hacer focus */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.searchInput::placeholder {
+  color: #64748b; /* Placeholder claro pero legible */
+}
+
+.filterSelect {
+  padding: 12px 20px;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-main); /* Letras claras en el selector */
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.refreshBtn {
+  background-color: var(--accent-blue); /* Botón principal AZUL */
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.refreshBtn:hover {
+  background-color: #2563eb; /* Azul un poco más oscuro al pasar el mouse */
+}
+
+/* ==========================================================
+   Tabla de Citas
+   ========================================================== */
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px; /* Espaciado entre filas para efecto de tarjetas */
+}
+
+.table th {
+  text-align: left;
+  padding: 15px;
+  color: var(--text-muted); /* Letras de cabecera claras/gris */
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.tableRow {
+  background-color: var(--bg-main); /* Filas oscuras */
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.tableRow:hover {
+  background-color: var(--bg-hover); /* Fondo más claro al pasar el mouse */
+}
+
+.table td {
+  padding: 18px 15px;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  font-size: 14px;
+}
+
+/* Bordes redondeados para el efecto de tarjeta en las filas */
+.tableRow td:first-child {
+  border-left: 1px solid transparent;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.tableRow td:last-child {
+  border-right: 1px solid transparent;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* Celdas especiales con texto secundario */
+.dateCell, .clientCell, .petCell {
+  display: flex;
+  flex-direction: column;
+  color: var(--text-main);
+}
+
+.dateCell small, .clientCell small, .petCell small {
+  color:rgb(245, 245, 245); /* Letras más claras para detalles secundarios */
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.idCell {
+  color: rgb(2, 35, 168); /* ID resaltado en BLANCO */
+  font-weight: 700;
+}
+
+/* ==========================================================
+   Badges de Estado (Colores adaptados a fondo oscuro)
+   ========================================================== */
+.statusBadge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+  /* El JS inyecta colores pasteles, que resaltan bien sobre fondo oscuro */
+}
+
+/* ==========================================================
+   Botones de Acción y Vistas
+   ========================================================== */
+.actionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+/* Botón Descargar (Sólido VERDE) */
+.downloadBtn {
+  background-color: var(--accent-green); /* VERDE para acción principal positiva */
+  color: #ffffff;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s ease;
+}
+
+.downloadBtn:hover {
+  opacity: 0.85;
+}
+
+.downloadBtn:disabled {
+  background-color: #475569;
+  cursor: not-allowed;
+}
+
+/* Botón Ver Factura (Outline AZUL) */
+.viewBtn {
+  color: var(--accent-blue); /* Letras AZULES */
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--accent-blue); /* Borde AZUL */
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.viewBtn:hover {
+  background-color: rgba(59, 130, 246, 0.1); /* Fondo azul muy suave al hover */
+  border-color: #60a5fa; /* Borde azul más claro */
+}
+
+.btnIcon {
+  width: 14px;
+  height: 14px;
+  filter: invert(1); /* Hace que los iconos de los botones sean blancos */
+}
+
+/* ==========================================================
+   Utilidades y Animaciones
+   ========================================================== */
+.errorMessage {
+  background-color: rgba(239, 68, 68, 0.15); /* Fondo rojo oscuro suave */
+  color: #f87171; /* Texto rojo claro */
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ef4444;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Loader de carga (Spinner blanco) */
+.btnLoader {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #ffffff;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.rotating {
+  animation: rotation 2s linear infinite;
+}
+
+.textRight { text-align: right; }
+.textCenter { text-align: center; padding: 50px !important; color: var(--text-muted); }

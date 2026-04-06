@@ -1,0 +1,54 @@
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.7); /* Fondo oscuro semi-transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Por encima de todo */
+  backdrop-filter: blur(2px); /* Ligero desenfoque */
+}
+
+/* 2. Contenedor del spinner y texto */
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* 3. Estilos y animación del SVG (EL GIRO) */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinner-svg {
+  width: 100px; /* Tamaño del icono */
+  height: 100px;
+  /* === PROPIEDADES CRÍTICAS PARA QUE DÉ VUELTAS === */
+  animation: spin 0.8s linear infinite; /* Gira infinitamente */
+  transform-origin: center; /* ¡IMPORTANTE! Gira sobre su propio centro */
+  display: block;
+}
+
+/* 4. Estilos del arco del spinner (el camino) */
+.spinner-track {
+  stroke: rgba(255, 255, 255, 0.1); /* Color de pista muy suave */
+}
+
+.spinner-path {
+  stroke: #0ea5a4; /* Tu color turquesa principal */
+  stroke-dasharray: 90, 150; /* Define la longitud del arco */
+  stroke-dashoffset: 0;
+}
+
+/* 5. Estilo del texto "Cargando..." */
+.loading-text {
+  color: #fff;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}

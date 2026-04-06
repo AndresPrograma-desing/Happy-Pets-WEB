@@ -1,0 +1,365 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: #f1f5f9;
+  margin: 0;
+  padding: 0;
+  color: var(--color-text);
+}
+
+.container {
+  max-width: 1280px;
+  width: calc(100% - 2rem);
+  margin: 1.5rem auto;
+  padding: 1.5rem;
+  background: rgb(188, 219, 188);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+}
+
+.debugInfo {
+  background: rgba(43, 43, 43, 0.11);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: black;
+  margin-bottom: 1rem;
+  display: inline-block;
+  border: 1px solid var(--color-border);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.input,
+.textarea,
+select {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: #fff;
+  transition: var(--transition);
+}
+
+.input:focus,
+.textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+.textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.clinicalGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.productsSection {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--color-border);
+}
+
+.productsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.btnAdd {
+  background: var(--button-green);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btnAdd:hover {
+  background: var(--button-hover-green);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btnAdd:active {
+  transform: translateY(1px);
+}
+
+.productCard {
+  background: var(--productCardConsulta);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  margin-bottom: 1rem;
+  transition: var(--transition);
+}
+
+.productCard:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: #cbd5e1;
+}
+
+.productMainGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.productDetailsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--color-border);
+}
+
+.productDetailsGrid input {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.btnDelete {
+  background: var(--cancel-button);
+  color: var(--letter-white);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btnDelete:hover {
+  background: var(--color-danger);
+  color: white;
+  border-color: var(--color-danger);
+}
+
+.rowActions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btnPrimary{
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+}
+
+.btnPrimary {
+  background: var(--button-blue);
+  color: white;
+}
+
+.btnPrimary:hover {
+  background: var(--color-secondary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.btnSecondary {
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+}
+
+.btnSecondary {
+  background: var(--cancel-button);
+  color: var(--color-text);
+  color: #ffffff;
+  border: 1px solid var(--color-border);
+}
+.btnTertiary {
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+}
+
+.btnTertiary {
+  background: var(--button-blue);
+  color: var(--color-text);
+  color: #ffffff;
+  border: 1px solid var(--color-border);
+}
+.btnTertiary:hover {
+  background: var(--color-background);
+  border-color: #f3f3f3;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+  .container {
+    width: calc(100% - 1.5rem);
+    margin: 0.75rem auto;
+    padding: 1rem;
+  }
+
+  .productMainGrid,
+  .productDetailsGrid,
+  .clinicalGrid,
+  .row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .productDetailsGrid {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .rowActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btnPrimary,
+  .btnSecondary,
+  .btnAdd,
+  .btnDelete {
+    width: 100%;
+    justify-content: center;
+  }
+
+  @media (max-width: 860px) {
+    .form {
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding-right: 8px;
+    }
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible para navegación por teclado */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Modal simple de alerta */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+.modalBox {
+  background: var(--color-card-bg);
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-md);
+  width: min(520px, calc(100% - 2rem));
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+}
+
+.modalTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.125rem;
+  color: var(--color-text);
+}
+
+.modalText {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modalPrimary {
+  background: var(--color-secondary);
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.modalSecondary {
+  background: white;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}

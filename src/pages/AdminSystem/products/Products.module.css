@@ -1,0 +1,62 @@
+.filterBar {
+    padding: 20px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #fcfcfc;
+    min-height: 100vh;
+}
+
+.headerRow {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    position: sticky;
+    top: 0;
+    background-color: var(--color-card-bg);
+    padding: 15px;
+    z-index: 100;
+    border-bottom: 2px solid #eef2f7;
+    border-radius: 0 0 12px 12px;
+    box-shadow: var(--shadow);
+}
+
+.mainTitle {
+    background-color: #b4c7e7;
+    color: #1e293b;
+    text-align: left;
+    padding: 12px 20px;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    border: 1px solid #8ea9db;
+    border-radius: 8px;
+    flex: 1;
+}
+
+.lastUpdatedHeader {
+    font-size: 0.85rem;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    white-space: nowrap;
+}
+
+.backBtn {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #1e293b;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+    background-color: #334155;
+    transform: translateY(-1px);
+}

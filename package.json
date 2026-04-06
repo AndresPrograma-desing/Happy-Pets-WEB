@@ -1,0 +1,42 @@
+{
+  "name": "projecto-hp-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "tunnel": "open-cli https://g27frlv5-5173.use2.devtunnels.ms/ & vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "documentation": "start public/Documentation/index.html"
+  },
+  "dependencies": {
+    "docx": "^9.6.1",
+    "docxtemplater": "^3.68.3",
+    "node-fetch": "^3.3.2",
+    "pizzip": "^3.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-hook-form": "^7.71.2",
+    "react-router-dom": "^7.13.1",
+    "react-select": "^5.10.2",
+    "xmldom": "^0.6.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@eslint/js": "^9.39.4",
+    "@rolldown/plugin-babel": "^0.2.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.0",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "nodemon": "^3.1.14",
+    "open-cli": "^9.0.0",
+    "vite": "^8.0.0"
+  }
+}

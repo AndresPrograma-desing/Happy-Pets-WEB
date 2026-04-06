@@ -1,0 +1,57 @@
+/* --- Contenedor General --- */
+.page {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Card de "En Construcción" --- */
+.page::before {
+  content: "📅"; /* Icono de calendario */
+  font-size: 80px;
+  margin-bottom: 20px;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+}
+
+.page h1 {
+  color: #1e293b;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.page p {
+  color: #64748b;
+  font-size: 1.1rem;
+  max-width: 500px;
+  line-height: 1.6;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+/* --- Animación para el icono --- */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+  .page h1 {
+    font-size: 1.8rem;
+  }
+  .page p {
+    font-size: 1rem;
+    padding: 15px;
+  }
+}

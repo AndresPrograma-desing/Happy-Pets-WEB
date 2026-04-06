@@ -1,0 +1,13 @@
+{
+  "name": "vet-system-backend-mock",
+  "version": "1.0.0",
+  "description": "Mock backend for auth/mensajes for local testing",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

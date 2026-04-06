@@ -1,0 +1,183 @@
+/* Main container with fingerprint bottom */
+.page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Centra el form verticalmente */
+    padding: 1rem;
+    backdrop-filter: blur(5px);
+    width: 100%;
+}
+
+/* Formulario Negro Compacto */
+.form {
+    width: 100%;
+    max-width: 380px;
+    margin: 0;
+    padding: 1.5rem; /* Reducido para ahorrar espacio */
+    background-color: #000000;
+    border-radius: 5px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+    
+    /* Animación de apertura */
+    transform-origin: top center;
+    will-change: transform, opacity;
+    animation: parchmentOpen 1200ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+/* Encabezado */
+.header {
+    text-align: center;
+    margin-bottom: 0.75rem; /* Espacio reducido */
+}
+
+.headerTitle {
+    margin: 0;
+    font-size: 1.6rem; /* Título más pequeño para ganar altura */
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);  
+}
+
+.headerInfo {
+    margin: 0.2rem 0 0;
+    color: #dadcde;
+    font-size: 0.85rem;
+}
+
+/* Etiquetas y Campos */
+.form label {
+    display: block;
+    margin-bottom: 0.2rem; /* Pegado al input */
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.form input {
+    width: 100%;
+    padding: 0.55rem 0.75rem; /* Inputs más delgados */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    margin-bottom: 0.6rem; /* Menos separación entre bloques */
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.form input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(21, 182, 3, 0.2);
+    border-color: #15b603;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Selector de Rol */
+.roleWrapper {
+    margin-bottom: 0.8rem;
+    position: relative;
+}
+
+.roleSelect {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    font-size: 0.95rem;
+    appearance: none;
+    cursor: pointer;
+}
+
+select option {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+/* Password Toggle */
+.passwordWrapper {
+    position: relative;
+    color: #ffffff;
+}
+
+.passwordWrapper input {
+    padding-right: 3rem;
+}
+
+.toggleButton {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-80%); /* Ajustado para estar centrado en el input */
+    background: transparent;
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 0.8rem;
+}
+
+/* Botones de Acción */
+.actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.primary, .secondary {
+    flex: 1; /* Distribuye espacio igual */
+    background-color: #15b603;
+    color: #ffffff;
+    border: none;
+    padding: 0.65rem; /* Botones más compactos */
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.primary:hover {
+    background-color: #129402;
+}
+
+.secondary:hover {
+    background-color: #ff3b3b;
+    color: #ffffff;
+}
+
+/* Errores */
+.error {
+    color: #FF2800;
+    font-size: 0.8rem;
+    margin-top: -0.4rem;
+    margin-bottom: 0.4rem;
+}
+
+/* Animación Parchment */
+@keyframes parchmentOpen {
+    0% {
+        transform: scaleY(0.02) rotateX(12deg);
+        opacity: 0;
+    }
+    60% {
+        transform: scaleY(1.04) rotateX(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scaleY(1) rotateX(0deg);
+        opacity: 1;
+    }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    .form {
+        transform: none !important;
+        opacity: 1 !important;
+        animation: none !important;
+    }
+}

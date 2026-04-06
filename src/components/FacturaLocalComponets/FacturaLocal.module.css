@@ -1,0 +1,118 @@
+/* Factura.css */
+.factura-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2d3748;
+}
+
+.factura-header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #edf2f7;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.logo-seccion h1 {
+    color: #2563eb;
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: 1px;
+}
+
+.info-seccion {
+    text-align: right;
+}
+
+.info-seccion h2 {
+    margin: 0;
+    color: #4a5568;
+}
+
+.grid-detalles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.bloque-info {
+    background-color: #f8fafc;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.bloque-info h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #718096;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+}
+
+.tabla-factura {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.tabla-factura thead {
+    background-color: #2563eb;
+    color: white;
+}
+
+.tabla-factura th, .tabla-factura td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+.item-nombre { font-weight: 600; display: block; }
+.item-desc { font-size: 11px; color: #718096; }
+
+.seccion-totales {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.tabla-totales {
+    width: 250px;
+}
+
+.fila-total {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1e40af;
+}
+
+.estado-label {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.pendiente { background-color: #fef3c7; color: #92400e; }
+.pagado { background-color: #d1fae5; color: #065f46; }
+
+.footer-factura {
+    margin-top: 50px;
+    text-align: center;
+    font-size: 11px;
+    color: #a0aec0;
+    border-top: 1px solid #edf2f7;
+    padding-top: 20px;
+}

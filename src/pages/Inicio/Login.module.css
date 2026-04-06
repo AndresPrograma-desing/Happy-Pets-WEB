@@ -1,0 +1,28 @@
+.buttonIniciarSesion {
+  background-color: #009E36;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: block;
+  margin: 0 auto;
+  box-shadow: 3px 3px 2px  black;
+
+}
+
+.buttonIniciarSesion:hover {
+  background-color: #00cc22;
+}
+
+
+button{
+    border: none;           /* Quita el borde */
+    outline: none;          /* Quita el contorno al hacer focus (opcional) */
+    background: none;
+    color: aliceblue; 
+    text-shadow: 1px 1px 2px black;     /* Opcional: quita el fondo gris por defecto */
+}
+
