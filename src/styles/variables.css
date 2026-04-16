@@ -32,6 +32,7 @@
   --color-danger-bg: #fee2e2;
   --color-text: #1e293b;
   --color-text-muted: #64748b;
+  --color-text-muted2: #b3b7bd;
   --color-border: #e2e8f0;
   --productCardConsulta: #088d4f;
   --color-card-bg: #ffffff;
@@ -62,7 +63,7 @@
 
 
   /*AgreeProduct*/
-    --input-border: #e2e8f0;
+  --input-border: #e2e8f0;
   --input-focus: #2a4d97;
   --bg-dropdown: #ffffff;
   --text-muted: #64748b00;
@@ -85,4 +86,19 @@
   --radius-lg: 0.75rem;
   --transition: all 0.2s ease;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /*Facturas*/
+  --bg-facturas: #1e293b;
+  --bg-main: #0f172a;   
+  --bg-hover: rgb(0, 80, 47);
+  --text-main: #f1f5f9;     
+  --text-muted: #ffffff;                          
+  --accent-green: #10b981;  
+  --accent-blue: #3b82f6;   
+  --border-color: #ffffff;
+
+  /*colores*/
+  --color-black: #000000;
+  --color-white: #ffffff;
+
 }

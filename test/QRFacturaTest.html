@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Facturación - Happy Pets</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .factura-card { 
+            background: white; border-radius: 12px; padding: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #2ecc71; 
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .qr-section { text-align: center; margin-top: 20px; padding: 15px; background: #fafafa; border-radius: 8px; }
+        .qr-image { border: 2px solid #eee; padding: 10px; background: white; border-radius: 5px; }
+        .details { font-size: 0.9em; color: #555; }
+        .badge { background: #2ecc71; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Facturación Happy Pets</h2>
+    <div id="lista-facturas">
+        <p>Cargando facturas...</p>
+    </div>
+</div>
+
+<script>
+    // Tu función original adaptada para actualizar la UI
+    async function cargarYMostrarFacturas() {
+        const container = document.getElementById('lista-facturas');
+        
+        try {
+            // Llamamos a tu función de endpoint (Asumiendo que está disponible en el scope)
+            const data = await getFacturas(); 
+            
+            // Si data es un array, tomamos la última o iteramos
+            const factura = Array.isArray(data) ? data[0] : data; 
+
+            if (!factura) {
+                container.innerHTML = "<p>No se encontraron facturas.</p>";
+                return;
+            }
+
+            renderizarFactura(factura);
+
+        } catch (error) {
+            console.error("Error al obtener facturas:", error);
+            container.innerHTML = `<p style="color:red">Error al conectar con la base de datos happyPets_dnb</p>`;
+        }
+    }
+
+    function renderizarFactura(f) {
+        const container = document.getElementById('lista-facturas');
+        
+        // Generamos la URL del QR usando la API de goqr.me
+        // f.url_docx contiene el link al PDF del DevTunnel
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(f.url_docx)}`;
+
+        container.innerHTML = `
+            <div class="factura-card">
+                <div class="header">
+                    <strong>Factura: ${f.numero_factura}</strong>
+                    <span class="badge">${f.estado_pago.toUpperCase()}</span>
+                </div>
+                <hr>
+                <div class="details">
+                    <p><strong>Cliente:</strong> ${f.cliente_nombre}</p>
+                    <p><strong>Mascota:</strong> ${f.mascota_nombre}</p>
+                    <p><strong>Total:</strong> $${f.total.toFixed(2)} (${f.metodo_pago})</p>
+                </div>
+
+                <div class="qr-section">
+                    <p>Escanear para descargar PDF</p>
+                    <img src="${qrUrl}" alt="Código QR" class="qr-image">
+                    <br>
+                    <small style="color:#888;">ID: ${f.factura_id}</small>
+                </div>
+            </div>
+        `;
+    }
+
+    // Ejecutar al cargar la página
+    document.addEventListener('DOMContentLoaded', cargarYMostrarFacturas);
+
+    // Mock de tu función para la demostración
+    async function getFacturas() {
+        // En producción, esto usará tu lógica de fetch/request
+        return [{
+            "factura_id": 39,
+            "numero_factura": "F-20260414150251-19",
+            "cliente_nombre": "Juan Perez",
+            "mascota_nombre": "Firulais",
+            "total": 52.00,
+            "metodo_pago": "pago movil",
+            "estado_pago": "pagada",
+            "url_docx": "https://g27frlv5-5168.use2.devtunnels.ms/facturas/Factura_Juan_Perez_Firulais_20260416_012329.pdf"
+        }];
+    }
+</script>
+
+</body>
+</html>

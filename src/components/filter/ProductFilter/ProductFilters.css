@@ -55,6 +55,18 @@
     text-transform: uppercase;
     letter-spacing: 0.025em;
 }
+.filterIcon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    margin-right: 6px;
+}
+.trashIcon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    margin-right: 6px;
+}
 
 .filterInput, 
 .filterInputPrice, 

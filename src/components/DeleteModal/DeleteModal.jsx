@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import styles from './DeleteModal.module.css';
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
 
 export default function ModalConfirmacion({ 
   triggerText = "Eliminar", 
   title = "Confirmar acción", 
   description = "Ingrese el nombre para confirmar:", 
-  placeholder = "Escriba aquí...",
+  placeholder = "Nombre del producto",
   confirmText = "Confirmar",
-  onConfirm, // Función que ejecuta la lógica (debe retornar {success, message})
-  onSuccess  // Callback que se ejecuta tras el éxito (ej. refrescar lista)
+  onConfirm, 
+  onSuccess  
 }) {
   const [show, setShow] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -59,7 +60,9 @@ export default function ModalConfirmacion({
 
   return (
     <>
-      <button className={styles.triggerBtn} onClick={open}>{triggerText}</button>
+      <button className={styles.triggerBtn} onClick={open}>
+        <img src={getIcon('trash')} alt="" className={styles.trashIcon} aria-hidden="true"/>
+        {triggerText}</button>
 
       {show && (
         <div className={styles.modalOverlay} onMouseDown={close}>

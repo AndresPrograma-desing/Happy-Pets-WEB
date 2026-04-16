@@ -1,247 +1,93 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { generateInvoiceForCita } from '../../utils/GenerateFactura';
-import api from '../../services/api';
+import React, { useMemo } from 'react';
 import styles from './FacturaDowloader.module.css';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
 import AlertModal from '../AlertModal/AlertModal';
-import { getAlertPayload } from '../../utils/apiErrors';
 import InvoiceViewer from '../FacturaPreviw/facturaPreviw';
-import { mapFacturaToInvoice } from '../../utils/GenerateFactura';
 import FacturaLocal from '../FacturaLocal/FacturaLocal';
+import useFacturaDownloader, { PollFactura } from '../../hooks/FacturaDownloader';
+import Page1 from '../Page1/Page1';
+import PollingSeconds from '../../hooks/PollingSecons';
+import ModalTooltip from '../ModalTooltip/ModalTooltip';
 
-const STATUS_CONFIG = {
-  programada: { label: 'Programada', color: '#0369a1', bg: '#e0f2fe', border: '#bae6fd' },
-  pendiente: { label: 'Pendiente', color: '#9a3412', bg: '#ffedd5', border: '#fed7aa' },
-  completada: { label: 'Completada', color: '#ffffff', bg: '#46b6cc86', border: '#36a6a652' },
-  cancelada: { label: 'Cancelada', color: '#b91c1c', bg: '#fee2e2', border: '#fecaca' },
-  en_progreso: { label: 'En progreso', color: '#4338ca', bg: '#e0e7ff', border: '#c7d2fe' },
-  default: { label: 'No asistida', color: '#ffffff', bg: '#c00000', border: '#e5000058' }
-};
-
-const getStatusStyle = (estado) => {
-  const key = estado?.toLowerCase() || 'default';
-  return STATUS_CONFIG[key] || STATUS_CONFIG.default;
-};
+function getStatusStyle(estado) {
+  const s = String(estado || '').toLowerCase();
+  if (s === 'pendiente') return { label: 'Pendiente', bg: '#adf3a9', color: '#92400e', border: '#f59e0b' };
+  if (s === 'completada' || s === 'completado' || s === 'completa') return { label: 'Completada', bg: '#ecfdf5', color: '#065f46', border: '#10b981' };
+  if (s === 'cancelada') return { label: 'Cancelada', bg: '#fff1f2', color: '#9f1239', border: '#f43f5e' };
+  if(s === 'no_asistida' || s === 'no asistida') return { label: 'No Asistida', bg: '#fef2f2', color: '#991b1b', border: '#ef4444' };
+  if(s === 'programada') return { label: 'Programada', bg: '#fef3c7', color: '#78350f', border: '#fbbf24' };
+  return { label: estado || 'Desconocido', bg: '#f8fafc', color: '#0f172a', border: '#e2e8f0' };
+}
 
 export default function FacturaManager() {
-  const [citas, setCitas] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [generatingId, setGeneratingId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterEstado, setFilterEstado] = useState('todos');
-  const [invoiceUrls, setInvoiceUrls] = useState({});
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState(null);
-  const [alertTitle, setAlertTitle] = useState('');
-  const [alertOnConfirm, setAlertOnConfirm] = useState(null);
-  const [alertConfirmText, setAlertConfirmText] = useState('Cerrar');
-  const [alertCancelText, setAlertCancelText] = useState('Cancelar');
+  const {
+    citas,
+    loading,
+    generatingId,
+    searchTerm,
+    setSearchTerm,
+    filterEstado,
+    setFilterEstado,
+    invoiceUrls,
 
-  const normalizeCitas = (raw) => {
-    if (!raw) return [];
-    const content = raw.data || raw.result || raw.results || raw.items || raw;
-    if (Array.isArray(content)) return content;
-    if (content?.$values && Array.isArray(content.$values)) return content.$values;
-    return [];
-  };
+    alertOpen,
+    setAlertOpen,
+    alertMessage,
+    alertTitle,
+    alertOnConfirm,
+    alertConfirmText,
+    alertCancelText,
+    setAlertMessage,
+    setAlertTitle,
+    setAlertOnConfirm,
+    setAlertConfirmText,
+    setAlertCancelText,
 
-  const fetchCitas = useCallback(async () => {
-    try {
-      setLoading(true);
-      setAlertMessage(null);
-      const response = await api.getCitas();
-      const dataNormalizada = normalizeCitas(response);
-      setCitas(dataNormalizada);
-    } catch (err) {
-      console.error("Error en fetchCitas:", err);
-      setAlertMessage(getAlertPayload(err));
-      setAlertTitle('Error');
-      setAlertOnConfirm(null);
-      setAlertConfirmText('Cerrar');
-      setAlertOpen(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    fetchCitas,
+    handleGenerate,
+    handleFileDownload,
 
-  useEffect(() => {
-    fetchCitas();
-  }, [fetchCitas]);
+    previewOpen,
+    setPreviewOpen,
+    previewInvoice,
+    setPreviewInvoice,
+    previewIframeUrl,
+    setPreviewIframeUrl,
+    previewCitaId,
+    setPreviewCitaId,
 
-  const filteredCitas = useMemo(() => {
-    let result = [...citas];
-    const q = (searchTerm || '').toLowerCase().trim();
+    filteredCitas,
+    handlePollFound,
+    handlePollRemoved
+  } = useFacturaDownloader();
 
-    if (q) {
-      result = result.filter((c) => {
-        const id = String(c.id || '').toLowerCase();
-        const clienteNombre = `${c.Mascotum?.Cliente?.nombre || ''} ${c.Mascotum?.Cliente?.apellido || ''}`.toLowerCase();
-        const telefono = String(c.Mascotum?.Cliente?.telefono || '').toLowerCase();
-        const mascota = String(c.Mascotum?.nombre || '').toLowerCase();
-        const doctor = `${c.doctor?.nombre || ''} ${c.doctor?.apellido || ''}`.toLowerCase();
-        return id.includes(q) || clienteNombre.includes(q) || telefono.includes(q) || mascota.includes(q) || doctor.includes(q);
-      });
-    }
-
-    if (filterEstado !== 'todos') {
-      result = result.filter(c => (c.estado || '').toLowerCase() === filterEstado);
-    }
-
-    return result;
-  }, [citas, searchTerm, filterEstado]);
-
-  const handleGenerate = async (citaId) => {
-    try {
-      setGeneratingId(citaId);
-      setAlertMessage(null);
-      const resp = await generateInvoiceForCita(citaId);
-
-      if (!resp) throw new Error('Sin respuesta del servidor');
-
-      let finalUrl = null;
-      // resp may contain url, file or blob
-      if (resp.url) finalUrl = resp.url;
-      else if (resp.file && typeof resp.file === 'string') finalUrl = resp.file;
-      else if (resp.blob) finalUrl = URL.createObjectURL(resp.blob);
-
-      if (!finalUrl) throw new Error('No se pudo procesar el archivo');
-
-      // Normalizar finalUrl: si es solo un nombre de archivo, crear ruta pública a /facturas/{file}
-      if (typeof finalUrl === 'string' && !finalUrl.match(/^https?:\/\//i) && !finalUrl.startsWith('/')) {
-        finalUrl = `${window.location.origin}/facturas/${encodeURIComponent(String(finalUrl))}`;
-      } else if (typeof finalUrl === 'string' && finalUrl.startsWith('/')) {
-        finalUrl = `${window.location.origin}${finalUrl}`;
-      }
-
-      // Guardar metadata (url, file, raw)
-      // Además, obtener los datos de la factura para preview usando GET /api/Facturas/cita/{id}
-      const safeId = encodeURIComponent(String(citaId));
-      let invoiceRaw = null;
-      let invoiceObj = null;
-      try {
-        invoiceRaw = await api.request(`/Facturas/cita/${safeId}`, { method: 'GET' });
-        invoiceObj = mapFacturaToInvoice(invoiceRaw);
-      } catch (fetchErr) {
-        // No bloqueante: si no se puede obtener datos de preview, seguimos guardando URL
-        invoiceObj = null;
-      }
-
-      // Construir URL al preview estático y guardarla con los metadatos
-      const previewUrl = `${window.location.origin}/test/facturaPreviw.html?citaId=${encodeURIComponent(String(citaId))}`;
-
-      setInvoiceUrls(prev => ({
-        ...prev,
-        [citaId]: { url: finalUrl, file: resp.file ?? null, raw: resp.raw ?? resp, invoice: invoiceObj, previewUrl }
-      }));
-
-      // Extraer nombre de archivo para mostrar en el modal
-      let fileName = resp.file && typeof resp.file === 'string' ? resp.file : null;
-      if (!fileName && finalUrl) {
-        try {
-          const u = new URL(finalUrl);
-          fileName = u.pathname.split('/').filter(Boolean).pop();
-          if (fileName) fileName = decodeURIComponent(fileName);
-        } catch (e) {
-          const parts = String(finalUrl).split('/');
-          fileName = parts.pop() || finalUrl;
-        }
-      }
-
-      setAlertMessage(`Factura creada: ${fileName || 'desconocida'}`);
-      setAlertTitle('Factura creada');
-      setAlertConfirmText('Ver');
-      setAlertCancelText('Cerrar');
-      setAlertOnConfirm(() => () => {
-        // Abrir la vista previa interna usando el componente FacturaLocal
-        setPreviewIframeUrl(null);
-        setPreviewCitaId(citaId);
-        setPreviewOpen(true);
-      });
-      setAlertOpen(true);
-    } catch (err) {
-      setAlertMessage(getAlertPayload(err));
-      setAlertTitle('Error');
-      setAlertOnConfirm(null);
-      setAlertConfirmText('Cerrar');
-      setAlertOpen(true);
-    } finally {
-      setGeneratingId(null);
-    }
-  };
-
-  const handleFileDownload = async (citaId) => {
-    const meta = invoiceUrls[citaId];
-    if (!meta || !meta.url) {
-      setAlertMessage('No hay factura generada para descargar');
-      setAlertTitle('Error');
-      setAlertOpen(true);
-      return;
-    }
-
-    setGeneratingId(citaId);
-    try {
-      const url = meta.url;
-      // If it's an object URL (blob:), just trigger download
-      if (String(url).startsWith('blob:')) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = meta.file || `Factura-${citaId}.docx`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        return;
-      }
-
-      // Try fetching the file (include auth token if available)
-      const token = api.getToken ? api.getToken() : '';
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const res = await fetch(url, { headers, credentials: 'include' });
-      if (!res.ok) {
-        // Fallback: open the url in a new tab
-        try { window.open(url, '_blank', 'noopener'); } catch (e) { /* ignore */ }
-        return;
-      }
-
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      const fileName = meta.file || (() => {
-        try { const u = new URL(url); return decodeURIComponent(u.pathname.split('/').filter(Boolean).pop()); } catch (e) { return `Factura-${citaId}.docx`; }
-      })();
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      try { window.open(meta.url, '_blank', 'noopener'); } catch (e) { /* ignore */ }
-    } finally {
-      setGeneratingId(null);
-    }
-  };
-
-  const stats = useMemo(() => {
-    return {
-      total: citas.length,
-      pendientes: citas.filter(c => (c.estado || '').toLowerCase() === 'pendiente').length,
-      completadas: citas.filter(c => (c.estado || '').toLowerCase() === 'completada').length,
-    };
-  }, [citas]);
-
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewInvoice, setPreviewInvoice] = useState(null);
-  const [previewIframeUrl, setPreviewIframeUrl] = useState(null);
-  const [previewCitaId, setPreviewCitaId] = useState(null);
+  const stats = useMemo(() => ({
+    total: (citas || []).length,
+    pendientes: (citas || []).filter(c => (c.estado || '').toLowerCase() === 'pendiente').length,
+    completadas: (citas || []).filter(c => (c.estado || '').toLowerCase() === 'completada').length,
+  }), [citas]);
 
   return (
     <div className={styles.container}>
+      {/* Polling components: one per generated invoice to verify UrlDocx still exists */}
+      {Object.keys(invoiceUrls || {}).map((id) => (
+        <PollFactura
+          key={id}
+          citaId={id}
+          active={true}
+          interval={PollingSeconds()}
+          onFound={handlePollFound}
+          onRemoved={handlePollRemoved}
+        />
+      ))}
       <div className={styles.header}>
         <div className={styles.headerTitle}>
-          <h1>Facturación Happy Pets</h1>
+          <h1>
+            <img src={getIcon('service')} className={styles.serviceIcon} alt="" />
+            Panel de Facturación</h1>
           <p>Gestión y descarga de documentos profesionales</p>
         </div>
+        <Page1 url="/SecretariaSystem" />
         <div className={styles.stats}>
           <div className={styles.statCard} style={{ borderLeftColor: '#0f172a' }}>
             <span className={styles.statValue}>{stats.total}</span>
@@ -274,13 +120,24 @@ export default function FacturaManager() {
           value={filterEstado}
           onChange={(e) => setFilterEstado(e.target.value)}
         >
-          <option value="todos">Todos los estados</option>
-          <option value="pendiente">Pendiente</option>
-          <option value="completada">Completada</option>
-          <option value="cancelada">Cancelada</option>
+          <option value="todos">
+            <img src={getIcon('check')} className={styles.filterIcon} alt="" />
+            Todos los estados</option>
+          <option value="programada">
+            <img src={getIcon('check')} className={styles.filterIcon} alt="" />
+            Programada</option>
+          <option value="completada">
+            <img src={getIcon('')} className={styles.filterIcon} alt="" />
+            Completada</option>
+          <option value="no_asistida">
+            <img src={getIcon('check')} className={styles.filterIcon} alt="" />
+            No Asistida</option>
+          <option value="cancelada">
+            <img src={getIcon('check')} className={styles.filterIcon} alt="" />
+            Cancelada</option>
         </select>
         <button onClick={fetchCitas} className={styles.refreshBtn} disabled={loading}>
-          <img src={getIcon('listRestart')} className={loading ? styles.rotating : ''} alt="" />
+          <img src={getIcon('rotate')} className={loading ? styles.rotating : ''} alt="" />
           {loading ? 'Actualizando...' : 'Actualizar'}
         </button>
       </div>
@@ -316,7 +173,8 @@ export default function FacturaManager() {
         ) : previewInvoice ? (
           <InvoiceViewer invoice={previewInvoice} />
         ) : (
-          <div>Cargando preview...</div>
+          <div>
+            <img src={getIcon('rotate')} className={styles.rotating} alt="" />Cargando previa...</div>
         )}
       </AlertModal>
 
@@ -350,11 +208,15 @@ export default function FacturaManager() {
                   <td>
                     <div className={styles.clientCell}>
                       <strong>{cita.Mascotum?.Cliente?.nombre} {cita.Mascotum?.Cliente?.apellido}</strong>
-                      <small>{cita.Mascotum?.Cliente?.telefono}</small>
+                      <div className={styles.clientPhone}>{cita.Mascotum?.Cliente?.telefono}</div>
                     </div>
                   </td>
-                  <td>{cita.Mascotum?.nombre} <small>({cita.Mascotum?.raza})</small></td>
-                  <td>Dr. {cita.doctor?.nombre}</td>
+                  <td>
+                    <div className={styles.petCell}>
+                      {cita.Mascotum?.nombre} <small>({cita.Mascotum?.raza})</small>
+                    </div>
+                  </td>
+                  <td className={styles.doctorCell}>Dr. {cita.doctor?.nombre}</td>
                   <td>
                     <span className={styles.statusBadge} style={{ backgroundColor: status.bg, color: status.color, borderColor: status.border }}>
                       {status.label}
@@ -365,14 +227,28 @@ export default function FacturaManager() {
                       <button
                         className={styles.downloadBtn}
                         onClick={() => (invoiceUrls[cita.id] ? handleFileDownload(cita.id) : handleGenerate(cita.id))}
-                        disabled={generatingId === cita.id}
+                        disabled={
+                          generatingId === cita.id ||
+                          [
+                            'programada',
+                            'no_asistida',
+                            'cancelada'
+                          ].includes((cita.estado || '').toLowerCase())
+                      }
+                        style={[
+                          'programada',
+                          'no_asistida',
+                          'cancelada'
+                        ].includes((cita.estado || '').toLowerCase()) ? { backgroundColor: '#56585a', cursor: 'not-allowed' } : {}}
                       >
                         {generatingId === cita.id ? (
                           <><span className={styles.btnLoader}></span> Generando...</>
                         ) : invoiceUrls[cita.id] ? (
                           <><img src={getIcon('download')} alt="" className={styles.btnIcon} /> Descargar</>
                         ) : (
-                          <><img src={getIcon('download')} alt="" className={styles.btnIcon} /> Generar</>
+                          <ModalTooltip text="Generar Factura">
+                          <><img src={getIcon('clipboardPlus')} alt="" className={styles.btnIcon} /> Generar</>
+                          </ModalTooltip>
                         )}
                       </button>
                       {invoiceUrls[cita.id] && (

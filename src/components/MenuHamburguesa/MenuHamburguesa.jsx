@@ -4,8 +4,15 @@ import { Navigate } from 'react-router-dom';
 import AlertModal from '../AlertModal/AlertModal';
 import cuStyles from '../GeneralStyles/ButtonsMenu.module.css';
 import { logout } from '../../services/api';
-
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
 function MenuHamburguesa({ children, menuTitle = "Menú" }) {
+  // Simulación: reemplaza esto con tu lógica real de mensajes nuevos
+  const [hasNewMessages, setHasNewMessages] = useState(false);
+  // Ejemplo: para pruebas, activa la vibración después de 3 segundos
+  React.useEffect(() => {
+    const timer = setTimeout(() => setHasNewMessages(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
   const [open, setOpen] = useState(false);
   const [loggedOut, setLoggedOut] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -44,10 +51,7 @@ function MenuHamburguesa({ children, menuTitle = "Menú" }) {
              
               <h3>{menuTitle}</h3>
               <button className={styles.closeBtn} onClick={() => setOpen(false)} aria-label="Cerrar menú">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
+            <img src={getIcon('x')} alt="Cerrar" className={styles.closeIcon} />
               </button>
             </div>
 
@@ -64,10 +68,20 @@ function MenuHamburguesa({ children, menuTitle = "Menú" }) {
                       className={`${cuStyles.menuItem} ${styles.newChatBtn}`}
                       onClick={() => {
                         setOpen(false);
+                        setHasNewMessages(false); // Marcar como leídos al abrir
                         const messagesUrl = `${window.location.origin}/panel-menssage`;
                         window.open(messagesUrl, '_blank', 'noopener,noreferrer');
                       }}
-                      >
+                    >
+                      <img
+                        src={getIcon('message')}
+                        alt="Mensajes"
+                        className={
+                          hasNewMessages
+                            ? `${styles.messageIcon} ${styles.vibrate}`
+                            : styles.messageIcon
+                        }
+                      />
                       Mensajes
                     </button>
                   </div>
@@ -76,6 +90,7 @@ function MenuHamburguesa({ children, menuTitle = "Menú" }) {
             </div>
             <div className={styles.menuFooter}>
               <button className={styles.logoutBtn} onClick={() => setShowLogoutModal(true)}>
+                <img src={getIcon('exit')} alt="Cerrar sesión" className={styles.exitIcon} />
                 Cerrar sesión
               </button>
             </div>

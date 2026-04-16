@@ -18,6 +18,8 @@ import { useLocation } from 'react-router-dom';
 import PanelMenssage from './pages/PanelMenssage/PanelMenssage';
 import FacturaManager from "./components/FacturaDownloader/FacturaDownloader";
 import FacturaLocal from "./components/FacturaLocalComponets/FacturaLocal";
+import InDevelopment from "./components/InDevelopment/InDevelopment";
+import FacturasList from './components/FacturaDownloader/FacturaList/facturas';
 // ... tus otros imports (Home, Login, etc.)
 
 function AppContent() {
@@ -38,6 +40,7 @@ function AppContent() {
 
   return (
     <>
+    <InDevelopment />
       {isLoading && <SpinerLoader />}
       
       {/* El contenido solo se muestra (o se anima) cuando deja de cargar */}
@@ -60,6 +63,7 @@ function AppContent() {
           <Route path="/AdminSystem/products/manage" element={<ProductCreate />} />
           <Route path="/factura-manager" element={<FacturaManager />} />
           <Route path="/factura-local" element={<FacturaLocal />} />
+          <Route path="/facturas" element={<FacturasList />} />
           <Route path="/health" element={<Health />} />
           <Route path="*" element={<Navigate to="/inicio" replace />} />
         </Routes>

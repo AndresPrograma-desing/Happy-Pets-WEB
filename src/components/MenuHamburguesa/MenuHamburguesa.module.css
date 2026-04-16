@@ -129,6 +129,31 @@
   width: 20px;
   height: 20px;
 }
+.messageIcon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    object-fit: contain;
+    filter: invert(1) brightness(1.2);
+}
+
+.vibrate {
+  animation: vibrateMsg 0.4s linear infinite both;
+}
+
+@keyframes vibrateMsg {
+  0% { transform: translate(0); }
+  10% { transform: translate(-1px, 1px); }
+  20% { transform: translate(-2px, -1px); }
+  30% { transform: translate(1px, 2px); }
+  40% { transform: translate(1px, -1px); }
+  50% { transform: translate(-1px, 2px); }
+  60% { transform: translate(-2px, 1px); }
+  70% { transform: translate(2px, 1px); }
+  80% { transform: translate(-1px, -1px); }
+  90% { transform: translate(2px, 2px); }
+  100% { transform: translate(0); }
+}
 
 /* Contenedor de secciones */
 .menuSections {
@@ -222,8 +247,22 @@
   background: rgba(255, 255, 255, 0.04);
   margin: 0.3rem 0.5rem;
 }
+.closeIcon{
+    width: 18px;
+    height: 18px;
+    display: block;
+    object-fit: contain;
+    filter: invert(1) brightness(1.2);
+}
+.exitIcon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    object-fit: contain;
+    filter: invert(1) brightness(1.2);
+}
 
-/* Botón de nueva conversación - destacado */
+
 .newChatBtn {
   display: flex;
   align-items: center;
@@ -344,7 +383,10 @@
   cursor: pointer;
   font-weight: 600;
   transition: background 0.15s ease, transform 0.08s ease;
-}
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    justify-content: center;
 
 .logoutBtn:hover {
   background: rgba(183, 0, 0, 0.8);
@@ -379,7 +421,8 @@
   width: 1px;
   height: 1px;
   padding: 0;
-  margin: -1px;
+    display: inline-block;
+    vertical-align: middle;
   overflow: hidden;
 }
 
@@ -410,4 +453,5 @@
   top: 20px;
   left: 20px;
   z-index: 1002; 
+}
 }

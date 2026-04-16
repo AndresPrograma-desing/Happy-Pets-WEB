@@ -7,14 +7,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* elevar por encima de otros componentes (spinner, menús) */
   z-index: 10001;
   animation: fadeIn 0.2s ease-out;
 }
 
-/* Caja del modal */
 .modalBox {
-  background: var(--modal-bg);
+  background: white;
   backdrop-filter: var(--blur);
   padding: 1.5rem;
   border-radius: var(--border-radius-lg);
@@ -24,14 +22,11 @@
   animation: slideUp 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
   display: flex;
   flex-direction: column;
-  /* Limitar altura para permitir scroll interno cuando el contenido es grande */
   max-height: calc(100vh - 3rem);
 }
 
-/* Contenedor desplazable para el contenido del modal */
 .modalBody {
   overflow: auto;
-  /* permitir que ocupe el espacio restante dentro de la caja */
   flex: 1 1 auto;
   padding-right: 0.25rem;
 }
@@ -43,16 +38,19 @@
   line-height: 1.4;
   color: var(--modal-title-color);
   text-align: center;
+  background-color: transparent;
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 20px;
 }
 
 .modalText {
   margin: 0 0 1.25rem 0;
-  color: rgb(224, 2, 2);
+  color: rgb(0, 0, 0);
   font-size: 0.95rem;
   line-height: 1.5;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.603), rgba(12, 126, 77, 0.625));
-  padding: 10px 20px;
-  border-radius: 20px;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .modalErrorList {
@@ -68,6 +66,12 @@
   font-size: 0.92rem;
   line-height: 1.45;
   margin-left: 1rem;
+}
+.warningIcon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
 }
 
 .modalActions {

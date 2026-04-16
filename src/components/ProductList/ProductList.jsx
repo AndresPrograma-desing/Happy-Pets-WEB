@@ -1,10 +1,13 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import styles from './ProductList.module.css';
-import ProductFilters from '../ProductFilter/ProductFilters';
+import ProductFilters from '../filter/ProductFilter/ProductFilters';
 import usePolling from '../../hooks/UsePolling';
 import { getProducts } from '../../services/api';
 import AlertModal from '../AlertModal/AlertModal';
 import { getAlertPayload } from '../../utils/apiErrors';
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
+
+
 const CATEGORY_NAMES = {
     '1': 'Medicamentos', '2': 'Vacunas', '3': 'Alimentos',
     '4': 'Accesorios', '5': 'Servicios', '6': 'Laboratory'
@@ -18,6 +21,11 @@ export default function ProductList({ products: initialProducts, lastUpdated }) 
     const [localProducts, setLocalProducts] = useState(initialProducts || []);
     const [localRefreshing, setLocalRefreshing] = useState(false);
     const [localLastUpdated, setLocalLastUpdated] = useState(lastUpdated ?? Date.now());
+    const localNextUpdate = useMemo(() => { 
+        const next = new Date(localLastUpdated);
+        next.setSeconds(next.getSeconds() + 20);
+        return next;
+    }, [localLastUpdated]);
     const [alertOpen, setAlertOpen] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertTitle, setAlertTitle] = useState('');
@@ -40,7 +48,9 @@ export default function ProductList({ products: initialProducts, lastUpdated }) 
             );
             catId = found ? found[0] : '';
         }
-
+if(p.nombre == "Sin Producto"){
+    p.stock =100;
+}
         return {
             ...p,
             normalizedStock: stock,
@@ -67,7 +77,7 @@ export default function ProductList({ products: initialProducts, lastUpdated }) 
             console.error('❌ Error polling:', err);
             try {
                 setAlertMessage(getAlertPayload(err));
-            } catch (e) {
+            } catch {
                 setAlertMessage(String(err?.message || err));
             }
             setAlertTitle('Error al cargar productos');
@@ -132,7 +142,9 @@ export default function ProductList({ products: initialProducts, lastUpdated }) 
                                     <td className={styles.priceCell}>{fmtPrice}</td>
                                     <td className={styles.stockCell}>
                                         {p.normalizedStock} 
-                                        {isLowStock && <span className={styles.lowStockWarning}>⚠️ Bajo</span>}
+                                        {isLowStock && <span className={styles.lowStockWarning}>
+                                            <img src={getIcon('alert')} alt="Alerta de bajo stock" />
+                                             Bajo</span>}
                                     </td>
                                     <td className={styles.minStockCell}>{p.stock_minimo ?? '—'}</td>
                                 </tr>
@@ -143,10 +155,14 @@ export default function ProductList({ products: initialProducts, lastUpdated }) 
             </div>
 
             <div className={styles.footer}>
-                <span>Última sincronización: {new Date(localLastUpdated).toLocaleTimeString()}</span>
+              <span className={styles.iconText}><img src={getIcon('fileCheck')} alt="File Check" /> Última sincronización: {new Date(localLastUpdated).toLocaleTimeString()}</span>
+                <br />
+              <span className={styles.iconText}><img src={getIcon('fileClock')} alt="File Clock" /> Próxima incronización: {new Date(localNextUpdate).toLocaleTimeString()}</span>
             </div>
 
-            {localRefreshing && <div className={styles.floatingRefresh}>Actualizando...</div>}
+            {localRefreshing && <div className={styles.floatingRefresh}>
+                <span className={styles.refreshIcon}><img src={getIcon('listRestart')} alt="Refreshing" /></span>
+                Actualizando...</div>}
 
             <AlertModal
                 open={alertOpen}

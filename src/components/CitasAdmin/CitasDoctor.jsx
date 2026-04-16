@@ -8,9 +8,10 @@ import usePolling from '../../hooks/UsePolling';
 import AlertModal from '../AlertModal/AlertModal';
 import { deleteCita, deleteCitaAlt, updateCitaEstado } from '../../services/api';
 import plusIcon from '../../assets/icons/plus.svg';
-import searchIcon from '../../assets/icons/search.svg';
 import { CustomerAndPetsForm } from '../../pages/DoctorSystem/CreateCustomerAndPets/CustomerAndPets';
 import { useSearchCitas } from '../../hooks/searchCitas';
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
+import { get } from 'react-hook-form';
 
 function CitasLayout({ 
     titulo = 'Citas',
@@ -37,7 +38,7 @@ function CitasLayout({
     const role = propRole || location.state?.role || 'doctor';
 
     // Si el padre no inyecta datos, usamos el hook para obtener citas
-    const { citas: hookCitas, loading: hookLoading, error: hookError, refetch: hookRefetch } = useGetCitas();
+const { citas: hookCitas, loading: hookLoading, error: hookError, refetch: hookRefetch } = useGetCitas();
 
     const citas = useMemo(() => (propCitas ?? hookCitas ?? []), [propCitas, hookCitas]);
     const loading = propLoading ?? hookLoading;
@@ -85,10 +86,9 @@ function CitasLayout({
     const iconElement = (
         role === 'secretaria'
             ? <img src={plusIcon} alt="" className={styles.actionIcon} />
-            : <img src={searchIcon} alt="" className={styles.actionIcon} />
+            : <img src={getIcon('search')} alt="" className={styles.actionIcon} />
     );
 
-    // Helper renderers
     const renderField = (cita, keys) => {
         for (const k of keys) {
             if (cita[k]) {
@@ -239,9 +239,11 @@ function CitasLayout({
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                     <button type="button" className={styles.backButton} onClick={() => { if (role === 'secretaria') navigate('/SecretariaSystem'); else navigate('/doctor'); }}>
+                      <img src={getIcon('house')} alt="house" className={styles.houseIcon} />
                         Volver
                     </button>
                     <button type="button" className={styles.refreshButton} onClick={() => refetch()}>
+                        <img src={getIcon('rotate')} alt="rotate" className={styles.houseIcon} />
                         Actualizar
                     </button>
                     {role === 'secretaria' && (
@@ -255,10 +257,12 @@ function CitasLayout({
                                 setShowCreateClientModal(true);
                             }}
                         >
+                            <img src={getIcon('user')} alt="user" className={styles.houseIcon} />
                             Crear usuario
                         </button>
                     )}
                     <button type="button" className={styles.backButton} onClick={defaultAction}>
+                      
                         {iconElement} {defaultLabel}
                     </button>
                 </div>

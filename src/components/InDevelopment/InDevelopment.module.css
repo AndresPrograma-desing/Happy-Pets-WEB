@@ -1,0 +1,38 @@
+.footer{
+    position: fixed;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    font-size: 11px;
+    background-color: transparent;
+    text-align: center;
+    padding: 4px;
+    color: #747474;
+    z-index: 999;
+    opacity: 0.45;
+    pointer-events: none;
+    user-select: none;
+}
+
+.text {
+    margin: 0;
+    line-height: 1;
+}
+.icon {
+    width: 5%;
+    height: auto;
+    margin-right: 2px;
+    display: inline-block;  
+    vertical-align: middle;
+    color: black;
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

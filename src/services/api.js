@@ -216,6 +216,26 @@ export async function getProducts() {
   throw lastError || new Error('No se pudo obtener productos');
 }
 
+// Facturas
+export async function getFacturas() {
+  const candidates = ['/facturas', '/Facturas', '/invoices', '/invoices/list'];
+  let lastError = null;
+
+  for (const path of candidates) {
+    try {
+      return await request(path, { method: 'GET' });
+    } catch (err) {
+      lastError = err;
+      // Si la ruta no existe, intentamos el siguiente candidato
+      if (!(err && err.status === 404)) {
+        throw err;
+      }
+    }
+  }
+
+  throw lastError || new Error('No se pudo obtener facturas');
+}
+
 // Admin products endpoints
 export async function adminGetProducts() {
   return request('/admin/Products', { method: 'GET' });
@@ -257,7 +277,7 @@ export async function createMascota(payload) {
 }
 
 export async function createClienteMascota(payload) {
-  return request('/clientes/mascota', { method: 'POST', body: payload });
+  return request('/create-with-pet', { method: 'POST', body: payload });
 }
 
 export async function getClientes() {
@@ -323,6 +343,15 @@ export async function markMessageAsRead(messageId) {
   return request(`/mensajes/${encodeURIComponent(String(messageId || ''))}/read`, { method: 'PATCH' });
 }
 
+
+// Cambia el estado de pago de la factura
+export async function updateFacturaEstadoPago(idfactura, estado_pago = 'pagada') {
+  // Usa el endpoint correcto: /api/Facturas/{idfactura}/estado-pago
+  return request(`/Facturas/${idfactura}/estado-pago`, {
+    method: 'PATCH',
+    body: { estado_pago },
+  });
+}
 
 
 
@@ -459,6 +488,7 @@ export default {
   getCitasDetalle,
   getMascotasByUserName,
   getSecretarias,
+  getFacturas,
   getUserNameFromLoginSession,
   decreaseProductStock,
   sendMessage,

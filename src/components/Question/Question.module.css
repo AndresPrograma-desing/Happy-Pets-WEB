@@ -1,0 +1,23 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: #ffffff;
+}
+.question{
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.icon
+{
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+}
+.question h2{
+    color: #0e1f35;
+    font-size: 1.25rem;
+    font-weight: 500;
+}

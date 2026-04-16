@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './ProductFilters.css';
-import trashIcon from '../../assets/icons/trash-2.svg';
+import { getIcon } from '../../../assets/icons/ExportIcon/Index';
 
 export default function ProductFilters({
     searchTerm, setSearchTerm,
@@ -15,9 +15,11 @@ export default function ProductFilters({
         <>
             <div className="filterBar">
                 <div style={{ display: 'flex', gap: 8 }}>
-                    <button type="button" className="newChatBtn" onClick={() => setOpen(true)}>Filtros</button>
+                    <button type="button" className="newChatBtn" onClick={() => setOpen(true)}>
+                        <img src={getIcon('filter')} alt="" className="filterIcon" aria-hidden="true" />
+                        Filtros</button>
                     <button type="button" className="clearBtn" onClick={onClear} aria-label="Limpiar filtros">
-                        <img src={trashIcon} alt="" aria-hidden="true" />
+                        <img src={getIcon('trash')} alt="" className="trashIcon" aria-hidden="true" />
                         <span>Limpiar</span>
                     </button>
                 </div>

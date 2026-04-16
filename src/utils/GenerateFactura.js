@@ -291,8 +291,8 @@ export async function generateInvoiceForCita(citaId) {
   if (!citaId) throw new Error('citaId is required');
   const safeId = encodeURIComponent(String(citaId));
 
-  // Usar exclusivamente el endpoint del servidor para generar/obtener la factura DOCX
-  const resp = await api.request(`/Facturas/cita/${safeId}/docx`, { method: 'POST' });
+  // Usar exclusivamente el endpoint del servidor para generar/obtener la factura PDF
+  const resp = await api.request(`/Facturas/cita/${safeId}/pdf`, { method: 'POST' });
   if (!resp) {
     const e = new Error('El servidor no devolvió respuesta al solicitar la factura');
     e.status = 502;

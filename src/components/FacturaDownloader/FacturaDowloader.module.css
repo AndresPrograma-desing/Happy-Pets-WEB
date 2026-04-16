@@ -1,47 +1,21 @@
-/* ==========================================================
-   Paleta de Colores - Modo Oscuro Profesional
-   Fondo: Negro Pizarra
-   Textos: Claros (Blanco/Gris)
-   Acentos: Verde Esmeralda y Azul Brillante
-   ========================================================== */
-
-:root {
-  /* Fondos y Capas */
-  --bg-main: #0f172a;       /* Negro Pizarra muy oscuro (Slate 900) */
-  --bg-card: #1e293b;       /* Un tono más claro para tarjetas y filas (Slate 800) */
-  --bg-hover: rgb(0, 80, 47);     /* Tono para hovers (Slate 700) */
-  
-  /* Textos */
-  --text-main: #f1f5f9;     /* Blanco grisáceo muy claro (Slate 100) */
-  --text-muted: #ffffff;    /* Gris medio para textos secundarios (Slate 400) */
-  
-  /* Colores de Acento */
-  --accent-green: #10b981;  /* Verde Esmeralda vibrante */
-  --accent-blue: #3b82f6;   /* Azul brillante */
-  
-  /* Bordes y Líneas */
-  --border-color: #ffffff;  /* Gris oscuro para divisiones (Slate 700) */
+.doctorCell {
+  color: #fff !important;
+  font-weight: 600;
 }
-
-/* Tipografía global para el componente */
 .container {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-main);
 }
 
-/* ==========================================================
-   Contenedor Principal (Panel)
-   ========================================================== */
 .container {
   padding: 30px;
-  background-color: var(--bg-card); /* Tarjeta principal ligeramente más clara que el fondo de la web */
-  border-radius: 16px;
+  background-color: var(--bg-facturas); 
+
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  
 }
 
-/* ==========================================================
-   Header y Estadísticas
-   ========================================================== */
 .header {
   display: flex;
   justify-content: space-between;
@@ -98,10 +72,6 @@
   letter-spacing: 1px;
   margin-top: 4px;
 }
-
-/* ==========================================================
-   Barras de Control (Búsqueda, Filtro, Botón)
-   ========================================================== */
 .controls {
   display: flex;
   gap: 15px;
@@ -121,8 +91,8 @@
   transform: translateY(-50%);
   width: 18px;
   height: 18px;
-  opacity: 0.6; /* Icono grisáceo */
-  filter: invert(1); /* Si el icono original es negro, esto lo hace blanco */
+  opacity: 0.6; 
+  filter: invert(1); 
 }
 
 .searchInput {
@@ -235,7 +205,7 @@
 }
 
 .dateCell small, .clientCell small, .petCell small {
-  color:rgb(245, 245, 245); /* Letras más claras para detalles secundarios */
+  color: rgb(245, 245, 245); /* Letras más claras para detalles secundarios */
   font-size: 12px;
   margin-top: 3px;
 }
@@ -319,6 +289,19 @@
   height: 14px;
   filter: invert(1); /* Hace que los iconos de los botones sean blancos */
 }
+.volverLink {
+  background-color: var(--accent-blue);
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: var(--text-main);
+  text-decoration: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
 /* ==========================================================
    Utilidades y Animaciones
@@ -333,7 +316,11 @@
   font-size: 14px;
   text-align: center;
 }
-
+.filterIcon {
+  width: 16px;
+  height: 16px;
+  filter: invert(1); /* Icono blanco para el filtro */
+}
 /* Loader de carga (Spinner blanco) */
 .btnLoader {
   width: 14px;
@@ -343,6 +330,10 @@
   border-radius: 50%;
   display: inline-block;
   animation: rotation 1s linear infinite;
+}
+.disabledBtn {
+  background-color: #0048ac;
+  cursor: not-allowed;
 }
 
 @keyframes rotation {
@@ -356,3 +347,166 @@
 
 .textRight { text-align: right; }
 .textCenter { text-align: center; padding: 50px !important; color: var(--text-muted); }
+
+
+@media (max-width: 900px) {
+  .container {
+    padding: 20px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .stats {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .statCard {
+    flex: 1 1 0;
+    min-width: 100px;
+  }
+
+  .controls {
+    flex-wrap: wrap;
+  }
+
+  .searchWrapper {
+    flex: 1 1 100%;
+  }
+
+  .filterSelect,
+  .refreshBtn {
+    flex: 1 1 auto;
+  }
+}
+
+/* Móviles (pantallas pequeñas) */
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 12px;
+    border-radius: 12px;
+  }
+
+  .headerTitle h1 {
+    font-size: 24px;
+  }
+
+  .headerTitle p {
+    font-size: 13px;
+  }
+
+  .stats {
+    gap: 10px;
+  }
+
+  .statCard {
+    padding: 12px 10px;
+  }
+
+  .statValue {
+    font-size: 20px;
+  }
+
+  .statLabel {
+    font-size: 10px;
+  }
+
+  .controls {
+    gap: 10px;
+  }
+
+  .searchInput {
+    padding: 10px 10px 10px 40px;
+    font-size: 13px;
+  }
+
+  .searchIconInside {
+    left: 10px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .filterSelect {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .refreshBtn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .table th,
+  .table td {
+    padding: 12px 10px;
+    font-size: 13px;
+  }
+
+  .dateCell small,
+  .clientCell small,
+  .petCell small {
+    font-size: 11px;
+  }
+
+  .actionContainer {
+    gap: 6px;
+  }
+
+  .downloadBtn,
+  .viewBtn {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  .btnIcon {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Ajuste opcional para que las acciones no se desborden */
+  .tableWrapper {
+    margin: 0 -4px; /* compensa el padding reducido del contenedor */
+    padding: 0 4px;
+  }
+}
+
+/* Pantallas muy pequeñas (ej. < 480px) */
+@media (max-width: 480px) {
+  .header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+  }
+
+  .stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .statCard {
+    width: 100%;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filterSelect,
+  .refreshBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .actionContainer {
+    align-items: flex-start; /* para mejor lectura en móvil */
+  }
+
+  .table th {
+    white-space: nowrap; /* mantiene cabeceras legibles con scroll */
+  }
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import styles from './AlertModal.module.css';
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
 
 const FIELD_LABELS = {
   nombre: 'Nombre',
@@ -140,7 +141,6 @@ export default function AlertModal({
   confirmText = 'Ok',
   cancelText = 'Cancelar',
   hideActions = false,
-  // Render body content via children for flexibility
   children,
 }) {
   if (!open) return null;
@@ -150,7 +150,9 @@ export default function AlertModal({
   const content = (
     <div data-test="alert-modal" className={styles.modalOverlay} onClick={onClose || (() => {})}>
       <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
-        <h3 className={styles.modalTitle}>{title}</h3>
+        <h3 className={styles.modalTitle}>
+          <img src={getIcon('warning')} alt="alert" className={styles.warningIcon} />
+          {title}</h3>
         <div className={styles.modalBody}>
           {parsed.text && <p className={styles.modalText}>{parsed.text}</p>}
           {parsed.list.length > 0 && (

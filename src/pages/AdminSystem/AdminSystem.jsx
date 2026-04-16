@@ -3,12 +3,15 @@ import MenuHamburguesa from '../../components/MenuHamburguesa/MenuHamburguesa';
 import CreatedUser from './CreatedUser'; // Asegura que la ruta sea correcta
 import cuStyles from './CreatedUser.module.css'; // Estilos del botón de usuario
 import { useNavigate } from 'react-router-dom';
+import Notification from '../../components/Notification/Notification';
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
 
 function AdminSystem() {
   const navigate = useNavigate();
 
   return (
     <div className={styles['admin-root']}>
+      <Notification title="¡Bienvenido al Panel!" message="Panel de administración cargado correctamente." duration={3000} />
       {/* 1. Pasamos el título y los botones como "children" al menú */}
       <MenuHamburguesa menuTitle="Panel de Administración">
         
@@ -33,8 +36,15 @@ function AdminSystem() {
             Administrar productos
           </button>
         </div>
-
-        
+          <div className={styles.menuItem}>
+          <button
+            className={cuStyles.openBtn}
+            onClick={() => navigate('/facturas')}
+          >
+            <img src={getIcon('fileCheck')} alt="Ver Facturas" />
+            Ver Facturas
+          </button>
+        </div>
 
       </MenuHamburguesa>
 

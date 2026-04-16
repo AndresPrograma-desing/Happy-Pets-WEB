@@ -1,57 +1,52 @@
-/* --- Contenedor General --- */
-.page {
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-  text-align: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.notificationModal {
+    position: fixed;
+    top: 20px;
+    right: 20px; 
+    background-color: #ffffff;
+    border-left: 5px solid #28a745;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 10000;
+    animation: slideIn .10s ease-in-out, fadeOut 0.5s ease-in 2.5s forwards;
 }
 
-/* --- Card de "En Construcción" --- */
-.page::before {
-  content: "📅"; /* Icono de calendario */
-  font-size: 80px;
-  margin-bottom: 20px;
-  display: block;
-  animation: float 3s ease-in-out infinite;
+.notificationContent {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.page h1 {
-  color: #1e293b;
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin-bottom: 10px;
+.modalIcon {
+    width: 24px;
+    height: 24px;
 }
 
-.page p {
-  color: #64748b;
-  font-size: 1.1rem;
-  max-width: 500px;
-  line-height: 1.6;
-  background: white;
-  padding: 20px 30px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-}
-
-/* --- Animación para el icono --- */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
-}
-
-/* --- Responsive --- */
-@media (max-width: 600px) {
-  .page h1 {
-    font-size: 1.8rem;
-  }
-  .page p {
+.modalTitle {
+    margin: 0;
+    font-weight: bold;
+    color: #333;
     font-size: 1rem;
-    padding: 15px;
-  }
+}
+
+.modalMessage {
+    margin: 0;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
 }

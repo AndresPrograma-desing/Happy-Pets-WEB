@@ -3,6 +3,8 @@ import styles from '../../components/GeneralStyles/ButtonsMenu.module.css';
 import MenuHamburguesa from '../../components/MenuHamburguesa/MenuHamburguesa';
 import cuStyles from '../AdminSystem/CreatedUser.module.css'; // Para que los botones se vean iguales
 import { useNavigate } from 'react-router-dom';
+import Notification from '../../components/Notification/Notification';
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
 
 function DoctorSystem() {
   const navigate = useNavigate();
@@ -10,6 +12,8 @@ function DoctorSystem() {
   return (
     <div className={styles['admin-root']}>
       {/* Reutilizamos el Menú, pero con contenido para el Doctor */}
+      <Notification title="¡Bienvenido al Panel!" message="Panel del Doctor cargado correctamente." duration={3000} />
+
       <MenuHamburguesa menuTitle="Panel Médico">
         
         <div className={styles.menuItem}>
@@ -38,6 +42,16 @@ function DoctorSystem() {
           Generar Receta
           </button>
         </div>
+          <div className={styles.menuItem}>
+                  <button
+                    className={cuStyles.openBtn}
+                    onClick={() => navigate('/facturas')}
+                  >
+                    <img src={getIcon('fileCheck')} alt="Ver Facturas" />
+                    Ver Facturas
+                  </button>
+                </div>
+        
 
       </MenuHamburguesa>
 

@@ -6,6 +6,8 @@ import { login } from '../../services/api';
 import { applyServerErrorsToForm } from '../../utils/apiErrors';
 import styles  from "./LoginForm.module.css";
 import { playLoginSound } from '../../utils/songHelper';
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
+import LoginInfo from '../LoginInfo/LoginInfo';
 
 
 function LoginForm() {
@@ -20,14 +22,26 @@ function LoginForm() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [apiError, setApiError] = useState(null);
+    const [showHelpModal, setShowHelpModal] = useState(false);
 
     const [rol, setRol] = useState('admin'); // Valor por defecto para el rol en el formulario de login
 
     const roleOptions = [
-        { value: 'doctor', label: 'Doctor' },
-        { value: 'admin', label: 'Administrador' },
-        { value: 'secretaria', label: 'Secretaria' },
+        { value: 'doctor', label: 'Doctor', icon: getIcon('doctorRole') },
+        { value: 'admin', label: 'Administrador', icon: getIcon('adminRole') },
+        { value: 'secretaria', label: 'Secretaria', icon: getIcon('secretariaRole') },
     ];
+    // Custom Option for react-select to show icon and label
+    const RoleOption = (props) => (
+        <Components.Option {...props}>
+            <img
+                src={props.data.icon}
+                alt={props.data.label}
+                className={styles.roleIcon}
+            />
+            {props.data.label}
+        </Components.Option>
+    );
  
     const selectStyles = {
         control: (provided, state) => ({
@@ -130,15 +144,22 @@ function LoginForm() {
         <div className={styles.page}>
             <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
                 <div className={styles.header}>
-                    <h2 className={styles.headerTitle}>Accede a tu cuenta</h2>
+                    <h2 className={styles.headerTitle}>
+                        <span className={styles.iconBubble}>
+                            <img src={getIcon('user')} alt="Veterinaria" className={styles.headerIcon} />
+                        </span>
+                        Accede a tu cuenta</h2>
                 </div>
 
                 {apiError && <p className={styles.error}>{apiError}</p>}
 
                 <div>
-                    <label htmlFor="email">Correo</label>
+                    <label htmlFor="email">
+                        <img src={getIcon('mailOpen')} alt="Correo" className={styles.emailIcon} />
+                        Correo</label>
                     <input
                         id="email"
+                        placeholder="Ejemplo: correo@email.com"
                         {...register("email", {
                             required: "Se requiere correo",
                             pattern: {
@@ -147,15 +168,20 @@ function LoginForm() {
                             },
                         })}
                     />
-                    {errors.email && <p className={styles.error}>{errors.email.message}</p>}
+                    {errors.email && <p className={styles.error}>
+                        <img src={getIcon('warning')} alt="Error" className={styles.warningIcon} />
+                        {errors.email.message}</p>}
                 </div>
 
                 <div>
-                    <label htmlFor="password">Contraseña</label>
+                    <label htmlFor="password">
+                        <img src={getIcon('userKey')} alt="Contraseña" className={styles.userKeyIcon} />
+                        Contraseña</label>
                     <div className={styles.passwordWrapper}>
                         <input
                             id="password"
                             type={showPassword ? 'text' : 'password'}
+                            placeholder="Ingresa tu contraseña (>8)"
                             {...register("password", {
                                 required: "Se requiere contraseña",
                                 minLength: {
@@ -172,17 +198,13 @@ function LoginForm() {
                             onClick={() => setShowPassword(s => !s)}
                         >
                             {showPassword ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                    <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
-                                    <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
-                                    <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
-                                    <path d="m2 2 20 20" />
-                                </svg>
+                                <div className={styles.eyeOffIconWrapper}>
+                                    <img src={getIcon('eyeOff')} alt="Ocultar contraseña" className={styles.eyeOffIcon} />
+                                </div>
                             ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-                                    <circle cx="12" cy="12" r="3" />
-                                </svg>
+                                <div className={styles.eyeIconWrapper}>
+                                    <img src={getIcon('eye')} alt="Mostrar contraseña" className={styles.eyeIcon} />
+                                </div>
                             )}
                         </button>
                     </div>
@@ -190,7 +212,9 @@ function LoginForm() {
                 </div>
 
                 <div className={styles.roleWrapper}>
-                    <label htmlFor="role" className={styles.roleLabel}>Rol</label>
+                    <label htmlFor="role" className={styles.roleLabel}>
+                        <img src={getIcon('userRole')} alt="Rol" className={styles.userRole} />
+                        Rol</label>
                     <Select
                         inputId="role"
                         instanceId="role-select"
@@ -201,14 +225,64 @@ function LoginForm() {
                         styles={selectStyles}
                         menuPlacement="auto"
                         aria-label="Selecciona rol"
-                        components={{ DropdownIndicator }}
+                        components={{ DropdownIndicator, Option: RoleOption }}
                     />
                 </div>
 
                 <div className={styles.actions}>
-                    <button type="submit" className={styles.primary} disabled={loading}>{loading ? 'Ingresando...' : 'Ingresar'}</button>
+                    <button type="submit" className={styles.primary} disabled={loading}>{loading ? (
+                        <span className={styles.btnLoader}>
+                        <img src={getIcon('loader')} alt="Cargando" className={styles.loaderIcon}  />
+                        Ingresando...
+                        </span>
+                    ) : (
+                        <span className={styles.btnContent}>
+                        <img src={getIcon('enter')} alt="Ingresar" className={styles.enterIcon}  />
+                        Ingresar
+                        </span>
+                    )}
+
+                    </button>
+                </div>
+                <div className={styles.helpButtonRow}>
+                    <button
+                        type="button"
+                        className={styles.helpButton}
+                        onClick={() => setShowHelpModal(true)}
+                        aria-label="Ayuda"
+                    >
+                        <img src={getIcon('help')} alt="Ayuda" className={styles.helpIcon} />
+                        Ayuda
+                    </button>
                 </div>
             </form>
+
+            {showHelpModal && (
+                <div className={styles.modalOverlay} role="presentation" onClick={() => setShowHelpModal(false)}>
+                    <div
+                        className={styles.modal}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="login-help-title"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            className={styles.modalClose}
+                            aria-label="Cerrar ayuda"
+                            onClick={() => setShowHelpModal(false)}
+                            
+                        > 
+                        
+
+                            <span className={styles.closeIconWrapper}>
+                                <img src={getIcon('x')} alt="Cerrar" className={styles.closeIcon} />
+                            </span>
+                        </button>
+                        <LoginInfo className={styles.helpContent} />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
