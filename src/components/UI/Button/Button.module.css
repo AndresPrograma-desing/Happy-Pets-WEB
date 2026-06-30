@@ -1,0 +1,60 @@
+.onlyIconBtn {
+  padding: 0 !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 6px !important;
+  background: royalblue;
+  color: white;
+  transition: background 0.2s ease, transform 0.1s ease !important;
+  overflow: hidden;
+}
+
+.onlyIconBtn .iconElement,
+.onlyIconBtn svg {
+  width: 16px !important;
+  height: 16px !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.onlyIconBtn:hover {
+  background: #2b52d4;
+}
+
+.onlyIconBtn:hover .svgWrapper {
+  animation: none !important;
+}
+
+.onlyIconBtn:hover svg,
+.onlyIconBtn:hover .iconElement {
+  transform: none !important;
+}
+
+.onlyIconBtn:active {
+  transform: scale(0.95) !important;
+}
+
+.btnSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: btnRotation 0.6s linear infinite;
+}
+
+@keyframes btnRotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

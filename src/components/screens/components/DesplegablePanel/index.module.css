@@ -1,0 +1,120 @@
+/* Container for the whole panel (expandable variant) */
+.panelContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-gray-low)
+}
+
+.panelContainer:last-child .settingRow {
+  border-bottom: none;
+}
+
+.settingRow:hover {
+  background-color: #adabab7b;
+}
+
+.settingInfo {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.textContainer h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.textContainer p {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.reportExpandableContent {
+  padding: 2rem 1.5rem;
+  background-color: #fafafa;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.iconWrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Icon Colors */
+.blue { background-color: #eff6ff; color: #2563eb; }
+.green { background-color: #f0fdf4; color: #16a34a; }
+.purple { background-color: #faf5ff; color: #9333ea; }
+.red { background-color: #fef2f2; color: #dc2626; }
+.green2 { background-color: #ecfdf5; color: #008a1c; }
+
+.arrow {
+  color: #9ca3af;
+  transition: all 0.2s ease;
+}
+
+.settingRow:hover .arrow {
+  transform: translateX(4px);
+  color: #6b7280;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .settingRow {
+    padding: 1rem;
+  }
+
+  .settingInfo {
+    gap: 1rem;
+  }
+
+  .textContainer h3 {
+    font-size: 0.95rem;
+  }
+
+  .textContainer p {
+    font-size: 0.8rem;
+  }
+
+  .iconWrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .reportExpandableContent {
+    padding: 1.25rem 1rem;
+  }
+}

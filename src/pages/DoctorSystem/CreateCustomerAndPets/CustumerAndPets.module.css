@@ -1,7 +1,6 @@
 .container {
-    /* Aumentamos el ancho máximo para que sea más largo horizontalmente */
     max-width: 1200px; 
-    margin: 0.5rem auto; /* Margen vertical mínimo */
+    margin: 0.5rem auto; 
     padding: 0.75rem 1.5rem;
     background: #fff;
     border-radius: 12px;
@@ -23,35 +22,104 @@
     align-items: end; 
 }
 
+.error {
+    grid-column: 1 / -1;
+    color: #b91c1c;
+    background: #fef2f2;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
 .sectionTitle {
     grid-column: 1 / -1; 
-    margin: 0.2rem 0;
+    margin: 0.4rem 0 0.1rem 0;
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.025em;
-    color: var(--letter);
+    color: #64748b;
+    font-weight: 700;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.25rem;
 }
 
-/* Forzamos a que las filas internas también sean compactas */
 .row {
-    display: contents; /* Hace que los hijos del .row se comporten como hijos directos del grid .form */
+    display: contents; 
 }
 
-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.5rem 0.75rem; /* Padding más bajo para reducir altura vertical */
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
-    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.inputWrapper:focus-within {
+    border-color: #3b82f6;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.inputIcon {
+    position: absolute;
+    left: 0.6rem;
+    color: #94a3b8;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.inputWrapper:focus-within .inputIcon {
+    color: #3b82f6;
+}
+
+.inputWrapper input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.45rem 0.6rem 0.45rem 2rem; 
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.85rem;
+    color: #1e293b;
+    font-family: inherit;
+}
+
+.inputWrapper input::placeholder {
+    color: #cbd5e1;
 }
 
 .checkRow {
+    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.9rem;
-    padding-bottom: 0.5rem; 
+    font-size: 0.85rem;
+    padding-top: 0.25rem;
+    font-weight: 500;
+    color: #1e293b;
+    cursor: pointer;
+}
+
+.checkRow input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+    accent-color: #0ea5e9;
 }
 
 .actions {
@@ -69,6 +137,8 @@ input {
     font-size: 0.85rem;
     border-radius: 6px;
     cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
 }
 
 .primary {
@@ -78,30 +148,109 @@ input {
     font-weight: 600;
 }
 
+.primary:hover:not(:disabled) {
+    opacity: 0.95;
+}
+
+.primary:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+}
+
 .secondary {
     background: white;
     border: 1px solid #e2e8f0;
     color: #475569;
 }
 
-.error {
-    grid-column: 1 / -1;
-    color: #b91c1c;
-    background: #fef2f2;
-    padding: 0.4rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
+.secondary:hover {
+    background: #f8fafc;
+    color: #1e293b;
 }
 
-/* Responsividad: si la pantalla es muy pequeña, vuelve a columnas */
 @media (max-width: 900px) {
-  .formRow {
-    grid-template-columns: 1fr;
-  }
+    .form {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-@media (max-width: 500px) {
-  .formRow {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 600px) {
+    .form {
+        grid-template-columns: 1fr;
+        gap: 0.6rem;
+    }
+    
+    .actions {
+        flex-direction: column-reverse;
+    }
+    
+    .primary, .secondary {
+        width: 100%;
+        text-align: center;
+    }
+}
+/* Backdrop oscuro que cubre toda la pantalla */
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.4); /* Fondo gris azulado oscuro translúcido */
+  backdrop-filter: blur(4px); /* Difumina ligeramente los elementos de atrás */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000; /* Asegura quedar por encima de inputs y menús */
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Tarjeta del modal */
+.modalCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 90%;
+  max-width: 450px;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+/* Botón elegante estilo minimalista oscuro */
+.closeModalBtn {
+  background-color: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 0.55rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.closeModalBtn:hover {
+  background-color: #1e293b;
+}
+
+.reqStar {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

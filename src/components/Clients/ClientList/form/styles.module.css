@@ -1,0 +1,65 @@
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 4px 0;
+}
+
+.errorMessage {
+  color: #ef4444;
+  background: #fee2e2;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.gridTwoColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #4b5563;
+}
+
+.inputField {
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.inputField:focus {
+  border: var(--inputs-px) solid var(--inputs-bordes);
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.checkboxInput {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.checkboxLabel {
+  font-size: 13px;
+  font-weight: bold;
+  color: #4b5563;
+  cursor: pointer;
+}

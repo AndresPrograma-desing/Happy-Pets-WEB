@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './ProductFilters.css';
-import { getIcon } from '../../../assets/icons/ExportIcon/Index';
+import { Search, Filter, Trash2 } from 'lucide-react';
 
 export default function ProductFilters({
     searchTerm, setSearchTerm,
@@ -16,21 +16,24 @@ export default function ProductFilters({
             <div className="filterBar">
                 <div style={{ display: 'flex', gap: 8 }}>
                     <button type="button" className="newChatBtn" onClick={() => setOpen(true)}>
-                        <img src={getIcon('filter')} alt="" className="filterIcon" aria-hidden="true" />
-                        Filtros</button>
+                        <Filter className="filterIcon" aria-hidden="true" />
+                        Filtrar</button>
                     <button type="button" className="clearBtn" onClick={onClear} aria-label="Limpiar filtros">
-                        <img src={getIcon('trash')} alt="" className="trashIcon" aria-hidden="true" />
+                        <Trash2 className="trashIcon" aria-hidden="true" />
                         <span>Limpiar</span>
                     </button>
                 </div>
-                <div style={{ marginLeft: 'auto', color: '#64748b', fontSize: '.9rem' }}>Buscar: {searchTerm || '—'}</div>
+                <div style={{ marginLeft: 'auto', color: '#64748b', fontSize: '.9rem', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Search className="searchIcon" aria-hidden="true" />
+                    <span>Buscar: {searchTerm || '—'}</span>
+                </div>
             </div>
 
             {open && (
                 <div className="overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
                     <div className="modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.stopPropagation()}>
-                        <h3 style={{ marginTop: 0 }}>Opciones de filtro</h3>
-
+                        <h3 style={{ marginTop: 0 }}>Opciones de filtros <Filter className="filterIcon" aria-hidden="true" /></h3>
+                        
                         <label className="filterLabel">Nombre</label>
                         <input className="filterInput" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
 

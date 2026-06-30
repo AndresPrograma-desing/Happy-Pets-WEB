@@ -16,7 +16,7 @@
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(125, 152, 216, 0.6); /* Azul pizarra muy oscuro con transparencia */
+    background: rgba(0, 0, 0, 0.6); /* Azul pizarra muy oscuro con transparencia */
     backdrop-filter: blur(4px); /* Efecto de desenfoque moderno */
     display: flex;
     align-items: center;
@@ -29,9 +29,9 @@
 }
 
 .modal {
-    background: #303a4d;
+    background: var(--bg-facturas);
     border-radius: 12px; /* Bordes más suaves */
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 20px 25px -5px rgba(255, 255, 255, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     max-width: 520px;
     width: 100%;
     padding: 24px;
@@ -94,9 +94,9 @@
     max-width: 220px;
 }
 
-/* Botones con estilo moderno */
+
 .primary, .newChatBtn {
-    background: #0869b4;
+    background: var(--accent-green);
     color: white;
     border: none;
     padding: 10px 18px;

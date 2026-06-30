@@ -1,3 +1,8 @@
+/* --- ESTILOS EXISTENTES --- */
+
+.inventoryTable tbody tr:hover td {
+    color: rgb(255, 255, 255);
+}
 
 @keyframes fadeInUp {
     from {
@@ -10,7 +15,6 @@
     }
 }
 
-
 @keyframes modalAppear {
     from {
         opacity: 0;
@@ -22,25 +26,24 @@
     }
 }
 
-
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-
 .tableWrapper {
-    background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     overflow: hidden;
     margin-bottom: 80px;
     animation: fadeInUp 0.6s ease-out forwards;
+    /* Asegura que el contenedor permita scroll si la tabla es muy ancha */
+    overflow-x: auto;
 }
 
 .inventoryTable {
     width: 100%;
     border-collapse: collapse;
+    min-width: 600px; /* Evita que las columnas se colapsen demasiado en móvil */
 }
 
 .inventoryTable thead th {
@@ -57,31 +60,48 @@
     font-size: 0.95rem;
     border-bottom: 1px solid #f1f5f9;
     transition: background-color 0.2s ease;
+    color: var(--letter-white);
 }
 
 .inventoryTable tbody tr:nth-child(even) {
-    background-color: #1bc0de4a;
+    background-color:var(--bg-facturas);
+    color: black;
 }
-
 
 .inventoryTable tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: var(--bg-hover);
+    color:black;
 }
 
-
 .lowStockRow {
-    background-color: #fee2e2 !important;
+    background-color: #fef2f2 !important;
 }
 
 .lowStockRow:hover {
-    background-color: #fecaca !important;
+    background-color: #fee2e2 !important;
 }
 
-.lowStockRow .stockCell {
-    color: #dc2626;
-    font-weight: 800;
+.lowStockRow td {
+    color: #991b1b !important;
+    font-weight: 500;
 }
 
+.stockCell {
+    vertical-align: middle;
+}
+
+.lowStockWarning {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+}
+
+.icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    animation: rotate 10s linear infinite;
+}
 
 .overlay {
     position: fixed;
@@ -149,7 +169,7 @@
 
 .secondary, .clearBtn {
     background: transparent;
-    color: #334155;
+    color: #ffffff;
     border: 1px solid #cbd5e1;
     padding: 8px 12px;
     border-radius: 6px;
@@ -159,6 +179,7 @@
     background: #f1f5f9;
     border-color: #94a3b8;
 }
+
 .footer {
     display: flex;
     justify-content: center; 
@@ -190,7 +211,7 @@
 }
 
 .separator {
-    width: 1px;
+    width: 10px;
     height: 20px;
     background-color: #e0e0e0;
 }
@@ -212,5 +233,57 @@
     gap: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
     z-index: 9999; 
-    
+}
+
+.actionCell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.stockStatus {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.warningIcon {
+    width: 16px;
+    height: 16px;
+}
+
+/* --- NUEVOS ESTILOS RESPONSIVES --- */
+
+@media (max-width: 768px) {
+    .footer {
+        flex-direction: column; /* Apila sincronización actual y próxima */
+        gap: 10px;
+        border-radius: 20px;
+        width: 90%;
+        padding: 15px;
+    }
+
+    .modal {
+        width: 95%;
+        padding: 15px;
+        margin: 10px;
+    }
+
+    .inventoryTable thead th, 
+    .inventoryTable tbody tr td {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .tableWrapper {
+        margin-bottom: 40px;
+        border-radius: 8px;
+    }
+
+    .floatingRefresh {
+        width: 90%;
+        top: 10px;
+        font-size: 0.75rem;
+    }
 }

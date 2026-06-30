@@ -1,0 +1,110 @@
+.container {
+  padding: 20px;
+  overflow-x: auto;
+  background-color: var(--bg-facturas);
+  min-height: 100vh;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  box-sizing: border-box;
+}
+
+.title {
+  margin-bottom: 20px;
+  font-family: sans-serif;
+  color:var(--letter-white);
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  background-color: rgb(27, 184, 10);
+  padding: 1px;
+  border-radius: 10px;
+}
+.userTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.userTable th, 
+.userTable td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.userTable th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #555;
+}
+
+.disabledRow {
+  background-color: #fdfdfd;
+  color: #999;
+}
+
+.roleBadge {
+  background-color: #ebf5ff;
+  color: #007bff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.active {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.inactive {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actionBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  transition: transform 0.1s ease;
+}
+
+.actionBtn:hover {
+  transform: scale(1.1);
+}
+
+.icon {
+  color: #666;
+}
+.addUserBtn{
+  background-color: var(--accent-blue);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+}
+  

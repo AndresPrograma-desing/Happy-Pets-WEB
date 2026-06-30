@@ -44,6 +44,11 @@ import cardCreditIcon from '../credit-card.svg';
 import squareCheckIcon from '../square-check.svg';
 import squareIcon from '../square.svg';
 import ScanQrIcon from '../scan-qr-code.svg';
+import clockIcon from '../clock.svg';
+import boxIcon from '../box.svg';
+import starIcon from '../star.svg';
+import dashboardicon from '../graficos.svg';
+
 
 const icons = {
   user: userIcon,
@@ -92,7 +97,10 @@ const icons = {
   squareCheck: squareCheckIcon,
   square: squareIcon,
   ScanQr: ScanQrIcon,
-
+  clock: clockIcon,
+  box: boxIcon,
+  star: starIcon,
+  dashboard: dashboardicon,
 };
 
 export const getIcon = (name) => icons[name] || null;
@@ -144,5 +152,9 @@ export const cardCredit = cardCreditIcon;
 export const squareCheck = squareCheckIcon;
 export const square = squareIcon;
 export const ScanQr = ScanQrIcon;
+export const clock = clockIcon;
+export const box = boxIcon;
+export const star = starIcon;
+export const dashboard = dashboardicon;
 
 export default icons;

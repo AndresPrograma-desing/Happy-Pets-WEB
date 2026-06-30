@@ -1,151 +1,84 @@
-.home {
+
+.homeContainer {
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
+  background-color: #ffffff;
   overflow: hidden;
-  font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Roboto', Arial, sans-serif;
+  display: flex;
 }
 
-/* Slides del carrusel */
-.slide {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+.leftSection {
+  width: 50vw;
   height: 100%;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out;
-  z-index: 0;
-}
-
-.slide.active {
-  opacity: 1;
-}
-
-/* Overlay oscuro para mejorar contraste */
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%);
-  z-index: 1;
-}
-
-/* Contenido central */
-.content {
-  position: relative;
-  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  height: 100%;
-  color: white;
-  padding: 0 20px;
-  animation: fadeInUp 1s ease-out;
+  padding-bottom: 8vh;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .title {
-  font-size: 3.5rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
+  font-size: 3rem;
+  color: #000000;
+  font-weight: 400;
+  margin: 15px 0  0;
   letter-spacing: -0.5px;
 }
 
-.highlight {
-  background: linear-gradient(135deg, #9aff9d, #fecfef);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.subtitleWrapper {
+  display: inline-block;
+  text-align: center;
 }
 
 .subtitle {
-  font-size: 1.25rem;
-  max-width: 700px;
-  margin-bottom: 2rem;
-  line-height: 1.5;
-  opacity: 0.9;
+  font-size: 1.2rem;
+  color: #000000;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #2563eb;
+  display: inline-block;
 }
 
-.loginButton {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 14px 40px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(59,130,246,0.4);
-}
-
-.loginButton:hover {
-  background: #2563eb;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59,130,246,0.5);
-}
-
-/* Indicadores de slide */
-.indicators {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+.formWrapper {
+  width: 100%;
   display: flex;
-  gap: 12px;
+  justify-content: center;
+}
+
+.rightSection {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 62vw;
+  height: 100%;
   z-index: 2;
+  clip-path: polygon(25% 0, 100% 0, 100% 100%, 0% 100%);
+  overflow: hidden;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.5);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
 
-.activeDot {
-  background: white;
-  width: 30px;
-  border-radius: 5px;
-}
 
-.dot:hover {
-  background: rgba(255,255,255,0.8);
-}
-
-/* Animación de entrada */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive */
 @media (max-width: 768px) {
-  .title {
-    font-size: 2.2rem;
+  .leftSection {
+    width: 100vw;
+    z-index: 3;
+    background-color: rgba(255, 255, 255, 0.95);
   }
-
-  .subtitle {
-    font-size: 1rem;
-    padding: 0 15px;
-  }
-
-  .loginButton {
-    padding: 12px 32px;
-    font-size: 1rem;
+  .rightSection {
+    width: 100vw;
+    clip-path: none;
+    z-index: 1;
   }
 }

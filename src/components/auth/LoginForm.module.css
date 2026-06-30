@@ -1,399 +1,136 @@
-.roleIcon {
-    width: 18px;
-    height: 18px;
-    margin-right: 8px;
-    vertical-align: middle;
-    display: inline-block;
-  color: #000;
-}
-/* Main container with fingerprint bottom */
-.page {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center; /* Centra el form verticalmente */
-    padding: 1rem;
-    backdrop-filter: blur(5px);
-    width: 100%;
-}
-
-/* Formulario Negro Compacto */
-.form {
-    width: 100%;
-    max-width: 380px;
-    margin: 0;
-    padding: 1.5rem; /* Reducido para ahorrar espacio */
-    background-color: #000000;
-    border-radius: 5px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-    
-    /* Animación de apertura */
-    transform-origin: top center;
-    will-change: transform, opacity;
-    animation: parchmentOpen 1200ms cubic-bezier(.2,.9,.2,1) forwards;
-}
-
-/* Encabezado */
-.header {
-    text-align: center;
-    margin-bottom: 0.75rem; /* Espacio reducido */
-}
-
-.headerTitle {
-    margin: 0;
-    font-size: 1.6rem; /* Título más pequeño para ganar altura */
-    color: #ffffff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.headerInfo {
-    margin: 0.2rem 0 0;
-    color: #dadcde;
-    font-size: 0.85rem;
-}
-
-/* Etiquetas y Campos */
-.form label {
-    display: block;
-    margin-bottom: 0.2rem; /* Pegado al input */
-    color: #ffffff;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.form input {
-    width: 100%;
-    padding: 0.55rem 0.75rem; /* Inputs más delgados */
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    margin-bottom: 0.6rem; /* Menos separación entre bloques */
-    font-size: 0.95rem;
-    background: rgba(255, 255, 255, 0.05);
-    color: #ffffff;
-    transition: all 0.2s ease;
-}
-
-.form input:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(21, 182, 3, 0.2);
-    border-color: #15b603;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-/* Selector de Rol */
-.roleWrapper {
-    margin-bottom: 0.8rem;
-    position: relative;
-}
-
-.emailIcon {
-    width: 18px;
-    height: 18px;
-    display: inline-block;
-    margin-right: 8px;
-    vertical-align: middle;
-    filter: invert(1) brightness(1.2);
-}
-
-/* Icon used in the header next to the title */
-.headerIcon {
-    width: 22px;
-    height: 22px;
-    display: inline-block;
-    vertical-align: middle;
-    filter: invert(1) brightness(1.2);
-}
-
-/* Circular background bubble for icons (used for the User icon in header) */
-.iconBubble {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    /* spacing handled by headerTitle gap */
-    border-radius: 50%;
-    background: linear-gradient(135deg, #15b603, #0fa25a);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-}
-.userKeyIcon {
-    width: 18px;
-    height: 18px;
-    display: inline-block;
-    margin-right: 8px;
-    vertical-align: middle;
-    filter: invert(1) brightness(1.2);
-}
-.userRole{
-    width: 18px;
-    height: 18px;
-    display: inline-block;
-    margin-right: 8px;
-    vertical-align: middle;
-    filter: invert(1) brightness(1.2);
-}
-.loaderIcon {
-    width: 18px;
-    height: 18px;
-    display: inline-block;
-    margin-right: 8px;
-    vertical-align: middle;
-    filter: invert(1) brightness(1.2);
-}
-.enterIcon {
-    width: 18px;
-    height: 18px;
-    display: inline-block;
-    margin-right: 8px;
-    vertical-align: middle;
-    filter: invert(1) brightness(1.2);
-}
-.eyeOffIconWrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    color: #ffffff;
-}
-.closeIcon {
-    width: 18px;
-    height: 18px;
-    display: block;
-    object-fit: contain;
-    filter: invert(1) brightness(1.2);
-}
-.eyeIconWrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-}
-
-/* Ensure the image icons render white regardless of source color */
-.eyeIcon,
-.eyeOffIcon {
-    width: 18px;
-    height: 18px;
-    display: block;
-    object-fit: contain;
-    filter: invert(1) brightness(1.2);
-}
-.roleSelect {
-    width: 100%;
-    padding: 0.55rem 0.75rem;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
-    color: #ffffff;
-    font-size: 0.95rem;
-    appearance: none;
-    cursor: pointer;
-}
-
-select option {
-    background-color: #1a1a1a;
-    color: #ffffff;
-}
-:placeholder-shown {
-    color: #ffffff;
-}
-
-
-/* Password Toggle */
-.passwordWrapper {
-    position: relative;
-    color: #ffffff;
-}
-
-.passwordWrapper input {
-    padding-right: 3rem;
-}
-
-.toggleButton {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-80%); /* Ajustado para estar centrado en el input */
-    background: transparent;
-    border: none;
-    color: #cbd5e1;
-    cursor: pointer;
-    padding: 5px;
-    font-size: 0.8rem;
-}
-
-/* Botones de Acción */
-.actions {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-}
-
-.helpButtonRow {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0.1rem;
-}
-
-.helpButton {
-    background: none;
-    border: none;
-    color: #15b603;
-    font-size: 0.92rem;
-    padding: 0.15rem 0.5rem;
-    cursor: pointer;
-    text-decoration: underline;
-    font-weight: 500;
-    transition: color 0.18s;
+.formCard {
+    background-color: #ffffff;
+    width: 320px;
+    padding: 1.5rem 2.5rem 2.5rem 2.5rem;
     border-radius: 4px;
-    outline: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
-}
-.helpIcon {
-    width: 1.1em;
-    height: 1.1em;
-    margin-right: 0.2em;
-    display: inline-block;
-    vertical-align: middle;
-    filter: invert(48%) sepia(98%) saturate(749%) hue-rotate(77deg) brightness(1.1);
-}
-.helpButton:hover, .helpButton:focus {
-    color: #1ad404;
-    background: rgba(21,182,3,0.07);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Roboto', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
 }
 
-.modalOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
+.formTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #000000;
+    text-align: center;
+    margin: 0 0 1.25rem 0;
+}
+
+.errorMessage {
+    color: #ff0000;
+    font-size: 0.85rem;
+    text-align: center;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+    min-height: 1rem;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #000000;
+}
+
+.input {
+    width: 100%;
+    padding: 0.5rem 0.5rem;
+    background-color: #ffffff;
+    border: 1.5px solid #000000;
+    border-radius: 2px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #000000;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: box-shadow 0.2s;
+}
+
+.input::placeholder {
+    color: #000000;
+    font-weight: 500;
+    opacity: 1;
+}
+
+.input:focus {
+    box-shadow: 0 0 0 1px #000000;
+}
+
+.customSelectWrapper [class*="selectHeader"] {
+    background-color: #ffffff !important;
+    border: 1.5px solid #000000 !important;
+    padding: 0.5rem 0.5rem !important;
+    border-radius: 2px !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    height: auto !important;
+}
+
+.customSelectWrapper [class*="optionsList"] {
+    border-radius: 2px !important;
+    border: 1.5px solid #000000 !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+}
+
+.customSelectWrapper [class*="arrow"] {
+    font-size: 10px !important;
+    color: #000000 !important;
+}
+
+.roleOption {
     display: flex;
     align-items: center;
+    gap: 8px;
+}
+
+.roleIcon {
+    width: 14px;
+    height: 14px;
+    filter: brightness(0); /* Black icons to match design */
+}
+
+.actionGroup {
+    display: flex;
     justify-content: center;
-    z-index: 1200;
-    padding: 1rem;
+    margin-top: 1rem;
 }
 
-.modal {
-    position: relative;
-    width: min(680px, 95vw);
-    max-height: 90vh;
-    overflow-y: auto;
-    background: #101010;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45);
-    padding: 1.25rem;
-}
-
-.modalClose {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    color: #ffffff;
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-}
-
-.modalClose:hover {
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.helpContent h2 {
-    color: #ffffff;
-    margin: 0 0 0.75rem;
-    font-size: 1.3rem;
-}
-
-.helpContent p {
-    color: #e7e7e7;
-    margin: 0 0 0.65rem;
-    line-height: 1.45;
-}
-
-.helpContent a {
-    color: #15b603;
-    font-weight: 600;
-}
-
-.helpContent a:hover {
-    color: #1ad404;
-}
-
-.primary, .secondary {
-    flex: 1; /* Distribuye espacio igual */
-    background-color: #15b603;
+.submitButton {
+    background-color: var(--btn-login);
     color: #ffffff;
     border: none;
-    padding: 0.65rem; /* Botones más compactos */
-    border-radius: 8px;
+    padding: 0.55rem 2rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 2px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
-.primary:hover {
-    background-color: #129402;
+.submitButton:hover {
+    background-color: var(--btn-login-hover);
 }
 
-.secondary:hover {
-    background-color: #ff3b3b;
-    color: #ffffff;
+.submitButton:active {
+    transform: scale(0.98);
 }
 
-/* Errores */
-.error {
-    color: #FF2800;
-    font-size: 0.8rem;
-    margin-top: -0.4rem;
-    margin-bottom: 0.4rem;
-    background-color: rgba(255, 255, 255, 0.279);
-    padding: 0.3rem;
-    border-radius: 20px;
-    text-align: center;
-    animation: errorShake 0.5s ease-in-out;
-}
-
-@keyframes errorShake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
-}
-@keyframes parchmentOpen {
-    0% {
-        transform: scaleY(0.02) rotateX(12deg);
-        opacity: 0;
-    }
-    60% {
-        transform: scaleY(1.04) rotateX(0deg);
-        opacity: 1;
-    }
-    100% {
-        transform: scaleY(1) rotateX(0deg);
-        opacity: 1;
-    }
-}
-
-/* Accesibilidad */
-@media (prefers-reduced-motion: reduce) {
-    .form {
-        transform: none !important;
-        opacity: 1 !important;
-        animation: none !important;
-    }
+.submitButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }

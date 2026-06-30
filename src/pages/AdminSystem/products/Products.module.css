@@ -1,7 +1,6 @@
 .filterBar {
     padding: 20px;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #fcfcfc;
     min-height: 100vh;
 }
 
@@ -13,17 +12,17 @@
     margin-bottom: 25px;
     position: sticky;
     top: 0;
-    background-color: var(--color-card-bg);
+    background-color: var(--bg-facturas);
     padding: 15px;
     z-index: 100;
     border-bottom: 2px solid #eef2f7;
-    border-radius: 0 0 12px 12px;
     box-shadow: var(--shadow);
+    flex-wrap: wrap;
 }
 
 .mainTitle {
-    background-color: #b4c7e7;
-    color: #1e293b;
+    background-color: var(--color-white);
+    color: var(--letter-black);
     text-align: left;
     padding: 12px 20px;
     margin: 0;
@@ -33,11 +32,12 @@
     border: 1px solid #8ea9db;
     border-radius: 8px;
     flex: 1;
+    min-width: 200px;
 }
 
 .lastUpdatedHeader {
     font-size: 0.85rem;
-    color: #475569;
+    color: #000000;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     padding: 8px 12px;
@@ -48,7 +48,18 @@
 .backBtn {
     padding: 10px 20px;
     cursor: pointer;
-    background-color: #1e293b;
+    background-color: var(--accent-green);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.adminBtn {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: var(--accent-blue);
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -57,6 +68,55 @@
 }
 
 .backBtn:hover {
-    background-color: #334155;
     transform: translateY(-1px);
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+    .headerRow {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .mainTitle {
+        font-size: 1rem;
+        padding: 10px 15px;
+        order: 1; 
+        flex: 1 1 100%; 
+    }
+
+    .lastUpdatedHeader {
+        order: 3; 
+        font-size: 0.75rem;
+        flex: 1 1 auto;
+        text-align: center;
+    }
+
+    .backBtn, .adminBtn {
+        order: 2;
+        flex: 1;
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .filterBar {
+        padding: 10px;  
+    }
+
+    .headerRow {
+        position: relative;     
+    }
+
+    .backBtn, .adminBtn {
+        width: 100%; 
+    }
 }

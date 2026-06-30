@@ -2,7 +2,7 @@ import React from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import styles from './ShowQR.module.css';
 
-const ShowQR = ({ url, facturaId, NameClient, onClose }) => {
+const ShowQR = ({ url, facturaId, NameClient,NameMascota, onClose }) => {
   if (!url) return null;
   return (
     <div className={styles.showqrOverlay}>
@@ -12,6 +12,7 @@ const ShowQR = ({ url, facturaId, NameClient, onClose }) => {
         <QRCodeCanvas value={url} size={200} level="H" includeMargin={true} />
         <p className={styles.showqrFacturaId}>ID Factura: <b>{facturaId}</b></p>
         <p className={styles.showqrNameClient}>Nombre del Cliente: <b>{NameClient}</b></p>
+        <p className={styles.showqrNameMascota}>Nombre de la Mascota: <b>{NameMascota}</b></p>
         <a href={url} target="_blank" rel="noopener noreferrer" className={styles.showqrDownloadLink}>Descargar PDF</a>
       </div>
     </div>

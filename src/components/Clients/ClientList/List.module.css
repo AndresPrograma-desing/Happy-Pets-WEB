@@ -1,0 +1,306 @@
+.actionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.searchCenterer {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+  max-width: 400px;
+}
+
+.refreshBtn {
+  background: var(--primary-color, #4299e1);
+  border: none;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refreshBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.avatarArea {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #40c602;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.clientName {
+  margin: 0 0 3px 0;
+  font-size: 1.05rem;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.idBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: #718096;
+  background-color: #f7fafc;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #edf2f7;
+}
+
+.contactCell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.petCounterBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #e6fffa;
+  color: #157604;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #4a5568;
+}
+
+.metaItem svg {
+  color: #a0aec0;
+}
+
+.truncatedText {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expandedContent {
+  width: 100%;
+}
+
+.extendedDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.fullDetailItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #4a5568;
+}
+
+.fullDetailItem svg {
+  color: #a0aec0;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.petsHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #718096;
+  font-weight: 700;
+}
+
+.addPetBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #32c00b;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  transition: opacity 0.2s;
+}
+
+.addPetBtn:hover {
+  opacity: 0.9;
+}
+
+.petsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .petsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.petCardRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border: 1px solid #edf2f7;
+  border-radius: 8px;
+  padding: 10px 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.petMainInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 150px;
+}
+
+.petIconWrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: #f7fafc;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.petIconWrapper[data-especie="perro"] {
+  background-color: #fffaf0;
+  color: #dd6b20;
+}
+
+.petIconWrapper[data-especie="gato"] {
+  background-color: #faf5ff;
+  color: #805ad5;
+}
+
+.petName {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.petBreed {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #718096;
+  text-transform: capitalize;
+}
+
+.petChips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  font-size: 0.72rem;
+  background-color: #f7fafc;
+  color: #4a5568;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #edf2f7;
+  text-transform: capitalize;
+}
+
+.successChip {
+  background-color: #f0fff4;
+  color: #38a169;
+  border-color: #c6f6d5;
+}
+
+.petActivity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.activityIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: #718096;
+}
+
+.activityIndicator svg {
+  color: #a0aec0;
+}
+
+.noPetsText {
+  font-size: 0.85rem;
+  color: #a0aec0;
+  font-style: italic;
+  margin: 4px 0 0 0;
+}
+
+@media (max-width: 600px) {
+  .actionHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .petCardRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .petActivity {
+    flex-direction: row;
+    gap: 12px;
+    margin-top: 4px;
+  }
+}

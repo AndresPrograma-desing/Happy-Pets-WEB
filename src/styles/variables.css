@@ -23,7 +23,7 @@
   --blur: blur(18px);
   --shadow: 2px 1px 6px rgb(0, 0, 0);
 
-    --color-primary: #0ea5e9;
+  --color-primary: #0ea5e9;
   --color-primary-dark: #0284c7;
   --color-secondary: #2563eb;
   --color-secondary-dark: #1d4ed8;
@@ -94,11 +94,23 @@
   --text-main: #f1f5f9;     
   --text-muted: #ffffff;                          
   --accent-green: #10b981;  
-  --accent-blue: #3b82f6;   
+  --accent-blue: #0045cf;   
   --border-color: #ffffff;
 
   /*colores*/
   --color-black: #000000;
   --color-white: #ffffff;
+  
+  /*inputs*/
+  --inputs-bordes:#309ff9;
+  --inputs-px: 2px;
+
+  /*Buttons color */
+  --btn-login: #34cc06;
+  --btn-login-hover: #259e04;
+  
+  /*Bordes*/
+  --border-gray-low: #a9a9a9;
+  --border-gray-high: #f3f4f6;
 
 }

@@ -65,9 +65,6 @@ const SpinerLoader = () => {
           />
         </svg>
 
-        <p style={{ color: 'white', fontSize: '1.1rem', fontWeight: '500', margin: 0 }}>
-          CARGANDO SISTEMA...
-        </p>
       </div>
     </div>
   );

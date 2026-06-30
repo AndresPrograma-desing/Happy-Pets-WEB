@@ -1,7 +1,10 @@
 import React from "react";
 import style from "./InDevelopment.module.css";
 import { getIcon } from "../../assets/icons/ExportIcon/Index";
+import {uiSettings} from "../../config/uiSettings";
+
 const InDevelopment = () => {
+    if (!uiSettings.showDevBanner) return null;
 
     return (
         <footer className={style.footer} aria-hidden="true">

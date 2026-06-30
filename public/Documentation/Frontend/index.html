@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, shrink-to-fit=no">
+    <title>Happy Pets · Documentación Frontend WEB</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: #f5faff;
+            color: #0b1c2f;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        :root {
+            --deep-blue: #0a2540;
+            --primary-blue: #1e4a6b;
+            --accent-blue: #2d6fa0;
+            --soft-blue: #e6f0f9;
+            --border-light: #d4e2f2;
+            --white-pure: #ffffff;
+            --text-secondary: #2c3e50;
+            --card-shadow: 0 14px 28px rgba(0, 32, 64, 0.08);
+        }
+        header {
+            background: var(--deep-blue);
+            color: white;
+            padding: 1.2rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 6px 16px rgba(0, 20, 40, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .logo-area i {
+            font-size: 2.4rem;
+            color: #a3d0ff;
+        }
+        .logo-area h1 {
+            font-size: 1.7rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .logo-area span {
+            font-weight: 300;
+            color: #cfe4ff;
+            font-size: 0.9rem;
+        }
+        .btn-download {
+            background: white;
+            color: var(--deep-blue);
+            border: none;
+            padding: 0.7rem 1.6rem;
+            border-radius: 2.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background: #f0f7ff;
+            white-space: nowrap;
+        }
+        .btn-download i {
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+        }
+        .btn-download:hover {
+            background: var(--soft-blue);
+            box-shadow: 0 10px 20px rgba(0, 80, 140, 0.25);
+            transform: translateY(-2px);
+        }
+        main {
+            flex: 1;
+            padding: 2rem 1.8rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .section-title {
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin: 2.2rem 0 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--deep-blue);
+            border-left: 6px solid var(--accent-blue);
+            padding-left: 1.2rem;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 1.8rem;
+        }
+        .card {
+            background: var(--white-pure);
+            border-radius: 1.5rem;
+            padding: 1.5rem 1.4rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            box-shadow: 0 20px 34px rgba(10, 55, 100, 0.12);
+            border-color: #b0cef0;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e2effb;
+            padding-bottom: 0.8rem;
+        }
+        .card-header i {
+            font-size: 2rem;
+            color: var(--accent-blue);
+            background: #e6f2fc;
+            padding: 0.5rem;
+            border-radius: 1rem;
+        }
+        .card-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--deep-blue);
+        }
+        .card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--deep-blue);
+        }
+        .card-content p {
+            margin-bottom: 0.7rem;
+            font-size: 0.96rem;
+            color: var(--text-secondary);
+        }
+        .card-content ul {
+            margin: 0.5rem 0 0.7rem 1.2rem;
+            color: var(--text-secondary);
+            font-size: 0.94rem;
+        }
+        .card-content li {
+            margin-bottom: 0.3rem;
+        }
+        .flow-diagram {
+            background: var(--soft-blue);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 0.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            color: var(--primary-blue);
+        }
+        .flow-step {
+            background: white;
+            padding: 0.35rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.82rem;
+            border: 1px solid var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .persona-mascota-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin: 0.7rem 0;
+            font-size: 1.9rem;
+            color: var(--primary-blue);
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: #e9f2fc;
+            padding: 0.4rem 1.2rem;
+            border-radius: 2rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 0.25rem;
+        }
+        .dep-explain {
+            font-size: 0.85rem;
+            color: #2c3e50;
+            margin-left: 0.2rem;
+            font-weight: 400;
+        }
+        .info-box {
+            background: #f0f6fd;
+            border-left: 5px solid var(--accent-blue);
+            border-radius: 0.8rem;
+            padding: 1.2rem 1.5rem;
+            margin: 1.2rem 0;
+            font-size: 0.95rem;
+            color: #1a3a52;
+        }
+        .info-box i {
+            color: var(--accent-blue);
+            margin-right: 0.4rem;
+        }
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+        footer {
+            background: var(--deep-blue);
+            color: #cbddec;
+            text-align: center;
+            padding: 1.2rem;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+        code {
+            background: #e8f0f8;
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.3rem;
+            font-size: 0.9rem;
+            color: #0d3b5e;
+        }
+        .separator {
+            border: none;
+            border-top: 1px solid #d4e2f2;
+            margin: 1.8rem 0;
+        }
+        .rol-icon {
+            font-size: 2.8rem;
+            color: var(--primary-blue);
+        }
+        @media (max-width: 640px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .btn-download {
+                width: 100%;
+                justify-content: center;
+            }
+            main {
+                padding: 1rem;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <i class="fas fa-laptop-code"></i>
+            <h1>Happy Pets <span>· Frontend WEB</span></h1>
+        </div>
+        <button id="downloadDocBtn" class="btn-download">
+            <i class="fas fa-file-word"></i> Descargar documentación (.doc)
+        </button>
+    </header>
+
+    <main>
+        <!-- Conceptos básicos explicados -->
+        <div class="section-title">
+            <i class="fas fa-graduation-cap"></i> Conceptos fundamentales para entender el sistema
+        </div>
+        <div class="grid-container">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-code"></i><h2>¿Qué es React?</h2></div>
+                <div class="card-content">
+                    <p><strong>React</strong> es una biblioteca de JavaScript para construir interfaces de usuario interactivas. Organiza la aplicación en <strong>componentes</strong> reutilizables: cada pieza visual (botón, formulario, tabla) es un componente independiente con su propia lógica y diseño.</p>
+                    <p>Happy Pets usa React 19 para crear paneles de administrador, doctor y secretaria de forma modular y eficiente.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-bolt"></i><h2>¿Qué es Vite?</h2></div>
+                <div class="card-content">
+                    <p><strong>Vite</strong> es una herramienta de desarrollo y empaquetado ultrarrápida. Compila el código React, recarga la página en caliente (Hot Module Replacement) y optimiza los archivos para producción.</p>
+                    <p>Happy Pets usa Vite 8 para levantar el entorno de desarrollo con comandos como <code>npm run dev</code> y construir la versión final con <code>npm run build</code>.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-server"></i><h2>¿Qué es Node.js y Express?</h2></div>
+                <div class="card-content">
+                    <p><strong>Node.js</strong> permite ejecutar JavaScript en el servidor. <strong>Express</strong> es un framework para Node.js que facilita la creación de APIs y servidores web.</p>
+                    <p>El proyecto incluye un backend mock en la carpeta <code>server</code> basado en Express para probar autenticación y mensajería sin necesidad del backend real.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-sync-alt"></i><h2>¿Qué es Polling?</h2></div>
+                <div class="card-content">
+                    <p><strong>Polling</strong> es una técnica donde el frontend consulta periódicamente al backend para obtener datos actualizados. Es como preguntar "¿hay novedades?" cada cierto tiempo.</p>
+                    <p>Happy Pets usa polling en citas, dashboard, facturas y mensajería para mantener la información fresca sin necesidad de que el usuario recargue la página manualmente.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-shield-alt"></i><h2>¿Qué es un Token Bearer?</h2></div>
+                <div class="card-content">
+                    <p>El <strong>token Bearer</strong> (JWT) es un código de seguridad que el frontend envía en cada petición al backend para demostrar que el usuario está autenticado. Se guarda en sessionStorage/localStorage tras iniciar sesión.</p>
+                    <p>Si el token expira o es inválido, el backend responde con un error 401 y el frontend redirige automáticamente al login.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-plug"></i><h2>¿Qué es una API?</h2></div>
+                <div class="card-content">
+                    <p><strong>API</strong> (Application Programming Interface) es el conjunto de reglas que permite que el frontend se comunique con el backend. El frontend envía peticiones HTTP (GET, POST, PUT, DELETE) y recibe respuestas en JSON.</p>
+                    <p>Happy Pets centraliza todas las llamadas a la API en la carpeta <code>services</code> para mantener el código organizado y evitar duplicaciones.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-css3-alt"></i><h2>¿Qué son CSS Modules?</h2></div>
+                <div class="card-content">
+                    <p><strong>CSS Modules</strong> es una técnica que permite escribir estilos CSS encapsulados por componente. Cada clase se convierte en única automáticamente, evitando conflictos de nombres entre componentes.</p>
+                    <p>Happy Pets usa CSS Modules junto con estilos globales para mantener una apariencia consistente y modular.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-history"></i><h2>¿Qué es sessionStorage/localStorage?</h2></div>
+                <div class="card-content">
+                    <p>Son mecanismos del navegador para almacenar datos en el dispositivo del usuario. <strong>sessionStorage</strong> guarda datos mientras la pestaña esté abierta; <strong>localStorage</strong> persiste incluso al cerrar el navegador.</p>
+                    <p>Happy Pets replica token y datos de sesión en ambos para garantizar disponibilidad y detectar cuentas bloqueadas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Descripción General -->
+        <div class="section-title">
+            <i class="fas fa-info-circle"></i> Descripción General del Sistema
+        </div>
+        <div class="info-box">
+            <i class="fas fa-paw"></i> <strong>Happy Pets Vet System WEB</strong> es el frontend principal del ecosistema de gestión veterinaria. Su objetivo es digitalizar y ordenar el flujo clínico-administrativo diario de la clínica: gestión de usuarios y roles, citas médicas, registro clínico de consultas, productos e inventario, generación y control de facturas, mensajería interna entre usuarios y monitoreo de conectividad. Opera contra una API real configurable por variables de entorno e incluye un backend mock local para pruebas.
+        </div>
+
+        <!-- Roles y funcionalidades -->
+        <div class="section-title">
+            <i class="fas fa-user-tag"></i> Funcionalidades por Rol de Usuario
+        </div>
+        <div class="grid-container">
+            <!-- Administrador -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-user-tie"></i>
+                    <h2>Administrador</h2>
+                </div>
+                <div class="card-content">
+                    <div class="persona-mascota-row">
+                        <i class="fas fa-user-tie rol-icon"></i>
+                    </div>
+                    <ul>
+                        <li><strong>Panel administrativo</strong> base.</li>
+                        <li>Creación de usuarios con rol: <strong>Doctor, Administrador, Secretaria</strong>.</li>
+                        <li>Gestión de usuarios: listado, habilitar/deshabilitar, eliminación.</li>
+                        <li><strong>Dashboard de ventas/facturación:</strong> ingresos, facturas pagadas, clientes, evolución por período.</li>
+                        <li>Gestión de productos: ver inventario, crear, eliminar, historial reciente de altas/bajas.</li>
+                        <li>Acceso a configuración del sistema.</li>
+                    </ul>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-chart-line"></i> Dashboard</span>
+                        <span class="flow-step"><i class="fas fa-users-cog"></i> Usuarios</span>
+                        <span class="flow-step"><i class="fas fa-boxes"></i> Productos</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Doctor -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-user-md"></i>
+                    <h2>Doctor</h2>
+                </div>
+                <div class="card-content">
+                    <div class="persona-mascota-row">
+                        <i class="fas fa-user-md rol-icon"></i> <i class="fas fa-stethoscope"></i>
+                    </div>
+                    <ul>
+                        <li><strong>Panel médico</strong> con agenda de citas.</li>
+                        <li>Visualización y creación de citas.</li>
+                        <li><strong>Registro de consultas clínicas:</strong> signos vitales, diagnóstico, tratamiento, receta, observaciones, productos/medicamentos aplicados.</li>
+                        <li>Actualización automática de estado de cita al completar consulta.</li>
+                        <li>Disminución de stock de productos usados en consulta.</li>
+                        <li>Visualización de facturas y acceso a mensajería interna.</li>
+                    </ul>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-calendar-alt"></i> Citas</span>
+                        <span class="flow-step"><i class="fas fa-notes-medical"></i> Consulta</span>
+                        <span class="flow-step"><i class="fas fa-file-invoice"></i> Facturas</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Secretaria -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-user-friends"></i>
+                    <h2>Secretaria</h2>
+                </div>
+                <div class="card-content">
+                    <div class="persona-mascota-row">
+                        <i class="fas fa-user-friends rol-icon"></i> <i class="fas fa-receipt"></i>
+                    </div>
+                    <ul>
+                        <li><strong>Panel de secretaría</strong> con gestión de citas.</li>
+                        <li>Creación rápida de cliente + mascota.</li>
+                        <li>Cancelación de citas.</li>
+                        <li><strong>Generación de facturas</strong> desde citas.</li>
+                        <li>Descarga y vista previa de facturas.</li>
+                        <li>Visualización de facturas generales y marcado como pagadas.</li>
+                        <li>Visualización de <strong>QR</strong> asociado al documento de factura.</li>
+                        <li>Acceso a mensajería interna.</li>
+                    </ul>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-user-plus"></i> Cliente</span>
+                        <span class="flow-step"><i class="fas fa-calendar-check"></i> Citas</span>
+                        <span class="flow-step"><i class="fas fa-qrcode"></i> QR Factura</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flujo de uso por rol -->
+        <div class="section-title">
+            <i class="fas fa-route"></i> Flujo de Uso por Tipo de Usuario
+        </div>
+        <div class="grid-container">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-user-tie"></i><h3>Flujo Administrador</h3></div>
+                <div class="card-content">
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-sign-in-alt"></i> Login</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-tachometer-alt"></i> Dashboard</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-user-plus"></i> Crear usuarios</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-cubes"></i> Inventario</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-user-md"></i><h3>Flujo Doctor</h3></div>
+                <div class="card-content">
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-sign-in-alt"></i> Login</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-calendar-alt"></i> Agenda</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-stethoscope"></i> Consulta</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-check-circle"></i> Finalizar</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-user-friends"></i><h3>Flujo Secretaria</h3></div>
+                <div class="card-content">
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-sign-in-alt"></i> Login</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-user-plus"></i> Cliente</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-calendar-plus"></i> Cita</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-file-invoice"></i> Factura</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="info-box">
+            <i class="fas fa-comments"></i> <strong>Flujo de Mensajería Interna (todos los roles):</strong> El usuario autenticado abre el panel de mensajería, el sistema obtiene el perfil y la lista de usuarios, carga conversaciones y mensajes por polling, permite enviar mensajes y marca lecturas automáticamente como leídas.
+        </div>
+
+        <!-- Tecnologías -->
+        <div class="section-title">
+            <i class="fas fa-microchip"></i> Tecnologías y Lenguajes Utilizados
+        </div>
+        <div class="grid-container">
+            <div class="card"><div class="card-header"><i class="fab fa-react"></i><h3>React 19</h3></div><div class="card-content"><p>Biblioteca principal de interfaz de usuario. Construye componentes reutilizables y maneja el estado de la aplicación.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-bolt"></i><h3>Vite 8</h3></div><div class="card-content"><p>Herramienta de desarrollo ultrarrápida. Compila, recarga en caliente y empaqueta para producción.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-route"></i><h3>React Router DOM</h3></div><div class="card-content"><p>Maneja la navegación entre páginas sin recargar el navegador. Define rutas protegidas según el rol.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-file-signature"></i><h3>React Hook Form</h3></div><div class="card-content"><p>Facilita la creación de formularios complejos con validación declarativa y alto rendimiento.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-server"></i><h3>Node.js + Express</h3></div><div class="card-content"><p>Backend mock local incluido en <code>server/</code> para pruebas de autenticación y mensajería sin el backend real.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-file-word"></i><h3>docx / docxtemplater</h3></div><div class="card-content"><p>Librerías para generar y manipular documentos Word (.docx) desde el frontend para las facturas.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-qrcode"></i><h3>qrcode.react</h3></div><div class="card-content"><p>Genera códigos QR asociados a las facturas para verificación rápida.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-check-circle"></i><h3>ESLint 9</h3></div><div class="card-content"><p>Herramienta de linting para mantener código limpio y consistente.</p></div></div>
+        </div>
+
+        <!-- Estructura del Proyecto -->
+        <div class="section-title">
+            <i class="fas fa-folder-tree"></i> Estructura del Proyecto (Carpetas Principales)
+        </div>
+        <div class="grid-container">
+            <div class="card"><div class="card-header"><i class="fas fa-folder-open"></i><h3>public/</h3></div><div class="card-content"><p>Documentación estática en HTML accesible públicamente.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-terminal"></i><h3>scripts/</h3></div><div class="card-content"><p>Scripts de apoyo para probar endpoints de mensajería y perfil.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-server"></i><h3>server/</h3></div><div class="card-content"><p>Backend mock local basado en Express. Útil para pruebas rápidas de login y chat.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-code"></i><h3>src/</h3></div><div class="card-content"><p>Código principal del frontend.</p><ul><li><strong>assets:</strong> fuentes, íconos, imágenes, audio.</li><li><strong>components:</strong> componentes reutilizables de UI y módulos.</li><li><strong>config:</strong> configuración de interfaz.</li><li><strong>constants:</strong> constantes globales.</li><li><strong>context:</strong> utilidades de estado persistente (user_id).</li><li><strong>features:</strong> funcionalidades agrupadas (mensajería).</li><li><strong>hooks:</strong> hooks custom de datos, polling, salud, notificaciones.</li><li><strong>pages:</strong> páginas por módulo/rol.</li><li><strong>services:</strong> cliente API y funciones de acceso al backend.</li><li><strong>styles:</strong> estilos globales y variables CSS.</li><li><strong>utils:</strong> utilidades de errores API, facturación y helpers.</li></ul></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-vial"></i><h3>test/</h3></div><div class="card-content"><p>HTML de pruebas y visualizaciones auxiliares.</p></div></div>
+        </div>
+
+        <!-- Comunicación Frontend-Backend -->
+        <div class="section-title">
+            <i class="fas fa-exchange-alt"></i> Comunicación entre Frontend y Backend
+        </div>
+        <div class="info-box">
+            <i class="fas fa-network-wired"></i> La comunicación está centralizada en la capa de <strong>servicios</strong>. La base URL es configurable con la variable de entorno <code>VITE_API_URL</code>. Se normalizan rutas automáticamente, se inyecta el token Bearer, se manejan respuestas JSON y no JSON, y se hace logout automático ante error 401. El sistema también monitorea la conectividad mediante un health check periódico al backend y el estado de red del navegador.
+        </div>
+        <div class="grid-container">
+            <div class="card"><div class="card-header"><i class="fas fa-key"></i><h3>Autenticación</h3></div><div class="card-content"><p>Endpoints: <code>login</code>, <code>auth/me</code>, <code>auth/update-password</code>. El token se almacena en sessionStorage y localStorage.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-users"></i><h3>Usuarios</h3></div><div class="card-content"><p>Endpoints: listar, crear, habilitar, deshabilitar, eliminar, obtener secretarias.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-calendar-alt"></i><h3>Citas</h3></div><div class="card-content"><p>Endpoints: listar solicitudes, crear, actualizar estado, eliminar.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-paw"></i><h3>Clientes/Mascotas</h3></div><div class="card-content"><p>Endpoints: crear cliente, crear mascota, crear cliente con mascota, búsqueda de mascotas por usuario.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-notes-medical"></i><h3>Consultas</h3></div><div class="card-content"><p>Endpoint: crear consulta (signos vitales, diagnóstico, tratamiento, receta, productos usados).</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-boxes"></i><h3>Productos</h3></div><div class="card-content"><p>Endpoints: listar, crear, actualizar, eliminar, disminuir stock.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-file-invoice-dollar"></i><h3>Facturas</h3></div><div class="card-content"><p>Endpoints: listar, obtener por cita, actualizar estado de pago.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-envelope"></i><h3>Mensajería</h3></div><div class="card-content"><p>Endpoints: enviar mensaje, conversaciones por par de usuarios, mensajes por usuario, marcar leído.</p></div></div>
+        </div>
+
+        <!-- Instalación y Ejecución -->
+        <div class="section-title">
+            <i class="fas fa-download"></i> Instalación y Ejecución
+        </div>
+        <div class="grid-container">
+            <div class="card"><div class="card-header"><i class="fas fa-check-circle"></i><h3>Requisitos previos</h3></div><div class="card-content"><p>Node.js 18 o superior, npm.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-terminal"></i><h3>Instalación</h3></div><div class="card-content">
+                <p>1. Instalar dependencias del frontend: <code>npm install</code></p>
+                <p>2. Instalar dependencias del backend mock: <code>cd server && npm install && cd ..</code></p>
+            </div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-cog"></i><h3>Variables de entorno</h3></div><div class="card-content">
+                <p>Crear archivo <code>.env</code> con:</p>
+                <p><code>VITE_API_URL=https://tu-backend/api</code></p>
+                <p><code>VITE_HEALTH_URL=https://tu-backend/Health</code></p>
+            </div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-play"></i><h3>Ejecución en desarrollo</h3></div><div class="card-content">
+                <p>1. Levantar backend mock: <code>cd server && npm start</code></p>
+                <p>2. En otra terminal, levantar frontend: <code>npm run dev</code></p>
+            </div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-wrench"></i><h3>Otros comandos</h3></div><div class="card-content">
+                <p><code>npm run build</code> - construir para producción</p>
+                <p><code>npm run preview</code> - previsualizar build</p>
+                <p><code>npm run lint</code> - ejecutar ESLint</p>
+                <p><code>npm run documentation</code> - abrir documentación</p>
+            </div></div>
+        </div>
+
+        <!-- Detalles relevantes -->
+        <div class="section-title">
+            <i class="fas fa-lightbulb"></i> Detalles Relevantes para Entender y Contribuir
+        </div>
+        <div class="grid-container">
+            <div class="card full-width-card">
+                <div class="card-header"><i class="fas fa-project-diagram"></i><h2>Arquitectura funcional</h2></div>
+                <div class="card-content">
+                    <p>Diseño por módulos y componentes. Hooks reutilizables para lógica transversal (datos, polling, salud, notificaciones). Formularios complejos con validación declarativa (React Hook Form). Capa API unificada en <code>services/</code> para minimizar duplicación. Polling parametrizable para mantener datos frescos en citas, dashboard, facturas y mensajería.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-id-card"></i><h3>Gestión de sesión</h3></div>
+                <div class="card-content">
+                    <p>Token y datos de login se replican en sessionStorage/localStorage. Se guarda <code>user_id</code> para validaciones de estado de cuenta. El sistema detecta cuentas bloqueadas y fuerza retorno a login.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-language"></i><h3>Compatibilidad backend heterogéneo</h3></div>
+                <div class="card-content">
+                    <p>El frontend contempla diferencias de naming en payloads/respuestas: español e inglés (rol/role, contenido/content). Distintas estructuras de respuesta (data, result, items, arrays directos). Esto facilita integración con APIs no totalmente homogéneas.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-server"></i><h3>Backend mock local</h3></div>
+                <div class="card-content">
+                    <p>El backend en <code>server/</code> es un mock para pruebas rápidas: auth por token fijo, perfil de usuario, mensajería en memoria. No reemplaza una API productiva completa pero es útil para validar login/chat localmente.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-check-double"></i><h3>Calidad y mantenimiento</h3></div>
+                <div class="card-content">
+                    <p>Linting con ESLint 9. Separación clara de estilos por módulo. Scripts utilitarios para depurar endpoints. Documentación HTML adicional en <code>public/Documentation</code>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guía de contribución -->
+        <div class="section-title">
+            <i class="fas fa-hand-holding-heart"></i> Guía de Contribución
+        </div>
+        <div class="info-box">
+            <i class="fas fa-code-branch"></i> 1. Crear rama por feature o fix. 2. Mantener cambios acotados por módulo. 3. Reutilizar la capa de servicios API existente. 4. Evitar llamadas fetch directas fuera de la capa de servicios. 5. Validar flujo por rol afectado antes de abrir PR. 6. Ejecutar lint y build antes de proponer merge.
+        </div>
+
+        <hr class="separator">
+        <div style="text-align: center; color: #1e4a6b; font-size: 0.95rem; padding: 1rem;">
+            <i class="fas fa-check-circle"></i> Proyecto en evolución activa, con módulos operativos y base sólida para seguir expandiendo: permisos por ruta, pruebas automatizadas, normalización de contratos API y mejoras de observabilidad.
+        </div>
+    </main>
+
+    <footer>
+        <i class="fas fa-laptop-code"></i> Happy Pets Frontend WEB · React 19 · Vite 8 · Documentación técnica completa <i class="fas fa-laptop-code"></i>
+    </footer>
+
+    <script>
+        (function() {
+            function buildDocumentContent() {
+                return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Happy Pets Frontend WEB - Documentacion Completa</title>
+<style>body{font-family:'Segoe UI',sans-serif;margin:2cm;color:#0a2540;line-height:1.6;}h1{color:#0a2540;border-bottom:3px solid #2d6fa0;}h2{color:#1e4a6b;margin-top:1.8em;}ul{line-height:1.6;}code{background:#e8f0f8;padding:2px 6px;border-radius:4px;}</style>
+</head>
+<body>
+<h1>Happy Pets Vet System WEB · Documentacion del Frontend</h1>
+<p><strong>Descripcion General:</strong> Frontend principal para gestion de clinica veterinaria. Digitaliza citas, consultas, clientes/mascotas, facturacion y mensajeria interna con modulos por rol (administrador, doctor, secretaria). Construido con React 19, Vite 8, CSS Modules, React Router DOM y React Hook Form.</p>
+
+<h2>Conceptos Fundamentales</h2>
+<h3>React</h3><p>Biblioteca de JavaScript para interfaces de usuario basada en componentes reutilizables.</p>
+<h3>Vite</h3><p>Herramienta de desarrollo y empaquetado ultrarrápida con recarga en caliente.</p>
+<h3>Node.js y Express</h3><p>Node.js ejecuta JavaScript en servidor; Express es un framework para APIs. El proyecto incluye un backend mock local.</p>
+<h3>Polling</h3><p>Tecnica de consulta periodica al backend para mantener datos actualizados sin recarga manual.</p>
+<h3>Token Bearer (JWT)</h3><p>Codigo de seguridad enviado en cada peticion para autenticar al usuario.</p>
+<h3>CSS Modules</h3><p>Estilos CSS encapsulados por componente para evitar conflictos de nombres.</p>
+
+<h2>Funcionalidades por Rol</h2>
+<h3>Administrador</h3><ul><li>Panel administrativo, creacion de usuarios con roles, dashboard de ventas, gestion de productos e inventario.</li></ul>
+<h3>Doctor</h3><ul><li>Panel medico, agenda de citas, registro de consultas clinicas (signos vitales, diagnostico, tratamiento), disminucion de stock, visualizacion de facturas.</li></ul>
+<h3>Secretaria</h3><ul><li>Panel de secretaria, creacion rapida de cliente+mascota, cancelacion de citas, generacion de facturas, descarga y QR, marcado de facturas pagadas.</li></ul>
+
+<h2>Flujo de Mensajeria Interna</h2><p>Todos los roles acceden a panel de mensajeria con carga de conversaciones por polling, envio de mensajes y marcado automatico de lectura.</p>
+
+<h2>Tecnologias</h2>
+<ul><li>React 19, Vite 8, React Router DOM, React Hook Form, React Select</li><li>Node.js + Express (backend mock)</li><li>docx, docxtemplater, pizzip, xmldom (documentos)</li><li>lucide-react, qrcode.react</li><li>ESLint 9, Babel, Nodemon</li></ul>
+
+<h2>Estructura del Proyecto</h2>
+<ul><li>public/ - documentacion estatica</li><li>scripts/ - scripts de prueba</li><li>server/ - backend mock local</li><li>src/ - codigo principal: assets, components, config, constants, context, features, hooks, pages, services, styles, utils</li><li>test/ - pruebas auxiliares</li></ul>
+
+<h2>Comunicacion Frontend-Backend</h2>
+<p>Centralizada en services/. Base URL configurable, inyeccion de token Bearer, manejo de errores 401 con logout automatico, polling en modulos clave, health check de conectividad.</p>
+
+<h2>Endpoints funcionales</h2>
+<ul><li>Auth: login, me, update-password</li><li>Users: CRUD, secretarias</li><li>Citas: listar, crear, actualizar, eliminar</li><li>Clientes/Mascotas: crear, buscar</li><li>Consultas: crear</li><li>Productos: CRUD, disminuir stock</li><li>Facturas: listar, obtener por cita, actualizar pago</li><li>Mensajeria: enviar, conversaciones, mensajes, marcar leido</li></ul>
+
+<h2>Instalacion</h2>
+<p>npm install, configurar .env con VITE_API_URL y VITE_HEALTH_URL, cd server && npm install. Ejecutar: server mock (cd server && npm start) y frontend (npm run dev).</p>
+
+<h2>Guia de Contribucion</h2>
+<p>Crear rama por feature, mantener cambios acotados, reutilizar capa de servicios, validar flujo por rol, ejecutar lint y build antes de PR.</p>
+<p><em>Documento generado desde Happy Pets Frontend WEB.</em></p>
+</body></html>`;
+            }
+
+            function downloadDoc() {
+                const content = buildDocumentContent();
+                const blob = new Blob([content], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'HappyPets_Frontend_Documentacion.doc';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+
+            document.getElementById('downloadDocBtn').addEventListener('click', downloadDoc);
+        })();
+    </script>
+</body>
+</html>

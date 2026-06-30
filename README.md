@@ -1,314 +1,368 @@
-# React + Vite
+# Happy Pets Vet System WEB
 
-Enlace para la documentacion en interfaz web [Abrir DOC.html](Documentation/DOC.html)
+Aplicación web para la gestión operativa de una clínica veterinaria, con módulos por rol (administrador, doctor y secretaria), orientada a centralizar citas, consultas médicas, clientes/mascotas, facturación y mensajería interna.
 
+---
 
+## 1. Descripción General del Sistema y su Propósito
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'https://g27frlv5-5168.use2.devtunnels.ms').replace(/\/$/, '');
+Happy Pets Vet System WEB es el frontend principal del ecosistema de gestión veterinaria. Su objetivo es digitalizar y ordenar el flujo clínico-administrativo diario de la clínica:
 
-function extractDoctorId(source) {
-  if (!source || typeof source !== 'object') return '';
-  return (
-    source?.doctor_id ??
-    source?.doctorId ??
-    source?.doctor?.id ??
-    source?.usuario?.doctor_id ??
-    source?.usuario?.doctorId ??
-    source?.usuario?.doctor?.id ??
-    source?.usuario?.id ??
-    source?.user?.doctor_id ??
-    source?.user?.doctorId ??
-    source?.user?.doctor?.id ??
-    source?.user?.id ??
-    source?.profile?.doctor_id ??
-    source?.profile?.doctorId ??
-    source?.profile?.doctor?.id ??
-    source?.id ??
-    ''
-  );
-}
+- Gestión de usuarios y roles.
+- Gestión de citas médicas.
+- Registro clínico de consultas.
+- Gestión de productos e inventario.
+- Generación y control de facturas.
+- Mensajería interna entre usuarios.
+- Monitoreo de conectividad (internet + backend).
 
-async function request(path, { method = 'GET', body, headers = {}, auth = true } = {}) {
-  // Aseguramos que el path siempre empiece con /
-  let cleanPath = path.startsWith('/') ? path : `/${path}`;
-  // Compatibilidad defensiva: si algún caller antiguo usa /auth/m, redirigir a /auth/me
-  if (cleanPath === '/auth/m') cleanPath = '/auth/me';
-  const url = `${API_BASE}${cleanPath}`;
-  
-  const opts = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-  };
+El proyecto está pensado para operar contra una API real (configurable por variables de entorno) y trae además un backend mock local para pruebas de autenticación y mensajería.
 
-  if (auth) {
-    const token = localStorage.getItem('token');
-    // Es buena práctica verificar que el token no sea "undefined" o "null" como string
-    if (token && token !== 'undefined') {
-      opts.headers['Authorization'] = `Bearer ${token}`;
-    }
-  }
+---
 
-  if (body !== undefined) {
-    opts.body = JSON.stringify(body);
-  }
+## 2. Funcionalidades Principales y Usuario Objetivo
 
-  const res = await fetch(url, opts);
-  
-  // Manejo de 204 No Content (común en logouts o deletes)
-  if (res.status === 204) return null;
+### Administrador
 
-  const text = await res.text();
-  let data;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch (e) {
-    console.error('Error parsing JSON response:', e, 'Response text was:', text);
-    data = text;
-  }
+- Panel administrativo base.
+- Creación de usuarios con rol:
+  - Doctor
+  - Administrador
+  - Secretaria
+- Gestión de usuarios:
+  - Listado
+  - Habilitar/deshabilitar
+  - Eliminación
+- Dashboard de ventas/facturación:
+  - Ingresos
+  - Facturas pagadas
+  - Clientes
+  - Evolución por período
+- Gestión de productos:
+  - Ver inventario
+  - Crear productos
+  - Eliminar productos
+  - Historial reciente de altas/bajas
+- Acceso a configuración del sistema.
 
-  if (!res.ok) {
-    // Si el backend devuelve un error 401, podrías querer cerrar sesión automáticamente
-    if (res.status === 401) {
-      logout();
-      // window.location.href = '/login'; // Opcional: redirigir
-    }
-    const err = new Error(data?.message || res.statusText);
-    err.status = res.status;
-    err.body = data;
-    throw err;
-  }
+### Doctor
 
-  return data;
-}
+- Panel médico.
+- Visualización de citas.
+- Creación de citas.
+- Registro de consultas clínicas:
+  - Signos vitales
+  - Diagnóstico
+  - Tratamiento
+  - Receta
+  - Observaciones
+  - Productos/medicamentos aplicados
+- Actualización automática de estado de cita al completar consulta.
+- Disminución de stock de productos usados en consulta.
+- Visualización de facturas.
+- Acceso a mensajería interna.
 
-// Cambiamos los paths para que sean consistentes
-export async function login(credentials) {
-  const data = await request('/Auth/login', { method: 'POST', body: credentials, auth: false });
-  if (data?.token) localStorage.setItem('token', data.token);
-  // Guardamos respuesta de login para reutilizar doctor_id sin llamar /auth/me
-  if (data) localStorage.setItem('auth_login_data', JSON.stringify(data));
-  const doctorId =
-    extractDoctorId(data) ||
-    extractDoctorId(data?.data) ||
-    extractDoctorId(data?.result) ||
-    '';
-  if (doctorId) localStorage.setItem('doctor_id', String(doctorId));
-  return data;
-}
+### Secretaria
 
-export async function createUser(user) {
-  return request('/created/users', { method: 'POST', body: user });
-}
+- Panel de secretaría.
+- Visualización y administración de citas.
+- Creación rápida de cliente + mascota.
+- Cancelación de citas.
+- Generación de facturas desde citas.
+- Descarga y vista previa de facturas.
+- Visualización de facturas generales.
+- Marcado de facturas como pagadas.
+- Visualización de QR asociado al documento de factura.
+- Acceso a mensajería interna.
 
-// Productos
-export async function getProducts() {
-  return request('/products', { method: 'GET' });
-}
+### Cliente (indirecto)
 
-// Admin products endpoints
-export async function adminGetProducts() {
-  return request('/admin/products', { method: 'GET' });
-}
+El cliente no tiene panel frontend propio en este repositorio, pero está representado en el flujo mediante:
 
-export async function adminCreateProduct(payload) {
-  return request('/admin/products', { method: 'POST', body: payload });
-}
+- Registro de datos de propietario.
+- Asociación de mascota.
+- Historial reflejado en citas, consultas y facturas.
+- Datos usados para emisión documental y procesos administrativos.
 
-export async function adminUpdateProduct(id, payload) {
-  return request(`/admin/products/${id}`, { method: 'PUT', body: payload });
-}
+---
 
-export async function adminDeleteProduct(id) {
-  return request(`/admin/products/${id}`, { method: 'DELETE' });
-}
+## 3. Flujo de Uso por Tipo de Usuario
 
-export async function deleteCita(id) {
-  return request(`/citas/${id}`, { method: 'DELETE' });
-}
+### Flujo Administrador
 
-// Endpoint alternativo: algunos backends exponen rutas con el prefijo /delete
-// Añadimos un helper para intentar este path si el DELETE directo a /citas/:id no existe.
-export async function deleteCitaAlt(id) {
-  return request(`/delete/citas/${id}`, { method: 'DELETE' });
-}
+1. Inicia sesión seleccionando rol administrador.
+2. Ingresa al panel de administración.
+3. Crea o gestiona usuarios del sistema.
+4. Supervisa métricas en dashboard (facturas/ingresos).
+5. Administra inventario de productos.
+6. Revisa ajustes generales.
 
-export async function updateCitaEstado(id, estado) {
-  return request(`/citas/${id}/estado`, { method: 'PATCH', body: { estado } });
-}
+### Flujo Doctor
 
-export async function createCliente(payload) {
-  return request('/clientes', { method: 'POST', body: payload });
-}
+1. Inicia sesión seleccionando rol doctor.
+2. Entra al panel médico.
+3. Consulta agenda de citas.
+4. Crea una cita nueva cuando corresponde.
+5. Abre consulta médica desde cita.
+6. Registra diagnóstico y tratamiento.
+7. Asocia productos usados.
+8. Finaliza consulta y actualiza estado de cita.
 
-export async function createMascota(payload) {
-  return request('/create_mascotas', { method: 'POST', body: payload });
-}
+### Flujo Secretaria
 
-export async function createClienteMascota(payload) {
-  return request('/clientes/mascota', { method: 'POST', body: payload });
-}
+1. Inicia sesión seleccionando rol secretaria.
+2. Entra al panel de secretaría.
+3. Gestiona agenda de citas.
+4. Crea cliente y mascota si es necesario.
+5. Crea o cancela citas.
+6. Genera factura para cita completada.
+7. Descarga documento y/o muestra QR.
+8. Marca factura pagada cuando aplica.
 
-export async function getClientes() {
-  return request('/clientes', { method: 'GET' });
-}
+### Flujo Mensajería Interna (todos los roles operativos)
 
-export async function getUsers() {
-  return request('/users', { method: 'GET' });
-}
+1. Usuario autenticado abre panel de mensajería.
+2. El sistema obtiene perfil y lista de usuarios.
+3. Carga conversaciones y mensajes por polling.
+4. Enviar mensaje actualiza conversación.
+5. Lecturas se marcan automáticamente como leídas.
 
-export async function createCita(payload) {
-  return request('/create_citas', { method: 'POST', body: payload });
-}
+---
 
-export async function getCitasDetalle() {
-  return request('/citas/detalle', { method: 'GET' });
-}
-export async function getCitas() {
-  return request('/citas', { method: 'GET' });
-}
-export async function getMascotasByUserName(nombre) {
-  const safeName = encodeURIComponent(String(nombre || '').trim());
-  return request(`/users/${safeName}/mascotas`, { method: 'GET' });
-}
+## 4. Tecnologías y Lenguajes Utilizados
 
-export async function getSecretarias() {
-  return request('/secretarias', { method: 'GET' });
-}
+### Frontend
 
+- JavaScript
+- React 19
+- React DOM
+- React Router DOM
+- React Hook Form
+- React Select
+- CSS Modules + estilos globales
+- Vite 8
 
+### Backend (mock local incluido)
 
+- Node.js
+- Express
+- CORS
 
-export function logout() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('auth_login_data');
-  localStorage.removeItem('doctor_id');
-}
+### Librerías de negocio/documentos/UI
 
-export function getToken() {
-  return localStorage.getItem('token');
-}
+- docx
+- docxtemplater
+- pizzip
+- xmldom
+- lucide-react
+- qrcode.react
 
-export async function getProfile() {
-  return request('/auth/me');
-}
+### Calidad y desarrollo
 
-export function getDoctorIdFromLoginSession() {
-  try {
-    const directDoctorId = localStorage.getItem('doctor_id');
-    if (directDoctorId) return directDoctorId;
+- ESLint 9
+- Babel (plugin react compiler)
+- Vite plugin React
+- Rolldown Babel plugin
+- Nodemon (dev dependency)
+- open-cli (utilidad de scripts)
 
-    const raw = localStorage.getItem('auth_login_data');
-    if (!raw) return '';
-    const data = JSON.parse(raw);
-    return (
-      extractDoctorId(data) ||
-      extractDoctorId(data?.data) ||
-      extractDoctorId(data?.user) ||
-      extractDoctorId(data?.doctor) ||
-      ''
-    );
-  } catch {
-    return '';
-  }
-}
+---
 
-function extractUserName(source) {
-  if (!source || typeof source !== 'object') return '';
-  const nombre =
-    source?.nombre ??
-    source?.name ??
-    source?.first_name ??
-    source?.firstName ??
-    '';
-  const apellido =
-    source?.apellido ??
-    source?.last_name ??
-    source?.lastName ??
-    '';
-  const full = `${String(nombre || '').trim()} ${String(apellido || '').trim()}`.trim();
-  return full || '';
-}
+## 5. Estructura del Proyecto (Carpetas Principales)
 
-export function getUserNameFromLoginSession() {
-  try {
-    const raw = localStorage.getItem('auth_login_data');
-    if (!raw) return '';
-    const data = JSON.parse(raw);
-    return (
-      extractUserName(data) ||
-      extractUserName(data?.user) ||
-      extractUserName(data?.doctor) ||
-      extractUserName(data?.usuario) ||
-      extractUserName(data?.profile) ||
-      extractUserName(data?.data) ||
-      ''
-    );
-  } catch {
-    return '';
-  }
-}
+- public
+  - Documentación estática en HTML.
+- scripts
+  - Scripts de apoyo para probar endpoints de mensajería y perfil.
+- server
+  - Backend mock para pruebas locales.
+- src
+  - Código principal frontend.
+  - assets: fuentes, íconos, imágenes, audio.
+  - components: componentes reutilizables de UI y módulos funcionales.
+  - config: configuración de interfaz.
+  - constants: constantes globales.
+  - context: utilidades de estado persistente (por ejemplo user_id).
+  - features: funcionalidades agrupadas (ejemplo mensajería).
+  - hooks: hooks custom de datos, polling, salud, notificaciones.
+  - pages: páginas por módulo/rol.
+  - services: cliente API y funciones de acceso backend.
+  - styles: estilos globales y variables CSS.
+  - utils: utilidades de errores API, facturación y helpers.
+- test
+  - HTML de pruebas/visualizaciones auxiliares.
 
-export async function decreaseProductStock(productId, cantidad = 1) {
-  // Intento principal: endpoint específico proporcionado por backend
-  try {
-    return await request(`/decrease/products/${productId}/quantity`, { method: 'PATCH', body: { quantity: String(cantidad) } });
-  } catch (err) {
-    console.warn('No se pudo disminuir stock mediante endpoint específico, intentando con endpoints alternativos...', err);
-    // Fallbacks: otros endpoints conocidos
-    try {
-      return await request(`/products/${productId}/quantity`, { method: 'PATCH', body: { quantity: String(cantidad) } });
-    } catch (err2) {
-      console.warn('No se pudo disminuir stock mediante endpoint general, intentando con endpoint admin...', err2);
-      try {
-        return await request(`/admin/products/${productId}/quantity`, { method: 'PATCH', body: { quantity: String(cantidad) } });
-      } catch (err3) {
-        console.warn('No se pudo disminuir stock mediante endpoints específicos, intentando actualizar producto directamente...', err3);
-        try {
-          return await request(`/products/${productId}/quantity`, { method: 'PATCH', body: { cantidad: String(cantidad) } });
-        } catch (err4) {
-          console.warn('No se pudo disminuir stock mediante endpoint general con "cantidad", intentando con endpoint admin...', err4);
-          // Último recurso: actualizar mediante adminUpdateProduct tras obtener el producto
-          const prods = await getProducts();
-          const p = Array.isArray(prods) ? prods.find(x => String(x.id) === String(productId)) : null;
-          if (!p) throw new Error('product not found');
-          const current = Number(p.stock ?? p.cantidad ?? p.cantidad_disponible ?? 0);
-          const newStock = current - Number(cantidad);
-          try {
-            return await adminUpdateProduct(productId, { stock: newStock });
-          } catch (uerr) {
-            console.warn('No se pudo actualizar stock mediante endpoint admin, intentando con campo "cantidad"...', uerr);
-            return await adminUpdateProduct(productId, { cantidad: newStock });
-          }
-        }
-      }
-    }
-  }
-}
+---
 
-// Export por defecto para compatibilidad con imports tipo `import api from './services/api'`
-export default {
-  request,
-  login,
-  logout,
-  getToken,
-  getProfile,
-  getDoctorIdFromLoginSession,
-  deleteCita,
-  deleteCitaAlt,
-  getCitas,
-  updateCitaEstado,
-  createCliente,
-  createMascota,
-  createClienteMascota,
-  getClientes,
-  getUsers,
-  createCita,
-  getCitasDetalle,
-  getMascotasByUserName,
-  getSecretarias,
-  getUserNameFromLoginSession,
-  decreaseProductStock,
-};
+## 6. Comunicación entre Frontend y Backend
+
+La comunicación está centralizada en la capa de servicios (cliente API):
+
+- Base URL configurable con variable de entorno.
+- Normalización automática de rutas para evitar duplicación del prefijo api.
+- Inyección de token Bearer para endpoints autenticados.
+- Manejo de respuestas JSON y no JSON.
+- Manejo uniforme de errores con status y body enriquecido.
+- Logout automático ante respuesta 401.
+- Persistencia de sesión en sessionStorage y localStorage.
+- Polling en módulos clave:
+  - Citas
+  - Dashboard
+  - Facturas
+  - Mensajería
+- Validación de disponibilidad:
+  - Estado de red del navegador
+  - Health check del backend cada intervalo configurable
+
+### Endpoints funcionales usados por el frontend (resumen)
+
+- Auth:
+  - login
+  - auth/me
+  - auth/update-password
+- Users:
+  - listar, crear, habilitar, deshabilitar, eliminar
+  - secretarias
+- Citas:
+  - listar solicitudes
+  - crear
+  - actualizar estado
+  - eliminar
+- Clientes/Mascotas:
+  - crear cliente
+  - crear mascota
+  - crear cliente con mascota
+  - búsqueda de mascotas por usuario
+- Consultas:
+  - crear consulta
+- Productos:
+  - listar
+  - crear
+  - actualizar
+  - eliminar
+  - disminuir stock
+- Facturas:
+  - listar
+  - obtener por cita
+  - actualizar estado de pago
+- Mensajería:
+  - enviar mensaje
+  - conversaciones por par de usuarios
+  - mensajes por usuario
+  - marcar leído
+
+---
+
+## 7. Instalación y Ejecución
+
+## Requisitos previos
+
+- Node.js 18 o superior
+- npm
+
+## Instalación
+
+1. Instalar dependencias del frontend:
+   - npm install
+
+2. Instalar dependencias del backend mock:
+   - cd server
+   - npm install
+   - cd ..
+
+## Variables de entorno recomendadas
+
+Crear archivo .env en raíz del proyecto con:
+
+- VITE_API_URL=https://tu-backend/api
+- VITE_HEALTH_URL=https://tu-backend/Health
+
+Si no se define, el proyecto usa URLs por defecto configuradas en código.
+
+## Ejecución en desarrollo
+
+1. Levantar backend mock:
+   - cd server
+   - npm start
+
+2. En otra terminal, levantar frontend:
+   - npm run dev
+
+## Otros comandos útiles
+
+- npm run build
+- npm run preview
+- npm run lint
+- npm run documentation
+
+---
+
+## 8. Detalles Relevantes para Entender y Contribuir
+
+### Arquitectura funcional
+
+- Diseño por módulos y componentes.
+- Reutilización de hooks para lógica transversal.
+- Formularios complejos manejados con validación declarativa.
+- Capa API unificada para minimizar duplicación.
+- Polling parametrizable para mantener datos frescos.
+
+### Gestión de sesión
+
+- Token y datos de login se replican en sessionStorage/localStorage.
+- Se guarda user_id para validaciones de estado de cuenta.
+- El sistema detecta cuentas bloqueadas y fuerza retorno a login.
+
+### Compatibilidad con backend heterogéneo
+
+El frontend contempla diferencias de naming en payloads/respuestas:
+- Español e inglés (por ejemplo rol y role, contenido y content, etc.).
+- Distintas estructuras de respuesta (data, result, items, arrays directos).
+
+Esto facilita integración con APIs no totalmente homogéneas.
+
+### Backend mock local
+
+El backend en carpeta server es un mock para pruebas rápidas:
+- Auth por token fijo
+- Perfil de usuario
+- Mensajería en memoria
+
+No reemplaza una API productiva completa para todos los módulos (citas, productos, facturas, etc.), pero es útil para validar login/chat localmente.
+
+### Calidad y mantenimiento
+
+- Linting con ESLint.
+- Separación clara de estilos por módulo.
+- Scripts utilitarios para depurar endpoints.
+- Documentación HTML adicional en public/Documentation.
+
+---
+
+## Guía de Contribución
+
+1. Crear rama por feature o fix.
+2. Mantener cambios acotados por módulo.
+3. Reutilizar la capa de servicios API existente.
+4. Evitar llamadas fetch directas fuera de la capa de servicios, salvo casos justificados.
+5. Validar flujo por rol afectado antes de abrir PR.
+6. Ejecutar lint y build antes de proponer merge.
+
+---
+
+## Estado del Proyecto
+
+Proyecto en evolución activa, con módulos operativos y áreas marcadas como en desarrollo dentro de la interfaz. La base actual es sólida para seguir expandiendo:
+
+- permisos por ruta más estrictos,
+- pruebas automatizadas,
+- normalización final de contratos API,
+- mejoras de observabilidad y telemetría.
+
+---
+
+Si quieres, en un siguiente paso te preparo una versión 2 del README con:
+1. Diagrama de arquitectura.
+2. Matriz de permisos por ruta.
+3. Tabla de endpoints detallada con request/response esperados.
+4. Checklist de release para despliegue.

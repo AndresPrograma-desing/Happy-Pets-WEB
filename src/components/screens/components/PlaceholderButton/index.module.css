@@ -1,0 +1,162 @@
+.configContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 500px;
+}
+
+.disabledContainer {
+    opacity: 0.7;
+}
+
+.inputGroup {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0 1rem;
+    flex: 1;
+    height: 48px;
+    transition: all 0.2s ease;
+}
+
+.inputWrapper:focus-within {
+    border-color: #2563eb;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.inputIcon {
+    color: #94a3b8;
+    margin-right: 12px;
+}
+
+.daysInput {
+    border: none;
+    background: transparent;
+    padding: 10px 0;
+    width: 100%;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    outline: none;
+}
+
+.daysInput::-webkit-inner-spin-button,
+.daysInput::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.unitText {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 8px;
+    background: #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.saveButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    height: 48px;
+    padding: 0 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.saveButton:hover:not(:disabled) {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.saveButton:active {
+    transform: translateY(0);
+}
+
+.saveButton:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.statusMessage {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.success {
+    color: #059669;
+    background: #ecfdf5;
+}
+
+.error {
+    color: #dc2626;
+    background: #fef2f2;
+}
+
+.hintText {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+    border-left: 3px solid #e2e8f0;
+    padding-left: 12px;
+}
+
+.infoTextDisabled {
+    font-size: 0.8rem;
+    color: #dc2626;
+    margin: 0;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .configContainer {
+    max-width: 100%;
+  }
+
+  .inputGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .saveButton {
+    width: 100%;
+  }
+}

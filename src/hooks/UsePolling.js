@@ -11,6 +11,7 @@ function usePolling(callback, delay, active = true) {
 
     useEffect(() => {
         saveCallback.current = callback;
+        console.log("Callback updated");
     }, [callback]);
 
     useEffect(() => {

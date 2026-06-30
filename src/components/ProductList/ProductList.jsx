@@ -1,111 +1,142 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
+import { PackageSearch } from 'lucide-react';
 import styles from './ProductList.module.css';
 import ProductFilters from '../filter/ProductFilter/ProductFilters';
 import usePolling from '../../hooks/UsePolling';
-import { getProducts } from '../../services/api';
+import useCategories from '../../hooks/requestCategories';
 import AlertModal from '../AlertModal/AlertModal';
 import { getAlertPayload } from '../../utils/apiErrors';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
+import EditProducts from '../../pages/AdminSystem/products/Created/EditProducts/EditProducts';
+import ModalTooltip from '../ModalTooltip/ModalTooltip';
+import { useCurrency } from '../../hooks/moneyType';
+import { useProductListLogic } from './utils';
+import TableB from '../screens/components/TableB';
 
+const pollingInterval = 20000;
 
-const CATEGORY_NAMES = {
-    '1': 'Medicamentos', '2': 'Vacunas', '3': 'Alimentos',
-    '4': 'Accesorios', '5': 'Servicios', '6': 'Laboratory'
-};
+export default function ProductList() {
+    const { categories, categoryMap } = useCategories(pollingInterval);
+    const editFormRef = useRef(null);
 
-export default function ProductList({ products: initialProducts, lastUpdated }) {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterCategory, setFilterCategory] = useState('');
-    const [maxPrice, setMaxPrice] = useState('');
+    const {
+        searchTerm, setSearchTerm,
+        filterCategory, setFilterCategory,
+        maxPrice, setMaxPrice,
+        loading, error, refreshing, lastUpdated,
+        selectedProduct, setSelectedProduct,
+        alertOpen, setAlertOpen,
+        alertMessage, setAlertMessage,
+        alertTitle, setAlertTitle,
+        fetchProducts,
+        handleEditClick,
+        handleConfirmModal,
+        filteredProducts,
+        handleClearFilters
+    } = useProductListLogic({
+        categoryMap,
+        editFormRef
+    });
 
-    const [localProducts, setLocalProducts] = useState(initialProducts || []);
-    const [localRefreshing, setLocalRefreshing] = useState(false);
-    const [localLastUpdated, setLocalLastUpdated] = useState(lastUpdated ?? Date.now());
-    const localNextUpdate = useMemo(() => { 
-        const next = new Date(localLastUpdated);
-        next.setSeconds(next.getSeconds() + 20);
-        return next;
-    }, [localLastUpdated]);
-    const [alertOpen, setAlertOpen] = useState(false);
-    const [alertMessage, setAlertMessage] = useState('');
-    const [alertTitle, setAlertTitle] = useState('');
-    const [alertOnConfirm, setAlertOnConfirm] = useState(null);
+    const { currency, convertAmount, isLoading: currencyLoading } = useCurrency();
+    const esUSD = currency?.toUpperCase() === 'USD';
 
-    // --- NORMALIZADOR DE PRODUCTO ---
-    // Centralizamos la lógica de campos opcionales aquí
-    const normalizeProduct = useCallback((p) => {
-        const stock = p.stock ?? p.cantidad ?? ((p.existencia_inicial || 0) + (p.entradas || 0) - (p.salidas || 0));
-        const price = Number(p.precio ?? p.price ?? 0);
-        
-        // Determinar ID de categoría de forma robusta
-        let catId = '';
-        const rawCat = p.categoria_id ?? p.categoriaId ?? p.categoryId ?? p.categoria ?? '';
-        if (/^\d+$/.test(String(rawCat))) {
-            catId = String(rawCat);
-        } else if (rawCat) {
-            const found = Object.entries(CATEGORY_NAMES).find(([, name]) =>
-                name.toLowerCase() === String(rawCat).toLowerCase()
-            );
-            catId = found ? found[0] : '';
-        }
-if(p.nombre == "Sin Producto"){
-    p.stock =100;
-}
-        return {
-            ...p,
-            normalizedStock: stock,
-            normalizedPrice: price,
-            normalizedCatId: catId,
-            displayName: p.nombre || p.name || 'Sin nombre',
-            displayDesc: p.descripcion || p.description || '—'
-        };
-    }, []);
+    usePolling(() => {
+        fetchProducts(true);
+    }, pollingInterval);
 
-    // --- FETCH CON NORMALIZACIÓN ---
-    const fetchProducts = useCallback(async () => {
-        setLocalRefreshing(true);
+    const formatCurrency = useCallback((v) => {
+        const n = Number(v || 0);
         try {
-            const res = await getProducts();
-            const list = Array.isArray(res) ? res : (res?.data ?? []);
-            
-            // Normalizamos antes de guardar en el estado
-            const normalizedList = list.map(p => normalizeProduct(p));
-            
-            setLocalProducts(normalizedList);
-            setLocalLastUpdated(Date.now());
+            return new Intl.NumberFormat(esUSD ? 'en-US' : 'es-VE', {
+                style: 'currency',
+                currency: currency || 'VES',
+                maximumFractionDigits: 2
+            }).format(n);
         } catch (err) {
-            console.error('❌ Error polling:', err);
-            try {
-                setAlertMessage(getAlertPayload(err));
-            } catch {
-                setAlertMessage(String(err?.message || err));
+            console.error('Error en formato de moneda:', err);
+            return (esUSD ? '$ ' : 'Bs. ') + n.toLocaleString();
+        }
+    }, [currency, esUSD]);
+
+    if (currencyLoading) {
+        return (
+            <div className={styles.center}>
+                <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Cargando productos...</div>
+                <p style={{ color: '#fff', marginTop: '10px' }}>Cargando tipos de cambio...</p>
+            </div>
+        );
+    }
+
+    const columns = [
+        {
+            label: 'NOMBRE',
+            key: 'displayName',
+            width: '25%'
+        },
+        {
+            label: 'DESCRIPCIÓN',
+            key: 'displayDesc',
+            width: '30%'
+        },
+        {
+            label: 'PRECIO',
+            key: 'price',
+            width: '15%',
+            render: (row) => {
+                const montoBase = row.normalizedPrice;
+                const montoConvertido = convertAmount(montoBase, esUSD ? 'VES' : 'USD');
+                const fmtPrice = formatCurrency(montoBase);
+                const textoTooltip = esUSD
+                    ? `Equivalente: ${montoConvertido.toFixed(2)} Bs`
+                    : `Equivalente: $${montoConvertido.toFixed(2)} USD`;
+                return (
+                    <ModalTooltip text={textoTooltip}>
+                        <span className={styles.priceText}>{fmtPrice}</span>
+                    </ModalTooltip>
+                );
             }
-            setAlertTitle('Error al cargar productos');
-            setAlertOnConfirm(() => fetchProducts);
-            setAlertOpen(true);
-        } finally {
-            setLocalRefreshing(false);
+        },
+        {
+            label: 'STOCK',
+            key: 'stock',
+            width: '15%',
+            type: 'badge',
+            badgeClass: (row) => {
+                const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
+                return row.normalizedStock < stockMin ? styles.lowStockBadge : styles.normalStockBadge;
+            },
+            render: (row) => {
+                const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
+                const isLowStock = row.normalizedStock < stockMin;
+                return (
+                    <div className={styles.stockStatus}>
+                        {row.normalizedStock}
+                        {isLowStock && (
+                            <ModalTooltip text={`Stock bajo. Mínimo: ${stockMin}`} position="top">
+                                <img src={getIcon('warning')} alt="Alerta" className={styles.warningIcon} style={{ width: '16px', marginLeft: '6px' }} />
+                            </ModalTooltip>
+                        )}
+                    </div>
+                );
+            }
+        },
+        {
+            label: 'ACCIONES',
+            key: 'actions',
+            type: 'actions',
+            align: 'center',
+            width: '15%',
+            actions: [
+                {
+                    label: 'Editar',
+                    icon: getIcon('pencil') || undefined,
+                    onClick: (row) => handleEditClick(row),
+                    className: styles.editActionBtn
+                }
+            ]
         }
-    }, [normalizeProduct]);
-
-    usePolling(fetchProducts, 20000);
-
-    // Sincronización inicial/padre
-    useEffect(() => {
-        if (initialProducts?.length > 0) {
-            setLocalProducts(initialProducts.map(p => normalizeProduct(p)));
-        }
-    }, [initialProducts, normalizeProduct]);
-
-    // --- FILTRADO ---
-    const filteredProducts = useMemo(() => {
-        return localProducts.filter(p => {
-            if (searchTerm && !p.displayName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-            if (filterCategory && p.normalizedCatId !== filterCategory) return false;
-            if (maxPrice && p.normalizedPrice > Number(maxPrice)) return false;
-            return true;
-        });
-    }, [localProducts, searchTerm, filterCategory, maxPrice]);
+    ];
 
     return (
         <div className={styles.content}>
@@ -113,64 +144,66 @@ if(p.nombre == "Sin Producto"){
                 searchTerm={searchTerm} setSearchTerm={setSearchTerm}
                 filterCategory={filterCategory} setFilterCategory={setFilterCategory}
                 maxPrice={maxPrice} setMaxPrice={setMaxPrice}
-                categories={useMemo(() => Object.keys(CATEGORY_NAMES).map(id => ({ id, name: CATEGORY_NAMES[id] })), [])}
-                onClear={() => { setSearchTerm(''); setFilterCategory(''); setMaxPrice(''); }}
+                categories={categories}
+                onClear={handleClearFilters}
             />
 
             <div className={styles.tableWrapper}>
-                <table className={styles.inventoryTable}>
-                    <thead>
-                        <tr>
-                            <th>NOMBRE</th>
-                            <th>DESCRIPCIÓN</th>
-                            <th>PRECIO</th>
-                            <th>STOCK ACTUAL</th>
-                            <th>STOCK MÍNIMO</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredProducts.map((p) => {
-                            const isLowStock = p.normalizedStock < 5;
-                            const fmtPrice = new Intl.NumberFormat('en-US', { 
-                                style: 'currency', currency: 'USD' 
-                            }).format(p.normalizedPrice);
-
-                            return (
-                                <tr key={p.id} className={isLowStock ? styles.lowStockRow : ''}>
-                                    <td className={styles.nameCell}>{p.displayName}</td>
-                                    <td className={styles.descriptionCell}>{p.displayDesc}</td>
-                                    <td className={styles.priceCell}>{fmtPrice}</td>
-                                    <td className={styles.stockCell}>
-                                        {p.normalizedStock} 
-                                        {isLowStock && <span className={styles.lowStockWarning}>
-                                            <img src={getIcon('alert')} alt="Alerta de bajo stock" />
-                                             Bajo</span>}
-                                    </td>
-                                    <td className={styles.minStockCell}>{p.stock_minimo ?? '—'}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                <TableB 
+                    columns={columns}
+                    data={filteredProducts}
+                    loading={loading}
+                    error={error}
+                    onRetry={() => fetchProducts(false)}
+                    emptyIcon={PackageSearch}
+                    emptyMessage="No se encontraron productos en el inventario."
+                    rowKey={(row) => row.id || row.nombre}
+                    rowClassName={(row) => {
+                        const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
+                        return row.normalizedStock < stockMin ? styles.lowStockRow : '';
+                    }}
+                />
             </div>
 
             <div className={styles.footer}>
-              <span className={styles.iconText}><img src={getIcon('fileCheck')} alt="File Check" /> Última sincronización: {new Date(localLastUpdated).toLocaleTimeString()}</span>
-                <br />
-              <span className={styles.iconText}><img src={getIcon('fileClock')} alt="File Clock" /> Próxima incronización: {new Date(localNextUpdate).toLocaleTimeString()}</span>
+                <span className={styles.iconText}>
+                    <img src={getIcon('fileCheck')} alt="Sinc" />
+                    Última sincronización: {new Date(lastUpdated).toLocaleTimeString()}
+                </span>
+                {refreshing && (
+                    <>
+                        <span className={styles.separator}></span>
+                        <span className={styles.iconText} style={{ color: '#0ea5a4' }}>
+                            <img src={getIcon('listRestart')} alt="Actualizando" className={styles.spin} />
+                            Actualizando...
+                        </span>
+                    </>
+                )}
             </div>
-
-            {localRefreshing && <div className={styles.floatingRefresh}>
-                <span className={styles.refreshIcon}><img src={getIcon('listRestart')} alt="Refreshing" /></span>
-                Actualizando...</div>}
 
             <AlertModal
                 open={alertOpen}
-                title={alertTitle || "Error"}
-                message={alertMessage}
-                onClose={() => setAlertOpen(false)}
-                onConfirm={alertOnConfirm ? () => { alertOnConfirm(); setAlertOpen(false); } : undefined}
-            />
+                title={alertTitle}
+                confirmText={selectedProduct ? "Actualizar" : "Entendido"}
+                cancelText={selectedProduct ? "Cancelar" : null}
+                onClose={() => { setAlertOpen(false); setSelectedProduct(null); }}
+                onConfirm={handleConfirmModal}
+            >
+                {selectedProduct ? (
+                    <EditProducts
+                        ref={editFormRef}
+                        productData={selectedProduct}
+                        onUpdateSuccess={() => {
+                            setAlertOpen(false);
+                            setSelectedProduct(null);
+                            fetchProducts();
+                        }}
+                        onError={(err) => setAlertMessage(getAlertPayload(err))}
+                    />
+                ) : (
+                    <p>{alertMessage}</p>
+                )}
+            </AlertModal>
         </div>
     );
 }

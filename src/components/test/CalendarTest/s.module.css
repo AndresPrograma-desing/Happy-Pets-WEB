@@ -1,0 +1,124 @@
+.pantallaCompleta {
+  display: flex;
+  flex-direction: column;
+  height: 90vh; /* Ocupa casi toda la pantalla */
+  background: #ffffff;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 30px;
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.infoMes h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.infoMes span {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.controles {
+  display: flex;
+  gap: 10px;
+}
+
+.controles button {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.controles button:hover { background: #f8fafc; }
+
+.btnHoy {
+  font-weight: 600;
+  padding: 8px 16px !important;
+  color: #2563eb;
+}
+
+.gridCalendario {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: 40px repeat(5, 1fr); /* Filas proporcionales */
+  flex-grow: 1;
+}
+
+.cabeceraSemana {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #64748b;
+  text-transform: uppercase;
+  padding-top: 10px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.celdaDia {
+  border-right: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 10px;
+  min-height: 120px;
+  transition: 0.2s;
+}
+
+.celdaDia:hover { background: #fcfcfc; }
+
+.celdaVacia {
+  background: #fafafa;
+  border-right: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.numeroDia {
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.contenedorCitas {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.etiquetaCita {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+/* LOGICA DE COLORES SOLICITADA */
+.vencida {
+  background-color: #fee2e2; /* Rojo suave */
+  color: #b91c1c;
+  border-left: 3px solid #ef4444;
+}
+
+.pendiente {
+  background-color: #dcfce7; /* Verde suave */
+  color: #15803d;
+  border-left: 3px solid #22c55e;
+}
+
+.horaCita { opacity: 0.8; font-size: 0.7rem; }
+.nombreMascota { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

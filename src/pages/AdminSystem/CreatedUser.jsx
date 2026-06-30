@@ -1,140 +1,160 @@
-/* Main container with fingerprint bottom */
 import React, { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import styles from './CreatedUser.module.css';
 import { createUser } from '../../services/api';
 import { applyServerErrorsToForm } from '../../utils/apiErrors';
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
+const EyeIcon = ({ visible }) => (
+  visible ? (
+    <img
+      src={getIcon('eye')}
+      alt="Mostrar contraseña"
+      style={{ ...styles.icon, filter: 'invert(0)', color: '#111', width: 18, height: 18 }}
+    />
+  ) : (
+    <img
+      src={getIcon('eyeOff')}
+      alt="Ocultar contraseña"
+      style={{ ...styles.icon, filter: 'invert(0)', color: '#111', width: 18, height: 18 }}
+    />
+  )
+);
 
 function CreatedUser() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const overlayRef = useRef(null);
+  const firstInputRef = useRef(null);
 
-  const { register, handleSubmit, formState: { errors }, reset, setError, clearErrors } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, setError, clearErrors } = useForm({
+    defaultValues: { rol: 'doctor' }
+  });
+
+  useEffect(() => {
+    if (open && firstInputRef.current) firstInputRef.current.focus();
+  }, [open]);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape' && open) handleClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  const handleClose = () => {
+    reset({ rol: 'doctor' });
+    setMessage(null);
+    setShowPassword(false);
+    setOpen(false);
+  };
 
   const onSubmit = async (data) => {
     setMessage(null);
     setLoading(true);
     try {
-      const payload = {
-        nombre: data.nombre,
-        apellido: data.apellido,
-        email: data.email,
+      await createUser({
+        nombre: data.nombre.trim(),
+        apellido: data.apellido.trim(),
+        email: data.email.trim().toLowerCase(),
         password: data.password,
         rol: data.rol,
-      };
-      await createUser(payload);
-      setMessage('Usuario creado correctamente');
-      reset();
-      setTimeout(() => setOpen(false), 800);
+      });
+      setMessage({ type: 'success', text: 'Usuario creado' });
+      setTimeout(() => handleClose(), 800);
     } catch (err) {
-      // Intentamos mapear errores por campo al formulario
       const { applied, general } = applyServerErrorsToForm(err, { setError, clearErrors });
       if (applied) {
-        if (general && general.length) setMessage(general.join('\n'));
+        if (general?.length) setMessage({ type: 'error', text: general.join('\n') });
       } else {
-        const serverMsg = err.body?.message || err.message || '';
-        const isForbidden = err.status === 403 || /forbidden/i.test(serverMsg);
-        setMessage(isForbidden ? 'Rol inválido para el usuario' : (serverMsg || 'Error al crear usuario'));
+        setMessage({ type: 'error', text: err.body?.message || 'Error al crear' });
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Close on Escape
-  useEffect(() => {
-    function onKey(e) {
-      if (e.key === 'Escape' && open) {
-        reset({ rol: 'doctor' });
-        setMessage(null);
-        setOpen(false);
-      }
-    }
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, reset]);
-
-  // Close when clicking on overlay background
-  const onOverlayClick = (e) => {
-    if (e.target === overlayRef.current) {
-      reset({ rol: 'doctor' });
-      setMessage(null);
-      setOpen(false);
-    }
-  };
-
   return (
-    <div>
-      <button
-        className={styles.openBtn}
-        onClick={() => {
-          reset({ rol: 'doctor' });
-          setMessage(null);
-          setOpen(true);
-        }}
-      >Crear usuario</button>
+    <>
+      <button className={styles.openBtn} onClick={() => { reset(); setMessage(null); setOpen(true); }}>
+        + Crear usuario
+      </button>
 
       {open && (
-        <div ref={overlayRef} className={styles.overlay} role="dialog" aria-modal="true" onMouseDown={onOverlayClick}>
+        <div className={styles.overlay} ref={overlayRef} onClick={(e) => e.target === overlayRef.current && handleClose()}>
           <div className={styles.modal}>
             <div className={styles.header}>
-              <h3>Nuevo usuario</h3>
-              <button
-                className={styles.close}
-                onClick={() => {
-                  reset({ rol: 'doctor' });
-                  setMessage(null);
-                  setOpen(false);
-                }}
-                aria-label="Cerrar"
-              >×</button>
+              <h3>Nuevo usuario
+                <img src={getIcon('user')} alt="" 
+                style={{ width: 18, height: 18, marginLeft: 8 }}/>
+              </h3>
+              <button onClick={handleClose} className={styles.closeBtn}>×</button>
             </div>
 
-            <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-              <label>Nombre</label>
-              <input {...register('nombre', { required: 'Requerido', placeholder: 'Nombre' })} />
-              {errors.nombre && <p className={styles.error}>{errors.nombre.message}</p>}
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className={styles.field}>
+                <input
+                  placeholder="Nombre"
+                  {...register('nombre', { required: 'Requerido', minLength: { value: 2, message: 'Mínimo 2' } })}
+                  ref={(e) => { register('nombre').ref(e); firstInputRef.current = e; }}
+                />
+                {errors.nombre && <span className={styles.error}>{errors.nombre.message}</span>}
+              </div>
 
-              <label>Apellido</label>
-              <input {...register('apellido', { required: 'Requerido', placeholder: 'Apellido' })} />
-              {errors.apellido && <p className={styles.error}>{errors.apellido.message}</p>}
+              <div className={styles.field}>
+                <input placeholder="Apellido" {...register('apellido', { required: 'Requerido', minLength: { value: 2, message: 'Mínimo 2' } })} />
+                {errors.apellido && <span className={styles.error}>{errors.apellido.message}</span>}
+              </div>
 
-              <label>Correo</label>
-              <input {...register('email', { required: 'Requerido', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Correo inválido' }, placeholder: 'Correo' })} />
-              {errors.email && <p className={styles.error}>{errors.email.message}</p>}
+              <div className={styles.field}>
+                <input placeholder="Correo electrónico" {...register('email', { required: 'Requerido', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Inválido' } })} />
+                {errors.email && <span className={styles.error}>{errors.email.message}</span>}
+              </div>
 
-              <label>Contraseña</label>
-              <input type="password" {...register('password', { required: 'Requerido', minLength: { value: 6, message: 'Mínimo 6 caracteres' } })} placeholder="Contraseña" />
-              {errors.password && <p className={styles.error}>{errors.password.message}</p>}
+              <div className={styles.field}>
+                <div className={styles.passwordWrapper}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Contraseña"
+                    {...register('password', { required: 'Requerida', minLength: { value: 6, message: 'Mínimo 6' } })}
+                  />
+                  <button type="button" className={styles.eyeBtn} onClick={() => setShowPassword(!showPassword)} tabIndex={-1}>
+                    <EyeIcon visible={showPassword} />
+                  </button>
+                </div>
+                {errors.password && <span className={styles.error}>{errors.password.message}</span>}
+              </div>
 
-              <label>Rol</label>
-              <select {...register('rol', { required: true })} defaultValue="doctor">
-                <option value="doctor">Doctor</option>
-                <option value="admin">Administrador</option>
-                <option value="secretaria">Secretaria</option>
-              </select>
+              <div className={styles.field}>
+                <select {...register('rol')}>
+                  <option value="doctor">Doctor</option>
+                  <option value="admin">Administrador</option>
+                  <option value="secretaria">Secretaria</option>
+                </select>
+              </div>
 
-              {message && <p className={styles.msg}>{message}</p>}
+              {message && (
+                <div className={`${styles.message} ${message.type === 'error' ? styles.errorMsg : styles.successMsg}`}>
+                  {message.text}
+                </div>
+              )}
 
               <div className={styles.actions}>
-                <button
-                  type="button"
-                  className={styles.secondary}
-                  onClick={() => {
-                    reset({ rol: 'doctor' });
-                    setMessage(null);
-                    setOpen(false);
-                  }}
-                >Cancelar</button>
-                <button type="submit" className={styles.primary} disabled={loading}>{loading ? 'Creando...' : 'Crear'}</button>
+                <button type="button" onClick={handleClose} disabled={loading}>Cancelar</button>
+                <button type="submit" disabled={loading}>
+                  {loading ? 'Creando...' : 'Crear'}
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

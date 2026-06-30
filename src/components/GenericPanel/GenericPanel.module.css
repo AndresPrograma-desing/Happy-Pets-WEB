@@ -1,0 +1,293 @@
+.layoutContainer,
+.adminRoot {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f0f2f5;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: var(--bg-facturas);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebarHeader {
+  padding: 2rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-bottom: 1px solid #2d3748;
+}
+
+.brandText {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--letter-white);
+}
+
+/* Navigation */
+.sidebarNav {
+  flex: 1;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #cbd5e0;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+
+.navItem:hover {
+  background: #2d3748;
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  object-fit: contain;
+  filter: invert(1) brightness(1.2);
+}
+
+.subMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0 4px 18px;
+}
+
+.subNavItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #a0aec0;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.15s ease;
+}
+
+.subNavItem:hover {
+  background: #2d3748;
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.sidebarFooter {
+  padding: 14px;
+  border-top: 1px solid #2d3748;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #f87171;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.logoutBtn:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* Main content */
+.mainWrapper,
+.contentWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topBar,
+.topHeader {
+  height: 60px;
+  background-color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 40px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.userBadge {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a5568;
+  padding: 5px 15px;
+  background: #edf2f7;
+  border-radius: 20px;
+}
+
+.contentArea,
+.contentContainer {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 1000px;
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+  height: fit-content;
+  border: 1px solid #e2e8f0;
+}
+
+.mainTitle,
+.title {
+  margin: 0 0 15px 0;
+  font-size: 1.8rem;
+  color: #1a202c;
+}
+
+.mainMessage,
+.message {
+  font-size: 1.05rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.extraContent {
+  margin-top: 12px;
+}
+
+.mainWrapper footer {
+  margin-top: auto;
+}
+
+/* ========================================
+   RESPONSIVE – no altera el diseño de escritorio
+   ======================================== */
+@media (max-width: 768px) {
+  /* Cambiar a layout en columna para que la barra lateral quede arriba */
+  .layoutContainer,
+  .adminRoot {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;          /* deja de ser sticky */
+    order: -1;                 /* asegura que quede primero en el flujo */
+  }
+
+  .sidebarHeader {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .brandText {
+    font-size: 1rem;
+  }
+
+  /* Navegación: convertir en menú horizontal */
+  .sidebarNav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    padding: 0.5rem;
+  }
+
+  .navItem {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    gap: 6px;
+    width: auto;               /* para que no ocupe todo el ancho */
+  }
+
+  .navItem:hover {
+    transform: none;           /* anula el desplazamiento lateral */
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+  }
+  .icon:global(svg),
+svg.icon {
+  stroke: #ffffff !important; 
+}
+
+  .sidebarFooter {
+    padding: 0.5rem 1rem;
+  }
+
+  .logoutBtn {
+    padding: 6px 10px;
+  }
+
+  /* Barra superior más compacta */
+  .topBar,
+  .topHeader {
+    height: 50px;
+    padding: 0 1rem;
+    justify-content: space-between;
+  }
+
+  .userBadge {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+
+  /* Área de contenido con menos relleno */
+  .contentArea,
+  .contentContainer {
+    padding: 1.5rem 1rem;
+  }
+
+  /* Tarjeta a ancho completo */
+  .card {
+    max-width: 100%;
+    padding: 1.5rem;
+  }
+
+  .mainTitle,
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .mainMessage,
+  .message {
+    font-size: 0.95rem;
+  }
+}

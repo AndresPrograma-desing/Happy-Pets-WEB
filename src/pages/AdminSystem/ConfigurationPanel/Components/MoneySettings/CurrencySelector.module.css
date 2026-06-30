@@ -1,0 +1,148 @@
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: transparent; /* Eliminamos el fondo azul oscuro */
+  max-width: 500px;
+}
+
+.header {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+
+.title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.selectionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px; /* Mayor separación entre botones */
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid #e2e8f0; /* Borde gris suave por defecto */
+}
+
+/* BOTÓN ACTIVO: FONDO BLANCO Y BORDE VERDE FUERTE */
+.activeCard {
+  background: #ffffff;
+  border-color: #22c55e !important;
+  box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.15);
+}
+
+.activeCard .currencyCode {
+  color: #15803d;
+}
+
+.activeCard .iconBox {
+  color: #22c55e;
+}
+
+/* BOTÓN INACTIVO: GRISES Y BLANCOS */
+.inactiveCard {
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+.inactiveCard:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.checkContainer {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.checkedCircle {
+  width: 22px;
+  height: 22px;
+  background: #22c55e;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyCircle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+}
+
+.iconBox {
+  margin-bottom: 12px;
+  transition: transform 0.2s;
+}
+
+.activeCard .iconBox {
+  transform: scale(1.1);
+}
+
+.currencyCode {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+/* MENSAJE INFERIOR */
+.infoFooter {
+  padding: 12px 0;
+  font-size: 0.95rem;
+  color: #64748b;
+}
+
+.infoFooter strong {
+  color: #15803d;
+  background: #f0fdf4;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* LOADER */
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  color: #64748b;
+}
+
+.loaderOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.spin {
+  animation: rotate 1s linear infinite;
+  color: #22c55e;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

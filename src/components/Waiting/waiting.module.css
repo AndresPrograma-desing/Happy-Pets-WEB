@@ -1,0 +1,36 @@
+.wordSearchContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+ 
+  min-height: 100vh;  
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px;
+  
+  text-align: center;
+}
+
+.iconWrapper {
+  margin-bottom: 16px;
+  opacity: 0.8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gameTitle {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 24px;  
+}
+
+.errorMessage {
+  color: #666;
+  font-size: 15px;
+  margin-bottom: 24px;
+  max-width: 320px;
+  line-height: 1.5; 
+}

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './CitasDoctor.module.css';
 import useGetCitas from '../../../hooks/GetCitas';
-import SpinerLoader from '../../../components/SpinerLoader/SpinerLoader';
 import { deleteCita, deleteCitaAlt, updateCitaEstado } from '../../../services/api';
 import PanelCitas from '../../../components/PanelCitas/PanelCitas';
 import AlertModal from '../../../components/AlertModal/AlertModal';
@@ -180,7 +179,7 @@ function CitasDoctor() {
 						Crear cita
 					</button>
 						<button type="button" className={styles.refreshButton} onClick={() => { console.log('openCreateClientModal'); openCreateClientModal(); }}>
-						Crear usuario
+						Crear cliente
 					</button>
 				</div>
 			</div>
@@ -196,8 +195,6 @@ function CitasDoctor() {
 				</div>
 			</div>
 
-			{loading && <SpinerLoader />}
-
 			{error && (
 				<div className={styles.errorBanner}>
 					Error al cargar citas: {error.message || String(error)}{' '}
@@ -207,6 +204,7 @@ function CitasDoctor() {
 
 			{!!localError && <div className={styles.errorText}>{localError}</div>}
 
+			{loading && <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Cargando citas...</div>}
 			{!loading && !error && (
 				<div className={styles.contentWrap}>
 					<PanelCitas

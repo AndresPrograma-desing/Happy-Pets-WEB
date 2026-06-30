@@ -27,4 +27,4 @@ export const playSoung = (soungName, volumen = 1) => {
 }
 
 // Wrapper compatible: llamada específica usada por componentes
-export const playLoginSound = (volumen = 0) => playSoung('login', volumen);
+export const playLoginSound = (volumen = 1) => playSoung('login', volumen);

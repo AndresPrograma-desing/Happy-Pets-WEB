@@ -8,6 +8,8 @@ import useFacturaDownloader, { PollFactura } from '../../hooks/FacturaDownloader
 import Page1 from '../Page1/Page1';
 import PollingSeconds from '../../hooks/PollingSecons';
 import ModalTooltip from '../ModalTooltip/ModalTooltip';
+import { DatabaseSearch, View } from 'lucide-react';
+
 
 function getStatusStyle(estado) {
   const s = String(estado || '').toLowerCase();
@@ -84,7 +86,7 @@ export default function FacturaManager() {
         <div className={styles.headerTitle}>
           <h1>
             <img src={getIcon('service')} className={styles.serviceIcon} alt="" />
-            Panel de Facturación</h1>
+           gestion de Recibos</h1>
           <p>Gestión y descarga de documentos profesionales</p>
         </div>
         <Page1 url="/SecretariaSystem" />
@@ -174,7 +176,7 @@ export default function FacturaManager() {
           <InvoiceViewer invoice={previewInvoice} />
         ) : (
           <div>
-            <img src={getIcon('rotate')} className={styles.rotating} alt="" />Cargando previa...</div>
+            <img src={getIcon('rotate')} className={styles.rotating} alt="" /><View className={styles.loadingIcon} /> Cargando previa...</div>
         )}
       </AlertModal>
 
@@ -193,7 +195,7 @@ export default function FacturaManager() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="7" className={styles.textCenter}>Cargando datos...</td></tr>
+              <tr><td colSpan="7" className={styles.textCenter}><DatabaseSearch className={styles.loadingIcon} /> Cargando datos...</td></tr>
             ) : filteredCitas.map((cita) => {
               const status = getStatusStyle(cita.estado);
               return (
@@ -201,7 +203,7 @@ export default function FacturaManager() {
                   <td className={styles.idCell}>#{cita.id}</td>
                   <td>
                     <div className={styles.dateCell}>
-                      {new Date(cita.fecha_cita).toLocaleDateString()}
+                      {(cita.fecha_cita)}
                       <small>{cita.hora_cita}</small>
                     </div>
                   </td>

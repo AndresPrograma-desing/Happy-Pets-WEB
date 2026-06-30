@@ -1,273 +1,306 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { PlusCircle, Trash2 } from 'lucide-react';
 import styles from './ProductCreate.module.css';
 
 import {    
   getProducts,
-  adminCreateProduct
+  adminCreateProduct,
+  adminDeleteProduct
 } from '../../../../services/api';
 
-// 1. IMPORTACIÓN DEL COMPONENTE DE LISTA
-import ProductList from '../../../../components/ProductList/ProductList'; 
-import DeleteProducto from '../Deleteproducto/DeleteProducto';
-import HistoryTable from '../../../../components/HystoryTable/HistoryTable';
+import TableA from '../../../../components/screens/components/TableA';
 import AlertModal from '../../../../components/AlertModal/AlertModal';
 import { getAlertPayload } from '../../../../utils/apiErrors';
+import CustomSelect from '../../../../components/UI/DesplegableSelector/CustomSelect'; 
+import useCategories from '../../../../hooks/requestCategories'; 
 
-// --- COMPONENTE INTERNO: ProductForm (CAMPOS COMPLETOS) ---
-function ProductForm({ onCancel, onSubmit }) {
-  const [form, setForm] = useState({
-    codigo: '', 
-    nombre: '', 
-    descripcion: '', 
-    categoria_id: '',
-    tipo: '', 
-    precio: '', 
-    precio_venta: '', 
-    stock: '',
-    stock_minimo: '',
-    unidad_medida: '', 
-    proveedor: ''
-  });
-  const [error, setError] = useState('');
-
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleValidateAndSubmit = () => {
-    if (!form.codigo.trim() || !form.nombre.trim()) {
-      return setError('Código y Nombre son obligatorios');
-    }
-    if (!form.categoria_id) return setError('La Categoría es obligatoria');
-    onSubmit(form);
-  };
-
+// --- CONTENIDO DEL FORMULARIO ---
+function ProductFormContent({ form, onChange, onSelectChange, categories, loadingCats }) {
   return (
-    <div className={styles.modalOverlay} onMouseDown={onCancel}>
-      <div className={styles.modal} onMouseDown={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h3>📦 Registro Detallado de Producto</h3>
-          <button className={styles.closeX} onClick={onCancel}>&times;</button>
+    <div className={styles.formContent}>
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
+          <label>Código</label>
+          <input name="codigo" value={form.codigo} onChange={onChange} placeholder="Ej: PROD-001" />
         </div>
-        
-        <div className={styles.formContent}>
-          {/* Fila 1 */}
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Código</label>
-              <input name="codigo" value={form.codigo} onChange={handleChange} placeholder="Ej: PROD01" />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Nombre</label>
-              <input name="nombre" value={form.nombre} onChange={handleChange} placeholder="Nombre del producto" />
-            </div>
-          </div>
-
-          {/* Fila 2 - Descripción Completa */}
-          <div className={styles.formGroupFull}>
-            <label>Descripción</label>
-            <input name="descripcion" value={form.descripcion} onChange={handleChange} placeholder="Detalles adicionales..." />
-          </div>
-
-          {/* Fila 3 */}
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Categoría (ID)</label>
-              <input name="categoria_id" type="number" value={form.categoria_id} onChange={handleChange} placeholder="Ej: 1" />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Tipo / Clase</label>
-              <input name="tipo" value={form.tipo} onChange={handleChange} placeholder="Ej: Joya, Insumo..." />
-            </div>
-          </div>
-
-          {/* Fila 4 */}
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Precio Compra</label>
-              <input name="precio" type="number" value={form.precio} onChange={handleChange} placeholder="0.00" />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Precio Venta</label>
-              <input name="precio_venta" type="number" value={form.precio_venta} onChange={handleChange} placeholder="0.00" />
-            </div>
-          </div>
-
-          {/* Fila 5 */}
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Stock Inicial</label>
-              <input name="stock" type="number" value={form.stock} onChange={handleChange} placeholder="0" />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Stock Mínimo</label>
-              <input name="stock_minimo" type="number" value={form.stock_minimo} onChange={handleChange} placeholder="0" />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Unidad de Medida</label>
-              <input name="unidad_medida" value={form.unidad_medida} onChange={handleChange} placeholder="Ej: Und, Gramos, Par" />
-            </div>
-          </div>
-
-          {/* Fila 6 */}
-          <div className={styles.formGroupFull}>
-            <label>Proveedor</label>
-            <input name="proveedor" value={form.proveedor} onChange={handleChange} placeholder="Nombre del proveedor" />
-          </div>
+        <div className={styles.formGroup}>
+          <label>Nombre</label>
+          <input name="nombre" value={form.nombre} onChange={onChange} placeholder="Nombre del producto" />
         </div>
+      </div>
 
-        {error && <div className={styles.error}>{error}</div>}
+      <div className={styles.formGroupFull}>
+        <label>Descripción</label>
+        <input name="descripcion" value={form.descripcion} onChange={onChange} placeholder="Breve descripción del producto..." />
+      </div>
 
-        <div className={styles.actions}>
-          <button className={styles.secondary} onClick={onCancel}>Cancelar</button>
-          <button className={styles.primary} onClick={handleValidateAndSubmit}>Registrar Producto</button>
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
+          <CustomSelect 
+            label="Categoría"
+            options={categories}
+            value={form.categoria_id}
+            onChange={onSelectChange}
+            placeholder={loadingCats ? "Cargando..." : "Selecciona una categoría"}
+          />
         </div>
+        <div className={styles.formGroup}>
+          <label>Tipo / Clase</label>
+          <input name="tipo" value={form.tipo} onChange={onChange} placeholder="Ej: Insumo, Venta" />
+        </div>
+      </div>
+
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
+          <label>Precio Compra</label>
+          <input name="precio" type="number" value={form.precio} onChange={onChange} placeholder="0.00" />
+        </div>
+        <div className={styles.formGroup}>
+          <label>Precio Venta</label>
+          <input name="precio_venta" type="number" value={form.precio_venta} onChange={onChange} placeholder="0.00" />
+        </div>
+      </div>
+
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
+          <label>Stock Inicial</label>
+          <input name="stock" type="number" value={form.stock} onChange={onChange} placeholder="0" />
+        </div>
+        <div className={styles.formGroup}>
+          <label>Stock Mínimo</label>
+          <input name="stock_minimo" type="number" value={form.stock_minimo} onChange={onChange} placeholder="Alerta en..." />
+        </div>
+        <div className={styles.formGroup}>
+          <label>Unidad Medida</label>
+          <input name="unidad_medida" value={form.unidad_medida} onChange={onChange} placeholder="Ej: Und, Kg" />
+        </div>
+      </div>
+
+      <div className={styles.formGroupFull}>
+        <label>Proveedor</label>
+        <input name="proveedor" value={form.proveedor} onChange={onChange} placeholder="Nombre del proveedor" />
       </div>
     </div>
   );
 }
 
 // --- COMPONENTE PRINCIPAL ---
-export default function ProductCreate() {
-  const navigate = useNavigate();
+export default function ProductCreate({ hideHeader }) {
+  const { categories, loading: loadingCats } = useCategories();
+  
   const [items, setItems] = useState([]);
-  const [error, setError] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [historyDeleted, setHistoryDeleted] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false); 
+  
+  // Modals
   const [showForm, setShowForm] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(Date.now());
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '' });
+
+  // Delete State
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
+  const [form, setForm] = useState({
+    codigo: '', nombre: '', descripcion: '', categoria_id: '',
+    tipo: '', precio: '', precio_venta: '', stock: '',
+    stock_minimo: '', unidad_medida: '', proveedor: ''
+  });
 
   const loadData = async () => {
-    setIsRefreshing(true);
     try {
-      setError(null);
       const data = await getProducts();
-      console.log('getProducts response:', data);
-      // Normalizar respuestas que pueden venir en distintos idiomas/propiedades
-      const list = Array.isArray(data)
-        ? data
-        : (data?.products || data?.productos || data?.items || data?.data || []);
-      console.log('normalized list:', list);
+      const list = Array.isArray(data) ? data : (data?.products || data?.items || []);
       setItems(list.filter(Boolean));
-      setLastUpdated(Date.now());
-
-    } catch (e) {
-      console.error("Error al cargar:", e);
-      setError(e?.message || String(e));
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
+    } catch (e) { 
+      console.error(e); 
+    } finally { 
+      setLoading(false); 
     }
   };
 
   useEffect(() => { loadData(); }, []);
 
-  const handleDeleted = (product) => {
-    if (!product) {
-      loadData();
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleSelectChange = (val) => setForm({ ...form, categoria_id: val });
+
+  const handleCreateSubmit = async () => {
+    if (!form.codigo.trim() || !form.nombre.trim() || !form.categoria_id) {
+      setAlertConfig({ title: 'Atención', message: 'Código, Nombre y Categoría son obligatorios.' });
+      setAlertOpen(true);
       return;
     }
-    const newEntry = {
-      ...product,
-      id: `del-${Date.now()}`,
-      fecha_registro: new Date().toLocaleTimeString(),
-      deleted: true,
-    };
-    setHistoryDeleted(prev => [newEntry, ...prev].slice(0, 8));
-    // refrescar lista
-    loadData();
-  };
 
-  const handleCreate = async (payload) => {
     try {
-      // El backend de creación espera nombres en camelCase.
       const sanitized = {
-        codigo: payload.codigo,
-        nombre: payload.nombre,
-        descripcion: payload.descripcion,
-        categoriaId: Number(payload.categoria_id) || 1,
-        tipo: payload.tipo,
-        precio: Number(payload.precio) || 0,
-        precioVenta: Number(payload.precio_venta) || 0,
-        stock: Number(payload.stock) || 0,
-        stockMinimo: Number(payload.stock_minimo) || 0,
-        unidadMedida: payload.unidad_medida,
-        proveedor: payload.proveedor,
-      };
-
-      await adminCreateProduct(sanitized);
-
-      const newEntry = {
-        ...sanitized,
-        id: Date.now(),
-        fecha_registro: new Date().toLocaleTimeString()
+        ...form,
+        categoriaId: Number(form.categoria_id),
+        precio: Number(form.precio) || 0,
+        precioVenta: Number(form.precio_venta) || 0,
+        stock: Number(form.stock) || 0,
+        stockMinimo: Number(form.stock_minimo) || 0,
       };
       
-      setHistory(prev => [newEntry, ...prev].slice(0, 8));
-      setShowForm(false);
-      await loadData(); 
+      await adminCreateProduct(sanitized);
+      const nombreCreado = form.nombre;
 
-    } catch (e) {
-        console.error("Error al crear producto:", e);
-      // Mostrar el error devuelto por el backend en el AlertModal (formateado)
-      setAlertMessage(getAlertPayload(e));
+      setShowForm(false);
+      setForm({ codigo: '', nombre: '', descripcion: '', categoria_id: '', tipo: '', precio: '', precio_venta: '', stock: '', stock_minimo: '', unidad_medida: '', proveedor: '' });
+      loadData();
+
+      setAlertConfig({ 
+        title: '¡Éxito!', 
+        message: `El producto "${nombreCreado}" se ha registrado correctamente.` 
+      });
+      setAlertOpen(true);
+
+    } catch (e) { 
+      setAlertConfig({ 
+        title: 'Error', 
+        message: getAlertPayload(e) 
+      });
       setAlertOpen(true);
     }
   };
 
+  // ----- DELETE LOGIC -----
+  const handleDeleteClick = (product) => {
+    setProductToDelete(product);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
+    try {
+      // Find the correct ID field
+      const productId = productToDelete.id || productToDelete.producto_id || productToDelete.productId;
+      if (!productId) {
+        throw new Error("No se pudo identificar el ID del producto para eliminar.");
+      }
+      
+      await adminDeleteProduct(productId);
+      
+      setDeleteConfirmOpen(false);
+      setProductToDelete(null);
+      loadData();
+      
+      setAlertConfig({ 
+        title: 'Producto Eliminado', 
+        message: `El producto ha sido eliminado correctamente del inventario.` 
+      });
+      setAlertOpen(true);
+
+    } catch (e) {
+      setDeleteConfirmOpen(false);
+      setAlertConfig({ 
+        title: 'Error al Eliminar', 
+        message: getAlertPayload(e) 
+      });
+      setAlertOpen(true);
+    }
+  };
+
+  const columns = [
+    {
+      header: 'NOMBRE',
+      render: (row) => row.nombre || row.name || 'Sin nombre',
+      align: 'left'
+    },
+    {
+      header: 'DESCRIPCIÓN',
+      render: (row) => row.descripcion || row.description || '—',
+      align: 'left'
+    },
+    {
+      header: 'PRECIO',
+      render: (row) => {
+          const p = Number(row.precio || row.price || 0);
+          return `$${p.toFixed(2)}`;
+      },
+      align: 'left'
+    },
+    {
+      header: 'STOCK',
+      render: (row) => {
+        const currentStock = Number(row.stock || row.stockActual || 0);
+        const minStock = Number(row.stock_minimo || row.minStock || 0);
+        return (
+          <span style={{ fontWeight: currentStock < minStock ? 'bold' : 'normal', color: currentStock < minStock ? '#ef4444' : 'inherit' }}>
+            {currentStock}
+          </span>
+        );
+      },
+      align: 'center'
+    },
+    {
+      header: 'ACCIONES',
+      align: 'center',
+      render: (row) => (
+        <button className={styles.deleteBtn} onClick={() => handleDeleteClick(row)} title="Eliminar Producto">
+          <Trash2 size={16} />
+          Eliminar
+        </button>
+      )
+    }
+  ];
+
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h2>Administrar Producos</h2>
-        <div className={styles.headerActions}>
+      
+      <div className={styles.topActions}>
           <button className={styles.primary} onClick={() => setShowForm(true)}>
-            + Agregar Producto
+            <PlusCircle size={18} />
+            Agregar Producto
           </button>
-          <DeleteProducto onDeleted={handleDeleted} />
-          <button className={styles.secondary} onClick={() => navigate('/AdminSystem')}>
-             Volver
-          </button>
-        </div>
       </div>
 
-      {error && <div className={styles.error} role="alert">{error}</div>}
+      <div className={styles.tableWrapper}>
+        {loading ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Cargando inventario para administración...</div>
+        ) : (
+            <TableA 
+              columns={columns}
+              data={items}
+              keyExtractor={(row) => row.id || row.codigo || row.nombre}
+            />
+        )}
+      </div>
 
-      {/* --- SECCIÓN HISTORIAL (Estilo Excel) --- */}
-         <div style={{ display: 'flex', gap: '20px', width: '100%', alignItems: 'flex-start' }}>
-            <HistoryTable title="Historial de Cargas Recientes" data={history} stylesModule={styles} />
-            <HistoryTable title="Eliminados Recientemente" data={historyDeleted} stylesModule={styles} />
-          </div>
-
-      <hr className={styles.separator} />
-
-      {/* --- RENDERIZADO DEL PRODUCT LIST (TABLA GENERAL) --- */}
-      {loading ? (
-        <div className={styles.loading}>Cargando inventario...</div>
-      ) : (
-        <ProductList 
-          products={items} 
-          lastUpdated={lastUpdated} 
-          isRefreshing={isRefreshing} 
+      {/* MODAL DEL FORMULARIO */}
+      <AlertModal 
+        open={showForm} 
+        title="Registro de Nuevo Producto"
+        onClose={() => setShowForm(false)}
+        onConfirm={handleCreateSubmit}
+        confirmText="Registrar"
+        cancelText="Cancelar"
+      >
+        <ProductFormContent 
+          form={form}
+          onChange={handleChange}
+          onSelectChange={handleSelectChange}
+          categories={categories}
+          loadingCats={loadingCats}
         />
-      )}
+      </AlertModal>
 
-      {/* --- MODAL DEL FORMULARIO --- */}
-      {showForm && (
-        <ProductForm 
-          onCancel={() => setShowForm(false)} 
-          onSubmit={handleCreate} 
-        />
-      )}
+      {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN */}
+      <AlertModal 
+        open={deleteConfirmOpen} 
+        title="Confirmar Eliminación"
+        message={`¿Estás seguro de que deseas eliminar permanentemente el producto "${productToDelete?.nombre || productToDelete?.name}"? Esta acción no se puede deshacer.`}
+        onClose={() => { setDeleteConfirmOpen(false); setProductToDelete(null); }}
+        onConfirm={confirmDelete}
+        confirmText="Sí, Eliminar"
+        cancelText="Cancelar"
+      />
 
-      <AlertModal
-        open={alertOpen}
-        title="Error al crear producto"
-        message={alertMessage || 'Error al crear el producto.'}
-        confirmText="Cerrar"
-        onClose={() => setAlertOpen(false)}
+      {/* MODAL DE NOTIFICACIÓN DE ÉXITO O ERROR */}
+      <AlertModal 
+        open={alertOpen} 
+        title={alertConfig.title} 
+        message={alertConfig.message} 
+        onClose={() => setAlertOpen(false)} 
+        confirmText="Entendido"
       />
     </div>
   );

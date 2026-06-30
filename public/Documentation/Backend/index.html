@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, shrink-to-fit=no">
+    <title>Happy Pets · Documentación Completa del Backend</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: #f5faff;
+            color: #0b1c2f;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        :root {
+            --deep-blue: #0a2540;
+            --primary-blue: #1e4a6b;
+            --accent-blue: #2d6fa0;
+            --soft-blue: #e6f0f9;
+            --border-light: #d4e2f2;
+            --white-pure: #ffffff;
+            --text-secondary: #2c3e50;
+            --card-shadow: 0 14px 28px rgba(0, 32, 64, 0.08);
+        }
+        header {
+            background: var(--deep-blue);
+            color: white;
+            padding: 1.2rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 6px 16px rgba(0, 20, 40, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .logo-area i {
+            font-size: 2.4rem;
+            color: #a3d0ff;
+        }
+        .logo-area h1 {
+            font-size: 1.7rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .logo-area span {
+            font-weight: 300;
+            color: #cfe4ff;
+            font-size: 0.9rem;
+        }
+        .btn-download {
+            background: white;
+            color: var(--deep-blue);
+            border: none;
+            padding: 0.7rem 1.6rem;
+            border-radius: 2.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background: #f0f7ff;
+            white-space: nowrap;
+        }
+        .btn-download i {
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+        }
+        .btn-download:hover {
+            background: var(--soft-blue);
+            box-shadow: 0 10px 20px rgba(0, 80, 140, 0.25);
+            transform: translateY(-2px);
+        }
+        main {
+            flex: 1;
+            padding: 2rem 1.8rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .section-title {
+            font-size: 1.7rem;
+            font-weight: 500;
+            margin: 2.2rem 0 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--deep-blue);
+            border-left: 6px solid var(--accent-blue);
+            padding-left: 1.2rem;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 1.8rem;
+        }
+        .card {
+            background: var(--white-pure);
+            border-radius: 1.5rem;
+            padding: 1.5rem 1.4rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            box-shadow: 0 20px 34px rgba(10, 55, 100, 0.12);
+            border-color: #b0cef0;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e2effb;
+            padding-bottom: 0.8rem;
+        }
+        .card-header i {
+            font-size: 2rem;
+            color: var(--accent-blue);
+            background: #e6f2fc;
+            padding: 0.5rem;
+            border-radius: 1rem;
+        }
+        .card-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--deep-blue);
+        }
+        .card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--deep-blue);
+        }
+        .card-content p {
+            margin-bottom: 0.7rem;
+            font-size: 0.96rem;
+            color: var(--text-secondary);
+        }
+        .card-content ul {
+            margin: 0.5rem 0 0.7rem 1.2rem;
+            color: var(--text-secondary);
+            font-size: 0.94rem;
+        }
+        .card-content li {
+            margin-bottom: 0.3rem;
+        }
+        .flow-diagram {
+            background: var(--soft-blue);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 0.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            color: var(--primary-blue);
+        }
+        .flow-step {
+            background: white;
+            padding: 0.35rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.82rem;
+            border: 1px solid var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .persona-mascota-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin: 0.7rem 0;
+            font-size: 1.9rem;
+            color: var(--primary-blue);
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: #e9f2fc;
+            padding: 0.4rem 1.2rem;
+            border-radius: 2rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 0.25rem;
+        }
+        .dep-explain {
+            font-size: 0.85rem;
+            color: #2c3e50;
+            margin-left: 0.2rem;
+            font-weight: 400;
+        }
+        .info-box {
+            background: #f0f6fd;
+            border-left: 5px solid var(--accent-blue);
+            border-radius: 0.8rem;
+            padding: 1.2rem 1.5rem;
+            margin: 1.2rem 0;
+            font-size: 0.95rem;
+            color: #1a3a52;
+        }
+        .info-box i {
+            color: var(--accent-blue);
+            margin-right: 0.4rem;
+        }
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+        footer {
+            background: var(--deep-blue);
+            color: #cbddec;
+            text-align: center;
+            padding: 1.2rem;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+        code {
+            background: #e8f0f8;
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.3rem;
+            font-size: 0.9rem;
+            color: #0d3b5e;
+        }
+        .separator {
+            border: none;
+            border-top: 1px solid #d4e2f2;
+            margin: 1.8rem 0;
+        }
+        @media (max-width: 640px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .btn-download {
+                width: 100%;
+                justify-content: center;
+            }
+            main {
+                padding: 1rem;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-area">
+            <i class="fas fa-shield-dog"></i>
+            <h1>Happy Pets <span>· Documentación Backend</span></h1>
+        </div>
+        <button id="downloadDocBtn" class="btn-download">
+            <i class="fas fa-file-word"></i> Descargar documentación (.doc)
+        </button>
+    </header>
+
+    <main>
+        <!-- Conceptos básicos explicados -->
+        <div class="section-title">
+            <i class="fas fa-graduation-cap"></i> Conceptos fundamentales para entender el sistema
+        </div>
+        <div class="grid-container">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cloud"></i>
+                    <h2>¿Qué es una API REST?</h2>
+                </div>
+                <div class="card-content">
+                    <p><strong>API</strong> significa <em>Application Programming Interface</em> (Interfaz de Programación de Aplicaciones). Es un conjunto de reglas que permite que dos programas se comuniquen entre sí.</p>
+                    <p><strong>REST</strong> (<em>Representational State Transfer</em>) es un estilo de arquitectura que usa los métodos HTTP (GET, POST, PUT, DELETE) para realizar operaciones sobre recursos.</p>
+                    <p>En Happy Pets, la API REST permite que el frontend (la interfaz visual) se comunique con el backend (el servidor) para crear citas, registrar mascotas, generar facturas, etc.</p>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-desktop"></i> Frontend</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-network-wired"></i> HTTP</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step"><i class="fas fa-server"></i> API REST</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-code"></i>
+                    <h2>¿Qué es C# y .NET?</h2>
+                </div>
+                <div class="card-content">
+                    <p><strong>C#</strong> (pronunciado "C Sharp") es un lenguaje de programación moderno creado por Microsoft. Es orientado a objetos, seguro y muy usado para aplicaciones web, de escritorio y videojuegos.</p>
+                    <p><strong>.NET</strong> es la plataforma de desarrollo que ejecuta aplicaciones escritas en C#. Provee bibliotecas, herramientas y un entorno de ejecución común. <strong>ASP.NET Core</strong> es el framework dentro de .NET para construir aplicaciones web y APIs.</p>
+                    <p>Happy Pets usa <strong>.NET 10</strong> y <strong>ASP.NET Core</strong>, lo que garantiza alto rendimiento y seguridad.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-plug"></i>
+                    <h2>¿Qué es un Endpoint?</h2>
+                </div>
+                <div class="card-content">
+                    <p>Un <strong>endpoint</strong> es una dirección URL específica de la API que recibe peticiones del cliente. Cada endpoint realiza una función concreta.</p>
+                    <p>Ejemplos en Happy Pets:</p>
+                    <ul>
+                        <li><code>POST /api/Auth/login</code> → inicia sesión</li>
+                        <li><code>GET /api/Citas</code> → lista citas</li>
+                        <li><code>POST /api/Facturas/cita/5/docx</code> → genera factura</li>
+                    </ul>
+                    <p>Cada endpoint responde con datos en formato JSON, que el frontend interpreta y muestra al usuario.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-key"></i>
+                    <h2>¿Qué es JWT?</h2>
+                </div>
+                <div class="card-content">
+                    <p><strong>JWT</strong> (<em>JSON Web Token</em>) es un estándar para transmitir información de autenticación entre el cliente y el servidor de forma segura.</p>
+                    <p>Cuando un usuario inicia sesión, el servidor genera un token JWT que el frontend guarda. En cada petición posterior, el frontend envía ese token en los encabezados HTTP para demostrar que está autenticado.</p>
+                    <p>Esto evita tener que enviar usuario y contraseña en cada solicitud y permite proteger los endpoints contra accesos no autorizados.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-database"></i>
+                    <h2>¿Qué es Entity Framework?</h2>
+                </div>
+                <div class="card-content">
+                    <p><strong>Entity Framework Core</strong> (EF Core) es un <strong>ORM</strong> (<em>Object-Relational Mapper</em>) que permite trabajar con bases de datos usando objetos de C# en lugar de escribir consultas SQL manualmente.</p>
+                    <p>Happy Pets usa <code>Pomelo.EntityFrameworkCore.MySql</code> para conectarse a MySQL. Con EF Core se pueden crear, leer, actualizar y eliminar registros sin escribir SQL directamente, y las <strong>migraciones</strong> permiten versionar los cambios en la estructura de la base de datos.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <h2>¿Qué es SignalR?</h2>
+                </div>
+                <div class="card-content">
+                    <p><strong>SignalR</strong> es una biblioteca de ASP.NET Core que permite comunicación en <strong>tiempo real</strong> entre el servidor y los clientes. A diferencia de una API REST tradicional (donde el cliente debe preguntar si hay novedades), SignalR permite que el servidor envíe datos al cliente instantáneamente cuando ocurre un evento.</p>
+                    <p>En Happy Pets se usa para la mensajería interna entre el personal de la clínica veterinaria.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-shield-alt"></i>
+                    <h2>¿Qué es BCrypt?</h2>
+                </div>
+                <div class="card-content">
+                    <p><strong>BCrypt</strong> es un algoritmo de <strong>hashing</strong> diseñado específicamente para contraseñas. Transforma una contraseña en una cadena irreversible (hash) que se almacena en la base de datos.</p>
+                    <p>Cuando el usuario intenta iniciar sesión, el sistema aplica BCrypt a la contraseña ingresada y compara el resultado con el hash almacenado. Si coinciden, el acceso es concedido. Esto protege las contraseñas incluso si la base de datos es comprometida.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-globe"></i>
+                    <h2>¿Qué es CORS?</h2>
+                </div>
+                <div class="card-content">
+                    <p><strong>CORS</strong> (<em>Cross-Origin Resource Sharing</em>) es un mecanismo de seguridad que controla qué dominios externos pueden acceder a los recursos de la API.</p>
+                    <p>Happy Pets configura CORS para permitir únicamente las peticiones provenientes del frontend autorizado, bloqueando accesos desde otros sitios web malintencionados.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Descripción General -->
+        <div class="section-title">
+            <i class="fas fa-server"></i> Descripción General del Backend
+        </div>
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i> Este backend es la base de la aplicación <strong>Happy Pets</strong>, diseñada para optimizar el flujo administrativo de una clínica veterinaria: citas, clientes, mascotas, reportes, consultas, facturación y productos. Está construido con <strong>.NET 10</strong>, <strong>ASP.NET Core</strong> y <strong>C#</strong>. Expone una <strong>API RESTful</strong> documentada con Swagger para facilitar la integración con el frontend. Los repositorios se encuentran en GitHub: <a href="https://github.com/AndresPrograma-desing" target="_blank" rel="noopener">github.com/AndresPrograma-desing</a>.
+        </div>
+        <div class="grid-container">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-database"></i><h2>Base de datos MySQL</h2></div>
+                <div class="card-content">
+                    <p>El sistema utiliza <strong>MySQL</strong> como motor de base de datos. La cadena de conexión se configura en <code>appsettings.json</code>. Para generar la base de datos se ejecuta:</p>
+                    <p><code>dotnet ef database update</code></p>
+                    <p>Esto aplica todas las migraciones pendientes y crea las tablas necesarias.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-sync-alt"></i><h2>Migraciones</h2></div>
+                <div class="card-content">
+                    <p>Las <strong>migraciones</strong> son archivos que describen cambios en la estructura de la base de datos (crear tablas, añadir columnas, etc.). Se gestionan con Entity Framework Core.</p>
+                    <p>Ejemplo: <code>20260410014251_InitialCreate.cs</code> contiene la definición inicial de todas las tablas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Funcionalidades con representaciones -->
+        <div class="section-title">
+            <i class="fas fa-puzzle-piece"></i> Funcionalidades Principales
+        </div>
+        <div class="grid-container">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-calendar-check"></i><h2>Gestión de Citas</h2></div>
+                <div class="card-content">
+                    <p>Permite <strong>crear, listar, modificar y cancelar</strong> citas. Un cliente agenda una visita para su mascota con un veterinario.</p>
+                    <div class="persona-mascota-row">
+                        <i class="fas fa-user"></i> <i class="fas fa-calendar-plus"></i> <i class="fas fa-dog"></i> <i class="fas fa-arrow-right"></i> <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-plus-circle"></i> Crear</span>
+                        <span class="flow-step"><i class="fas fa-list"></i> Listar</span>
+                        <span class="flow-step"><i class="fas fa-edit"></i> Modificar</span>
+                        <span class="flow-step"><i class="fas fa-times-circle"></i> Cancelar</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-users"></i><h2>Gestión de Clientes</h2></div>
+                <div class="card-content">
+                    <p>Registro completo del dueño: datos personales, contacto, dirección. Permite consultar y editar la información.</p>
+                    <div class="persona-mascota-row">
+                        <i class="fas fa-user-plus"></i> <i class="fas fa-id-card"></i> <i class="fas fa-address-book"></i>
+                    </div>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-user-edit"></i> Registrar</span>
+                        <span class="flow-step"><i class="fas fa-search"></i> Consultar</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-paw"></i><h2>Gestión de Mascotas</h2></div>
+                <div class="card-content">
+                    <p>Cada mascota se asocia a un cliente. Se registra nombre, especie, raza, edad, peso y más. Permite agregar, editar y eliminar.</p>
+                    <div class="persona-mascota-row">
+                        <i class="fas fa-user"></i> <i class="fas fa-link"></i> <i class="fas fa-cat"></i> <i class="fas fa-dog"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-user-cog"></i><h2>Gestión de Usuarios</h2></div>
+                <div class="card-content">
+                    <p>Registro, inicio de sesión, actualización de perfil y administración de roles del personal de la clínica.</p>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-sign-in-alt"></i> Login</span>
+                        <span class="flow-step"><i class="fas fa-user-plus"></i> Registro</span>
+                        <span class="flow-step"><i class="fas fa-user-edit"></i> Perfil</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-file-invoice-dollar"></i><h2>Facturación</h2></div>
+                <div class="card-content">
+                    <p>Genera facturas en formato <strong>.docx</strong> automáticamente al completar una cita. Calcula costos de servicios y productos. Las facturas se almacenan en <code>wwwroot/facturas</code> y su URL se guarda en la base de datos.</p>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-receipt"></i> Generar</span>
+                        <span class="flow-step"><i class="fas fa-save"></i> Guardar</span>
+                        <span class="flow-step"><i class="fas fa-download"></i> Descargar</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-chart-bar"></i><h2>Reportes</h2></div>
+                <div class="card-content">
+                    <p>Genera reportes detallados en <strong>Excel</strong> (con ClosedXML) y <strong>PDF</strong> (con QuestPDF) sobre citas, facturación, mascotas y actividad general.</p>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-file-excel"></i> Excel</span>
+                        <span class="flow-step"><i class="fas fa-file-pdf"></i> PDF</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-boxes"></i><h2>Productos</h2></div>
+                <div class="card-content">
+                    <p>Administración de productos veterinarios: medicamentos, alimentos, accesorios. Altas, bajas, modificaciones y control de stock.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-envelope"></i><h2>Mensajería</h2></div>
+                <div class="card-content">
+                    <p>Comunicación interna en <strong>tiempo real</strong> usando SignalR. Los mensajes se almacenan en la base de datos asociados a conversaciones. También se implementan notificaciones para recordatorios de citas.</p>
+                    <div class="flow-diagram">
+                        <span class="flow-step"><i class="fas fa-paper-plane"></i> Enviar</span>
+                        <span class="flow-step"><i class="fas fa-inbox"></i> Recibir</span>
+                        <span class="flow-step"><i class="fas fa-bell"></i> Notificar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sistema de facturación detallado -->
+        <div class="section-title">
+            <i class="fas fa-file-invoice"></i> Sistema de Facturación — Funcionamiento Detallado
+        </div>
+        <div class="grid-container">
+            <div class="card full-width-card">
+                <div class="card-header"><i class="fas fa-cogs"></i><h2>Flujo completo de generación de factura</h2></div>
+                <div class="card-content">
+                    <p><strong>1. Solicitud desde el frontend:</strong> El usuario hace clic en "Generar factura" y el frontend llama al endpoint <code>POST /api/Facturas/cita/{citaId}/docx</code>.</p>
+                    <p><strong>2. Preparación de datos:</strong> El servicio <code>InvoiceService</code> recopila los datos de la cita: cliente, mascota, servicios realizados, productos utilizados, precios y totales. Se genera un número de factura único (ej: <code>F-20260410143022-5</code>).</p>
+                    <p><strong>3. Generación del archivo:</strong> El servicio <code>GenerateDocxService</code> crea un documento <strong>.docx</strong> usando OpenXml, con membrete, datos del cliente, lista de items, subtotales y total. El archivo se guarda en <code>wwwroot/facturas/</code> con un nombre como <code>Factura_Cliente_Mascota_20260410_143022.docx</code>.</p>
+                    <p><strong>4. Respuesta al frontend:</strong> El controlador devuelve un JSON con el nombre del archivo y la URL pública: <code>{ "file": "Factura_...docx", "url": "https://servidor/facturas/Factura_...docx" }</code>.</p>
+                    <p><strong>5. Persistencia en base de datos:</strong> Se guarda (o actualiza) una fila en la tabla <code>facturas</code> con los campos: <code>NumeroFactura</code>, <code>UrlDocx</code>, <code>ConsultaId</code>, <code>ClienteId</code>, <code>MascotaId</code>, <code>Total</code>, <code>FechaEmision</code>, <code>EstadoPago</code>, etc.</p>
+                    <p><strong>6. Descarga por el frontend:</strong> El frontend puede mostrar un enlace o botón con la URL recibida, o llamar a <code>GET /api/Facturas/files/download/{fileName}</code> para forzar la descarga.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-trash-alt"></i><h2>Limpieza automática (Worker)</h2></div>
+                <div class="card-content">
+                    <p>Un proceso en segundo plano llamado <code>DeleteFacturaWorker</code> escanea periódicamente la carpeta <code>wwwroot/facturas</code>.</p>
+                    <p>Elimina archivos <strong>.docx</strong> más antiguos que un umbral de tiempo configurable. Luego actualiza la base de datos: establece <code>UrlDocx = "la factura se ha eliminado"</code> en las filas correspondientes.</p>
+                    <p>Esto libera espacio en disco y notifica al personal mediante mensajería interna.</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><i class="fas fa-search"></i><h2>Consulta de factura existente</h2></div>
+                <div class="card-content">
+                    <p>El endpoint <code>GET /api/Facturas/cita/{citaId}</code> busca la factura asociada a una cita. Si encuentra el archivo físico en disco, devuelve la URL actualizada. Si el archivo fue eliminado por el worker, devuelve el texto indicando que ya no está disponible.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estructura de Carpetas -->
+        <div class="section-title">
+            <i class="fas fa-folder-tree"></i> Estructura de Carpetas del Proyecto
+        </div>
+        <div class="grid-container">
+            <div class="card"><div class="card-header"><i class="fas fa-code"></i><h3>Controllers/</h3></div><div class="card-content"><p>Controladores de la API REST. Cada uno maneja un recurso: <code>AuthController</code>, <code>CitasController</code>, <code>ClientController</code>, <code>PetsController</code>, <code>FacturasController</code>, <code>ReportController</code>, <code>MensajesController</code>.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-exchange-alt"></i><h3>DTOs/</h3></div><div class="card-content"><p><strong>Data Transfer Objects</strong>: clases usadas para recibir y enviar datos en las peticiones HTTP. Separan la capa de presentación de los modelos de base de datos. Ej: <code>CreateCitaDTO</code>, <code>ClientRequestDTO</code>.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-table"></i><h3>Models/</h3></div><div class="card-content"><p>Entidades que representan las tablas de la base de datos: <code>Cita</code>, <code>Cliente</code>, <code>Mascota</code>, <code>Factura</code>, <code>Usuario</code>, <code>Producto</code>, <code>Mensaje</code>.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-cogs"></i><h3>Services/</h3></div><div class="card-content"><p>Lógica de negocio: <code>AuthService</code> (autenticación), <code>CitasRequestService</code> (gestión de citas), <code>InvoiceService</code> (facturación), <code>GenerateDocxService</code> (creación de documentos).</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-file-contract"></i><h3>interface/</h3></div><div class="card-content"><p>Interfaces que definen contratos para los servicios. Facilitan la <strong>inyección de dependencias</strong>: el sistema puede cambiar la implementación de un servicio sin modificar el código que lo usa.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-sliders-h"></i><h3>Configuration/</h3></div><div class="card-content"><p>Clases de configuración como <code>WorkerSetting</code> para parámetros de tareas en segundo plano.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-database"></i><h3>Data/</h3></div><div class="card-content"><p><code>AppDbContext.cs</code>: contexto de Entity Framework Core que define la conexión a la base de datos y los conjuntos de entidades.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-broadcast-tower"></i><h3>Hubs/</h3></div><div class="card-content"><p><code>MessageHub.cs</code>: Hub de SignalR para comunicación en tiempo real entre usuarios.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-code-branch"></i><h3>Middleware/</h3></div><div class="card-content"><p>Componentes personalizados que se ejecutan en cada petición HTTP (autenticación, manejo de errores, logging).</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-history"></i><h3>Migrations/</h3></div><div class="card-content"><p>Archivos de migración generados por EF Core para versionar los cambios en la base de datos.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-file-alt"></i><h3>Document/</h3></div><div class="card-content"><p>Documentación técnica adicional: <code>FacturationSystem.md</code>, <code>MessagingSystem.md</code>, <code>SecurityAndAuthentication.md</code>.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-clock"></i><h3>Worker/</h3></div><div class="card-content"><p>Procesos en segundo plano como <code>DeleteFacturaWorker</code> que ejecuta tareas programadas.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-folder-open"></i><h3>wwwroot/</h3></div><div class="card-content"><p>Archivos estáticos públicos. Aquí se almacenan las facturas generadas en la subcarpeta <code>facturas/</code>.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-terminal"></i><h3>scripts/</h3></div><div class="card-content"><p>Scripts de administración: <code>call_docx_debug.ps1</code>, <code>create_invoice_test.ps1</code>.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-cog"></i><h3>Properties/</h3></div><div class="card-content"><p><code>launchSettings.json</code>: perfiles de ejecución para desarrollo.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-file-code"></i><h3>appsettings.json</h3></div><div class="card-content"><p>Archivo principal de configuración: cadena de conexión a MySQL, clave secreta JWT, configuración de CORS, rutas de almacenamiento.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-globe"></i><h3>global.json</h3></div><div class="card-content"><p>Especifica la versión del SDK de .NET que requiere el proyecto.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-folder"></i><h3>bin/ y obj/</h3></div><div class="card-content"><p>Carpetas generadas automáticamente durante la compilación. Contienen los archivos ejecutables y dependencias compiladas.</p></div></div>
+        </div>
+
+        <!-- Dependencias -->
+        <div class="section-title">
+            <i class="fas fa-cubes"></i> Dependencias Principales y su Propósito
+        </div>
+        <div class="grid-container">
+            <div class="card"><div class="card-header"><i class="fas fa-lock"></i><h3>BCrypt.Net-Next</h3></div><div class="card-content"><p>Aplica <strong>hashing seguro</strong> a las contraseñas antes de almacenarlas. Incluye un <em>salt</em> aleatorio para cada contraseña, lo que hace extremadamente difícil revertir el hash incluso con ataques de diccionario.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-file-excel"></i><h3>ClosedXML</h3></div><div class="card-content"><p>Permite crear, leer y modificar archivos <strong>Excel (.xlsx)</strong> sin necesidad de tener Microsoft Office instalado en el servidor. Se usa para generar reportes exportables.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-database"></i><h3>Pomelo.EntityFrameworkCore.MySql</h3></div><div class="card-content"><p>Proveedor de Entity Framework Core para <strong>MySQL</strong>. Traduce las operaciones de C# a consultas SQL compatibles con MySQL.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-id-card"></i><h3>JwtBearer</h3></div><div class="card-content"><p>Middleware de autenticación que valida tokens JWT en cada petición entrante. Si el token es inválido o ha expirado, rechaza la solicitud con un error 401.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-book"></i><h3>Swashbuckle</h3></div><div class="card-content"><p>Genera automáticamente una interfaz <strong>Swagger</strong> que documenta todos los endpoints de la API, sus parámetros y respuestas. Accesible en <code>/swagger</code>.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-file-pdf"></i><h3>QuestPDF</h3></div><div class="card-content"><p>Biblioteca para generar documentos <strong>PDF</strong> desde cero usando código C#. No requiere dependencias externas ni librerías nativas.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-file-alt"></i><h3>DocumentFormat.OpenXml</h3></div><div class="card-content"><p>Permite manipular archivos de Office (Word, Excel, PowerPoint) a bajo nivel. En Happy Pets se usa para crear los archivos <strong>.docx</strong> de las facturas.</p></div></div>
+        </div>
+
+        <!-- Seguridad -->
+        <div class="section-title">
+            <i class="fas fa-shield-haltered"></i> Seguridad y Autenticación
+        </div>
+        <div class="info-box">
+            <i class="fas fa-shield-alt"></i> El sistema implementa <strong>JWT</strong> para autenticación, <strong>BCrypt</strong> para hashing de contraseñas, y <strong>CORS</strong> para restringir el acceso solo al frontend autorizado. También incluye validación de entradas para prevenir <strong>inyección SQL</strong> y <strong>cross-site scripting (XSS)</strong>.
+        </div>
+        <div class="grid-container">
+            <div class="card"><div class="card-header"><i class="fas fa-key"></i><h3>Flujo de autenticación</h3></div><div class="card-content"><p>1. Usuario envía credenciales al endpoint <code>POST /api/Auth/login</code>.</p><p>2. El servidor valida con BCrypt.</p><p>3. Si son correctas, genera un token JWT con fecha de expiración.</p><p>4. El frontend almacena el token y lo envía en el encabezado <code>Authorization: Bearer {token}</code> en cada petición.</p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-user-shield"></i><h3>Protección de endpoints</h3></div><div class="card-content"><p>Los controladores usan el atributo <code>[Authorize]</code> para exigir que el usuario esté autenticado. Sin un token JWT válido, el servidor responde con <strong>401 Unauthorized</strong>.</p></div></div>
+        </div>
+
+        <!-- Flujo general -->
+        <div class="section-title">
+            <i class="fas fa-route"></i> Flujo General de la Aplicación
+        </div>
+        <div class="info-box">
+            <i class="fas fa-circle"></i> <strong>1. Autenticación:</strong> Usuario inicia sesión y recibe token JWT.<br>
+            <i class="fas fa-circle"></i> <strong>2. Operaciones CRUD:</strong> Los controladores gestionan citas, clientes, mascotas, productos, facturas y reportes.<br>
+            <i class="fas fa-circle"></i> <strong>3. Facturación y Reportes:</strong> Se generan facturas en .docx y reportes en PDF/Excel bajo demanda.<br>
+            <i class="fas fa-circle"></i> <strong>4. Mensajería:</strong> Los usuarios se comunican en tiempo real mediante SignalR.
+        </div>
+        <div style="background: white; border-radius: 1.5rem; padding: 1.5rem 2rem; box-shadow: 0 8px 22px rgba(0,0,0,0.05); margin-top: 1rem;">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.8rem; font-weight: 500;">
+                <i class="fas fa-user-circle" style="font-size: 2.2rem; color: #1e4a6b;"></i>
+                <span class="flow-step"><i class="fas fa-sign-in-alt"></i> Login (JWT)</span>
+                <i class="fas fa-arrow-right"></i>
+                <span class="flow-step"><i class="fas fa-sync"></i> CRUD</span>
+                <i class="fas fa-arrow-right"></i>
+                <span class="flow-step"><i class="fas fa-file-invoice"></i> Facturación</span>
+                <i class="fas fa-arrow-right"></i>
+                <span class="flow-step"><i class="fas fa-comments"></i> Mensajería SignalR</span>
+            </div>
+        </div>
+
+        <!-- Instalación -->
+        <div class="section-title">
+            <i class="fas fa-download"></i> Instalación y Ejecución
+        </div>
+        <div class="grid-container">
+            <div class="card"><div class="card-header"><i class="fas fa-terminal"></i><h3>Pasos para ejecutar</h3></div><div class="card-content"><p>1. Clonar repositorio: <code>git clone &lt;URL&gt;</code></p><p>2. Entrar al directorio: <code>cd backend-happy-pets</code></p><p>3. Restaurar dependencias: <code>dotnet restore</code></p><p>4. Configurar <code>appsettings.json</code> con la cadena de conexión MySQL.</p><p>5. Aplicar migraciones: <code>dotnet ef database update</code></p><p>6. Ejecutar: <code>dotnet run</code></p></div></div>
+            <div class="card"><div class="card-header"><i class="fas fa-exclamation-triangle"></i><h3>Posibles fallas</h3></div><div class="card-content"><ul><li>Tener instalado <strong>.NET SDK</strong> en la máquina.</li><li>Verificar que las variables de entorno estén configuradas.</li><li>Si hay errores de dependencias, limpiar y restaurar: <code>dotnet clean</code> y <code>dotnet restore</code>.</li><li>Si el antivirus bloquea la ejecución, ejecutar como administrador.</li></ul></div></div>
+        </div>
+
+        <!-- Arquitectura -->
+        <div class="section-title">
+            <i class="fas fa-layer-group"></i> Arquitectura y Diseño
+        </div>
+        <div class="info-box">
+            <i class="fas fa-check-circle"></i> El backend sigue una <strong>arquitectura en capas</strong>: controladores (presentación), servicios (lógica de negocio) y contexto de datos (acceso a datos). Utiliza <strong>inyección de dependencias</strong> para desacoplar componentes y facilitar pruebas y mantenimiento. Los patrones <strong>Repositorio</strong> y <strong>Servicio</strong> abstraen el acceso a datos y la lógica de negocio respectivamente.
+        </div>
+
+        <hr class="separator">
+        <div style="text-align: center; color: #1e4a6b; font-size: 0.95rem; padding: 1rem;">
+            <i class="fas fa-check-circle"></i> Para más detalles, consulta la documentación Swagger en <code>/swagger</code> y los archivos <code>.md</code> en la carpeta <code>Document/</code> del repositorio.
+        </div>
+    </main>
+
+    <footer>
+        <i class="fas fa-paw"></i> Happy Pets Backend · .NET 10 · ASP.NET Core · C# · Documentación técnica completa <i class="fas fa-paw"></i>
+    </footer>
+
+    <script>
+        (function() {
+            function buildDocumentContent() {
+                return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Happy Pets Backend - Documentacion Completa</title>
+<style>body{font-family:'Segoe UI',sans-serif;margin:2cm;color:#0a2540;line-height:1.6;}h1{color:#0a2540;border-bottom:3px solid #2d6fa0;}h2{color:#1e4a6b;margin-top:1.8em;}ul{line-height:1.6;}code{background:#e8f0f8;padding:2px 6px;border-radius:4px;}</style>
+</head>
+<body>
+<h1>Happy Pets · Documentacion del Backend</h1>
+<p><strong>Descripcion General:</strong> Backend para gestion de veterinaria (citas, clientes, mascotas, facturacion, reportes, productos, mensajeria). Construido con .NET 10, ASP.NET Core y C#. Expone una API RESTful documentada con Swagger.</p>
+<p><strong>Repositorio GitHub:</strong> github.com/AndresPrograma-desing</p>
+
+<h2>Conceptos Fundamentales</h2>
+<h3>API REST</h3><p>Interfaz que permite la comunicacion entre frontend y backend usando HTTP (GET, POST, PUT, DELETE).</p>
+<h3>C# y .NET</h3><p>C# es el lenguaje de programacion; .NET es la plataforma de ejecucion; ASP.NET Core es el framework web.</p>
+<h3>Endpoint</h3><p>URL especifica de la API que recibe peticiones (ej: POST /api/Auth/login).</p>
+<h3>JWT</h3><p>Estandar de token para autenticacion segura sin enviar credenciales en cada solicitud.</p>
+<h3>Entity Framework Core</h3><p>ORM que permite trabajar con bases de datos usando objetos C# en lugar de SQL.</p>
+<h3>SignalR</h3><p>Biblioteca para comunicacion en tiempo real entre servidor y clientes.</p>
+
+<h2>Funcionalidades Principales</h2>
+<ul>
+<li><strong>Citas:</strong> CRUD completo (crear, leer, actualizar, eliminar).</li>
+<li><strong>Clientes:</strong> Registro, consulta y administracion.</li>
+<li><strong>Mascotas:</strong> Asociadas a clientes, con historial.</li>
+<li><strong>Usuarios:</strong> Registro, login, actualizacion de perfil.</li>
+<li><strong>Facturacion:</strong> Generacion de facturas .docx, almacenamiento en wwwroot/facturas, URL en base de datos, worker de limpieza automatica.</li>
+<li><strong>Reportes:</strong> Excel (ClosedXML) y PDF (QuestPDF).</li>
+<li><strong>Productos:</strong> ABM de productos veterinarios.</li>
+<li><strong>Mensajeria:</strong> SignalR para mensajes en tiempo real, almacenados en base de datos.</li>
+</ul>
+
+<h2>Sistema de Facturacion</h2>
+<p>Flujo: POST /api/Facturas/cita/{id}/docx -> InvoiceService prepara datos -> GenerateDocxService crea .docx -> se guarda en wwwroot/facturas -> se devuelve URL al frontend -> se persiste en tabla facturas. DeleteFacturaWorker borra archivos antiguos y actualiza UrlDocx en DB.</p>
+
+<h2>Estructura de Carpetas</h2>
+<ul><li>Controllers/</li><li>DTOs/</li><li>Models/</li><li>Services/</li><li>interface/</li><li>Configuration/</li><li>Data/ (EF Core)</li><li>Hubs/ (SignalR)</li><li>Middleware/</li><li>Migrations/</li><li>Document/</li><li>Worker/</li><li>wwwroot/</li><li>scripts/</li><li>Properties/</li><li>appsettings.json</li><li>global.json</li></ul>
+
+<h2>Dependencias</h2>
+<ul><li>BCrypt.Net-Next - hashing seguro de contraseñas</li><li>ClosedXML - generacion de archivos Excel</li><li>Pomelo.EntityFrameworkCore.MySql - ORM para MySQL</li><li>JwtBearer - autenticacion por tokens</li><li>Swashbuckle - Swagger/OpenAPI</li><li>QuestPDF - generacion de PDFs</li><li>DocumentFormat.OpenXml - manipulacion de archivos Office</li></ul>
+
+<h2>Seguridad</h2><p>JWT, BCrypt, CORS, validacion de entradas contra inyeccion SQL y XSS.</p>
+
+<h2>Flujo General</h2><ol><li>Autenticacion JWT</li><li>Operaciones CRUD</li><li>Facturacion y reportes</li><li>Mensajeria SignalR</li></ol>
+
+<h2>Instalacion</h2><p>git clone, dotnet restore, configurar appsettings.json, dotnet ef database update, dotnet run.</p>
+<p><em>Documento generado desde Happy Pets.</em></p>
+</body></html>`;
+            }
+
+            function downloadDoc() {
+                const content = buildDocumentContent();
+                const blob = new Blob([content], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'HappyPets_Backend_Documentacion.doc';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+
+            document.getElementById('downloadDocBtn').addEventListener('click', downloadDoc);
+        })();
+    </script>
+</body>
+</html>

@@ -12,8 +12,14 @@
     "documentation": "start public/Documentation/index.html"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@microsoft/signalr": "^10.0.0",
+    "@mui/material": "^9.1.2",
+    "date-fns": "^4.1.0",
     "docx": "^9.6.1",
     "docxtemplater": "^3.68.3",
+    "lucide-react": "^1.9.0",
     "node-fetch": "^3.3.2",
     "pizzip": "^3.2.0",
     "qrcode.react": "^4.2.0",

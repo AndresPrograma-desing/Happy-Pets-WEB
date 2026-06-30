@@ -6,7 +6,7 @@ import usePolling from './UsePolling';
 import { filterCitasByEstado } from '../components/filter/FilterCitas/FilterStatus';
 
 // Poller component: periodically checks GET /Facturas/cita/{citaId} and reports updates
-export function PollFactura({ citaId, onFound, onRemoved, interval = 10000, active = true }) {
+export function PollFactura({ citaId, onFound, onRemoved, interval = 1000, active = true }) {
   const safeId = encodeURIComponent(String(citaId));
 
   const check = useCallback(async () => {

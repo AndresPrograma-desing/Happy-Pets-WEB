@@ -1,0 +1,144 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.mainLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 2px;
+}
+
+.selectContainer {
+  position: relative;
+  width: 100%;
+  user-select: none;
+}
+
+.selectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 5px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  font-size: 13px;
+  color: #1a202c;
+}
+
+.selectHeader:hover {
+  border-color: #cbd5e0;
+  background: #fafbfc;
+}
+
+.selectHeader.open {
+ border: var(--inputs-px) solid var(--inputs-bordes);
+}
+
+.selectedText {
+  font-weight: 300;
+  color: #1a202c;
+}
+
+.placeholder {
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.arrow {
+  font-size: 10px;
+  color: #718096;
+  transition: transform 0.25s ease;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+
+.arrowUp {
+  transform: rotate(180deg);
+}
+
+.optionsList {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #edf2f7;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.05);
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 0.3rem;
+  margin: 0;
+  list-style: none;
+  animation: fadeSlideIn 0.18s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.optionItem {
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  font-size: 0.92rem;
+  color: #2d3748;
+  margin-bottom: 2px;
+}
+
+.optionItem:last-child {
+  margin-bottom: 0;
+}
+
+.optionItem:hover {
+  background: #f0f4ff;
+  color: #1a202c;
+}
+
+.optionItem.active {
+  background: #edf0ff;
+  color: #000000;
+  font-weight: 600;
+}
+
+.noOptions {
+  padding: 0.8rem 1rem;
+  color: #a0aec0;
+  text-align: center;
+  font-style: italic;
+  pointer-events: none;
+}
+
+.selectContainer *::-webkit-scrollbar {
+  width: 5px;
+}
+
+.selectContainer *::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.selectContainer *::-webkit-scrollbar-thumb {
+  background: #d2d6dc;
+  border-radius: 10px;
+}
+
+.selectContainer *::-webkit-scrollbar-thumb:hover {
+  background: #b3b9c4;
+}

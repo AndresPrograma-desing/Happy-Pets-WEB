@@ -1,0 +1,247 @@
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.inputWrapper:focus-within {
+  border-color: #10b981;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.6rem;
+  color: #94a3b8;
+  pointer-events: none;
+  cursor: pointer;
+}
+
+.inputWrapper:focus-within .inputIcon {
+  color: #10b981;
+}
+
+.timeInput {
+  width: 100%;
+  padding: 0.45rem 0.6rem 0.45rem 2rem;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.85rem;
+  color: #1e293b;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* --- BACKDROP DEL MODAL --- */
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* --- TARJETA MODAL --- */
+.timeModal {
+  background-color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+  width: 280px;
+  padding: 1.25rem;
+  font-family: inherit;
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.modalTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.closeModalBtn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.closeModalBtn:hover {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
+
+/* --- LAYOUT DEL SELECTOR DE TIEMPO --- */
+.timeSelectorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.timeColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+}
+
+.timeValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0.25rem 0;
+  user-select: none;
+}
+
+.timeSeparator {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  padding-bottom: 6px;
+  user-select: none;
+}
+
+.arrowButton {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.arrowButton:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* --- COLUMNA AM / PM --- */
+.periodColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 0.5rem;
+}
+
+.periodButton {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.periodButton:hover:not(.periodActive) {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.periodActive {
+  background-color: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+}
+
+/* --- FOOTER --- */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.confirmButton, .clearButton {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.confirmButton {
+  color: #10b981;
+}
+
+.confirmButton:hover {
+  background-color: #ecfdf5;
+}
+
+.clearButton {
+  color: #64748b;
+}
+
+.clearButton:hover {
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

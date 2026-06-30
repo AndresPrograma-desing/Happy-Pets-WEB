@@ -4,29 +4,30 @@ import api from '../../../services/api';
 import styles from './Consulta.module.css';
 import AgreeProduct from '../../../components/ProductList/AgreeProduct/AgreeProduct';
 import AlertModal from '../../../components/AlertModal/AlertModal';
+import { 
+  Stethoscope, 
+  Thermometer, 
+  Weight, 
+  ClipboardList, 
+  Pill, 
+  Save, 
+  ArrowLeft,
+  Trash2,
+  PlusCircle,
+  AlertCircle
+} from 'lucide-react';
+import ModalTooltip from '../../../components/ModalTooltip/ModalTooltip';
+import { FormCard, FormInput, FormTextArea } from '../../../components/screens/components/FormControls';
 
-function Consultas() {
+function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  // 1. Extracción de datos de la cita recibida por navegación
-  const cita = state?.cita || {};
-  
+  const cita = propCita || state?.cita || {};
   const defaultCitaId = cita?.id || cita?.ID || state?.citaId || null;
   const defaultDoctorId = cita?.doctor_id || cita?.doctor?.id || state?.doctorId || null;
-  const defaultMascotaId = 
-    cita?.mascota_id || 
-    cita?.Mascotum?.id || 
-    cita?.mascota?.id || 
-    state?.mascotaId || 
-    null;
-
-  const defaultMascotaNombre =
-    cita?.Mascotum?.nombre ||
-    cita?.mascota?.nombre ||
-    cita?.mascota_nombre ||
-    state?.mascotaNombre ||
-    'Sin nombre';
+  const defaultMascotaId = cita?.mascota_id || cita?.Mascotum?.id || cita?.mascota?.id || state?.mascotaId || null;
+  const defaultMascotaNombre = cita?.Mascotum?.nombre || cita?.mascota?.nombre || state?.mascotaNombre || 'Paciente';
 
   const [form, setForm] = useState({
     cita_id: defaultCitaId,
@@ -44,16 +45,11 @@ function Consultas() {
   });
 
   const NO_PRODUCT_LABEL = 'no se usaron productos';
-
-
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [showBadReqModal, setShowBadReqModal] = useState(false);
   const [showConfirmSaveModal, setShowConfirmSaveModal] = useState(false);
 
-  const closeBadReqModal = () => setShowBadReqModal(false);
-
-  // Sincronización para asegurar que los IDs se carguen al entrar
   useEffect(() => {
     setForm(prev => ({
       ...prev,
@@ -63,7 +59,6 @@ function Consultas() {
     }));
   }, [defaultCitaId, defaultMascotaId, defaultDoctorId]);
 
-  // Manejadores de eventos
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
@@ -72,57 +67,47 @@ function Consultas() {
   const addProducto = () => {
     setForm((s) => ({
       ...s,
-      productos: [
-        ...s.productos,
-        {
-          producto_id: '',
-          producto_nombre: '',
-          cantidad: 1,
-          precio_unitario: 0,
-          dosis: '',
-          via_administracion: '',
-          frecuencia: '',
-          duracion: '',
-          instrucciones: '',
-          aplicado_por: s.doctor_id || '',
-        },
-      ],
+      productos: [...s.productos, {
+        producto_id: '',
+        producto_nombre: '',
+        cantidad: 1,
+        precio_unitario: 0,
+        dosis: '',
+        via_administracion: '',
+        frecuencia: '',
+        duracion: '',
+        instrucciones: '',
+        aplicado_por: s.doctor_id || '',
+      }],
     }));
   };
 
   const addNoProducto = () => {
     setForm((s) => ({
       ...s,
-      productos: [
-        ...s.productos,
-        {
-          producto_id: 0,
-          producto_nombre: NO_PRODUCT_LABEL,
-          cantidad: 0,
-          precio_unitario: '0.00',
-          dosis: NO_PRODUCT_LABEL,
-          via_administracion: NO_PRODUCT_LABEL,
-          frecuencia: NO_PRODUCT_LABEL,
-          duracion: NO_PRODUCT_LABEL,
-          instrucciones: NO_PRODUCT_LABEL,
-          aplicado_por: s.doctor_id || 0,
-        },
-      ],
+      productos: [{
+        producto_id: 0,
+        producto_nombre: NO_PRODUCT_LABEL,
+        cantidad: 0,
+        precio_unitario: '0.00',
+        dosis: NO_PRODUCT_LABEL,
+        via_administracion: NO_PRODUCT_LABEL,
+        frecuencia: NO_PRODUCT_LABEL,
+        duracion: NO_PRODUCT_LABEL,
+        instrucciones: NO_PRODUCT_LABEL,
+        aplicado_por: s.doctor_id || 0,
+      }],
     }));
   };
 
   const setSelectedProduct = (idx, product) => {
-    const pId = product?.id || product?._id || product?.ID || '';
-    const pNombre = product?.nombre || product?.name || '';
-    const pPrecio = Number(product?.precio || 0);
-
     setForm((s) => {
       const copy = [...s.productos];
       copy[idx] = {
         ...copy[idx],
-        producto_id: pId,
-        producto_nombre: pNombre,
-        precio_unitario: pPrecio,
+        producto_id: product?.id || '',
+        producto_nombre: product?.nombre || '',
+        precio_unitario: Number(product?.precio || 0),
       };
       return { ...s, productos: copy };
     });
@@ -140,259 +125,228 @@ function Consultas() {
     setForm((s) => ({ ...s, productos: s.productos.filter((_, i) => i !== idx) }));
   };
 
-  // Abre el modal de confirmación al intentar enviar
   const handleSubmit = (e) => {
     e.preventDefault();
     setShowConfirmSaveModal(true);
   };
 
-  // Envío confirmado por el usuario
   const submitConfirmed = async () => {
     setShowConfirmSaveModal(false);
     setSubmitting(true);
-    setError(null);
-
     try {
-      if (!form.mascota_id) {
+      if (!form.mascota_id || form.productos.length === 0) {
         setShowBadReqModal(true);
-        setError(null);
-        setSubmitting(false);
         return;
       }
-        // Requerir al menos un producto (puede ser el marcador "no se usaron productos")
-        if (!Array.isArray(form.productos) || form.productos.length === 0) {
-          setShowBadReqModal(true);
-          setError('Debe agregar al menos un producto o seleccionar "No usar productos".');
-          setSubmitting(false);
-          return;
-        }
       const payload = {
         ...form,
-        cita_id: Number(form.cita_id),
-        mascota_id: Number(form.mascota_id),
-        doctor_id: Number(form.doctor_id),
         peso_actual: parseFloat(form.peso_actual) || null,
         temperatura: parseFloat(form.temperatura) || null,
-        productos: form.productos.map((p) => {
-          // Si es el marcador de "no se usaron productos", enviar campos de relleno
-          if (String(p.producto_nombre) === NO_PRODUCT_LABEL) {
-            return {
-              ...p,
-              producto_id: Number(p.producto_id) || 0,
-              cantidad: Number(p.cantidad) || 0,
-              precio_unitario: String(p.precio_unitario || '0.00'),
-              dosis: p.dosis || NO_PRODUCT_LABEL,
-              via_administracion: p.via_administracion || NO_PRODUCT_LABEL,
-              frecuencia: p.frecuencia || NO_PRODUCT_LABEL,
-              duracion: p.duracion || NO_PRODUCT_LABEL,
-              instrucciones: p.instrucciones || NO_PRODUCT_LABEL,
-              aplicado_por: Number(p.aplicado_por || form.doctor_id) || 0,
-            };
-          }
-
-          return {
-            ...p,
-            producto_id: Number(p.producto_id) || null,
-            cantidad: Number(p.cantidad) || 1,
-            precio_unitario: Number(p.precio_unitario) || 0,
-            aplicado_por: Number(p.aplicado_por || form.doctor_id) || null,
-          };
-        }),
+        productos: form.productos.map(p => ({
+          ...p,
+          producto_id: Number(p.producto_id),
+          cantidad: Number(p.cantidad)
+        }))
       };
 
       await api.request('/consultas/create', { method: 'POST', body: payload });
-      // Reducir stock de productos usados en la consulta (si corresponde)
-      try {
-        const decreaseTasks = (payload.productos || [])
-          .filter(p => p && Number(p.producto_id) && Number(p.cantidad) > 0 && String(p.producto_nombre) !== NO_PRODUCT_LABEL)
-          .map((p) => api.decreaseProductStock(Number(p.producto_id), Number(p.cantidad)));
-
-        if (decreaseTasks.length) {
-          const results = await Promise.allSettled(decreaseTasks);
-          const rejected = results.filter(r => r.status === 'rejected');
-          if (rejected.length) {
-            console.warn('Algunos decrementos de stock fallaron:', rejected);
-          }
-        }
-      } catch (e) {
-        console.warn('Error al intentar disminuir stock de productos:', e);
-      }
       
-      // Marcar la cita como completada usando el endpoint /citas/:id/estado
-      try {
-        if (form.cita_id) await api.updateCitaEstado(Number(form.cita_id), 'completada');
-      } catch (e) {
-        console.warn('No se pudo actualizar estado de la cita a completada:', e);
-      }
-      navigate(-1);
+      if (form.cita_id) await api.updateCitaEstado(Number(form.cita_id), 'completada');
+      
+      if (onSuccess) onSuccess();
+      else navigate('/citas');
     } catch (err) {
-      const isBadRequest = err?.response?.status === 400 || /bad request/i.test(err?.message || '');
-      if (isBadRequest) {
-        // Mostrar modal específico para Bad Request
-        setShowBadReqModal(true);
-        setError(null);
-      } else {
-        setError(err?.message || 'Error al crear la consulta');
-      }
+      setError(err?.message || 'Error al guardar');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const confirmSave = () => submitConfirmed();
-
   return (
-    <div className={styles.container}>
-      <div className={styles.debugInfo}>
-        📌 Cita: {form.cita_id} | Mascota: {form.mascota_id} - {defaultMascotaNombre}
-      </div>
-
-      <AlertModal
-        open={showBadReqModal}
-        title="La consulta requiere todos los campos"
-        message="Por favor complete los campos obligatorios antes de finalizar la consulta."
-        onClose={closeBadReqModal}
-        cancelText="Cerrar"
-      />
-
-      <AlertModal
-        open={showConfirmSaveModal}
-        title="¿Desea guardar la cita?"
-        message="Confirme para guardar la consulta en el historial." 
-        onClose={() => setShowConfirmSaveModal(false)}
-        onConfirm={confirmSave}
-        confirmText="Guardar"
-        cancelText="Cancelar"
-      />
-
-      <h2 className={styles.title}>Nueva Consulta Médica</h2>
-      
-      <form onSubmit={handleSubmit} className={styles.form}>
-        {error && <div className={styles.errorText}>{error}</div>}
-
-        {/* --- Bloque 1: Signos Vitales --- */}
-        <div className={styles.row}>
-          <div className={styles.group}>
-            <label className={styles.label}>Peso Actual (kg)</label>
-            <input 
-                className={styles.input} 
-                name="peso_actual" 
-                type="number" 
-                step="0.1"
-                value={form.peso_actual} 
-                onChange={handleChange} 
-                placeholder="0.00"
-            />
-          </div>
-          <div className={styles.group}>
-            <label className={styles.label}>Temperatura (°C)</label>
-            <input 
-                className={styles.input} 
-                name="temperatura" 
-                type="number" 
-                step="0.1"
-                value={form.temperatura} 
-                onChange={handleChange} 
-                placeholder="38.5"
-            />
-          </div>
-        </div>
-
-        {/* --- Bloque 2: Evaluación --- */}
-        <div className={styles.group}>
-          <label className={styles.label}>Síntomas</label>
-          <textarea className={styles.textarea} name="sintomas" value={form.sintomas} onChange={handleChange} />
-        </div>
-
-        <div className={styles.clinicalGrid}>
-          <div className={styles.group}>
-            <label className={styles.label}>Diagnóstico</label>
-            <textarea className={styles.textarea} name="diagnostico" value={form.diagnostico} onChange={handleChange} />
-          </div>
-
-          <div className={styles.group}>
-            <label className={styles.label}>Tratamiento</label>
-            <textarea className={styles.textarea} name="tratamiento" value={form.tratamiento} onChange={handleChange} />
-          </div>
-
-          <div className={styles.group}>
-            <label className={styles.label}>Receta Médica</label>
-            <textarea className={styles.textarea} name="receta" value={form.receta} onChange={handleChange} />
-          </div>
-
-          <div className={styles.group}>
-            <label className={styles.label}>Observaciones Adicionales</label>
-            <textarea className={styles.textarea} name="observaciones" value={form.observaciones} onChange={handleChange} />
-          </div>
-        </div>
-
-        {/* --- Bloque 3: Productos y Medicamentos --- */}
-        <div className={styles.productsSection}>
-          <div className={styles.productsHeader}>
-            <h3>Productos y Aplicaciones</h3>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button type="button" className={styles.btnAdd} onClick={addProducto}>
-                + Agregar Producto
-              </button>
-              <button type="button" className={styles.btnSecondary} onClick={addNoProducto}>
-                No usar productos
-              </button>
+    <div className={isDrawer ? styles.drawerWrapper : styles.pageWrapper}>
+      {!isDrawer && (
+        <header className={styles.mainHeader}>
+          <div className={styles.headerTitle}>
+            <div className={styles.iconCircle}><Stethoscope size={24} /></div>
+            <div>
+              <h1>Consulta Clinical</h1>
+              <p>Paciente: <strong>{defaultMascotaNombre}</strong> • ID Cita: #{form.cita_id}</p>
             </div>
           </div>
+          <button type="button" onClick={() => (onCancel ? onCancel() : navigate(-1))} className={styles.btnBack}>
+            <ArrowLeft size={18} /> Volver
+          </button>
+        </header>
+      )}
 
-          {form.productos.map((p, idx) => (
-            <div key={idx} className={styles.productCard}>
-              <div className={styles.productMainGrid}>
-                <div className={styles.group}>
-                  <label className={styles.label}>Buscar Producto</label>
-                  <AgreeProduct
-                    value={p.producto_id}
-                    initialLabel={p.producto_nombre || ''}
-                    onSelect={(prod) => setSelectedProduct(idx, prod)}
-                  />
-                </div>
-                <div className={styles.group}>
-                  <label className={styles.label}>Cant.</label>
-                  <input 
-                    className={styles.input} 
-                    type="number" 
-                    value={p.cantidad} 
-                    onChange={(e) => updateProducto(idx, 'cantidad', e.target.value)} 
-                  />
-                </div>
-                <div className={styles.group}>
-                  <label className={styles.label}>Precio</label>
-                  <input className={styles.input} value={p.precio_unitario} readOnly disabled />
-                </div>
-              </div>
-
-              <div className={styles.productDetailsGrid}>
-                <input placeholder="Dosis (ej: 2ml)" value={p.dosis} onChange={(e) => updateProducto(idx, 'dosis', e.target.value)} />
-                <input placeholder="Vía (ej: Oral)" value={p.via_administracion} onChange={(e) => updateProducto(idx, 'via_administracion', e.target.value)} />
-                <input placeholder="Frecuencia" value={p.frecuencia} onChange={(e) => updateProducto(idx, 'frecuencia', e.target.value)} />
-                <input placeholder="Duración" value={p.duracion} onChange={(e) => updateProducto(idx, 'duracion', e.target.value)} />
-              </div>
-
-              <button type="button" className={styles.btnDelete} onClick={() => removeProducto(idx)}>
-                Quitar producto
-              </button>
+      <form onSubmit={handleSubmit} className={isDrawer ? styles.drawerGrid : styles.mainGrid}>
+        <div className={styles.columnContainer}>
+          <FormCard icon={Thermometer} title="Signos Vitales">
+            <div className={styles.vitalSignsRow}>
+              <FormInput
+                label="Peso (kg)"
+                icon={Weight}
+                name="peso_actual"
+                type="number"
+                step="0.1"
+                value={form.peso_actual}
+                onChange={handleChange}
+                placeholder="0.0"
+              />
+              <FormInput
+                label="Temperatura (°C)"
+                icon={Thermometer}
+                name="temperatura"
+                type="number"
+                step="0.1"
+                value={form.temperatura}
+                onChange={handleChange}
+                placeholder="38.0"
+              />
             </div>
-          ))}
+          </FormCard>
+
+          <FormCard icon={ClipboardList} title="Evaluación Médica">
+            <FormTextArea
+              label="Síntomas"
+              name="sintomas"
+              value={form.sintomas}
+              onChange={handleChange}
+              placeholder="Describa los síntomas reportados..."
+            />
+            <FormTextArea
+              label="Diagnóstico"
+              name="diagnostico"
+              value={form.diagnostico}
+              onChange={handleChange}
+              placeholder="Resultado de la evaluación..."
+            />
+            <FormTextArea
+              label="Tratamiento"
+              name="tratamiento"
+              value={form.tratamiento}
+              onChange={handleChange}
+              placeholder="Plan de acción..."
+            />
+            <FormTextArea
+              label="Receta"
+              name="receta"
+              value={form.receta}
+              onChange={handleChange}
+              placeholder="Medicamentos para casa..."
+            />
+          </FormCard>
         </div>
 
-        {/* --- Botones de Acción --- */}
-        <div className={styles.rowActions}>
-          <button type="submit" className={styles.btnPrimary} disabled={submitting}>
-            {submitting ? 'Guardando...' : 'Finalizar Consulta'}
-          </button>
-          <button type="button" className={styles.btnTertiary} onClick={() => navigate('/citas', { state: { role: 'doctor' } })}>
-            Volver a Citas
-          </button>
-          <button type="button" className={styles.btnSecondary} onClick={() => navigate(-1)}>
-            Cancelar
-          </button>
+        <div className={styles.columnContainer}>
+          <FormCard 
+            icon={Pill} 
+            title="Insumos Aplicados"
+            headerActions={
+              <>
+                <ModalTooltip text="Agregar un producto o medicamento a esta consulta" placement="top">
+                  <button type="button" onClick={addProducto} className={styles.iconBtn}><PlusCircle size={20} /></button>
+                </ModalTooltip>
+                <ModalTooltip text="Indicar que no se usaron productos o medicamentos en esta consulta" placement="top">
+                  <button type="button" onClick={addNoProducto} className={styles.textBtn}>No usar</button>
+                </ModalTooltip>
+              </>
+            }
+          >
+            <div className={styles.productsList}>
+              {form.productos.length === 0 && (
+                <p className={styles.emptyMsg}>No hay productos o insumos registrados en esta consulta.</p>
+              )}
+              {form.productos.map((p, idx) => (
+                <div key={idx} className={styles.productCard}>
+                  <div className={styles.productMainRow}>
+                    <div className={styles.flexGrow}>
+                      <label className={styles.miniLabel}>Producto / Insumo</label>
+                      <AgreeProduct
+                        value={p.producto_id}
+                        initialLabel={p.producto_nombre}
+                        placeholder="Buscar producto..."
+                        onSelect={(prod) => setSelectedProduct(idx, prod)}
+                      />
+                    </div>
+
+                    <div className={styles.qtyContainer}>
+                      <label className={styles.miniLabel}>Cant.</label>
+                      <input
+                        className={styles.qtyInput}
+                        type="number"
+                        min="1"
+                        value={p.cantidad}
+                        onChange={(e) => updateProducto(idx, 'cantidad', e.target.value)}
+                      />
+                    </div>
+
+                    <button type="button" onClick={() => removeProducto(idx)} className={styles.btnDelete} title="Quitar">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+
+                  {p.producto_nombre !== NO_PRODUCT_LABEL && (
+                    <div className={styles.productDetailsGrid}>
+                      <div className={styles.group}>
+                        <input 
+                          className={styles.subInput}
+                          placeholder="Dosis (ej: 2ml)" 
+                          value={p.dosis} 
+                          onChange={(e) => updateProducto(idx, 'dosis', e.target.value)} 
+                        />
+                      </div>
+                      <div className={styles.group}>
+                        <input 
+                          className={styles.subInput}
+                          placeholder="Vía (ej: Oral, IM)" 
+                          value={p.via_administracion} 
+                          onChange={(e) => updateProducto(idx, 'via_administracion', e.target.value)} 
+                        />
+                      </div>
+                      <div className={styles.group}>
+                        <input 
+                          className={styles.subInput}
+                          placeholder="Frecuencia (ej: c/8h)" 
+                          value={p.frecuencia} 
+                          onChange={(e) => updateProducto(idx, 'frecuencia', e.target.value)} 
+                        />
+                      </div>
+                      <div className={styles.group}>
+                        <input 
+                          className={styles.subInput}
+                          placeholder="Duración (ej: 5 días)" 
+                          value={p.duracion} 
+                          onChange={(e) => updateProducto(idx, 'duracion', e.target.value)} 
+                        />
+                      </div>
+                      <div className={styles.fullWidth}>
+                        <textarea 
+                          className={styles.subInput}
+                          placeholder="Instrucciones adicionales para el dueño..." 
+                          value={p.instrucciones} 
+                          onChange={(e) => updateProducto(idx, 'instrucciones', e.target.value)} 
+                          rows="1"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </FormCard>
+
+          <div className={styles.actionCard}>
+            {error && <div className={styles.errorBox}><AlertCircle size={16} /> {error}</div>}
+            <button type="submit" disabled={submitting} className={styles.btnFinish}>
+              <Save size={20} /> {submitting ? 'Guardando...' : 'Finalizar Consulta'}
+            </button>
+          </div>
         </div>
       </form>
+
+      <AlertModal open={showBadReqModal} title="Atención" message="Debe completar los datos obligatorios y productos." onClose={() => setShowBadReqModal(false)} />
+      <AlertModal open={showConfirmSaveModal} title="Confirmar" message="¿Desea cerrar esta consulta y actualizar el historial?" onConfirm={submitConfirmed} onClose={() => setShowConfirmSaveModal(false)} />
     </div>
   );
 }

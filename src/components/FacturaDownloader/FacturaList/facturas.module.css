@@ -66,6 +66,35 @@
   opacity: 0.7;
   filter: grayscale(0.7);
 }
+
+/* facturas.module.css */
+
+.invoiceCard {
+    position: relative;
+    overflow: visible !important; /* Vital para que el badge no se corte */
+    border: 1px solid #ddd;
+    /* ... tus estilos */
+}
+
+.recentCard {
+    border: 2px solid #2563eb !important;
+    background-color: #f0f7ff !important;
+}
+
+.recentBadge {
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background-color: var(--accent-green);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: bold;
+}
 .page {
   min-height: 100vh;
   background: var(--bg-facturas);
@@ -540,4 +569,97 @@
 .qrButton[disabled] {
   opacity: 0.5;
   cursor: default;
+}
+.statusActionWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.invoiceCardSendBtn {
+  background: #ffffff !important;
+  color: #1d73b9 !important;
+  border: 1px solid #1db93f !important;
+  border-radius: 4px !important;
+}
+
+.invoiceCardSendBtn img {
+  filter: invert(53%) sepia(81%) saturate(442%) hue-rotate(84deg) brightness(95%) contrast(89%) !important;
+}
+
+.invoiceCardSendBtn:hover:not(:disabled) {
+  background: #1db93f !important;
+  color: #ffffff !important;
+}
+
+.invoiceCardSendBtn:hover:not(:disabled) img {
+  filter: brightness(0) invert(1) !important;
+}
+
+.invoiceCardSendBtn:disabled {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #94a3b8 !important;
+  opacity: 0.6;
+}
+
+.invoiceCardSendBtn:disabled img {
+  filter: grayscale(1) opacity(0.5) !important;
+}
+
+/* CSS de src\components\UI\Search\Search.jsx */
+.searchContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: #a0aec0;
+  pointer-events: none;
+}
+
+.inputField {
+  width: 100%;
+  padding: 10px 40px 10px 38px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  outline: none;
+  background: var(--productCardConsulta, #1a202c);
+  color: var(--letter-white, #ffffff);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.inputField::placeholder {
+  color: var(--color-text-muted2, #a0aec0);
+}
+
+.inputField:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.clearButton {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.clearButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }

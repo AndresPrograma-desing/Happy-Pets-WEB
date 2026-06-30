@@ -1,205 +1,61 @@
-
-/* --- Contenedor General --- */
 .page {
-  padding: 30px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color:transparent;
-  min-height: 100vh;
-
-/* Fila de historial para productos eliminados */
-.deletedRow {
-  background: linear-gradient(90deg, rgba(254,226,226,0.6), rgba(254,226,226,0.3));
-  color: #7f1d1d;
-}
-
-.header {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
+  flex-direction: column;
+  background: white;
+  min-height: 500px;
 }
 
-/* Mantener la cabecera visible al hacer scroll */
-.header {
-  position: sticky;
-  top: 0;
-  background: #f4f7f9;
-  z-index: 40;
-  padding: 14px 0;
-  margin-bottom: 0; /* eliminar el margen inferior porque el padding lo sustituye */
-  border-bottom: 1px solid rgba(15,23,42,0.04);
+.topActions {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 1.5rem;
 }
 
-.header h2 {
-  color: #000000;
-  font-weight: 600;
-  background-color: #0000002f;
-  padding: 8px 16px;
-  border-radius: 8px;
-}
-
-/* --- Botones --- */
 .primary {
   background: #0ea5e9;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .primary:hover {
   background: #0284c7;
+  transform: translateY(-1px);
 }
 
-.secondary {
-  background: #fff;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* --- SECCIÓN HISTORIAL (DOS COLUMNAS AL 50%) --- */
-.historyContainer {
-  flex: 1; /* Esto hace que cada historial ocupe la mitad del contenedor flex */
-  margin-top: 10px;
-  margin-bottom: 30px;
-  min-width: 0; /* Evita que las tablas rompan el layout */
-}
-
-.historyTitle {
-  color: #1e40af;
-  font-size: 0.9rem;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  font-weight: 800;
-}
-
-.excelWrapper {
-  overflow-x: auto;
-  border: 2px solid #8faadc;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  background: white;
-}
-
-.excelTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-/* Encabezado Fijo dentro de la tabla */
-.excelTable thead th {
-  background-color: #b4c7e7; 
-  color: #000;
-  border: 1px solid #8faadc;
-  padding: 10px;
-  text-align: center;
-  font-weight: bold;
-  position: sticky;
-  top: 0;
-}
-
-.excelTable tbody td {
-  border: 1px solid #d1d5db;
-  padding: 8px 12px;
-  color: #1f2937;
-}
-
-/* Estilos de Filas de Historial */
-.excelTable tbody tr:nth-child(even) {
-  background-color: #f8fafc; /* Zebra stripe sutil */
-}
-
-/* Fila de Eliminados (Rojo suave) */
-.deletedRow {
-  background: linear-gradient(90deg, rgba(254,226,226,0.8), rgba(254,226,226,0.4)) !important;
-  color: #7f1d1d !important;
-}
-
-.excelTable tbody tr:hover {
-  background-color: #bcd2ee !important; /* Selección estilo Excel */
-}/* --- Overlay con desenfoque --- */
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.7); /* Azul oscuro traslúcido */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(4px);
-  padding: 20px;
-}
-
-/* --- Contenedor del Modal --- */
-.modal {
-  background: rgba(255, 255, 255, 0.523);
-  backdrop-filter: blur(10px);
-  width: 95%;
-  max-width: 600px;
-  padding: 30px;
-  border-radius: 20px;
-  max-height: 85vh;
-  position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.modal::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Brave */
-}
-
-/* --- Header y la X de Cierre --- */
-.modalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.modalHeader h3 {
-  margin: 0;
-  font-size: 1.4rem;
-  color: #000000;
-  font-weight: 700;
-}
-
-/* Estilo profesional para la X */
-.closeX {
-  background: #f1f5f9;
+.deleteBtn {
+  background: #fee2e2;
+  color: #ef4444;
   border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%; /* Círculo perfecto */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  line-height: 1;
-  color: #64748b;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
 }
 
-.closeX:hover {
-  background: #fee2e2; /* Fondo rojizo suave al pasar el mouse */
-  color: #ef4444;      /* X roja al pasar el mouse */
-  transform: rotate(90deg); /* Efecto de rotación sutil */
+.deleteBtn:hover {
+  background: #fca5a5;
+  color: #b91c1c;
 }
 
-/* --- Cuerpo del Formulario --- */
+/* Modal Form Styles */
 .formContent {
   display: flex;
   flex-direction: column;
@@ -227,86 +83,26 @@
 .formGroup label, .formGroupFull label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #000000;
+  color: #334155;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .formGroup input, .formGroupFull input {
-  padding: 12px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 1rem;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
   color: #1e293b;
   outline: none;
   transition: all 0.2s ease;
-  background: #f8fafc;
 }
 
 .formGroup input:focus, .formGroupFull input:focus {
   border-color: #0ea5e9;
-  background: white;
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #f1f5f9;
-}
-.headerActions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;                
-}
-
-
-.primary {
-  background: #0ea5e9;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2);
-  white-space: nowrap; /* Evita que el texto se parta */
-}
-
-.primary:hover {
-  background: #0284c7;
-  transform: translateY(-1.5px);
-  box-shadow: 0 8px 15px -3px rgba(14, 165, 233, 0.3);
-}
-
-.secondary {
-  background: #1e293b; 
-  color: #ffffff;
-  border: 1px solid #334155;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.secondary:hover {
-  background: #334155;
-  border-color: #475569;
-  transform: translateY(-1.5px);
-}
-
-
-.headerActions button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 38px; 
-}
+.tableWrapper {
+  width: 100%;
 }

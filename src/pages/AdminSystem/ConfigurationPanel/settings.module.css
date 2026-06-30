@@ -1,0 +1,464 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* settings.module.css actualizado */
+
+.section {
+  margin-bottom: 3rem;}
+
+.sectionTitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  color: #6b7280;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  padding-left: 0.25rem;
+}
+
+.card {
+  background: white;
+  border-radius: 16px; 
+  border: 1px solid var(--border-gray-low);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+
+.badge {
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.disabled:hover {
+  background: none;
+}
+ 
+.handleGenerateReport {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+}
+ 
+.reportContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 1.5rem 0;
+}
+ 
+.reportButton, 
+.viewReportsButton {
+    min-width: 250px;
+    height: 46px;
+    padding: 0 1.5rem;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+ 
+.reportButton {
+    background-color: transparent;
+    color: #2563eb;
+    border: 2px solid #2563eb;
+}
+
+.reportButton:hover:not(:disabled) {
+    background-color: #2563eb;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.2);
+}
+ 
+.viewReportsButton {
+    background-color: #f8fafc;
+    color: #05c625;
+    border: 2px solid #05c625;
+}
+
+.viewReportsButton:hover {
+    background-color: #05c625;
+    color: white;
+     transform: translateY(-2px);
+    border-color: #cbd5e1;
+}
+ 
+.reportStatus {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info { background: #eff6ff; color: #1e40af; border: 1px solid #dbeafe; }
+.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+ 
+.filesContainer {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.filesHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.5rem;
+}
+
+.reportGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+ 
+.reportCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.reportInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.reportId {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #2563eb;
+}
+
+.reportDate {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+ 
+.downloadBtnSmall {
+    background-color: #ffffff;
+    color: #059669;
+    border: 1px solid #10b981;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.downloadBtnSmall:hover:not(:disabled) {
+    background-color: #10b981;
+    color: white;
+}
+ 
+.spinner {
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+ 
+.reportGrid::-webkit-scrollbar {
+    width: 5px;
+}
+.reportGrid::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+ 
+.btnRefresh {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btnRefresh:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+
+.btnRefresh:active {
+    transform: scale(0.95);
+}
+ 
+.downloadBtnSmall {
+    background-color: transparent;
+    color: #10b981;
+    border: 1.5px solid #10b981;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.downloadBtnSmall:hover:not(:disabled) {
+    background-color: #10b981;
+    color: white;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+
+.downloadBtnSmall:disabled {
+    border-color: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+ 
+.errorBox {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+/* ========================================
+   RESPONSIVE STYLES - No afectan el diseño de escritorio
+   ======================================== */
+@media (max-width: 640px) {
+  .container {
+    max-width: 100%;
+    padding: 0.75rem;
+  }
+
+  .section {
+    margin-bottom: 2rem;
+  }
+
+  .sectionTitle {
+    font-size: 0.75rem;
+    padding-left: 0;
+  }
+
+  /* Botones de reporte: apilar verticalmente y ocupar ancho completo */
+  .reportContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reportButton,
+  .viewReportsButton {
+    min-width: unset;
+    width: 100%;
+    white-space: normal;
+    justify-content: center;
+  }
+
+  /* Tarjeta de reporte: permite que baje el botón si el texto es largo */
+  .reportCard {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .downloadBtnSmall {
+    margin-left: auto;
+  }
+
+  /* Contenedor de archivos */
+  .filesHeader {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Ajustes menores */
+  .reportStatus {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .hintText {
+    font-size: 0.75rem;
+  }
+}
+.container {
+    padding: 1rem 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+/* Botón Estilo Card */
+.cardButton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Variantes */
+.cardButton[data-variant="primary"] {
+    background: linear-gradient(to right, #ffffff, #f0fdfa);
+}
+
+.cardButton[data-variant="primary"]:hover {
+    border-color: #0ea5a4;
+    box-shadow: 0 4px 12px rgba(14, 165, 164, 0.1);
+}
+
+.cardButton[data-variant="secondary"]:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.iconBox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.cardButton[data-variant="primary"] .iconBox {
+    background: #ccfbf1;
+    color: #0ea5a4;
+}
+
+.text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.subtitle {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Elementos de Adorno */
+.arrow { color: #94a3b8; transition: transform 0.2s; }
+.cardButton:hover .arrow { transform: translateX(4px); color: #0ea5a4; }
+
+.badge {
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* Feedback */
+.statusToast {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+
+.success { background: #f0fdf4; color: #166534; border-color: #dcfce7; }
+.info { background: #f0f9ff; color: #075985; border-color: #e0f2fe; }
+
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Estilos para cuando se habilite la autoEliminación de reportes  no se pueda editar la eliminacion manual*/
+.daysInput:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.saveButton:disabled {
+    filter: grayscale(1);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+/* Colores para el selector de moneda */

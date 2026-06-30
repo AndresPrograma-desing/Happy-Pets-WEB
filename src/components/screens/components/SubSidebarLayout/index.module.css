@@ -1,0 +1,80 @@
+.layoutWrapper {
+  display: flex;
+  width: 100%;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
+.subSidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background-color: var(--white, #a90000);
+  border: 1px solid var(--gray-200, #e2e8f0);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  color: var(--gray-600, #4a5568);
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.menuItem:hover {
+  background-color: var(--gray-50, #f8fafc);
+  color: var(--gray-900, #1a202c);
+}
+
+.menuItem.active {
+  background-color: var(--primary-color, #4299e1);
+  color: white;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconWrapper svg {
+  width: 18px;
+  height: 18px;
+}
+
+.menuItem.active .iconWrapper {
+  color: white;
+}
+
+.contentArea {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .layoutWrapper {
+    flex-direction: column;
+  }
+  
+  .subSidebar {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+}

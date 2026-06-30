@@ -1,99 +1,69 @@
-import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './facturas.module.css';
-import { getFacturas } from '../../../services/api';
-import SpinerLoader from '../../SpinerLoader/SpinerLoader';
+import { sendInvoiceWSM } from '../../../services/api';
 import { getIcon } from '../../../assets/icons/ExportIcon/Index';
-import usePolling from '../../../hooks/UsePolling';
 import Page1 from '../../Page1/Page1';
-import filterCitasByEstado from '../../filter/FilterCitas/FilterStatus';
 import SwitchComponent from '../../svg/Switchcomponent';
 import LoginInfo from '../../LoginInfo/LoginInfo';
-import { updateFacturaEstadoPago } from '../../../services/api';
 import ModalTooltip from '../../ModalTooltip/ModalTooltip';
 import AlertModal from '../../AlertModal/AlertModal';
 import { QRCodeCanvas } from 'qrcode.react';
-import PollingSeconds from '../../../hooks/PollingSecons';
-// import SendFactura from '../../../Client/SendFactura';
+import Button from '../../UI/Button/Button';
 
-function formatDate(iso) {
-  if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return iso;
-  }
+
+import {
+  FileText,
+  RotateCw,
+  HelpCircle,
+  FileClock,
+  Square,
+  CheckSquare,
+  QrCode,
+  AlertTriangle,
+  Ban,
+  Search,
+  X
+} from 'lucide-react';
+
+import {
+  formatDate,
+  formatCurrency,
+  useFacturas,
+  useFacturasCalculadas,
+  handleActualizarPago
+} from './utils';
+
+import { TEXT_INVOICES_GESTION, STATUS_PAYMENTS } from '../../../constants/TEXT';
+
+function SearchInput({ value, onChange, placeholder = TEXT_INVOICES_GESTION.searchPlaceholder }) {
+  return (
+    <div className={styles.searchContainer}>
+      <Search className={styles.searchIcon} size={18} />
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={styles.inputField}
+      />
+      {value && (
+        <button 
+          className={styles.clearButton} 
+          onClick={() => onChange('')}
+          type="button"
+        >
+          <X size={14} />
+        </button>
+      )}
+    </div>
+  );
 }
-
-function formatCurrency(n) {
-  return new Intl.NumberFormat('es-US', { style: 'currency', currency: 'VES' }).format(Number(n || 0));
-}
-
-const icons = {
-  pdf: getIcon('fileText'),
-  error: getIcon('x'),
-};
-
-// Hook local de facturas con polling y control de spinner
-function useFacturas() {
-  const [facturas, setFacturas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [refreshing, setRefreshing] = useState(false);
-  const firstLoadDoneRef = useRef(false);
-
-  const load = useCallback(async (opts = {}) => {
-    const { force = false } = opts;
-    if (force || !firstLoadDoneRef.current) setLoading(true);
-    else setRefreshing(true);
-    setError('');
-    try {
-      const res = await getFacturas();
-      const items = Array.isArray(res) ? res : res?.data ?? res?.result ?? [];
-      setFacturas(items || []);
-    } catch (err) {
-      setError(err?.message || String(err));
-    } finally {
-      if (!firstLoadDoneRef.current) firstLoadDoneRef.current = true;
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);                                              
-  const SeconsPolling = PollingSeconds(); 
-  usePolling(load, PollingSeconds());
- 
-  return { facturas, loading, error, refreshing, load };
-}
-
-
-const squareIcon = getIcon('square');
-const squareCheckIcon = getIcon('squareCheck');
-
-
 
 function PagoToggle({ metodo, estadoPago: inicial, facturaId }) {
   const [estado, setEstado] = useState(inicial);
   const [loading, setLoading] = useState(false);
-  const isPagada = estado === 'pagada';
-
-  const handlePago = async () => {
-    if (isPagada || loading) return;
-    setLoading(true);
-    try {
-      await updateFacturaEstadoPago(facturaId, 'pagada');
-      setEstado('pagada');
-    } catch (err) {
-      alert('No se pudo actualizar el estado de pago.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const isPagada = estado === STATUS_PAYMENTS.pagadas;
 
   return (
     <span className={styles.capitalize} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -102,13 +72,13 @@ function PagoToggle({ metodo, estadoPago: inicial, facturaId }) {
         type="button"
         className={styles.squareBtn}
         aria-label={isPagada ? 'Factura pagada' : 'Marcar como pagada'}
-        onClick={handlePago}
+        onClick={() => !isPagada && !loading && handleActualizarPago(facturaId, setEstado, setLoading)}
         disabled={isPagada || loading}
         style={{ padding: 0, background: 'none', border: 'none', cursor: isPagada || loading ? 'default' : 'pointer' }}
       >
         <ModalTooltip text={isPagada ? 'Factura pagada' : 'Marcar como pagada'}>
           <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-            <img src={isPagada ? squareCheckIcon : squareIcon} alt="" style={{ width: 20, height: 20 }} />
+            {isPagada ? <CheckSquare size={18} color="#10b981" /> : <Square size={18} color="#4a5568" />}
           </span>
         </ModalTooltip>
       </button>
@@ -116,19 +86,17 @@ function PagoToggle({ metodo, estadoPago: inicial, facturaId }) {
   );
 }
 
-// Header con boton de info que abre un portal con LoginInfo
 const FacturasHeader = React.memo(function FacturasHeader({ onRefresh, pdfOnly, onPdfToggle }) {
   const [open, setOpen] = useState(false);
-  const btnRef = useRef(null);                        
+  const btnRef = useRef(null);
   const portalRef = useRef(null);
   const [pos, setPos] = useState({ top: 0, left: 0 });
 
   const toggle = () => {
     if (!open && btnRef.current) {
       const r = btnRef.current.getBoundingClientRect();
-      const width = 320;
       const top = r.bottom + window.scrollY + 8;
-      let left = r.right + window.scrollX - width;
+      let left = r.right + window.scrollX - 320;
       if (left < 8) left = 8;
       setPos({ top, left });
     }
@@ -149,36 +117,34 @@ const FacturasHeader = React.memo(function FacturasHeader({ onRefresh, pdfOnly, 
   return (
     <header className={styles.header}>
       <div>
-        <h1 className={styles.title}>Facturación</h1>
+        <h1 className={styles.title}>{TEXT_INVOICES_GESTION.gestioPagos}</h1>
         <p className={styles.subtitle}>Gestión centralizada de servicios Happy Pets</p>
       </div>
-
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0, minWidth: 220 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
           <Page1 url="/SecretariaSystem" />
           <button className={styles.refresh} onClick={onRefresh}>
-            <i className="fas fa-sync-alt"></i>
-            <img src={getIcon('rotate')} alt="" className={styles.rotateIcon} />
+            <RotateCw size={16} color="#4a5568" />
             Refrescar
           </button>
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10, justifyContent: 'flex-end' }}>
           <SwitchComponent value={pdfOnly} onChange={onPdfToggle} />
-          <span className={styles.pdfOnlyLabel}>Solo facturas generadas</span>
+          <span className={styles.pdfOnlyLabel}>{TEXT_INVOICES_GESTION.pdfOnlyLabel}</span>
           <button ref={btnRef} className={styles.infoBtn} onClick={toggle} aria-label="Info filtro PDF">
-            <img src={getIcon('help')} alt="Info" className={styles.icon} />
+            <HelpCircle size={18} color="#4a5568" />
           </button>
         </div>
       </div>
 
       {open && typeof document !== 'undefined' && createPortal(
-        <div ref={portalRef} className={styles.loginInfoBox} style={{ position: 'absolute', top: pos.top + 'px', left: pos.left + 'px', zIndex: 99999 }}>
+        <div ref={portalRef} className={styles.loginInfoBox} style={{ position: 'absolute', top: `${pos.top}px`, left: `${pos.left}px`, zIndex: 99999 }}>
           <LoginInfo
             title="Filtrar por PDF"
-            paragraphs={[ 'Activa para ver sólo facturas que ya tienen PDF generado. Esto oculta facturas aún en proceso de generación.' ]}
-          />
+            paragraphs={ TEXT_INVOICES_GESTION.filterPdfInfo}
+        />
         </div>,
         document.body
       )}
@@ -190,54 +156,100 @@ const FacturasStats = React.memo(({ totalFacturado, totalFacturas, pendientes })
   <div className={styles.statsSummary}>
     <div className={styles.statCard}>
       <h3>
-        <img src={getIcon('cardCredit')} alt="" className={styles.icon} />
-        Total Facturado
+        <FileText size={18} color="#ffffff" />
+        { TEXT_INVOICES_GESTION.paidtTotal }
       </h3>
       <p>{formatCurrency(totalFacturado)}</p>
     </div>
     <div className={styles.statCard}>
       <h3>
-        <img src={getIcon('fileText')} alt="" className={styles.icon} />
-        Facturas Totales
+        <FileText size={18} color="#ffffff" />
+        { TEXT_INVOICES_GESTION.receiptTotal }
       </h3>
       <p>{totalFacturas}</p>
     </div>
     <div className={styles.statCard}>
       <h3>
-        <img src={getIcon('fileClock')} alt="" className={styles.icon} />
-        Pendientes
+        <ModalTooltip text="Facturas pendiente de pago">
+          <FileClock size={18} color="#4a5568" />
+          { TEXT_INVOICES_GESTION.pending }
+        </ModalTooltip>
       </h3>
       <p className={styles.warningText}>{pendientes}</p>
     </div>
   </div>
 ));
 
-const InvoiceCard = React.memo(function InvoiceCard({ factura, onShowQR }) {
+const InvoiceCard = React.memo(function InvoiceCard({ factura, onShowQR, onShowAlert }) {
   const id = factura.factura_id ?? factura.id;
   const isUrlValid = factura.url_docx?.startsWith('http');
+  const [sending, setSending] = useState(false);
+
+  const cardClassName = `${styles.invoiceCard} ${factura.isNew ? styles.recentCard : ''}`;
+
+  const handleSendWS = async () => {
+    if (sending || !isUrlValid) return;
+    setSending(true);
+    try {
+      const res = await sendInvoiceWSM(factura.cita_id);
+      onShowAlert({
+        title: 'Envío Exitoso',
+        message: res?.message || `La factura #${factura.numero_factura} fue enviada correctamente.`
+      });
+    } catch (err) {
+      console.error(err);
+      onShowAlert({
+        title: 'Fallo de Envío',
+        message: err?.message || 'Hubo un problema al procesar el envío de la factura.'
+      });
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
-    <div className={styles.invoiceCard}>
+    <div className={cardClassName}>
+      {factura.isNew && (
+        <div className={styles.recentBadge}>
+          <ModalTooltip text="Factura más reciente">
+            <span>Nueva</span>
+          </ModalTooltip>
+        </div>
+      )}
+
       <div className={styles.cardHeader}>
         <div>
           <span className={styles.invoiceNumber}>#{factura.numero_factura}</span>
           <div className={styles.date}>{formatDate(factura.fecha_emision)}</div>
         </div>
-        <span className={`${styles.statusBadge} ${factura.estado_pago === 'pagada' ? styles.statusPagada : styles.statusPendiente}`}>
-          {factura.estado_pago}
-        </span>
+        <div className={styles.statusActionWrapper}>
+          <ModalTooltip text={factura.estado_pago === 'pagada' ? 'Factura pagada' : 'Factura pendiente de pago'}>
+            <span className={`${styles.statusBadge} ${factura.estado_pago === 'pagada' ? styles.statusPagada : styles.statusPendiente}`}>
+              {factura.estado_pago}
+            </span>
+          </ModalTooltip>
+      
+          <ModalTooltip text={!isUrlValid ? 'PDF no disponible' : sending ? 'Enviando...' : 'Enviar a Whatsapp'}>
+            <Button
+              icon={getIcon('send')}
+              onClick={handleSendWS}
+              disabled={sending || !isUrlValid}
+              loading={sending}
+              onlyIcon={true}
+              className={styles.invoiceCardSendBtn}
+            />
+          </ModalTooltip>
+        </div>
       </div>
 
       <div className={styles.cardBody}>
         <div className={styles.infoGroup}>
-          <label>Propietario
-      {/* <SendFactura></SendFactura> */}
-          </label>
+          <label>Propietario</label>
           <p>{factura.cliente_nombre}</p>
         </div>
         <div className={styles.infoGroup}>
           <label>Paciente</label>
-          <p><i className="fas fa-paw"></i> {factura.mascota_nombre}</p>
+          <p>{factura.mascota_nombre}</p>
         </div>
         <div className={styles.infoGroup}>
           <label>Atendido por</label>
@@ -270,32 +282,31 @@ const InvoiceCard = React.memo(function InvoiceCard({ factura, onShowQR }) {
         </table>
       </div>
 
-        <div className={styles.cardFooter}>
+      <div className={styles.cardFooter}>
         <div className={styles.totalAmount}>
           <span>Total Neto</span>
           <strong>{formatCurrency(factura.total)}</strong>
         </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <ModalTooltip text={isUrlValid ? 'Descargar PDF' : 'PDF no disponible'}>
-              <a href={isUrlValid ? factura.url_docx : '#'} target="_blank" rel="noreferrer" className={`${styles.btnDownload} ${!isUrlValid ? styles.disabled : ''}`}>
-                <img src={isUrlValid ? icons.pdf : icons.error} alt="" className={styles.icon} />
-                {isUrlValid ? 'PDF' : 'N/A'}
-              </a>
-            </ModalTooltip>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <ModalTooltip text={isUrlValid ? 'Descargar PDF' : 'PDF no disponible'}>
+            <a href={isUrlValid ? factura.url_docx : '#'} target="_blank" rel="noreferrer" className={`${styles.btnDownload} ${!isUrlValid ? styles.disabled : ''}`}>
+              <FileText size={16} color="#4a5568" />
+              {isUrlValid ? 'PDF' : 'N/A'}
+            </a>
+          </ModalTooltip>
 
-            {/* Botón para mostrar QR del PDF de esta factura */}
-            <ModalTooltip text={isUrlValid ? 'Mostrar QR' : ' QR no disponible'}>
-              <button
-                type="button"
-                className={styles.qrButton}
-                onClick={() => isUrlValid && onShowQR && onShowQR(factura.url_docx, id)}
-                disabled={!isUrlValid}
-              >
-                <img src={getIcon('ScanQr')} alt="" className={styles.ScanQr} />
-                QR
-              </button>
-            </ModalTooltip>
-          </div>
+          <ModalTooltip text={isUrlValid ? 'Mostrar QR' : 'QR no disponible'}>
+            <button
+              type="button"
+              className={styles.qrButton}
+              onClick={() => isUrlValid && onShowQR && onShowQR(factura.url_docx, id)}
+              disabled={!isUrlValid}
+            >
+              <QrCode size={16} color="#4a5568" />
+              QR
+            </button>
+          </ModalTooltip>
+        </div>
       </div>
     </div>
   );
@@ -303,63 +314,76 @@ const InvoiceCard = React.memo(function InvoiceCard({ factura, onShowQR }) {
 
 export default function Facturas() {
   const { facturas, loading, error, load } = useFacturas();
-  const [filterEstado] = useState('todos');
   const [pdfOnly, setPdfOnly] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  
   const [qrOpen, setQrOpen] = useState(false);
-  const [qrUrl, setQrUrl] = useState('');
-  const [qrFacturaId, setQrFacturaId] = useState(null);
-  const [qrCliente, setQrCliente] = useState('');
-  const [qrNameClient, setQrNameClient] = useState(null);
+  const [qrData, setQrData] = useState({ url: '', id: null, cliente: '', mascota: '' });
 
-  const openQr = (url, id, cliente) => {
-    setQrUrl(url || '');
-    setQrFacturaId(id ?? null);
-    setQrCliente(cliente || '');
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '' });
+
+  const { visibleFacturas, totalFacturado, pendientes } = useFacturasCalculadas(facturas, 'todos', pdfOnly, searchTerm);
+
+  const openQr = (url, id, cliente, mascota) => {
+    setQrData({ url: url || '', id: id ?? null, cliente: cliente || '', mascota: mascota || '' });
     setQrOpen(true);
   };
 
   const closeQr = () => {
     setQrOpen(false);
-    setQrUrl('');
-    setQrFacturaId(null);
-    setQrCliente('');
+    setQrData({ url: '', id: null, cliente: '', mascota: '' });
   };
 
-  const visibleFacturas = useMemo(() => {
-    let filtered = filterCitasByEstado(facturas, filterEstado);
-    if (pdfOnly) {
-      filtered = filtered.filter((f) => f?.url_docx && typeof f.url_docx === 'string' && f.url_docx.startsWith('http'));
-    }
-    return filtered;
-  }, [facturas, filterEstado, pdfOnly]);
+  const showAlert = useCallback(({ title, message }) => {
+    setAlertConfig({ title, message });
+    setAlertOpen(true);
+  }, []);
 
-  const totalFacturado = useMemo(() => visibleFacturas.reduce((acc, curr) => acc + (curr.total || 0), 0), [visibleFacturas]);
-  const pendientes = useMemo(() => visibleFacturas.filter((f) => f.estado_pago === 'pendiente').length, [visibleFacturas]);
-
-  const handleRefresh = () => load({ force: true });
-  const handlePdfToggle = (v) => setPdfOnly(!!v);
+  const closeAlert = () => {
+    setAlertOpen(false);
+    setAlertConfig({ title: '', message: '' });
+  };
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <FacturasHeader onRefresh={handleRefresh} pdfOnly={pdfOnly} onPdfToggle={handlePdfToggle} />
+        <FacturasHeader onRefresh={() => load({ force: true })} pdfOnly={pdfOnly} onPdfToggle={(v) => setPdfOnly(!!v)} />
 
-        {!loading && !error && <FacturasStats totalFacturado={totalFacturado} totalFacturas={visibleFacturas.length} pendientes={pendientes} />}
+        <div style={{ display: 'flex', maxWidth: '400px', width: '100%', marginBottom: '1.5rem' }}>
+          <SearchInput 
+            value={searchTerm} 
+            onChange={setSearchTerm} 
+            placeholder="Buscar por cliente o mascota" 
+          />
+        </div>
+
+        {!loading && !error && (
+          <FacturasStats totalFacturado={totalFacturado} totalFacturas={visibleFacturas.length} pendientes={pendientes} />
+        )}
 
         {loading ? (
-          <div className={styles.center}><SpinerLoader /></div>
+          <div className={styles.center} style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Cargando facturas...</div>
         ) : error ? (
           <div className={styles.center}>
             <div className={styles.error}>{error}</div>
-            <button className={styles.retry} onClick={handleRefresh}>
-              <img src={getIcon('rotate')} alt="" className={styles.icon} /> Reintentar
+            <button className={styles.retry} onClick={() => load({ force: true })}>
+              <RotateCw size={14} /> Reintentar
             </button>
           </div>
         ) : visibleFacturas.length > 0 ? (
           <>
             <div className={styles.invoiceGrid}>
-              {visibleFacturas.map((f) => <InvoiceCard key={f.factura_id ?? f.id} factura={f} onShowQR={(url, id) => openQr(url, id, f.cliente_nombre)} />)}
+              {visibleFacturas.map((f) => (
+                <InvoiceCard 
+                  key={f.factura_id ?? f.id} 
+                  factura={f} 
+                  onShowQR={(url, id) => openQr(url, id, f.cliente_nombre, f.mascota_nombre)} 
+                  onShowAlert={showAlert}
+                />
+              ))}
             </div>
+            
             {qrOpen && (
               <AlertModal
                 open={qrOpen}
@@ -369,22 +393,23 @@ export default function Facturas() {
                 confirmText="Cerrar"
               >
                 <div style={{ textAlign: 'center' }}>
-                  {qrUrl ? (
-                    <>
-<div className={styles.qrMainContainer}>
-  <QRCodeCanvas value={qrUrl} size={200} level="H" includeMargin={true} />
-  <p className={styles.qrClienteText}>Cliente: <b>{qrCliente}</b></p>
-  <p className={styles.qrIdText}>ID Factura: <b>{qrFacturaId}</b></p>
-  <a href={qrUrl} target="_blank" rel="noopener noreferrer" className={styles.qrDownloadLink}>
-    <img src={getIcon('download')} alt="" className={styles.qrDownloadIcon} />
-    <span>Descargar PDF</span>
-  </a>
-</div>
-                    </>
+                  {qrData.url ? (
+                    <div className={styles.qrMainContainer}>
+                      <QRCodeCanvas value={qrData.url} size={200} level="H" includeMargin={true} />
+                      <p className={styles.qrClienteText}>Cliente: <b>{qrData.cliente}</b></p>
+                      <p className={styles.qrClienteText}>Mascota: <b>{qrData.mascota}</b></p>
+                      <p className={styles.qrIdText}>ID Factura: <b>{qrData.id}</b></p>
+
+                      <a href={qrData.url} target="_blank" rel="noopener noreferrer" className={styles.qrDownloadLink}>
+                        <FileText size={16} />
+                        <span>Descargar PDF</span>
+                      </a>
+                    </div>
                   ) : (
                     <p>
-                      <img src={getIcon('ban')} alt="" className={styles.qrErrorIcon} />
-                      No hay URL disponible para esta factura.</p>
+                      <Ban size={18} color="#ef4444" style={{ marginRight: 6 }} />
+                      No hay URL disponible para esta factura.
+                    </p>
                   )}
                 </div>
               </AlertModal>
@@ -392,9 +417,17 @@ export default function Facturas() {
           </>
         ) : (
           <div className={styles.empty}>
-            <img src={getIcon('ban')} alt="" className={styles.emptyIcon} />
-            No se encontraron registros de facturas.
+            <Ban size={24} className={styles.emptyIcon} />
+            <p>No se encontraron facturas.</p>
           </div>
+        )}
+
+        {alertOpen && (
+          <AlertModal open={alertOpen} title={alertConfig.title} onClose={closeAlert} onConfirm={closeAlert} confirmText="Aceptar">
+            <div style={{ textAlign: 'center', padding: '10px 0', color: '#2d3748', fontSize: '0.95rem' }}>
+              {alertConfig.message}
+            </div>
+          </AlertModal>
         )}
       </div>
     </div>

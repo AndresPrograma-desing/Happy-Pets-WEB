@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
+import {useCurrency} from '../../hooks/moneyType';
 
 const C = {
   bg:          '#0A0E1A',
@@ -505,9 +506,8 @@ const formatDate = (str) => {
     return String(str);
   }
 };
+// };
 
-const currency = (value) =>
-  `$${(Number(value) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const idFmt = (id) => id ? `#${String(id).padStart(4, '0')}` : '—';
 
@@ -528,6 +528,20 @@ const StatusDot = ({ isPending }) => (
 );
 
 const VistaFactura = ({ idCita }) => {
+  const { currency } = useCurrency();
+  const currencyFormat = (value) => {
+    const n = Number(value) || 0;
+    try {
+      return new Intl.NumberFormat(currency === 'USD' ? 'en-US' : 'es-VE', {
+        style: 'currency',
+        currency: currency || 'VES',
+        maximumFractionDigits: 0
+      }).format(n);
+    } catch (err) {
+      console.error("Error en formato:", err);
+      return (currency === 'VES' ? 'Bs. ' : '$ ') + n.toLocaleString();
+    }
+  };
   const [factura, setFactura] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]   = useState(null);
@@ -685,10 +699,10 @@ const VistaFactura = ({ idCita }) => {
                       {qty}
                     </td>
                     <td style={{ ...s.td('right', alt), ...s.tdMoney }} className="vf-td">
-                      {currency(price)}
+                      {currencyFormat(price)}
                     </td>
                     <td style={{ ...s.td('right', alt), ...s.tdMoneyBold }} className="vf-td">
-                      {currency(total)}
+                      {currencyFormat(total)}
                     </td>
                   </tr>
                 );
@@ -716,15 +730,15 @@ const VistaFactura = ({ idCita }) => {
           <div style={s.totalesTable} className="vf-tbl-tbl">
             <div style={{ ...s.totalesRow(false), borderTop: 'none' }}>
               <span style={s.totalesLabel(false)}>Subtotal</span>
-              <span style={s.totalesValue(false)}>{currency(subtotal)}</span>
+              <span style={s.totalesValue(false)}>{currencyFormat(subtotal)}</span>
             </div>
             <div style={s.totalesRow(false)}>
               <span style={s.totalesLabel(false)}>IVA</span>
-              <span style={s.totalesValue(false)}>{currency(iva)}</span>
+              <span style={s.totalesValue(false)}>{currencyFormat(iva)}</span>
             </div>
             <div style={s.totalesRow(true)}>
               <span style={s.totalesLabel(true)}>Total a pagar</span>
-              <span style={s.totalesValue(true)}>{currency(total)}</span>
+              <span style={s.totalesValue(true)}>{currencyFormat(total)}</span>
             </div>
           </div>
         </div>
