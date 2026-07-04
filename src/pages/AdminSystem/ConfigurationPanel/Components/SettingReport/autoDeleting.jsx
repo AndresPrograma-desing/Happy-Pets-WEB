@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, Loader2 } from 'lucide-react';
 import { autoDeleting } from '../../../../../services/api';
 import { useReportSettings } from '../../../../../hooks/RequestSetting';
-import SwitchComponent from "../../../../../components/screens/components/Swich/index";
+import SwitchComponent from "../../../../../components/screens/components/Swich/Index";
 import style from '../../settings.module.css';
 import { getText } from '../../../../../constants';
 import ToggleCard from "../../../../../components/screens/components/ToggleCard";

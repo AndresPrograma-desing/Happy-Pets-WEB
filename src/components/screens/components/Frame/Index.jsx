@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './index.module.css';
+import styles from './Index.module.css';
 
 function Frame({ title, error, children, className = '' }) {
     return (

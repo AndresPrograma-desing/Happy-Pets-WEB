@@ -4,7 +4,7 @@ import styles from './facturas.module.css';
 import { sendEmails } from '../../../services/api/emails';
 import { getIcon } from '../../../assets/icons/ExportIcon/Index';
 import Page1 from '../../Page1/Page1';
-import SwitchComponent from '../../screens/components/Swich/index';
+import SwitchComponent from '../../screens/components/Swich/Index';
 import LoginInfo from '../../LoginInfo/LoginInfo';
 import ModalTooltip from '../../ModalTooltip/ModalTooltip';
 import AlertModal from '../../AlertModal/AlertModal';

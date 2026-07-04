@@ -3,7 +3,7 @@ import { Settings, Loader2 } from 'lucide-react';
 import { autoGeneration } from '../../../../../services/api';
 // Asegúrate de usar la versión del hook que separa isGenerateEnabled e isDeleteEnabled
 import { useReportSettings } from '../../../../../hooks/RequestSetting';
-import SwitchComponent from "../../../../../components/screens/components/Swich/index";
+import SwitchComponent from "../../../../../components/screens/components/Swich/Index";
 import style from '../../settings.module.css';
 import { getText } from '../../../../../constants';
 import ToggleCard from "../../../../../components/screens/components/ToggleCard";
