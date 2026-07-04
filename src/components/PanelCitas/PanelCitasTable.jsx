@@ -4,6 +4,8 @@ import tableStyles from '../screens/components/TableB/index.module.css';
 import styles from './PanelCitas.module.css';
 import { Phone, PawPrint, Calendar, Clock, Stethoscope, FileText, Trash2, XCircle, PlayCircle } from 'lucide-react';
 
+import Button from '../screens/components/Button/index';
+
 function PanelCitasTable({
   listaCitas = [],
   deletingId,
@@ -69,13 +71,13 @@ function PanelCitasTable({
       label: 'Estado', 
       key: 'estado', 
       type: 'badge',
-      badgeClass: (row) => {
+      badgeType: (row) => {
         const statusLabel = renderField(row, ['estado', 'status']);
         const statusNormalized = (statusLabel || '').toString().toLowerCase();
-        if (statusNormalized.includes('complet')) return tableStyles.badgeSuccess;
-        if (statusNormalized.includes('program')) return tableStyles.badgeWarning;
-        if (statusNormalized.includes('asist')) return tableStyles.badgeDanger;
-        return '';
+        if (statusNormalized.includes('complet')) return 'success';
+        if (statusNormalized.includes('program')) return 'warning';
+        if (statusNormalized.includes('asist')) return 'danger';
+        return 'default';
       },
       render: (row) => renderField(row, ['estado', 'status'])
     }
@@ -108,29 +110,33 @@ function PanelCitasTable({
         <div className={styles.petsHeaderRow}>
           <h4 className={styles.sectionTitle}>Acciones Disponibles</h4>
           <div className={styles.actionButtonsRow}>
-            <button 
-              className={`${tableStyles.actionBtn} ${tableStyles.actionBtnPrimary}`}
+            <Button 
               onClick={(e) => { e.stopPropagation(); if (typeof onPrimaryAction === 'function') onPrimaryAction(row); }}
               disabled={isDeleting}
+              icon={PlayCircle}
+              variant="primary"
+              color={Button.COLORS.PURPLE}
             >
-              <PlayCircle size={14} /> {primaryActionLabel || 'Empezar Consulta'}
-            </button>
+              {primaryActionLabel || 'Empezar Consulta'}
+            </Button>
             {onCancel && (
-              <button 
-                className={`${tableStyles.actionBtn} ${styles.cancelBtn}`}
+              <Button
                 onClick={(e) => { e.stopPropagation(); onCancel(row); }}
                 disabled={isDeleting}
+                icon={XCircle}
+                variant="danger"
               >
-                <XCircle size={14} /> Cancelar Cita
-              </button>
+                Cancelar Cita
+              </Button>
             )}
-            <button 
-              className={`${tableStyles.actionBtn} ${tableStyles.actionBtnDanger}`}
+            <Button
               onClick={(e) => { e.stopPropagation(); onDelete(row); }}
               disabled={isDeleting}
+              icon={Trash2}
+              variant="danger"
             >
-              <Trash2 size={14} /> Eliminar
-            </button>
+              Eliminar
+            </Button>
           </div>
         </div>
       </div>

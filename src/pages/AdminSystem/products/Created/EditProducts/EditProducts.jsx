@@ -2,8 +2,17 @@ import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'rea
 import { Tag, Factory, DollarSign, Box, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { updateProducts } from '../../../../../services/api';
 import style from './EditProducts.module.css';
+import TextField from '../../../../../components/screens/components/Material-UI/Components/TextField/Index';
+import Selector from '../../../../../components/screens/components/Material-UI/Components/Selector/Index';
+import useCategories from '../../../../../hooks/requestCategories';
 
 const ProductEditForm = forwardRef(({ productData, onUpdateSuccess, onError }, ref) => {
+    const { categories } = useCategories();
+    const categoryOptions = categories.map((cat) => {
+        const val = typeof cat === 'string' ? cat : (cat.id ?? String(cat));
+        const label = typeof cat === 'string' ? cat : (cat.name ?? val);
+        return { value: val, label: label };
+    });
     const [formData, setFormData] = useState({
         codigo: '',
         nombre: '',
@@ -95,40 +104,85 @@ const ProductEditForm = forwardRef(({ productData, onUpdateSuccess, onError }, r
             <div className={style.scrollableArea}>
                 <div className={style.gridInputs}>
                     <div className={style.inputGroup}>
-                        <label><Tag size={14} /> Código</label>
-                        <input name="codigo" value={formData.codigo} onChange={handleChange} />
+                        <TextField 
+                            label="Código" 
+                            name="codigo" 
+                            value={formData.codigo} 
+                            onChange={handleChange} 
+                        />
                     </div>
                     <div className={style.inputGroup}>
-                        <label>Nombre del Producto</label>
-                        <input name="nombre" value={formData.nombre} onChange={handleChange} required />
+                        <TextField 
+                            label="Nombre del Producto" 
+                            name="nombre" 
+                            value={formData.nombre} 
+                            onChange={handleChange} 
+                            required 
+                        />
                     </div>
                     <div className={style.inputGroupFull}>
-                        <label>Descripción</label>
-                        <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows="2" />
+                        <TextField 
+                            label="Descripción" 
+                            name="descripcion" 
+                            value={formData.descripcion} 
+                            onChange={handleChange} 
+                            multiline 
+                            rows={2} 
+                        />
                     </div>
                     <div className={style.inputGroup}>
-                        <label>Tipo / Categoría</label>
-                        <input name="tipo" value={formData.tipo} onChange={handleChange} />
+                        <Selector
+                            label="Categoría"
+                            value={formData.categoriaId}
+                            options={categoryOptions}
+                            onChange={(e) => handleChange({ target: { name: 'categoriaId', value: e.target.value } })}
+                        />
                     </div>
                     <div className={style.inputGroup}>
-                        <label><Factory size={14} /> Proveedor</label>
-                        <input name="proveedor" value={formData.proveedor} onChange={handleChange} />
+                        <TextField 
+                            label="Proveedor" 
+                            name="proveedor" 
+                            value={formData.proveedor} 
+                            onChange={handleChange} 
+                        />
                     </div>
                     <div className={style.inputGroup}>
-                        <label><DollarSign size={14} /> Precio Compra</label>
-                        <input type="number" name="precio" value={formData.precio} onChange={handleChange} step="0.01" />
+                        <TextField 
+                            type="number" 
+                            label="Precio Compra" 
+                            name="precio" 
+                            value={formData.precio} 
+                            onChange={handleChange} 
+                            inputProps={{ step: "0.01" }} 
+                        />
                     </div>
                     <div className={style.inputGroup}>
-                        <label><DollarSign size={14} /> Precio Venta</label>
-                        <input type="number" name="precioVenta" value={formData.precioVenta} onChange={handleChange} step="0.01" />
+                        <TextField 
+                            type="number" 
+                            label="Precio Venta" 
+                            name="precioVenta" 
+                            value={formData.precioVenta} 
+                            onChange={handleChange} 
+                            inputProps={{ step: "0.01" }} 
+                        />
                     </div>
                     <div className={style.inputGroup}>
-                        <label><Box size={14} /> Stock</label>
-                        <input type="number" name="stock" value={formData.stock} onChange={handleChange} />
+                        <TextField 
+                            type="number" 
+                            label="Stock" 
+                            name="stock" 
+                            value={formData.stock} 
+                            onChange={handleChange} 
+                        />
                     </div>
                     <div className={style.inputGroup}>
-                        <label>Stock Mínimo</label>
-                        <input type="number" name="stockMinimo" value={formData.stockMinimo} onChange={handleChange} />
+                        <TextField 
+                            type="number" 
+                            label="Stock Mínimo" 
+                            name="stockMinimo" 
+                            value={formData.stockMinimo} 
+                            onChange={handleChange} 
+                        />
                     </div>
                 </div>
             </div>

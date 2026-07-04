@@ -24,21 +24,7 @@
     gap: 4px;
 }
 
-.inputGroup label, .inputGroupFull label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #475569;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
 
-.inputGroup input, .inputGroupFull textarea {
-    padding: 8px 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-size: 0.9rem;
-}
 
 .formActions {
     margin-top: 20px;

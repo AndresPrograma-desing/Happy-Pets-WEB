@@ -45,7 +45,12 @@ export async function login(credentials) {
   
   return data;
 }
-
+export async function getCodeRecovery(email) {
+  return request(`/PasswordRecovery/request-code?email=${encodeURIComponent(email)}`, { method: 'GET' });
+}
+export async function sendCodeRecovery(code) {
+  return request('/PasswordRecovery/verify-code', { method: 'POST', body: { code } });
+}
 export async function createUser(user) {
   return request('/Users/Create', { method: 'POST', body: user });
 }

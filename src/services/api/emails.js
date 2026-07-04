@@ -9,3 +9,28 @@ export async function getEmailsTemplates() {
 export async function updateEmailTemplate(id, data) {
     return request(`Emails/Templates/${id}`, { method: 'PUT', body: data });
 }
+
+// emailTypeCode
+
+//  public const int Recibos = 25;
+//         public const int ResetPassword = 15;
+//         public const int Bienvenido = 10;
+
+//         public static string GetEmailTypeString(int typeCode)
+//         {
+//             return typeCode switch
+//             {
+//                 Recibos => "Recibos",
+//                 ResetPassword => "ResetPassword",
+//                 Bienvenido => "Bienvenido",
+//                 _ => "Unknown"
+//             };
+//         }
+
+export async function sendEmails( EntityId, emailTypeCode ) {
+    return request(`Emails/send-email/${EntityId}?emailTypeCode=${emailTypeCode}`, { method: 'POST' });
+}
+
+export async function resendData() {
+  return request ('Emails/data-resend', {method: 'GET'});
+}

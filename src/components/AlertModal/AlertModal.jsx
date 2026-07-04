@@ -2,6 +2,10 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import styles from './AlertModal.module.css';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
+import Button from '../screens/components/Button/index';
+import TextField from '../screens/components/Material-UI/Components/TextField/Index';
+import Selector from '../screens/components/Material-UI/Components/Selector/Index';
+
 
 const FIELD_LABELS = {
   nombre: 'Nombre',
@@ -142,6 +146,14 @@ export default function AlertModal({
   cancelText = 'Cancelar',
   hideActions = false,
   children,
+  showInput = false,
+  inputType = 'text',
+  inputLabel = '',
+  inputPlaceholder = '',
+  inputValue = '',
+  onInputChange,
+  inputOptions = [],
+  inputError = '',
 }) {
   if (!open) return null;
 
@@ -163,6 +175,34 @@ export default function AlertModal({
             </ul>
           )}
 
+          {/* Render native inputs if requested via props */}
+          {showInput && inputType === 'select' && (
+            <div style={{ marginTop: '16px', marginBottom: '8px' }}>
+              <Selector
+                label={inputLabel}
+                value={inputValue}
+                onChange={onInputChange}
+                options={inputOptions}
+                placeholder={inputPlaceholder}
+              />
+            </div>
+          )}
+          
+          {showInput && inputType !== 'select' && (
+            <div style={{ marginTop: '16px', marginBottom: '8px' }}>
+              <TextField
+                type={inputType}
+                label={inputLabel}
+                placeholder={inputPlaceholder}
+                value={inputValue}
+                onChange={onInputChange}
+                error={!!inputError}
+                helperText={inputError}
+                fullWidth
+              />
+            </div>
+          )}
+
           {/* Render passed children (e.g., a form) or nothing by default */}
           {children}
         </div>
@@ -170,13 +210,13 @@ export default function AlertModal({
         {!hideActions && (
           <div className={styles.modalActions} style={{ marginTop: 12 }}>
             {typeof onClose === 'function' && (
-              <button type="button" className={styles.modalSecondary} onClick={onClose}>{cancelText}</button>
+              <Button variant="primary" color={Button.COLORS.DANGER} fullWidth onClick={onClose}>{cancelText}</Button>
             )}
 
             {typeof onConfirm === 'function' ? (
-              <button type="button" className={styles.modalPrimary} onClick={onConfirm}>{confirmText}</button>
+              <Button variant="primary" color={Button.COLORS.PRIMARY} fullWidth onClick={onConfirm}>{confirmText}</Button>
             ) : (
-              <button type="button" className={styles.modalPrimary} onClick={onClose || (() => {})}>{confirmText}</button>
+              <Button variant="primary" fullWidth onClick={onClose || (() => {})}>{confirmText}</Button>
             )}
           </div>
         )}

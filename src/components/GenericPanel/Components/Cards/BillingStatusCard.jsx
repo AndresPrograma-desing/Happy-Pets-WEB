@@ -29,11 +29,6 @@ const BillingStatusCard = () => {
       badgeText="Sistema"
       badgeBgColor="#eff6ff"
       badgeTextColor="#3b82f6"
-      // actionIcon={RefreshCw}
-      // onActionClick={() => getStatus(true)}
-      // // actionDisabled={isLoading}
-      // actionTooltip="Actualizar moneda"
-      isSpinning={isLoading}
       isLoading={isLoading && !currency}
       isError={!!error}
       errorText={error || "Error"}

@@ -1,72 +1,7 @@
-.formCard {
-    background-color: #ffffff;
-    width: 320px;
-    padding: 1.5rem 2.5rem 2.5rem 2.5rem;
-    border-radius: 4px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    font-family: 'Roboto', Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-}
-
-.formTitle {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #000000;
-    text-align: center;
-    margin: 0 0 1.25rem 0;
-}
-
-.errorMessage {
-    color: #ff0000;
-    font-size: 0.85rem;
-    text-align: center;
-    margin: 0 0 1rem 0;
-    font-weight: 700;
-    min-height: 1rem;
-}
-
 .form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-}
-
-.inputGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
-
-.label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #000000;
-}
-
-.input {
-    width: 100%;
-    padding: 0.5rem 0.5rem;
-    background-color: #ffffff;
-    border: 1.5px solid #000000;
-    border-radius: 2px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #000000;
-    outline: none;
-    box-sizing: border-box;
-    font-family: inherit;
-    transition: box-shadow 0.2s;
-}
-
-.input::placeholder {
-    color: #000000;
-    font-weight: 500;
-    opacity: 1;
-}
-
-.input:focus {
-    box-shadow: 0 0 0 1px #000000;
 }
 
 .customSelectWrapper [class*="selectHeader"] {

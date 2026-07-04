@@ -4,6 +4,8 @@ import ModalTooltip from '../../../../components/ModalTooltip/ModalTooltip';
 import styles from './index.module.css';
 import { handleAction } from './utils';
 
+import Button from '../Button/index';
+
 const PlaceholderButton = ({
   icon: Icon,
   tooltipText,
@@ -82,14 +84,16 @@ const PlaceholderButton = ({
           {unitText && <span className={styles.unitText}>{unitText}</span>}
         </div>
 
-        <button 
-          className={styles.saveButton} 
+        <Button
+          variant={Button.VARIANTS.PRIMARY}
+          size={Button.SIZES.LARGE}
+          icon={isSaving ? Loader2 : Save}
+          color={Button.COLORS.BLUE}
           onClick={onSaveClick}
-          disabled={isSaving || disabled}
+          loading={isSaving}
         >
-          {isSaving ? <Loader2 size={18} className={styles.spinner} /> : <Save size={18} />}
           {buttonText}
-        </button>
+        </Button>
       </div>
 
       {disabled && disabledHintText && (

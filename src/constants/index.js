@@ -206,6 +206,20 @@ const TEXT = {
             clientList:"Clientes",
         }
 
+    },
+    resendConfig: {
+        panelTitle: "Configuración de Resend",
+        panelDesc: "Visualiza las credenciales y el estado del servicio de envío de correos.",
+        loading: "Cargando configuración de Resend...",
+        errorLoading: "Error al obtener la configuración de Resend",
+        noData: "No se encontraron datos de configuración.",
+        cardTitle: "Credenciales y Estado",
+        active: "Activo",
+        inactive: "Inactivo",
+        clientEmail: "Email de Cliente",
+        apiKey: "API Key",
+        urlResend: "URL Resend",
+        apiUrl: "API URL"
     }
 };
 

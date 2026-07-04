@@ -8,6 +8,8 @@ import AlertModal from '../../../components/AlertModal/AlertModal';
 import { CustomerAndPetsForm } from '../CreateCustomerAndPets/CustomerAndPets';
 import { openNewTab } from '../../../utils/navegation';
 
+import Button from '../../../components/screens/components/Button';
+
 function CitasDoctor() {
 	const navigate = useNavigate();
 	const { citas, loading, error, refetch } = useGetCitas();
@@ -169,9 +171,12 @@ function CitasDoctor() {
 					<p className={styles.intro}>Gestiona las citas programadas y empieza consultas desde este panel.</p>
 				</div>
 				<div style={{ display: 'flex', gap: 8 }}>
-					<button type="button" className={styles.backButton} onClick={() => navigate('/doctor')}>
+					< Button type="button" 
+					className={styles.backButton} 
+					onClick={() => navigate('/doctor')}>
+					
 						Volver a la página principal
-					</button>
+					</Button >
 					<button type="button" className={styles.refreshButton} onClick={() => { console.log('refetch clicked'); refetch(); }}>
 						Actualizar
 					</button>

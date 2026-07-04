@@ -16,7 +16,10 @@ const DollarCard = () => {
     hasFetched.current = true;
 
     try {
-      const data = await fetchDollarRate();
+      const [data] = await Promise.all([
+        fetchDollarRate(),
+        isManualRefresh ? new Promise(resolve => setTimeout(resolve, 500)) : Promise.resolve()
+      ]);
       setRate(data);
     } catch (err) {
       console.error("Error fetching dollar rate:", err);

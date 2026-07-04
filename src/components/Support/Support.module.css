@@ -1,0 +1,131 @@
+.supportContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.supportButton {
+  background-color: transparent;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1e293b;
+  transition: all 0.2s ease;
+  border:none;
+}
+
+.supportButton:hover {
+  transform: translateY(-2px);
+}
+
+.dropdownOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9998;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  width: 320px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top right;
+  z-index: 9999;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.headerIcon {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.errorMessage {
+  background-color: #f8fafc;
+  border-left: 3px solid #64748b;
+  padding: 10px 14px;
+  border-radius: 6px;
+  color: #334155;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.linksContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.supportLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #ffffff;
+  padding: 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #1e293b;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.supportLink:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.linkIcon {
+  color: #475569;
+  padding: 6px;
+}
+
+.linkText {
+  flex: 1;
+}
+
+.linkSubtext {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}

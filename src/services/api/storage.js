@@ -35,6 +35,7 @@ export function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(LOGIN_DATA_KEY);
   localStorage.removeItem(DOCTOR_ID_KEY);
+  localStorage.removeItem('USE_DUMMY_DATA');
 }
 
 export function extractDoctorId(source) {

@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, Loader2 } from 'lucide-react';
 // import { autoDeletingFactura } from '../../../../../services/api'; 
 import { useReportSettings } from '../../../../../hooks/RequestSetting';
-import SwitchComponent from "../../../../../components/svg/Switchcomponent";
+import SwitchComponent from "../../../../../components/screens/components/Swich/index";
 import style from '../../settings.module.css';
 import { getText } from '../../../../../constants';
 import ToggleCard from "../../../../../components/screens/components/ToggleCard";
+import Loading from '../../../../../components/screens/components/Loading/Index';
 
 const AutoDeleteTogglefactura = () => {
     const { isEnabledf: initialEnabled, loading, clearCache } = useReportSettings();
@@ -35,15 +36,12 @@ const AutoDeleteTogglefactura = () => {
     };
 
     if (loading) {
-        return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '1rem', color: '#64748b' }}>
-                <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
-                <span>Cargando...</span>
-            </div>
-        );
+        return <Loading />;
     }
 
     return (
+     
+
         <ToggleCard
             title={getText("configFactura.autoDeleting") || getText("configReport.autoDeleting")}
             description={isEnabled
@@ -51,14 +49,14 @@ const AutoDeleteTogglefactura = () => {
                 : getText("configFactura.autodeleteDisabled")}
             icon={Trash2}
             action={
-                actionLoading ? (
-                    <Loader2 size={20} className={style.spinner} />
-                ) : (
-                    <SwitchComponent
-                        value={isEnabled}
-                        onChange={handleToggle}
-                    />
-                )
+                <SwitchComponent
+                    value={isEnabled}
+                    onChange={handleToggle}
+                    disabled={actionLoading}
+                    activeColor="var(--SW-green)"
+                    inactiveColor="var(--SW-disable-default)"
+                    thumbColor="var(--SW-white)"
+                />
             }
         />
     );

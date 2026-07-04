@@ -95,3 +95,5 @@ export async function handleActualizarPago(facturaId, setEstado, setLoading) {
     setLoading(false);
   }
 }
+
+export const EMAIL_TYPE_RECIBO = 25;

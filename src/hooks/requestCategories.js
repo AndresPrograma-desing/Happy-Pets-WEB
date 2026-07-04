@@ -10,18 +10,28 @@ const useCategories = (pollingInterval = null) => {
     const fetchCategories = useCallback(async () => {
         try {
             const data = await categories();
+            let list = [];
             if (Array.isArray(data)) {
-                setCategoryList(data);
-                
-                // Creamos un mapa { id: "nombre" } para acceso O(1)
-                const map = data.reduce((acc, cat) => {
+                list = data;
+            } else if (data && Array.isArray(data.data)) {
+                list = data.data;
+            } else if (data && Array.isArray(data.categories)) {
+                list = data.categories;
+            } else if (data && Array.isArray(data.items)) {
+                list = data.items;
+            }
+            
+            setCategoryList(list);
+            
+            // Creamos un mapa { id: "nombre" } para acceso O(1)
+            const map = list.reduce((acc, cat) => {
                     const id = cat.id || cat.categoria_id;
-                    if (id) acc[id] = cat.nombre;
+                    const name = cat.name || cat.nombre;
+                    if (id) acc[id] = name;
                     return acc;
                 }, {});
                 
                 setCategoryMap(map);
-            }
             setError(null);
         } catch (err) {
             console.error('Error al cargar categorías:', err);
@@ -45,7 +55,7 @@ const useCategories = (pollingInterval = null) => {
     const categoryOptions = useMemo(() => 
         categoryList.map(cat => ({
             id: cat.id || cat.categoria_id,
-            name: cat.nombre
+            name: cat.name || cat.nombre || "Sin nombre"
         })), [categoryList]);
 
     return {

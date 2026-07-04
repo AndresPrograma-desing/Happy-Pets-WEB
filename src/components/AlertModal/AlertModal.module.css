@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10001;
+  z-index: 1299;
   animation: fadeIn 0.2s ease-out;
 }
 

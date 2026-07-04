@@ -1,0 +1,57 @@
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 1.5rem;
+  width: 100%;
+  color: var(--text-color, #64748b);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.5); /* Subtle background so it replaces the card visually */
+}
+
+.spinner {
+  border: 3px solid rgba(0, 0, 0, 0.05);
+  border-left-color: var(--btn-blue, #0041f2);
+  border-radius: 50%;
+  animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.small .spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.medium .spinner {
+  width: 24px;
+  height: 24px;
+}
+
+.large .spinner {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+}
+
+.text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

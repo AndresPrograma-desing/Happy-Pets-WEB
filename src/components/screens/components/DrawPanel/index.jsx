@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import styles from './index.module.css';
 
+import Button from '../Button/index';
+
 const DrawPanel = ({ 
   isOpen, 
   onClose, 
@@ -36,9 +38,13 @@ const DrawPanel = ({
       >
         <div className={styles.header}>
           <h3 className={styles.title}>{title}</h3>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Cerrar panel">
-            <X size={20} />
-          </button>
+          <Button variant={Button.VARIANTS.DANGER} 
+            color={Button.COLORS.TRANSPARENT} 
+            onClick={onClose} 
+            circle
+            aria-label="Cerrar panel">
+              <X size={20} color={Button.COLORS.BLACK} />
+            </Button>
         </div>
         <div className={styles.content}>
           {children}

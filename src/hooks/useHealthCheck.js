@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { DEV_URL_API } from '../../config/config';
+import { DEV_URL_API, isDummyModeActive } from '../../config/config';
 
 export function useHealthCheck() {
+  const isDummy = isDummyModeActive();
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
-  const [isBackendAlive, setIsBackendAlive] = useState(true);
+  const [isBackendAlive, setIsBackendAlive] = useState(isDummy ? true : true);
+  const [actualBackendAlive, setActualBackendAlive] = useState(false);
 
   const isMountedRef = useRef(true);
   const controllerRef = useRef(null);
@@ -38,15 +40,21 @@ export function useHealthCheck() {
         const isHtml = contentType.includes("text/html");
         
         const isAlive = res.ok && !isHtml;
-        setIsBackendAlive(isAlive);
+        setActualBackendAlive(isAlive);
+        if (!isDummy) {
+          setIsBackendAlive(isAlive);
+        }
         
         if (isAlive) setIsOnline(true);
       }
     } catch (err) {
       if (!isMountedRef.current) return;
-      setIsBackendAlive(false);
+      setActualBackendAlive(false);
+      if (!isDummy) {
+        setIsBackendAlive(false);
+      }
     }
-  }, [HEALTH_URL]);
+  }, [HEALTH_URL, isDummy]);
 
   useEffect(() => {
         
@@ -73,7 +81,7 @@ export function useHealthCheck() {
     };
   }, [checkBackend]);
 
-  return { isOnline, isBackendAlive };
+  return { isOnline, isBackendAlive, actualBackendAlive, isDummy };
 }
 
 export default useHealthCheck;

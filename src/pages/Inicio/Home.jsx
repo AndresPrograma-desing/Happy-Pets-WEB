@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './styles.module.css';
 import LoginForm from '../../components/auth/LoginForm';
 import Carrussel from '../../components/Carrussel/carrussel';
+import { SupportComponent } from '../../components/Support/Index.jsx';
 
 const Home = () => {
   return (
@@ -20,6 +21,7 @@ const Home = () => {
       <div className={styles.rightSection}>
         <Carrussel />
       </div>
+      <SupportComponent />
     </div>
   );
 };

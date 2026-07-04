@@ -42,7 +42,7 @@ function AppContent() {
   // Obtener el user_id usando la utilidad
   const userId = getUserId();
   
-  const isPublicRoute = ['/login', '/inicio', '/'].includes(location.pathname);
+  const isPublicRoute = ['/login', '/inicio', '/', '/witing'].includes(location.pathname);
 
   useEffect(() => {
     startTransition(() => setIsLoading(false));
@@ -61,7 +61,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Navigate to="/inicio" replace />} />
           <Route path="/inicio" element={<Home />} />
-          <Route path="/login" element={<LoginForm />} />
+          <Route path="/login" element={<Navigate to="/inicio" replace />} />
           <Route path="/AdminSystem" element={<AdminSystem />} />
           <Route path="/AdminSystem/dashboard" element={<DashboardPage />} />
           <Route path="/SecretariaSystem" element={<SecretariaSystem />} />
@@ -84,6 +84,7 @@ function AppContent() {
           <Route path="/calendar" element={<CalendarTest />} />
           
           <Route path="/health" element={<Health />} />
+          <Route path="/witing" element={<WaitingPage />} />
           <Route path="*" element={<Navigate to="/inicio" replace />} />
         </Routes>
       {/* </div> */}
@@ -93,23 +94,74 @@ function AppContent() {
 
 
 
+import { Wifi, XCircle } from 'lucide-react';
+import ToggleCard from './components/screens/components/ToggleCard/index.jsx';
+import Button from './components/screens/components/Button/index.jsx';
+
 function App() {
-
-      const { isOnline, isBackendAlive } = useHealthCheck();
-
-  if (!isOnline) {
-    return <WaitingPage></WaitingPage>;
-  }
-
-  if (!isBackendAlive) {
-    return <WaitingPage> </WaitingPage>;
-  }
+  const { isOnline, isBackendAlive, actualBackendAlive, isDummy } = useHealthCheck();
 
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <>
+      {isDummy && actualBackendAlive && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 99999,
+          width: '90%',
+          maxWidth: '500px',
+          animation: 'fadeInDown 0.5s ease-out'
+        }}>
+          <style>{`
+            @keyframes fadeInDown {
+              from { opacity: 0; transform: translate(-50%, -20px); }
+              to { opacity: 1; transform: translate(-50%, 0); }
+            }
+          `}</style>
+          <div style={{ boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', borderRadius: '12px', background: 'white' }}>
+            <ToggleCard
+              title="¡Servidor en línea de nuevo!"
+              description="Se ha detectado conexión con el backend real."
+              icon={Wifi}
+              action={
+                <Button 
+                  variant="primary" 
+                  color="green" 
+                  size="small"
+                  onClick={() => {
+                    localStorage.removeItem('USE_DUMMY_DATA');
+                    window.location.href = '/login';
+                  }}
+                >
+                  Conectar
+                </Button>
+              }
+            />
+          </div>
+        </div>
+      )}
+      
+      <Router>
+        <AppRouterWrapper isOnline={isOnline} isBackendAlive={isBackendAlive} />
+      </Router>
+    </>
   );
+}
+
+function AppRouterWrapper({ isOnline, isBackendAlive }) {
+  const location = useLocation();
+
+  if (!isOnline || !isBackendAlive) {
+    if (location.pathname !== '/witing') {
+      return <Navigate to="/witing" replace />;
+    }
+  } else if (location.pathname === '/witing') {
+    return <Navigate to="/inicio" replace />;
+  }
+
+  return <AppContent />;
 }
 
 export default App;

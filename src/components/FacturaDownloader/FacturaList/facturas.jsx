@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './facturas.module.css';
-import { sendInvoiceWSM } from '../../../services/api';
+import { sendEmails } from '../../../services/api/emails';
 import { getIcon } from '../../../assets/icons/ExportIcon/Index';
 import Page1 from '../../Page1/Page1';
-import SwitchComponent from '../../svg/Switchcomponent';
+import SwitchComponent from '../../screens/components/Swich/index';
 import LoginInfo from '../../LoginInfo/LoginInfo';
 import ModalTooltip from '../../ModalTooltip/ModalTooltip';
 import AlertModal from '../../AlertModal/AlertModal';
@@ -31,7 +31,8 @@ import {
   formatCurrency,
   useFacturas,
   useFacturasCalculadas,
-  handleActualizarPago
+  handleActualizarPago,
+  EMAIL_TYPE_RECIBO
 } from './utils';
 
 import { TEXT_INVOICES_GESTION, STATUS_PAYMENTS } from '../../../constants/TEXT';
@@ -131,7 +132,12 @@ const FacturasHeader = React.memo(function FacturasHeader({ onRefresh, pdfOnly, 
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10, justifyContent: 'flex-end' }}>
-          <SwitchComponent value={pdfOnly} onChange={onPdfToggle} />
+
+          <SwitchComponent 
+          value={pdfOnly}
+          onChange={onPdfToggle}
+           />
+
           <span className={styles.pdfOnlyLabel}>{TEXT_INVOICES_GESTION.pdfOnlyLabel}</span>
           <button ref={btnRef} className={styles.infoBtn} onClick={toggle} aria-label="Info filtro PDF">
             <HelpCircle size={18} color="#4a5568" />
@@ -187,20 +193,20 @@ const InvoiceCard = React.memo(function InvoiceCard({ factura, onShowQR, onShowA
 
   const cardClassName = `${styles.invoiceCard} ${factura.isNew ? styles.recentCard : ''}`;
 
-  const handleSendWS = async () => {
+  const handleSendEmail = async () => {
     if (sending || !isUrlValid) return;
     setSending(true);
     try {
-      const res = await sendInvoiceWSM(factura.cita_id);
+      const res = await sendEmails(factura.cita_id, EMAIL_TYPE_RECIBO);
       onShowAlert({
         title: 'Envío Exitoso',
-        message: res?.message || `La factura #${factura.numero_factura} fue enviada correctamente.`
+        message: res?.message || `El recibo #${factura.numero_factura} fue enviada correctamente por correo.`
       });
     } catch (err) {
       console.error(err);
       onShowAlert({
         title: 'Fallo de Envío',
-        message: err?.message || 'Hubo un problema al procesar el envío de la factura.'
+        message: err?.message || 'Hubo un problema al procesar el envío del recibo por correo.'
       });
     } finally {
       setSending(false);
@@ -229,10 +235,10 @@ const InvoiceCard = React.memo(function InvoiceCard({ factura, onShowQR, onShowA
             </span>
           </ModalTooltip>
       
-          <ModalTooltip text={!isUrlValid ? 'PDF no disponible' : sending ? 'Enviando...' : 'Enviar a Whatsapp'}>
+          <ModalTooltip text={!isUrlValid ? 'PDF no disponible' : sending ? 'Enviando...' : 'Enviar por correo'}>
             <Button
               icon={getIcon('send')}
-              onClick={handleSendWS}
+              onClick={handleSendEmail}
               disabled={sending || !isUrlValid}
               loading={sending}
               onlyIcon={true}

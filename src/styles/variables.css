@@ -23,11 +23,11 @@
   --blur: blur(18px);
   --shadow: 2px 1px 6px rgb(0, 0, 0);
 
-  --color-primary: #0ea5e9;
-  --color-primary-dark: #0284c7;
-  --color-secondary: #2563eb;
-  --color-secondary-dark: #1d4ed8;
-  --color-danger: #ef4444;
+  --color-secondary: rgb(2, 169, 18);
+  --color-secondary-dark: #027800;
+  --color-primary: rgb(23, 23, 255);
+  --color-primary-dark: #032585;
+  --color-danger: #ea1f1f;
   --color-danger-dark: #dc2626;
   --color-danger-bg: #fee2e2;
   --color-text: #1e293b;
@@ -54,7 +54,7 @@
   --modal-title-color: #0f172a;
   --modal-text-color: #faebeb;
   --primary-color: #2563eb;
-  --primary-hover: #1d4ed8;
+  --primary-hover: #000000;
   --secondary-color: #f1f5f9;
   --secondary-hover: #e2e8f0;
   --border-radius-md: 0.5rem;
@@ -94,7 +94,7 @@
   --text-main: #f1f5f9;     
   --text-muted: #ffffff;                          
   --accent-green: #10b981;  
-  --accent-blue: #0045cf;   
+  --accent-blue: #0c3d9f;   
   --border-color: #ffffff;
 
   /*colores*/
@@ -108,7 +108,18 @@
   /*Buttons color */
   --btn-login: #34cc06;
   --btn-login-hover: #259e04;
+  --btn-blue: rgb(1, 1, 225);
+
+  /* Switch Colors */
+  --SW-green: rgb(0, 125, 0);
+  --SW-blue: rgb(1, 1, 225);
+  --SW-red: rgb(197, 0, 0);
+  --SW-white: white;
+  --SW-disable-default: rgb(100, 100, 100);
+  --SW-thumb-color: white;
+  --SW-thumb-color: black;
   
+
   /*Bordes*/
   --border-gray-low: #a9a9a9;
   --border-gray-high: #f3f4f6;

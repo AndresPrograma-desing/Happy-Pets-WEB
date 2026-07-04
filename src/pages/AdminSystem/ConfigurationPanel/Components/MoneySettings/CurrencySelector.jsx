@@ -4,6 +4,8 @@ import { DollarSign, Wallet, RefreshCw, Check, AlertCircle } from 'lucide-react'
 import { useCurrency } from '../../../../../hooks/moneyType'; 
 import { getText } from '../../../../../constants';
 import ErrorMessage from '../../../../../components/Notification/Error/ErrorMessage';
+import CardV1 from '../../../../../components/screens/components/CardV1';
+
 const CurrencySelector = () => {
   const { 
     currency: currentCurrency, 
@@ -14,8 +16,8 @@ const CurrencySelector = () => {
   } = useCurrency();
 
   const currencies = [
-    { code: 'USD', icon: <DollarSign size={24} />, label: getText('moneySettings.dollar') },
-    { code: 'VES', icon: <Wallet size={24} />, label: getText('moneySettings.bolivares') }
+    { code: 'USD', icon: DollarSign, label: getText('moneySettings.dollar') },
+    { code: 'VES', icon: Wallet, label: getText('moneySettings.bolivares') }
   ];
 
   if (isLoading) {
@@ -37,25 +39,25 @@ const CurrencySelector = () => {
           return (
             <div 
               key={c.code}
-              className={`${styles.card} ${isActive ? styles.activeCard : styles.inactiveCard}`}
               onClick={() => !isUpdating && changeCurrency(c.code)} 
+              style={{ cursor: isUpdating ? 'default' : 'pointer' }}
             >
-              <div className={styles.checkContainer}>
-                {isActive ? (
-                  <div className={styles.checkedCircle}><Check size={14} /></div>
-                ) : (
-                  <div className={styles.emptyCircle} />
-                )}
-              </div>
-              <div className={styles.iconBox}>{c.icon}</div>
-              <span className={styles.currencyCode}>{c.code}</span>
-              
-              {/* Indicador de carga individual por card */}
-              {isUpdating && !isActive && (
-                <div className={styles.cardOverlay}>
-                  <RefreshCw className={styles.spin} size={16} />
-                </div>
-              )}
+              <CardV1
+                badgeIcon={c.icon}
+                badgeText={c.code}
+                badgeBgColor={isActive ? '#dcfce7' : '#f1f5f9'}
+                badgeTextColor={isActive ? '#166534' : '#475569'}
+                primaryText={c.label}
+                secondaryText={isActive ? "Activo" : "Seleccionar"}
+                secondaryTextStyle={{
+                  color: isActive ? '#16a34a' : '#64748b',
+                  fontSize: '1.25rem',
+                  fontWeight: '600'
+                }}
+                actionIcon={isActive ? Check : (isUpdating && !isActive ? RefreshCw : undefined)}
+                isSpinning={isUpdating && !isActive}
+                actionDisabled={isUpdating && !isActive}
+              />
             </div>
           );
         })}

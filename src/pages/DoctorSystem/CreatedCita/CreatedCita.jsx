@@ -6,7 +6,7 @@ import styles from './CreatedCita.module.css';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import SelectModal from '../../../components/ClientSelect/SelectModal';
 import ModalTooltip from '../../../components/ModalTooltip/ModalTooltip';
-import CustomDatePicker from '../../../components/UI/CalendarComponent/CustomDatePicker';
+import CustomDatePicker from '../../../components/screens/components/CalendarComponent/CustomDatePicker';
 import CustomTimePicker from '../../../components/UI/HoursComponent/CustomTimePicker';
 import CustomSelect from '../../../components/UI/DesplegableSelector/CustomSelect';
 import { normalizeUserMascotaResults } from './utils';

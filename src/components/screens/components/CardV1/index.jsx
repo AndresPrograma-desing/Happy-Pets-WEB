@@ -2,6 +2,8 @@ import React from 'react';
 import styles from './index.module.css';
 import ModalTooltip from '../../../ModalTooltip/ModalTooltip';
 
+import Button from '../Button';
+
 /**
  * Reusable CardV1 component
  * 
@@ -82,28 +84,29 @@ const CardV1 = ({
         </div>
         
         {ActionIcon && (
-          <button
-            type="button"
-            onClick={onActionClick}
-            className={actionCustomClass || styles.refreshBtn}
-            disabled={actionDisabled}
-          >
-            {actionTooltip ? (
-              <ModalTooltip text={actionTooltip}>
-                <ActionIcon 
-                  size={14} 
-                  className={isSpinning ? styles.spin : ''} 
-                  color={actionDisabled ? '#cbd5e1' : undefined} 
-                />
-              </ModalTooltip>
-            ) : (
-              <ActionIcon 
-                size={14} 
-                className={isSpinning ? styles.spin : ''} 
-                color={actionDisabled ? '#cbd5e1' : undefined} 
+          actionTooltip ? (
+            <ModalTooltip text={actionTooltip}>
+              <Button
+                type="button"
+                onClick={onActionClick}
+                disabled={actionDisabled}
+                color={Button.COLORS.TRANSPARENT}
+                icon={ActionIcon}
+                loading={isSpinning}
+                circle
               />
-            )}
-          </button>
+            </ModalTooltip>
+          ) : (
+            <Button
+              type="button"
+              onClick={onActionClick}
+              disabled={actionDisabled}
+              color={Button.COLORS.TRANSPARENT}
+              icon={ActionIcon}
+              loading={isSpinning}
+              circle
+            />
+          )
         )}
       </div>
 

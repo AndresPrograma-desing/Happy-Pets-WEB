@@ -1,6 +1,8 @@
 import React from 'react';
 import styles from './index.module.css';
 
+import Button from '../Button';
+
 export default function SubSidebarLayout({ 
   menuItems = [], 
   activeItemId, 
@@ -14,14 +16,16 @@ export default function SubSidebarLayout({
           {menuItems.map(item => {
             const isActive = activeItemId === item.id;
             return (
-              <button 
+              <Button 
                 key={item.id}
-                className={`${styles.menuItem} ${isActive ? styles.active : ''}`}
+                variant={Button.VARIANTS.TAB}
+                size={Button.SIZES.LARGE}
+                active={isActive}
                 onClick={() => onItemClick(item.id, item)}
               >
                 {item.icon && <span className={styles.iconWrapper}>{item.icon}</span>}
                 <span className={styles.label}>{item.label}</span>
-              </button>
+              </Button>
             )
           })}
         </div>

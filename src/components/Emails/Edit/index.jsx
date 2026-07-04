@@ -4,8 +4,7 @@ import { Code, Save, Eye } from 'lucide-react';
 import { updateEmailTemplate } from '../../../services/api/emails';
 import AlertModal from '../../AlertModal/AlertModal';
 import { sampleData, parseEmailTemplate } from '../Templates/utils';
-import Button from '../../screens/components/Button';
-import { VARIANTS } from '../../screens/components/Button/utils';
+import Button from '../../screens/components/Button/index';
 import CodeEditor from './CodeEditor';
 import styles from './index.module.css';
 
@@ -48,7 +47,7 @@ export default function EditEmail({ template, isOpen, onClose, onSaveSuccess }) 
           <div className={styles.header}>
              <div className={styles.tabs} style={{ display: 'flex', gap: '8px' }}>
                 <Button 
-                  variant={VARIANTS.TAB}
+                  variant={Button.VARIANTS.TAB}
                   active={activeTab === 'editor'}
                   onClick={() => setActiveTab('editor')}
                   icon={Code}
@@ -56,7 +55,7 @@ export default function EditEmail({ template, isOpen, onClose, onSaveSuccess }) 
                   Editor HTML
                 </Button>
                 <Button 
-                  variant={VARIANTS.TAB}
+                  variant={Button.VARIANTS.TAB}
                   active={activeTab === 'preview'}
                   onClick={() => setActiveTab('preview')}
                   icon={Eye}
@@ -66,7 +65,7 @@ export default function EditEmail({ template, isOpen, onClose, onSaveSuccess }) 
              </div>
              
             <Button 
-              variant={VARIANTS.PRIMARY}
+              variant={Button.VARIANTS.PRIMARY}
               onClick={handleSave} 
               disabled={saving}
               icon={Save}

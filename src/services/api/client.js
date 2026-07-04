@@ -1,10 +1,37 @@
 import { getStorageValue, logout, TOKEN_KEY } from './storage';
-import { DEV_URL_API } from '../../../config/config';
+import { DEV_URL_API, isDummyModeActive } from '../../../config/config';
+import dummyDB from '../../dummy/db.json';
 
 // Cambia aquí si deseas usar el localhost o el tunnel por defecto
 export const API_BASE = (import.meta.env.VITE_API_URL || `${DEV_URL_API.baseURL}/api`).replace(/\/$/, '');
 
 export async function request(path, { method = 'GET', body, headers = {}, auth = true } = {}) {
+  if (isDummyModeActive()) {
+    const lowerPath = path.toLowerCase();
+    
+    // Simulate network delay
+    await new Promise(r => setTimeout(r, 400));
+    
+    if (lowerPath.includes('/auth/login')) {
+      let credentials = {};
+      try { credentials = typeof body === 'string' ? JSON.parse(body) : (body || {}); } catch(e){}
+      const rol = credentials?.rol?.toLowerCase() || '';
+      if (rol === 'doctor') return dummyDB.auth.doctor;
+      if (rol === 'secretaria') return dummyDB.auth.secretaria;
+      return dummyDB.auth.login; // default admin
+    }
+    if (lowerPath.includes('/auth/me')) return dummyDB.auth.me;
+    if (lowerPath.includes('/products/categories')) return dummyDB.categories;
+    if (lowerPath.includes('/products')) return dummyDB.products;
+    if (lowerPath.includes('/citas/requests') || lowerPath.includes('/citas/today')) return dummyDB.citas;
+    if (lowerPath.includes('/clients')) return dummyDB.clients;
+    if (lowerPath.includes('/money/tasa-dollar-bcv')) return dummyDB.money.tasa_dollar_bcv;
+    
+    // Default mock response for unhandled endpoints
+    console.warn(`[Mock] Unhandled dummy endpoint: ${path}`);
+    return { success: true, dummyFallback: true };
+  }
+
   let cleanPath = path.startsWith('/') ? path : `/${path}`;
   if (cleanPath === '/auth/m') cleanPath = '/auth/me';
 

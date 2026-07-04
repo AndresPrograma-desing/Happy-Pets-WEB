@@ -1,0 +1,111 @@
+{
+  "auth": {
+    "login": {
+      "token": "dummy-jwt-admin-123",
+      "user": { "id": 1, "email": "admin@happypets.com", "rol": "admin", "name": "Admin User" },
+      "doctor_id": null
+    },
+    "doctor": {
+      "token": "dummy-jwt-doc-123",
+      "user": { "id": 2, "email": "doctor@happypets.com", "rol": "doctor", "name": "Dr. Juan" },
+      "doctor_id": 2
+    },
+    "secretaria": {
+      "token": "dummy-jwt-sec-123",
+      "user": { "id": 3, "email": "secretaria@happypets.com", "rol": "secretaria", "name": "Ana Secretaria" },
+      "doctor_id": null
+    },
+    "me": {
+      "id": 1,
+      "email": "admin@happypets.com",
+      "rol": "admin",
+      "name": "Admin User"
+    }
+  },
+  "products": [
+    {
+      "id": 1,
+      "name": "Nexgard Espectra Perros 15-30kg",
+      "nombre": "Nexgard Espectra Perros 15-30kg",
+      "description": "Antiparasitario masticable mensual",
+      "price": 25.50,
+      "precio": 25.50,
+      "stock": 15,
+      "cantidad": 15,
+      "category_id": 2,
+      "categoria_id": 2,
+      "image": "https://via.placeholder.com/150",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "name": "Alimento Royal Canin Adult 3kg",
+      "nombre": "Alimento Royal Canin Adult 3kg",
+      "description": "Alimento balanceado premium",
+      "price": 32.00,
+      "precio": 32.00,
+      "stock": 5,
+      "cantidad": 5,
+      "category_id": 1,
+      "categoria_id": 1,
+      "image": "https://via.placeholder.com/150",
+      "status": "active"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Alimentos",
+      "nombre": "Alimentos"
+    },
+    {
+      "id": 2,
+      "name": "Medicamentos",
+      "nombre": "Medicamentos"
+    },
+    {
+      "id": 3,
+      "name": "Accesorios",
+      "nombre": "Accesorios"
+    }
+  ],
+  "citas": [
+    {
+      "id": 101,
+      "mascota_id": 1,
+      "mascota_name": "Firulais",
+      "doctor_id": 2,
+      "doctor_name": "Dr. Juan",
+      "fecha_cita": "2023-11-20",
+      "hora_cita": "10:30:00",
+      "motivo": "Vacunación anual",
+      "tipo_cita": "consulta",
+      "estado": "pendiente",
+      "notas": "Traer cartilla de vacunación"
+    },
+    {
+      "id": 102,
+      "mascota_id": 2,
+      "mascota_name": "Michi",
+      "doctor_id": 2,
+      "doctor_name": "Dr. Juan",
+      "fecha_cita": "2023-11-21",
+      "hora_cita": "15:00:00",
+      "motivo": "Revisión general",
+      "tipo_cita": "control",
+      "estado": "completada",
+      "notas": ""
+    }
+  ],
+  "clients": [
+    {
+      "id": 1,
+      "name": "Carlos Perez",
+      "email": "carlos@example.com",
+      "phone": "0414-1234567"
+    }
+  ],
+  "money": {
+    "tasa_dollar_bcv": 36.50
+  }
+}

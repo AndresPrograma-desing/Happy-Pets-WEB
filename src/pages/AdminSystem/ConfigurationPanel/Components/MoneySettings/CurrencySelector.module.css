@@ -26,6 +26,12 @@
   gap: 24px; /* Mayor separación entre botones */
 }
 
+@media (max-width: 768px) {
+  .selectionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .card {
   position: relative;
   display: flex;

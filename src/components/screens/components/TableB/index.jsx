@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import styles from './index.module.css';
 import { RefreshCw, AlertCircle, Inbox, ChevronDown, ChevronUp } from 'lucide-react';
+import Barnner from '../Barnner';
 // import {Pagina}
+import Button from '../Button';
 
 const TableB = ({
   columns = [],
@@ -43,9 +45,12 @@ const TableB = ({
           <span>{error}</span>
         </div>
         {onRetry && (
-          <button className={styles.retryBtn} onClick={onRetry}>
-            Reintentar
-          </button>
+          <Button
+            type={"button"}
+            variant={Button.VARIANTS.PRIMARY}
+            size={Button.SIZES.LARGE}
+            color={Button.COLORS.GREEN}
+            onClick={onRetry}>Reintentar</Button>
         )}
       </div>
     );
@@ -97,21 +102,26 @@ const TableB = ({
                       {col.type === 'actions' && col.actions ? (
                         <div className={styles.actionButtons} style={{ justifyContent: col.align || 'flex-start' }}>
                           {col.actions.map((act, actIdx) => (
-                            <button 
+                            <Button 
                               key={actIdx} 
-                              className={`${styles.actionBtn} ${act.className || ''}`}
+                              variant={Button.VARIANTS.PRIMARY}
+                              size={Button.SIZES.LARGE}
+                              color={Button.COLORS.GREEN}
                               onClick={(e) => { e.stopPropagation(); act.onClick(row); }}
                               disabled={act.disabled ? act.disabled(row) : false}
                             >
                               {act.label}
                               {act.icon && <img src={act.icon} alt={act.label} className={`${styles.actionIcon} ${act.invertIcon ? styles.actionIconInvert : ''}`} />}
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       ) : col.type === 'badge' ? (
-                        <span className={`${styles.badge} ${col.badgeClass ? col.badgeClass(row) : ''}`}>
+                        <Barnner 
+                          type={col.badgeType ? col.badgeType(row) : undefined} 
+                          className={col.badgeClass ? col.badgeClass(row) : ''}
+                        >
                           {col.render ? col.render(row, rowIndex) : row[col.key]}
-                        </span>
+                        </Barnner>
                       ) : col.render ? (
                         col.render(row, rowIndex)
                       ) : (

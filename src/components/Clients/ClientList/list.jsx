@@ -7,6 +7,8 @@ import styles from './List.module.css';
 import { INITIAL_PET_FORM, preparePetPayload } from './utils';
 import GenericPanel from '../../GenericPanel/GenericPanel';
 import TableB from '../../screens/components/TableB';
+import Button from '../../screens/components/Button/index.jsx';
+import Barnner from '../../screens/components/Barnner';
 import { 
   User, 
   Mail, 
@@ -127,10 +129,9 @@ export default function ClientList() {
       key: 'mascotas',
       label: 'Mascotas',
       render: (row) => (
-        <div className={styles.petCounterBadge}>
-          <PawPrint size={14} />
-          <span>{row.mascotas?.length || 0} {row.mascotas?.length === 1 ? 'Mascota' : 'Mascotas'}</span>
-        </div>
+        <Barnner icon={PawPrint} type="default">
+          {row.mascotas?.length || 0} {row.mascotas?.length === 1 ? 'Mascota' : 'Mascotas'}
+        </Barnner>
       )
     }
   ];
@@ -159,13 +160,15 @@ export default function ClientList() {
 
         <div className={styles.petsHeaderRow}>
           <h4 className={styles.sectionTitle}>Pacientes Vinculados</h4>
-          <button 
-            type="button" 
+          <Button 
+            color={Button.COLORS.GREEN}
+            size={Button.SIZES.MEDIUM}
+            variant={Button.VARIANTS.PRIMARY}
             onClick={() => handleOpenAddPet(client.id)}
-            className={styles.addPetBtn}
+            icon={Plus}
           >
-            <Plus size={14} /> Añadir Paciente
-          </button>
+            Añadir Paciente
+          </Button>
         </div>
 
         {tieneMascotas ? (
@@ -222,10 +225,17 @@ export default function ClientList() {
             placeholder="Buscar por nombre, cédula, teléfono o mascota"
           />
         </div>
-        <button className={styles.refreshBtn} onClick={fetchClients} disabled={loading}>
-          <RefreshCw size={16} className={loading ? styles.spinning : ''} />
+        <Button
+          color={Button.COLORS.GREEN}
+          size={Button.SIZES.MEDIUM}
+          variant={Button.VARIANTS.OUTLINE}
+          onClick={fetchClients}
+          disabled={loading}
+          icon={RefreshCw}
+          loading={loading}
+        >
           Sincronizar
-        </button>
+        </Button>
       </div>
 
       <TableB

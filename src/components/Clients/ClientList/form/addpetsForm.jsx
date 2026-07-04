@@ -1,7 +1,7 @@
 import React from 'react';
 import { handleFormChange } from '../utils';
 import styles from './styles.module.css';
-import CustomDatePicker from '../../../UI/CalendarComponent/CustomDatePicker';
+import CustomDatePicker from '../../../screens/components/CalendarComponent/CustomDatePicker';
 import CustomSelect from '../../../UI/DesplegableSelector/CustomSelect';
 import ErrorMessage from '../../../Notification/Error/ErrorMessage';
 

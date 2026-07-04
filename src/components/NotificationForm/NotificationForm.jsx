@@ -3,6 +3,7 @@ import styles from './NotificationForm.module.css';
 import { createdNotification } from '../../services/api';
 import ErrorMessage from '../Notification/Error/ErrorMessage';
 import CustomSelect from '../UI/DesplegableSelector/CustomSelect';
+import Button from '../screens/components/Button/index';
 
 const actorOptions = [
   { id: 'Doctor', name: 'Doctor' },
@@ -33,7 +34,7 @@ const NotificationForm = ({ onSuccess, onClose }) => {
     completed: false,
     is_read: false
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -56,13 +57,13 @@ const NotificationForm = ({ onSuccess, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (
-      !formData.title.trim() || 
-      !formData.message.trim() || 
-      !formData.type || 
-      !formData.priority || 
-      !formData.origin || 
+      !formData.title.trim() ||
+      !formData.message.trim() ||
+      !formData.type ||
+      !formData.priority ||
+      !formData.origin ||
       !formData.destination
     ) {
       setError('Por favor, rellene todos los campos obligatorios.');
@@ -71,10 +72,10 @@ const NotificationForm = ({ onSuccess, onClose }) => {
 
     setLoading(true);
     setError('');
-    
+
     try {
       await createdNotification(formData);
-      if (onSuccess) onSuccess(); 
+      if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
       setError('Ocurrió un error al intentar crear la notificación.');
@@ -152,13 +153,13 @@ const NotificationForm = ({ onSuccess, onClose }) => {
         </div>
       </div>
 
-      <div className={styles.actions}>
-        <button type="button" className={styles.cancelBtn} onClick={onClose} disabled={loading}>
+      <div className={styles.actions} style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+        <Button type="button" variant="secondary" onClick={onClose} disabled={loading} fullWidth>
           Cancelar
-        </button>
-        <button type="submit" className={styles.submitBtn} disabled={loading}>
+        </Button>
+        <Button type="submit" variant="primary" color={Button.COLORS.PRIMARY} disabled={loading} fullWidth>
           {loading ? 'Enviando...' : 'Crear Notificación'}
-        </button>
+        </Button>
       </div>
     </form>
   );

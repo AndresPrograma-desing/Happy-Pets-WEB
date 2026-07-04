@@ -1,7 +1,9 @@
 import React, { useCallback, useRef } from 'react';
 import { PackageSearch } from 'lucide-react';
 import styles from './ProductList.module.css';
-import ProductFilters from '../filter/ProductFilter/ProductFilters';
+import Filter from '../screens/components/Filter/Index';
+import TextField from '../screens/components/Material-UI/Components/TextField/Index';
+import Selector from '../screens/components/Material-UI/Components/Selector/Index';
 import usePolling from '../../hooks/UsePolling';
 import useCategories from '../../hooks/requestCategories';
 import AlertModal from '../AlertModal/AlertModal';
@@ -140,13 +142,39 @@ export default function ProductList() {
 
     return (
         <div className={styles.content}>
-            <ProductFilters
-                searchTerm={searchTerm} setSearchTerm={setSearchTerm}
-                filterCategory={filterCategory} setFilterCategory={setFilterCategory}
-                maxPrice={maxPrice} setMaxPrice={setMaxPrice}
-                categories={categories}
+            <Filter
                 onClear={handleClearFilters}
-            />
+                searchTerm={searchTerm}
+                title="Filtros de Productos"
+            >
+                <TextField 
+                    label="Nombre" 
+                    value={searchTerm} 
+                    onChange={(e) => setSearchTerm(e.target.value)} 
+                    placeholder="Buscar producto..."
+                />
+                
+                <Selector
+                    id="categoria-select"
+                    label="Categoría"
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    emptyOptionLabel="Todas las categorías"
+                    options={categories.map((cat) => {
+                        const val = typeof cat === 'string' ? cat : (cat.id ?? String(cat));
+                        const label = typeof cat === 'string' ? cat : (cat.name ?? val);
+                        return { value: val, label: label };
+                    })}
+                />
+
+                <TextField 
+                    label="Precio máximo" 
+                    type="number" 
+                    value={maxPrice} 
+                    onChange={(e) => setMaxPrice(e.target.value)} 
+                    placeholder="Ej. 150.00"
+                />
+            </Filter>
 
             <div className={styles.tableWrapper}>
                 <TableB 

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import ModalTooltip from '../../../components/ModalTooltip/ModalTooltip';
 import { FormCard, FormInput, FormTextArea } from '../../../components/screens/components/FormControls';
+import Button from '../../../components/screens/components/Button';
 
 function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const { state } = useLocation();
@@ -173,9 +174,9 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
               <p>Paciente: <strong>{defaultMascotaNombre}</strong> • ID Cita: #{form.cita_id}</p>
             </div>
           </div>
-          <button type="button" onClick={() => (onCancel ? onCancel() : navigate(-1))} className={styles.btnBack}>
-            <ArrowLeft size={18} /> Volver
-          </button>
+          <Button variant="outline" color="#64748b" onClick={() => (onCancel ? onCancel() : navigate(-1))} icon={ArrowLeft}>
+            Volver
+          </Button>
         </header>
       )}
 
@@ -245,10 +246,10 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
             headerActions={
               <>
                 <ModalTooltip text="Agregar un producto o medicamento a esta consulta" placement="top">
-                  <button type="button" onClick={addProducto} className={styles.iconBtn}><PlusCircle size={20} /></button>
+                  <Button type="button" variant="ghost" circle onClick={addProducto} icon={PlusCircle} color="primary" />
                 </ModalTooltip>
                 <ModalTooltip text="Indicar que no se usaron productos o medicamentos en esta consulta" placement="top">
-                  <button type="button" onClick={addNoProducto} className={styles.textBtn}>No usar</button>
+                  <Button type="button" variant="outline" color="#64748b" onClick={addNoProducto} size="small">No usar</Button>
                 </ModalTooltip>
               </>
             }
@@ -281,9 +282,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
                       />
                     </div>
 
-                    <button type="button" onClick={() => removeProducto(idx)} className={styles.btnDelete} title="Quitar">
-                      <Trash2 size={18} />
-                    </button>
+                    <Button type="button" variant="ghost" color="error" circle onClick={() => removeProducto(idx)} icon={Trash2} title="Quitar" />
                   </div>
 
                   {p.producto_nombre !== NO_PRODUCT_LABEL && (
@@ -338,9 +337,15 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
 
           <div className={styles.actionCard}>
             {error && <div className={styles.errorBox}><AlertCircle size={16} /> {error}</div>}
-            <button type="submit" disabled={submitting} className={styles.btnFinish}>
-              <Save size={20} /> {submitting ? 'Guardando...' : 'Finalizar Consulta'}
-            </button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              icon={Save}
+              fullWidth
+              size="large"
+            >
+              Guardar Consulta
+            </Button>
           </div>
         </div>
       </form>

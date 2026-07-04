@@ -3,7 +3,7 @@ import style from "./settings.module.css";
 import ChangePasswordForm from "../../../components/ChangePassword/newPassword";
 import AlertModal from "../../../components/AlertModal/AlertModal";
 import GenericPanel from "../../../components/GenericPanel/GenericPanel";
-import { KeyRound, FileText, Settings2, ClipboardIcon, CircleDollarSign } from "lucide-react";
+import { KeyRound, FileText, Settings2, ClipboardIcon, CircleDollarSign, Mail } from "lucide-react";
 import Report from "./Components/Report/index";
 import { getText } from "../../../constants";
 import ConfigReport from "./Components/SettingReport";
@@ -14,6 +14,7 @@ import AutoDeleteTogglefactura from "./Components/SettingFactura/autoDeleting";
 import CurrencySelector from "./Components/MoneySettings/CurrencySelector";
 import DesplegablePanel from "../../../components/screens/components/DesplegablePanel";
 import BcvConfig from "./Components/BcvConfig/index";
+import SettingResend from "./Components/SettingResend";
 
 const Settings = () => {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -55,6 +56,17 @@ const Settings = () => {
               isOpen={activeMenu === 'reports'}
             >
               <Report />
+            </DesplegablePanel>
+
+            <DesplegablePanel
+              title={getText("resendConfig.panelTitle")}
+              description={getText("resendConfig.panelDesc")}
+              icon={Mail}
+              iconColorVariant="purple"
+              onToggle={() => toggleMenu('resend')}
+              isOpen={activeMenu === 'resend'}
+            >
+              <SettingResend />
             </DesplegablePanel>
 
           </div>
