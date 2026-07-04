@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styles from './index.module.css';
+import styles from './Index.module.css';
 
 const Switch = ({ 
   value = false, 
