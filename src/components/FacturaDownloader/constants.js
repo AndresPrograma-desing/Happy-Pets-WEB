@@ -14,9 +14,9 @@ export const TEXT_FACTURAS = {
   refreshingBtn: 'Actualizando...',
   emptyMessage: 'No se encontraron recibos o citas.',
   tooltips: {
-    generate: 'Generar Factura',
-    download: 'Descargar Factura',
-    view: 'Ver Factura'
+    generate: 'Generar Recibo',
+    download: 'Descargar Recibo',
+    view: 'Ver Recibo'
   },
   statusOptions: [
     { value: 'todos', label: 'Todos los estados' },

@@ -97,7 +97,6 @@ export function getFacturaColumns({
                   onClick={() => handleGenerate(cita.id)}
                   disabled={isGenerating || disabledState || hasUrl}
                   icon={FilePlus}
-                  loading={isGenerating}
                 />
               </div>
             </ModalTooltip>
@@ -126,10 +125,7 @@ export function getFacturaColumns({
                     circle
                     onClick={(e) => {
                       e.preventDefault();
-                      setPreviewIframeUrl(null);
-                      setPreviewInvoice(null);
-                      setPreviewCitaId(cita.id);
-                      setPreviewOpen(true);
+                      window.open(hasUrl.url, '_blank');
                     }}
                     icon={FileText}
                   />

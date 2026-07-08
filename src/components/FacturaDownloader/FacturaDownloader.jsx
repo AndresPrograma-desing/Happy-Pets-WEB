@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import styles from './FacturaDowloader.module.css';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
 import AlertModal from '../AlertModal/AlertModal';
-import InvoiceViewer from '../FacturaPreviw/facturaPreviw';
 import FacturaLocal from '../FacturaLocal/FacturaLocal';
 import useFacturaDownloader, { PollFactura } from '../../hooks/FacturaDownloader';
 import PollingSeconds from '../../hooks/PollingSecons';
@@ -126,38 +125,19 @@ export default function FacturaManager() {
 
       <AlertModal
         open={alertOpen}
-        title={alertTitle || 'Aviso'}
-        message={alertMessage}
+        title={alertTitle}
         onClose={() => setAlertOpen(false)}
-        onConfirm={alertOnConfirm ? () => { alertOnConfirm(); setAlertOpen(false); } : undefined}
-        confirmText={alertConfirmText || 'Cerrar'}
-        cancelText={alertCancelText || 'Cancelar'}
-      />
-
-      <AlertModal
-        open={previewOpen}
-        title="Vista previa de factura"
-        message={null}
-        onClose={() => { setPreviewOpen(false); setPreviewIframeUrl(null); setPreviewInvoice(null); setPreviewCitaId(null); }}
-        confirmText="Cerrar"
-        onConfirm={() => { setPreviewOpen(false); setPreviewIframeUrl(null); setPreviewInvoice(null); setPreviewCitaId(null); }}
+        hideActions={!alertOnConfirm}
+        confirmText={alertConfirmText}
+        cancelText={alertCancelText}
+        onConfirm={() => {
+          if (alertOnConfirm) alertOnConfirm();
+          setAlertOpen(false);
+        }}
       >
-        {previewIframeUrl ? (
-          <iframe
-            src={previewIframeUrl}
-            title="Factura preview"
-            style={{ width: '100%', height: '70vh', border: 'none' }}
-          />
-        ) : previewCitaId ? (
-          <div style={{ width: '100%', height: '70vh', overflow: 'auto' }}>
-            <FacturaLocal idCita={previewCitaId} />
-          </div>
-        ) : previewInvoice ? (
-          <InvoiceViewer invoice={previewInvoice} />
-        ) : (
-          <div>
-            <img src={getIcon('rotate')} className={styles.rotating} alt="" /><View className={styles.loadingIcon} /> Cargando previa...</div>
-        )}
+        <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+          <p style={{ color: '#0f172a', fontSize: '1rem', fontWeight: '500' }}>{alertMessage}</p>
+        </div>
       </AlertModal>
 
       <div className={styles.tableWrapper}>

@@ -663,3 +663,63 @@
   background-color: rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
+
+.headerControlsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.leftControls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rightControls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.searchInputWrapper {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  margin-left: 0.5rem;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.headerActionsWrapper {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.switchWrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.switchLabel {
+  font-size: 0.9rem;
+  color: #475569;
+  font-weight: 500;
+}
