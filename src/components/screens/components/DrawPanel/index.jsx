@@ -9,7 +9,7 @@ const DrawPanel = ({
   onClose, 
   title, 
   children,
-  width = '400px'
+  width = '350px'
 }) => {
   const [render, setRender] = useState(isOpen);
 
@@ -18,8 +18,6 @@ const DrawPanel = ({
   }, [isOpen]);
 
   const onAnimationEnd = (e) => {
-    // Solo atrapar el evento de la animación del contenedor principal (el overlay)
-    // o verificar si no está abierto para desmontar
     if (!isOpen) setRender(false);
   };
 

@@ -61,14 +61,7 @@ export default function ProductList() {
         }
     }, [currency, esUSD]);
 
-    if (currencyLoading) {
-        return (
-            <div className={styles.center}>
-                <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Cargando productos...</div>
-                <p style={{ color: '#fff', marginTop: '10px' }}>Cargando tipos de cambio...</p>
-            </div>
-        );
-    }
+
 
     const columns = [
         {
@@ -180,7 +173,7 @@ export default function ProductList() {
                 <TableB 
                     columns={columns}
                     data={filteredProducts}
-                    loading={loading}
+                    loading={loading || currencyLoading}
                     error={error}
                     onRetry={() => fetchProducts(false)}
                     emptyIcon={PackageSearch}

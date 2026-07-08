@@ -13,6 +13,7 @@ import NotificationForm from '../NotificationForm/NotificationForm';
 import WhatsAppStatusModal from '../WSMessage/components/WhatsAppStatusModal';
 import { renderIcon } from '../hook/RenderIcon';
 import ToggleCard from '../screens/components/ToggleCard';
+import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
 
 function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'user', menuItems }) {
@@ -51,14 +52,14 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
       { label: getText("generalPanelTexts.titleA"), path: '/AdminSystem', icon: 'adminRole' },
       { label: getText("adminInterface.menuItemDashboard"), path: '/AdminSystem/dashboard', icon: 'dashboard' },
       { label: getText("adminInterface.menuItemUsers"), path: '/AdminSystem/users', icon: 'user' },
-      { 
+      {
         label: getText("adminInterface.menuItemProducts"), icon: 'box',
         subItems: [
           { label: 'Ver productos', path: '/AdminSystem/products', state: { view: 'list' } },
           { label: 'Administrar productos', path: '/AdminSystem/products', state: { view: 'manage' } }
         ]
       },
-      { label: getText("generalPanelTexts.optionsNavegations.whatsapp"), icon: <Link2 style={{ stroke: '#ffffff' }} />, onClick: () => setShowWhatsAppModal(true) },
+      // { label: getText("generalPanelTexts.optionsNavegations.whatsapp"), icon: <Link2 style={{ stroke: '#ffffff' }} />, onClick: () => setShowWhatsAppModal(true) },
       { label: getText("adminInterface.menuItemMessages"), path: '/panel-menssage', icon: 'message' },
       { label: getText("adminInterface.genericPanelFacturas"), path: '/facturas', icon: 'fileCheck' },
       { label: getText("generalPanelTexts.optionsNavegations.notificationCreated"), icon: <BellPlus style={{ stroke: '#ffffff' }} />, onClick: () => setShowNotificationModal(true) },
@@ -79,14 +80,14 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
       { label: 'Gestion de Recibos', path: '/factura-manager', icon: 'fileText' },
       { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },
       { label: 'Ver Facturas', path: '/facturas', icon: 'fileCheck' },
-      { label: 'Generar Reportes', path: '/doctor/recetas', icon: 'clipboardPlus' },
+      { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus' },
       { label: 'Crear Alerta', icon: <BellPlus style={{ stroke: '#ffffff' }} />, onClick: () => setShowNotificationModal(true) },
     ],
     doctor: [
       { label: 'Panel Médico', path: '/doctor', icon: 'userCita' },
       { label: 'Mis Citas', path: '/citas', icon: 'calendario' },
       { label: 'Historias Clínicas', path: '/doctor/pacientes', icon: 'fileText' },
-      { label: 'Generar Receta', path: '/doctor/recetas', icon: 'clipboardPlus' },
+      { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus' },
       { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },
       { label: 'Ver Facturas', path: '/facturas', icon: 'fileCheck' },
       { label: 'Asistente Virtual', path: '/asistente-virtual', icon: <BotIcon style={{ stroke: '#ffffff' }} />, newTab: true },
@@ -182,37 +183,21 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
 
               return (
                 <div key={it.label} style={{ width: '100%' }}>
-                  <button
-                    className={styles.navItem}
-                    onClick={() => {
-                      if (hasSubItems) {
-                        toggleMenu(it.label);
-                      } else {
-                        handleNavigate(it);
-                      }
-                    }}
-                  >
-                    {renderIcon(it.icon, styles.icon)}
-                    <span style={{ flex: 1, textAlign: 'left' }}>{it.label}</span>
-                    {hasSubItems && (
-                      <span style={{ transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none', display: 'flex', alignItems: 'center' }}>
-                        <ChevronDown size={16} />
-                      </span>
-                    )}
-                  </button>
-
-                  {hasSubItems && isExpanded && (
-                    <div className={styles.subMenu}>
-                      {it.subItems.map(subIt => (
-                        <button
-                          key={subIt.label}
-                          className={styles.subNavItem}
-                          onClick={() => handleNavigate(subIt)}
-                        >
-                          <span style={{ marginLeft: '1.5rem' }}>{subIt.label}</span>
-                        </button>
-                      ))}
-                    </div>
+                  {hasSubItems ? (
+                    <MenuPopover 
+                      item={it} 
+                      styles={styles} 
+                      renderIcon={renderIcon} 
+                      onNavigate={handleNavigate} 
+                    />
+                  ) : (
+                    <button
+                      className={styles.navItem}
+                      onClick={() => handleNavigate(it)}
+                    >
+                      {renderIcon(it.icon, styles.icon)}
+                      <span style={{ flex: 1, textAlign: 'left' }}>{it.label}</span>
+                    </button>
                   )}
                 </div>
               );

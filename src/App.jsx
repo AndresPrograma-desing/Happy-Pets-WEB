@@ -34,6 +34,7 @@ import CalendarTest from "./components/test/CalendarTest/CalendarCitas";
 import ClientList from './components/Clients/ClientList/list';
 import GlobalPushNotification from './components/Notification/Push';
 import EmailsTemplates from './components/Emails/Templates';
+import Recetas from './components/Recetas/Components';
 
 function AppContent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +46,7 @@ function AppContent() {
   const isPublicRoute = ['/login', '/inicio', '/', '/witing'].includes(location.pathname);
 
   useEffect(() => {
-    startTransition(() => setIsLoading(false));
+    startTransition(() => setIsLoading(true));
     const timer = setTimeout(() => {
       startTransition(() => setIsLoading(false));
     }, 800);
@@ -80,6 +81,7 @@ function AppContent() {
           <Route path="/AdminSystem/settings" element={<Settings />} />
           <Route path="/AdminSystem/users" element={<Users />} />
           <Route path="/AdminSystem/emails" element={<EmailsTemplates />} />
+          <Route path="/doctor/recetas" element={<Recetas />} />
           <Route path="/clients" element={<ClientList />} />
           <Route path="/calendar" element={<CalendarTest />} />
           
@@ -99,7 +101,7 @@ import ToggleCard from './components/screens/components/ToggleCard/index.jsx';
 import Button from './components/screens/components/Button/index.jsx';
 
 function App() {
-  const { isOnline, isBackendAlive, actualBackendAlive, isDummy } = useHealthCheck();
+  const { isOnline, isBackendAlive, actualBackendAlive, isDummy, isChecking } = useHealthCheck();
 
   return (
     <>
@@ -144,21 +146,32 @@ function App() {
       )}
       
       <Router>
-        <AppRouterWrapper isOnline={isOnline} isBackendAlive={isBackendAlive} />
+        <AppRouterWrapper isOnline={isOnline} isBackendAlive={isBackendAlive} isChecking={isChecking} />
       </Router>
     </>
   );
 }
 
-function AppRouterWrapper({ isOnline, isBackendAlive }) {
+function AppRouterWrapper({ isOnline, isBackendAlive, isChecking }) {
   const location = useLocation();
+
+  // While the first health-check is still running, render nothing.
+  // This prevents a premature redirect on every page reload.
+  if (isChecking) {
+    return null;
+  }
 
   if (!isOnline || !isBackendAlive) {
     if (location.pathname !== '/witing') {
+      // Remember where the user was so we can restore it after reconnection
+      sessionStorage.setItem('redirectAfterWiting', location.pathname);
       return <Navigate to="/witing" replace />;
     }
   } else if (location.pathname === '/witing') {
-    return <Navigate to="/inicio" replace />;
+    // Restore the original path, or default to /inicio
+    const returnTo = sessionStorage.getItem('redirectAfterWiting') || '/inicio';
+    sessionStorage.removeItem('redirectAfterWiting');
+    return <Navigate to={returnTo} replace />;
   }
 
   return <AppContent />;

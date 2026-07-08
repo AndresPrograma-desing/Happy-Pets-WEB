@@ -3,6 +3,7 @@ import { Mail, Shield, ShieldCheck, Key, Globe, Link, Loader2 } from 'lucide-rea
 import { resendData } from '../../../../../services/api/emails';
 import { FormCard, FormInput } from '../../../../../components/screens/components/FormControls';
 import { getText } from '../../../../../constants';
+import Loading from '../../../../../components/screens/components/Loading/Index';
 
 export default function SettingResend() {
   const [data, setData] = useState(null);
@@ -26,12 +27,9 @@ export default function SettingResend() {
     fetchData();
   }, []);
 
-  if (loading) {
+  if (loading) {  
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '1rem', color: '#64748b' }}>
-        <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
-        <span>{getText('resendConfig.loading')}</span>
-      </div>
+      <Loading size="large" />
     );
   }
 

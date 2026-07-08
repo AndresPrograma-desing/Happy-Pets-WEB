@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import styles from "./ModalTooltip.module.css";
 import { getIcon } from "../../assets/icons/ExportIcon/Index";
+
 /**
  * ModalTooltip: Muestra un pequeño modal encima del elemento hijo al hacer hover.
  * @param {string|React.ReactNode} text - Texto o contenido del modal.
@@ -15,10 +16,9 @@ const ModalTooltip = ({ text, children }) => {
   useEffect(() => {
     if (visible && triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      const tooltipWidth = 200;
-      const top = rect.top + window.scrollY - 48;
-      let left = rect.left + window.scrollX + rect.width / 2 - tooltipWidth / 2;
-      if (left < 8) left = 8;
+      // Calculamos el punto central superior del icono
+      const top = rect.top + window.scrollY - 12; // 12px de separación para dejar espacio a la flechita
+      const left = rect.left + window.scrollX + rect.width / 2;
       setPos({ top, left });
     }
   }, [visible]);
@@ -29,7 +29,7 @@ const ModalTooltip = ({ text, children }) => {
       className={styles.container}
       onMouseEnter={() => setVisible(true)}
       onMouseLeave={() => setVisible(false)}
-      style={{ position: 'relative', display: 'inline-block' }}
+      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', height: 'fit-content' }}
     >
       {children}
       {visible && typeof document !== 'undefined' && createPortal(
@@ -39,25 +39,22 @@ const ModalTooltip = ({ text, children }) => {
             position: 'absolute',
             top: pos.top,
             left: pos.left,
+            transform: 'translate(-50%, -100%)', // Centra horizontalmente y ajusta la altura automáticamente
             zIndex: 99999,
-            minWidth: 180,
-            maxWidth: 240,
-            background: '#333',
-            color: '#fff',
-            padding: '10px 16px',
-            borderRadius: 8,
-            fontSize: 14,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.18)',
+            width: 'max-content', // Se adapta al texto
+            maxWidth: 400, // Permite que sea más ancho si el texto es largo, pero con un límite razonable
+            background: 'rgba(24, 24, 27, 0.95)',
+            backdropFilter: 'blur(4px)',
+            color: '#fafafa',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            fontSize: '13px',
+            fontWeight: 500,
+            boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
             pointerEvents: 'none',
           }}
         >
-
-        <img src={getIcon("help")}
-                    alt=""
-                    className={styles.icon}
-                    style={{ marginRight: 6, verticalAlign: 'middle' }}
-                  />
-                  {text}
+          {text}
         </div>,
         document.body
       )}

@@ -36,7 +36,7 @@ const AutoDeleteToggle = () => {
     };
 
     if (loading) {
-        return <Loading />;
+        return null;
     }
 
     return (

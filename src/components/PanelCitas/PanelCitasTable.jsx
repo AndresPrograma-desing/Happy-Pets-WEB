@@ -8,6 +8,7 @@ import Button from '../screens/components/Button/index';
 
 function PanelCitasTable({
   listaCitas = [],
+  loading = false,
   deletingId,
   renderField,
   formatDate,
@@ -147,6 +148,7 @@ function PanelCitasTable({
     <TableB
       columns={columns}
       data={listaCitas}
+      loading={loading}
       rowKey={(row) => getCitaId(row)}
       emptyMessage="No hay citas registradas."
       expandable={{

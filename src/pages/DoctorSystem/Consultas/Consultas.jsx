@@ -150,7 +150,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
         }))
       };
 
-      await api.request('/consultas/create', { method: 'POST', body: payload });
+      await api.createConsulta(payload);
       
       if (form.cita_id) await api.updateCitaEstado(Number(form.cita_id), 'completada');
       

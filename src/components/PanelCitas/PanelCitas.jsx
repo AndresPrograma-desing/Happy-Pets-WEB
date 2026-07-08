@@ -5,6 +5,7 @@ import PanelCitasTable from './PanelCitasTable';
 
 function PanelCitas({
     citas: initialCitas, // Citas iniciales que vienen por props
+    loading: parentLoading = false,
     deletingId,
     renderField,
     formatDate,
@@ -38,6 +39,7 @@ function PanelCitas({
     return (
         <PanelCitasTable
             listaCitas={listaCitas}
+            loading={parentLoading}
             deletingId={deletingId}
             renderField={renderField}
             formatDate={formatDate}

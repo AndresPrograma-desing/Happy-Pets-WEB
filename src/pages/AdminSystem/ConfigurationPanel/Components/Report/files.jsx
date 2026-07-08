@@ -4,6 +4,7 @@ import style from "../../settings.module.css";
 import { Download, FileSpreadsheet, RefreshCw, AlertCircle } from "lucide-react";
 import ModalTooltip from "../../../../../components/ModalTooltip/ModalTooltip";
 import { getText } from "../../../../../constants";
+import Loading from "../../../../../components/screens/components/Loading/Index";
 
 const Files = () => {
     const [reportList, setReportList] = useState([]);
@@ -38,9 +39,8 @@ const Files = () => {
     
     if (loading) {
         return (
-            <div className={style.loadingState}>
-                <RefreshCw className={style.spinner} />
-                <p> {getText("configReport.historyReport")}</p>
+            <div className={style.centerSection}>
+                <Loading size="large" />
             </div>
         );
     }

@@ -1,0 +1,144 @@
+.headerControlsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.leftControls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rightControls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.searchInputWrapper {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  margin-left: 0.5rem;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.headerActionsWrapper {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.switchWrapper {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.switchLabel {
+  font-size: 0.9rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.tableWrapper {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.emptyState {
+  padding: 3rem;
+  text-align: center;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.editPanelContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.editPanelHeaderInfo {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.editFormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.editLabel {
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.editTextArea {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.popoverContainer {
+  position: absolute;
+  z-index: 99999;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.actionsColumn {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.linkIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  text-decoration: none;
+}

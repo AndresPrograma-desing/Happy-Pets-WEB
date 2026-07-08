@@ -8,6 +8,16 @@
   margin-top: 1rem;
 }
 
+.tableLoadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  width: 100%;
+}
+
 .modernTable {
   width: 100%;
   border-collapse: separate;

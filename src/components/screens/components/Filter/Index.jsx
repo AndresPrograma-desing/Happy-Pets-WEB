@@ -4,11 +4,11 @@ import DrawPanel from '../DrawPanel/index';
 import Button from '../Button/index';
 import styles from './Index.module.css';
 
-const Filter = ({ 
-    children, 
-    onClear, 
+const Filter = ({
+    children,
+    onClear,
     onApply,
-    searchTerm = '', 
+    searchTerm = '',
     width = '350px',
     title = 'Filtros'
 }) => {
@@ -27,17 +27,18 @@ const Filter = ({
         <div className={styles.filterWrapper}>
             <div className={styles.filterBar}>
                 <div className={styles.actions}>
-                    <Button 
-                        onClick={() => setIsOpen(true)} 
+                    <Button
+                        onClick={() => setIsOpen(true)}
                         variant={Button.VARIANTS.PRIMARY}
                     >
                         <FilterIcon size={18} /> Filtrar
                     </Button>
                     {onClear && (
-                        <Button 
-                            onClick={handleClear} 
+                        <Button
+                            onClick={handleClear}
                             variant={Button.VARIANTS.DANGER}
                             color={Button.COLORS.TRANSPARENT}
+                            borderColor="var(--border-gray-low)"
                         >
                             <Trash2 size={18} /> Limpiar
                         </Button>
@@ -61,12 +62,20 @@ const Filter = ({
                     <div className={styles.fields}>
                         {children}
                     </div>
-                    
+
                     <div className={styles.drawerActions}>
-                        <Button onClick={() => setIsOpen(false)} variant={Button.VARIANTS.DANGER} color={Button.COLORS.TRANSPARENT}>
+                        <Button
+                            onClick={() => setIsOpen(false)}
+                            variant={Button.VARIANTS.DANGER}
+                            color={Button.COLORS.TRANSPARENT}
+                            borderColor="var(--border-gray-low)"
+                        >
                             Cancelar
                         </Button>
-                        <Button onClick={handleApply} variant={Button.VARIANTS.PRIMARY}>
+                        <Button
+                            onClick={handleApply}
+                            variant={Button.VARIANTS.PRIMARY}
+                        >
                             Aplicar
                         </Button>
                     </div>

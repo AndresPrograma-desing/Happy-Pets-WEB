@@ -6,9 +6,11 @@ export function useHealthCheck() {
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [isBackendAlive, setIsBackendAlive] = useState(isDummy ? true : true);
   const [actualBackendAlive, setActualBackendAlive] = useState(false);
+  const [isChecking, setIsChecking] = useState(true); // true until the first check completes
 
   const isMountedRef = useRef(true);
   const controllerRef = useRef(null);
+  const hasCheckedOnceRef = useRef(false);
 
   const HEALTH_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_HEALTH_URL)
     ? import.meta.env.VITE_HEALTH_URL
@@ -16,6 +18,10 @@ export function useHealthCheck() {
 
 
   const checkBackend = useCallback(async () => {
+    // First check waits up to 60s (backend may be warming up on reload).
+    // Subsequent polling checks use the standard 8s.
+    const timeoutMs = hasCheckedOnceRef.current ? 8000 : 60000;
+
     try {
       controllerRef.current?.abort();
       const controller = new AbortController();
@@ -23,7 +29,7 @@ export function useHealthCheck() {
 
       const timeoutId = setTimeout(() => {
         controller.abort();
-      }, 8000);
+      }, timeoutMs);
 
       const res = await fetch(HEALTH_URL, { 
         method: 'GET', 
@@ -53,6 +59,12 @@ export function useHealthCheck() {
       if (!isDummy) {
         setIsBackendAlive(false);
       }
+    } finally {
+      // Mark the first check as done so the router can make decisions
+      if (isMountedRef.current && !hasCheckedOnceRef.current) {
+        hasCheckedOnceRef.current = true;
+        setIsChecking(false);
+      }
     }
   }, [HEALTH_URL, isDummy]);
 
@@ -81,7 +93,7 @@ export function useHealthCheck() {
     };
   }, [checkBackend]);
 
-  return { isOnline, isBackendAlive, actualBackendAlive, isDummy };
+  return { isOnline, isBackendAlive, actualBackendAlive, isDummy, isChecking };
 }
 
 export default useHealthCheck;

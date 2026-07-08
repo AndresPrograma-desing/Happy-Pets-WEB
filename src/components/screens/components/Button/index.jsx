@@ -4,7 +4,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { VARIANTS, SIZES, COLORS } from './utils';
 import styles from './index.module.css';
 
-const Button = ({ 
+const Button = React.forwardRef(({ 
   children, 
   variant = 'primary', 
   size = 'medium', 
@@ -16,11 +16,13 @@ const Button = ({
   type = 'button',
   className = '',
   color,
+  border,
+  borderColor,
   style = {},
   loading = false,
   circle = false,
   ...props
-}) => {
+}, ref) => {
 
   // Map custom variant to MUI variant
   let muiVariant = 'contained';
@@ -36,6 +38,7 @@ const Button = ({
   if (variant === 'secondary' || color === 'var(--color-secondary)') muiColor = 'secondary';
   if (color === 'var(--button-green)' || color === 'green') muiColor = 'success';
   if (color === 'transparent') muiColor = 'inherit';
+  if (border || borderColor) { muiVariant = 'outlined'; } 
   
   // Check if we need to apply custom color overrides via sx
   const standardMuiColors = ['inherit', 'primary', 'secondary', 'success', 'error', 'info', 'warning'];
@@ -68,11 +71,22 @@ const Button = ({
       }
   }
 
+  // Handle explicit border and borderColor
+  if (border || borderColor) {
+      const bColor = borderColor || 'black';
+      customColors.border = `1px solid ${bColor} !important`;
+      if (!isCustomColor) {
+        customColors.borderColor = `${bColor} !important`;
+        customColors.color = `${bColor} !important`;
+      }
+  }
+
   // Handle icon size
   const iconSize = size === 'small' ? 16 : size === 'large' ? 22 : 18;
 
   return (
     <MuiButton
+      ref={ref}
       type={type}
       variant={muiVariant}
       size={muiSize}
@@ -98,7 +112,7 @@ const Button = ({
       {circle && Icon ? <span className={loading ? styles.spinning : ''} style={{ display: 'inline-flex' }}><Icon size={iconSize} /></span> : (circle && loading ? <CircularProgress size={iconSize} color="inherit" /> : children)}
     </MuiButton>
   );
-};
+});
 
 Button.VARIANTS = VARIANTS;
 Button.SIZES = SIZES;

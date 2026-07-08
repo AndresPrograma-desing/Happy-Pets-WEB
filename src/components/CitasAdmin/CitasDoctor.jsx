@@ -87,24 +87,21 @@ function CitasLayout(props) {
                 />
             </div>
 
-            {loading && <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Cargando citas...</div>}
-
-            {!loading && !error && (
-                <div className={styles.contentWrap}>
-                    <PanelCitas
-                        citas={searchTerm.trim() !== '' ? filteredCitas : citas}
-                        renderField={renderField}
-                        formatDate={formatDate}
-                        formatTime={formatTime}
-                        getCitaId={getCitaId}
-                        deletingId={localDeletingId || deletingId}
-                        polling={false}
-                        primaryActionLabel={primaryActionLabelProp}
-                        onPrimaryAction={primaryActionHandlerProp}
-                        onDelete={handleDelete}
-                    />
-                </div>
-            )}
+            <div className={styles.contentWrap}>
+                <PanelCitas
+                    citas={searchTerm.trim() !== '' ? filteredCitas : citas}
+                    loading={loading}
+                    renderField={renderField}
+                    formatDate={formatDate}
+                    formatTime={formatTime}
+                    getCitaId={getCitaId}
+                    deletingId={localDeletingId || deletingId}
+                    polling={false}
+                    primaryActionLabel={primaryActionLabelProp}
+                    onPrimaryAction={primaryActionHandlerProp}
+                    onDelete={handleDelete}
+                />
+            </div>
 
             <CitasModals
                 showDeleteModal={showDeleteModal}

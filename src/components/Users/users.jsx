@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { users, enableUser, disableUser, deleteUser} from "../../services/api";
-import { UserCircle, Trash2, UserX, UserCheck, Users2, UserCheck2Icon} from "lucide-react";
+import { users, enableUser, disableUser, deleteUser } from "../../services/api";
+import { UserCircle, Trash2, UserX, UserCheck, Users2, UserCheck2Icon } from "lucide-react";
 import AlertModal from "../AlertModal/AlertModal";
 import ModalTooltip from "../ModalTooltip/ModalTooltip";
 import GenericPanel from "../GenericPanel/GenericPanel";
@@ -10,6 +10,7 @@ import TableA from "../screens/components/TableA";
 
 const Users = () => {
   const [userList, setUserList] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
   const [showAlert, setShowAlert] = React.useState(false);
   const [alertMessage, setAlertMessage] = React.useState("");
   const [alertType, setAlertType] = React.useState("success");
@@ -17,18 +18,21 @@ const Users = () => {
   const [userToDelete, setUserToDelete] = React.useState(null);
   const [showStatusConfirm, setShowStatusConfirm] = React.useState(false);
   const [userToToggle, setUserToToggle] = React.useState(null);
- 
+
   const navigate = useNavigate();
 
 
 
   React.useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       try {
         const data = await users();
         setUserList(data);
       } catch (error) {
         console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchUsers();
@@ -143,7 +147,7 @@ const Users = () => {
             {user.activo ? (
               <ModalTooltip text="Deshabilitar usuario" position="top">
                 <UserCheck size={18} color="#10b981" />
-              </ModalTooltip> 
+              </ModalTooltip>
             ) : (
               <ModalTooltip text="Habilitar usuario" position="top">
                 <UserX size={18} color="#f59e0b" />
@@ -172,12 +176,13 @@ const Users = () => {
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
-        
+
         </div>
 
-        <TableA 
+        <TableA
           columns={columns}
           data={userList}
+          loading={loading}
           keyExtractor={(user) => user.id}
         />
         {showAlert && (

@@ -1,329 +1,375 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import styles from './Dashboard.module.css';
-import { getFacturas } from '../../services/api';
-import usePolling from '../../hooks/UsePolling';
-import { BoxIcon, UserCircle,FileText,TriangleAlert, CircleDollarSign } from 'lucide-react';
-import { getText } from '../../constants';
-import { useCurrency } from '../../hooks/moneyType';
-
-const MONTH_LABELS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-
-function extractAmount(f) {
-  if (!f) return 0;
-  const cand = ['total', 'total_facturado', 'subtotal', 'importe', 'monto', 'valor', 'precio_total', 'amount'];
-  for (const k of cand) {
-    const val = f[k];
-    if (val !== undefined && val !== null && String(val).trim() !== '') {
-      const num = Number(val);
-      if (!Number.isNaN(num)) return num;
-      if (typeof val === 'string') {
-        const cleaned = val.replace(/[^0-9.,-]/g, '').replace(/,/g, '.');
-        const p = parseFloat(cleaned);
-        if (!Number.isNaN(p)) return p;
-      }
-    }
-  }
-  if (Array.isArray(f.items) && f.items.length) {
-    return f.items.reduce((s, it) => s + (Number(it.total) || 0), 0);
-  }
-  return 0;
-}
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Alert,
+  Chip,
+  Button,
+  Divider,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody
+} from '@mui/material';
+import { BoxIcon, UserCircle, FileText, CircleDollarSign, Download, Filter } from 'lucide-react';
+import { fetchDashboardMockData } from './utils';
+import Loading from '../screens/components/Loading/Index';
 
 export default function Dashboard() {
-  const { currency } = useCurrency();
-  const formatCurrency = useCallback((v) => {
-    const n = Number(v || 0);
-    try {
-      return new Intl.NumberFormat(currency === 'USD' ? 'en-US' : 'es-VE', { 
-        style: 'currency', 
-        currency: currency || 'VES', 
-        maximumFractionDigits: 0 
-      }).format(n);
-    } catch (err) {
-      console.error("Error en formato:", err);
-      return (currency === 'VES' ? 'Bs. ' : '$ ') + n.toLocaleString();
-    }
-  }, [currency]);
-  const [facturas, setFacturas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const [period, setPeriod] = useState('mes');
-
-  const fetchFacturas = useCallback(async () => {
-    try {
-      const res = await getFacturas();
-      let arr = [];
-      if (Array.isArray(res)) arr = res;
-      else if (Array.isArray(res?.data)) arr = res.data;
-      else if (Array.isArray(res?.result)) arr = res.result;
-      else if (Array.isArray(res?.facturas)) arr = res.facturas;
-      else arr = [];
-      setFacturas(arr);
-      setError(null);
-    } catch (err) {
-      setError(err.message || String(err));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
-    setLoading(true);
-    fetchFacturas();
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const result = await fetchDashboardMockData();
+        setData(result);
+        setError(null);
+      } catch (err) {
+        setError("Error al cargar los datos simulados.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
-  const pollinController = 5000;
-  usePolling(fetchFacturas, pollinController, true);
+  if (loading) {
+    return <Loading size="large" text="Cargando dashboard..." />;
+  }
 
-  const ordersCount = facturas.length;
-  const paidFacturas = useMemo(() => facturas.filter(f => String(f.estado_pago || f.estado || '').toLowerCase().includes('pag')), [facturas]);
-  const totalRevenue = useMemo(() => paidFacturas.reduce((s, f) => s + extractAmount(f), 0), [paidFacturas]);
-  const uniqueClients = useMemo(() => {
-    const s = new Set(facturas.map(f => String(f.cliente_id || f.cliente?.id || f.cliente_nombre || f.cliente || '')));
-    if (s.has('')) s.delete('');
-    return s.size;
-  }, [facturas]);
-  const paidRate = useMemo(() => {
-    const paid = paidFacturas.length;
-    return facturas.length ? Math.round((paid / facturas.length) * 100) : 0;
-  }, [paidFacturas, facturas]);
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error" sx={{ borderRadius: 1 }}>{error}</Alert>
+      </Box>
+    );
+  }
 
-  const monthlyTotals = useMemo(() => {
-    const arr = new Array(12).fill(0);
-    facturas.forEach(f => {
-      const dRaw = f.fecha_emision || f.created_at || f.fecha || f.fecha_registro;
-      const d = dRaw ? new Date(dRaw) : null;
-      const m = d && !isNaN(d) ? d.getMonth() : 0;
-      if (String(f.estado_pago || f.estado || '').toLowerCase().includes('pag')) {
-        arr[m] += extractAmount(f) || 0;
+  if (!data) return null;
+
+  const { kpis, chartData, recentOrders } = data;
+  const formatCurrency = (val) => new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'USD' }).format(val);
+
+  // Estilos compartidos para las tarjetas (haciendo match con TableB)
+  const cardStyle = { 
+    borderRadius: 3, // 12px
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)', 
+    border: '1px solid #e5e7eb',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column'
+  };
+
+  const tableColumns = [
+    {
+      key: 'detail',
+      label: 'Detalle de Factura',
+      width: '35%',
+      render: (row) => (
+        <Box>
+          <Typography variant="body1" fontWeight="600" color="#111827">
+            {row.clientName}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Factura #{row.id}
+          </Typography>
+        </Box>
+      )
+    },
+    {
+      key: 'total',
+      label: 'Total',
+      width: '20%',
+      align: 'center',
+      render: (row) => (
+        <Typography variant="body1" fontWeight="500" color="#111827">
+          {formatCurrency(row.amount)}
+        </Typography>
+      )
+    },
+    {
+      key: 'date',
+      label: 'Fecha',
+      width: '25%',
+      align: 'center',
+      render: (row) => {
+        const dateObj = new Date(row.date);
+        return (
+          <Typography variant="body2" color="text.secondary">
+            {dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+          </Typography>
+        );
       }
-    });
-    return arr;
-  }, [facturas]);
-
-  const recent = facturas.slice(0, 6);
-
-  function computeGrowthForPeriod(periodKey) {
-    const now = new Date();
-    if (periodKey === 'mes') {
-      const thisM = now.getMonth();
-      const prevM = (thisM + 11) % 12;
-      const thisVal = monthlyTotals[thisM] || 0;
-      const prevVal = monthlyTotals[prevM] || 0;
-      const pct = prevVal ? Math.round(((thisVal - prevVal) / prevVal) * 100) : (thisVal ? 100 : 0);
-      return { thisVal, prevVal, pct };
+    },
+    {
+      key: 'status',
+      label: 'Estado',
+      width: '20%',
+      align: 'center',
+      render: (row) => (
+        <Chip
+          label={row.status}
+          size="small"
+          sx={{
+            fontWeight: '600',
+            borderRadius: '4px',
+            fontSize: '0.8rem',
+            py: 1.5,
+            backgroundColor:
+              row.status === 'Pagado' ? '#d1fae5' :
+                row.status === 'Pendiente' ? '#fef3c7' : '#fee2e2',
+            color:
+              row.status === 'Pagado' ? '#065f46' :
+                row.status === 'Pendiente' ? '#92400e' : '#991b1b',
+          }}
+        />
+      )
     }
-    if (periodKey === 'anio') {
-      const y = now.getFullYear();
-      const totalsByYear = {};
-      facturas.forEach(f => {
-        const dRaw = f.fecha_emision || f.created_at || f.fecha || f.fecha_registro;
-        const d = dRaw ? new Date(dRaw) : null;
-        if (!d || isNaN(d)) return;
-        const year = d.getFullYear();
-        if (!String(f.estado_pago || f.estado || '').toLowerCase().includes('pag')) return;
-        totalsByYear[year] = (totalsByYear[year] || 0) + extractAmount(f);
-      });
-      const thisVal = totalsByYear[y] || 0;
-      const prevVal = totalsByYear[y - 1] || 0;
-      const pct = prevVal ? Math.round(((thisVal - prevVal) / prevVal) * 100) : (thisVal ? 100 : 0);
-      return { thisVal, prevVal, pct };
-    }
-    if (periodKey === 'dia') {
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const fmt = (d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-      const map = {};
-      facturas.forEach(f => {
-        const dRaw = f.fecha_emision || f.created_at || f.fecha || f.fecha_registro;
-        const d = dRaw ? new Date(dRaw) : null;
-        if (!d || isNaN(d)) return;
-        if (!String(f.estado_pago || f.estado || '').toLowerCase().includes('pag')) return;
-        const k = fmt(d);
-        map[k] = (map[k] || 0) + extractAmount(f);
-      });
-      const thisVal = map[fmt(today)] || 0;
-      const prevVal = map[fmt(yesterday)] || 0;
-      const pct = prevVal ? Math.round(((thisVal - prevVal) / prevVal) * 100) : (thisVal ? 100 : 0);
-      return { thisVal, prevVal, pct };
-    }
-    return { thisVal: 0, prevVal: 0, pct: 0 };
-  }
-
-  const growth = computeGrowthForPeriod(period);
-
-  if (loading && facturas.length === 0) {
-    return (
-      <div className={styles.dashboard}>
-        <div className={styles.loaderContainer}>
-          <div className={styles.spinner}></div>
-          <p>Cargando datos del panel...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error && facturas.length === 0) {
-    return (
-      <div className={styles.dashboard}>
-        <div className={styles.errorContainer}>
-          <div className={styles.errorIcon}>
-            { <TriangleAlert size={24} color="#fff" /> || '⚠️' }
-          </div>
-          <h3>Error al cargar datos</h3>
-          <p>{error}</p>
-          <button onClick={fetchFacturas} className={styles.retryBtn}>Reintentar</button>
-        </div>
-      </div>
-    );
-  }
+  ];
 
   return (
-    <div className={styles.dashboard}>
-      <div className={styles.topbar}>
-        <div className={styles.pageTitle}>Panel de Ventas</div>
-        <div className={styles.topbarRight}>
-          <div className={styles.badge}>Conectado</div>
-          <div className={styles.periodSelector}>
-            <button className={`${styles.periodBtn} ${period === 'dia' ? styles.active : ''}`} onClick={() => setPeriod('dia')}>Día</button>
-            <button className={`${styles.periodBtn} ${period === 'mes' ? styles.active : ''}`} onClick={() => setPeriod('mes')}>Mes</button>
-            <button className={`${styles.periodBtn} ${period === 'anio' ? styles.active : ''}`} onClick={() => setPeriod('anio')}>Año</button>
-          </div>
-        </div>
-      </div>
+    <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: '#fafafa', minHeight: '100vh' }}>
+      {/* Header del Dashboard */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 5, flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 600, color: '#111827', mb: 0.5 }}>
+            Resumen General
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Monitorea tus métricas clave y el estado de los pedidos recientes.
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<Filter size={18} />}
+            sx={{ borderRadius: 1, textTransform: 'none', borderColor: '#d1d5db', color: '#374151', '&:hover': { backgroundColor: '#f3f4f6', borderColor: '#d1d5db' }, py: 1, px: 2 }}
+          >
+            Filtrar
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<Download size={18} />}
+            sx={{ borderRadius: 1, textTransform: 'none', backgroundColor: '#111827', '&:hover': { backgroundColor: '#374151' }, py: 1, px: 2 }}
+          >
+            Exportar
+          </Button>
+        </Box>
+      </Box>
 
-      <div className={styles.content}>
-        <div className={styles.kpiGrid}>
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiIcon}></div>
-            <div className={styles.kpiInfo}>
-              <div className={styles.kpiLabel}>
-                <CircleDollarSign size={24} color="#fff" /> Ingresos Totales</div>
-              <div className={styles.kpiValue}>{formatCurrency(totalRevenue)}</div>
-              <div className={`${styles.kpiDelta} ${growth.pct >= 0 ? styles.up : styles.down}`}>
-                {growth.pct >= 0 ? '▲' : '▼'} {Math.abs(growth.pct)}%
-              </div>
-            </div>
-          </div>
+      {/* KPIs Grid */}
+      <Grid container spacing={3} sx={{ mb: 5 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={cardStyle}>
+            <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Ingresos Totales
+                  </Typography>
+                  <CircleDollarSign size={20} color="#6b7280" />
+                </Box>
+                <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
+                  {formatCurrency(kpis.totalRevenue)}
+                </Typography>
+              </Box>
+              <Typography variant="caption" sx={{ color: kpis.revenueGrowthPct >= 0 ? '#10b981' : '#ef4444', fontWeight: '500', mt: 2, display: 'inline-block' }}>
+                {kpis.revenueGrowthPct >= 0 ? '+' : ''}{kpis.revenueGrowthPct}% vs mes anterior
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiIcon}><BoxIcon size={24} color="#fff" /></div>
-            <div className={styles.kpiInfo}>
-              <div className={styles.kpiLabel}>Pedidos</div>
-              <div className={styles.kpiValue}>{ordersCount}</div>
-              <div className={`${styles.kpiDelta} ${styles.up}`}>
-                ▲ {ordersCount > 0 ? Math.round(ordersCount / 10) : 0}%
-              </div>
-            </div>
-          </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={cardStyle}>
+            <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Total Pedidos
+                  </Typography>
+                  <BoxIcon size={20} color="#6b7280" />
+                </Box>
+                <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
+                  {kpis.totalOrders}
+                </Typography>
+              </Box>
+              <Typography variant="caption" sx={{ color: kpis.ordersGrowthPct >= 0 ? '#10b981' : '#ef4444', fontWeight: '500', mt: 2, display: 'inline-block' }}>
+                {kpis.ordersGrowthPct >= 0 ? '+' : ''}{kpis.ordersGrowthPct}% vs mes anterior
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiIcon}><UserCircle size={24} color="#fff" /></div>
-            <div className={styles.kpiInfo}>
-              <div className={styles.kpiLabel}>Clientes</div>
-              <div className={styles.kpiValue}>{uniqueClients}</div>
-              <div className={`${styles.kpiDelta} ${styles.down}`}>
-                ▼ {uniqueClients > 0 ? Math.round(uniqueClients / 20) : 0}%
-              </div>
-            </div>
-          </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={cardStyle}>
+            <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Clientes
+                  </Typography>
+                  <UserCircle size={20} color="#6b7280" />
+                </Box>
+                <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
+                  {kpis.totalClients}
+                </Typography>
+              </Box>
+              <Typography variant="caption" sx={{ color: kpis.clientsGrowthPct >= 0 ? '#10b981' : '#ef4444', fontWeight: '500', mt: 2, display: 'inline-block' }}>
+                {kpis.clientsGrowthPct >= 0 ? '+' : ''}{kpis.clientsGrowthPct}% vs mes anterior
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiIcon}><FileText size={24} color="#fff" /></div>
-            <div className={styles.kpiInfo}>
-              <div className={styles.kpiLabel}>Facturas Pagadas</div>
-              <div className={styles.kpiValue}>{paidRate}%</div>
-              <div className={`${styles.kpiDelta} ${styles.up}`}>
-                ▲ {paidRate}%
-              </div>
-            </div>
-          </div>
-        </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={cardStyle}>
+            <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Tasa de Pagos
+                  </Typography>
+                  <FileText size={20} color="#6b7280" />
+                </Box>
+                <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
+                  {kpis.paidRatePct}%
+                </Typography>
+              </Box>
+              <Typography variant="caption" sx={{ color: '#6b7280', fontWeight: '500', mt: 2, display: 'inline-block' }}>
+                Facturas canceladas exitosamente
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-        <div className={styles.chartRow}>
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div>
-                <div className={styles.cardTitle}>Ingresos por Mes</div>
-                <div className={styles.cardSubtitle}>Resumen mensual (facturas pagadas)</div>
-              </div>
-              <span className={styles.tag}>{getText('MoneysName.MONEYTIPE')}</span>
-            </div>
-            <div className={styles.chartContainer}>
-              <svg className={styles.chartSvg} viewBox="0 0 600 200" preserveAspectRatio="xMidYMid meet">
-                {monthlyTotals.map((val, i) => {
-                  const W = 600;
-                  const H = 160;
-                  const paddingX = 10;
-                  const barW = (W - paddingX * 2) / monthlyTotals.length;
-                  const max = Math.max(...monthlyTotals) || 1;
-                  const barH = (val / max) * (H - 30);
-                  const x = paddingX + i * barW + barW * 0.15;
-                  const bw = barW * 0.7;
-                  const y = H - barH;
-                  const isCurrentMonth = i === new Date().getMonth();
-                  return (
-                    <g key={i} className={styles.barGroup}>
-                      <rect
-                        x={x}
-                        y={y}
-                        width={bw}
-                        height={barH}
-                        rx="4"
-                        className={`${styles.bar} ${isCurrentMonth ? styles.currentMonthBar : ''}`}
-                      />
-                      <text x={x + bw / 2} y={H + 12} textAnchor="middle" fontSize="15" fill="#000000" fontFamily="DM Mono, monospace">
-                        {MONTH_LABELS[i]}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
-          </div>
+      <Grid container spacing={4}>
+        {/* Gráfico Simulado */}
+        <Grid item xs={12}>
+          <Card sx={cardStyle}>
+            <CardContent sx={{ p: 0 }}>
+              <Box sx={{ p: 4, pb: 3 }}>
+                <Typography variant="h5" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
+                  Ingresos Mensuales
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Resumen detallado de las ventas del año en curso
+                </Typography>
+              </Box>
+              <Divider />
+              <Box sx={{ px: 0, py: 4 }}>
+                <Box sx={{ height: 350, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', pb: 0, borderBottom: '2px solid #f3f4f6' }}>
+                  {chartData.map((d, i) => {
+                    const maxVal = Math.max(...chartData.map(c => c.revenue));
+                    const heightPct = (d.revenue / maxVal) * 100;
+                    const isCurrentMonth = i === new Date().getMonth();
+                    return (
+                      <Box key={i} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, height: '100%', px: { xs: 0.5, sm: 1, md: 2 } }}>
+                        <Box sx={{
+                          flexGrow: 1,
+                          display: 'flex',
+                          alignItems: 'flex-end',
+                          justifyContent: 'center',
+                          width: '100%',
+                          pb: 2,
+                          position: 'relative'
+                        }}>
+                          <Box sx={{
+                            width: '100%',
+                            maxWidth: '60px',
+                            height: `${heightPct}%`,
+                            backgroundColor: isCurrentMonth ? '#111827' : '#e5e7eb',
+                            borderRadius: '2px 2px 0 0',
+                            transition: 'height 0.4s ease',
+                            '&:hover': { backgroundColor: isCurrentMonth ? '#1f2937' : '#d1d5db' }
+                          }} />
+                        </Box>
+                        <Typography variant="body2" sx={{ color: isCurrentMonth ? '#111827' : '#6b7280', fontWeight: isCurrentMonth ? '600' : '500', mt: 1 }}>
+                          {d.month}
+                        </Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
 
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div>
-                <div className={styles.cardTitle}>Pedidos Recientes</div>
-                <div className={styles.cardSubtitle}>Últimas facturas registradas</div>
-              </div>
-            </div>
-            <div className={styles.tableWrapper}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Factura</th>
-                    <th>Cliente</th>
-                    <th>Total</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.map((f, idx) => (
-                    <tr key={f.factura_id ?? f.id ?? idx}>
-                      <td className={styles.invoiceNumber}>#{f.numero_factura ?? (f.id ?? '—')}</td>
-                      <td>{f.cliente_nombre ?? f.cliente?.nombre ?? 'Consumidor'}</td>
-                      <td className={styles.amountCell}>{formatCurrency(extractAmount(f))}</td>
-                      <td>
-                        <span className={`${styles.statusPill} ${String(f.estado_pago ?? f.estado ?? '').toLowerCase().includes('pag') ? styles.paid : styles.pending}`}>
-                          {f.estado_pago ?? f.estado ?? '—'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {recent.length === 0 && (
-                    <tr>
-                      <td colSpan="4" className={styles.emptyState}>No hay facturas recientes</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        <Grid item xs={12}>
+          <Card sx={cardStyle}>
+            <CardContent sx={{ p: 0 }}>
+              <Box sx={{ p: 4, pb: 3 }}>
+                <Typography variant="h5" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
+                  Pedidos Recientes
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Historial de las últimas transacciones registradas en el sistema
+                </Typography>
+              </Box>
+              <Divider />
+              <TableContainer component={Box} sx={{ width: '100%', overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 650, width: '100%' }} aria-label="pedidos recientes">
+                  <TableHead sx={{ backgroundColor: '#f9fafb' }}>
+                    <TableRow>
+                      {tableColumns.map((col) => (
+                        <TableCell 
+                          key={col.key} 
+                          align={col.align || 'left'}
+                          sx={{ 
+                            color: '#6b7280', 
+                            fontWeight: '600', 
+                            fontSize: '0.8125rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            width: col.width,
+                            borderBottom: '1px solid #e5e7eb',
+                            py: 2
+                          }}
+                        >
+                          {col.label}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentOrders.map((row) => (
+                      <TableRow 
+                        key={row.id}
+                        sx={{ 
+                          '&:last-child td, &:last-child th': { border: 0 },
+                          '&:hover': { backgroundColor: '#f9fafb' },
+                          transition: 'background-color 0.2s ease'
+                        }}
+                      >
+                        {tableColumns.map((col) => (
+                          <TableCell 
+                            key={col.key} 
+                            align={col.align || 'left'}
+                            sx={{ borderBottom: '1px solid #f3f4f6', py: 2 }}
+                          >
+                            {col.render ? col.render(row) : row[col.key]}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

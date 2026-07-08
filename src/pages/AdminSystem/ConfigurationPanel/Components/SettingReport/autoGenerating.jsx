@@ -45,7 +45,7 @@ const AutoGeneracionToggle = () => {
 
 
     if (loading) {
-        return <Loading />;
+        return null;
     }
 
     return (

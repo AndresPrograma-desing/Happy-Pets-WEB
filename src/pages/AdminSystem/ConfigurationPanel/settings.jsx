@@ -13,7 +13,6 @@ import ConfigFactura from "./Components/SettingFactura/index";
 import AutoDeleteTogglefactura from "./Components/SettingFactura/autoDeleting";
 import CurrencySelector from "./Components/MoneySettings/CurrencySelector";
 import DesplegablePanel from "../../../components/screens/components/DesplegablePanel";
-import BcvConfig from "./Components/BcvConfig/index";
 import SettingResend from "./Components/SettingResend";
 
 const Settings = () => {
@@ -116,8 +115,6 @@ const Settings = () => {
               isOpen={activeMenu === 'moneysettings'}
             >
               <CurrencySelector />
-              <hr style={{ border: '0', borderTop: '1px solid #131414', margin: '1.5rem 0' }} />
-              <BcvConfig />
             </DesplegablePanel>
           </div>
         </section>

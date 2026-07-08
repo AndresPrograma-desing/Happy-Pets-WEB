@@ -83,6 +83,7 @@ const EmailsTemplates = () => {
                 <TableA 
                     columns={columns}
                     data={templates}
+                    loading={loading}
                     keyExtractor={(item) => item.id}
                 />
 

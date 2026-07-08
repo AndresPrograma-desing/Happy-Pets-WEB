@@ -5,26 +5,34 @@ import { useCurrency } from '../../../../../hooks/moneyType';
 import { getText } from '../../../../../constants';
 import ErrorMessage from '../../../../../components/Notification/Error/ErrorMessage';
 import CardV1 from '../../../../../components/screens/components/CardV1';
+import Loading from '../../../../../components/screens/components/Loading/Index';
+import { updateBcvPrice } from '../../../../../services/api';
+import PlaceholderButton from '../../../../../components/screens/components/PlaceholderButton';
+import { useBcvSettings } from '../BcvConfig/utils';
+import { BCV_CONFIG_TEXT } from '../../../../../constants/TEXT';
 
 const CurrencySelector = () => {
   const { 
     currency: currentCurrency, 
-    isLoading, 
+    isLoading: currencyLoading, 
     isUpdating, 
     changeCurrency, 
     error 
   } = useCurrency();
+
+  const { price: bcvPrice, loading: bcvLoading, clearCache: bcvClearCache } = useBcvSettings();
+
+  const isGlobalLoading = currencyLoading || bcvLoading;
 
   const currencies = [
     { code: 'USD', icon: DollarSign, label: getText('moneySettings.dollar') },
     { code: 'VES', icon: Wallet, label: getText('moneySettings.bolivares') }
   ];
 
-  if (isLoading) {
+  if (isGlobalLoading) {
     return (
-      <div className={styles.loadingWrapper}>
-        <RefreshCw className={styles.spin} />
-        <p>Cargando preferencias...</p>
+      <div className={styles.mainContainer}>
+         <Loading size="large" />
       </div>
     );
   }
@@ -77,6 +85,23 @@ const CurrencySelector = () => {
           <strong>{selectedData?.label || 'Sin definir'}</strong>
         </p>
       </div>
+
+      <hr style={{ border: '0', borderTop: '1px solid #131414', margin: '1.5rem 0' }} />
+      
+      <PlaceholderButton
+          icon={DollarSign}
+          tooltipText={BCV_CONFIG_TEXT.bcvPricePlaceholder}
+          placeholder={BCV_CONFIG_TEXT.placeholderHint}
+          unitText={BCV_CONFIG_TEXT.unitText}
+          buttonText={BCV_CONFIG_TEXT.buttonText}
+          hintText={BCV_CONFIG_TEXT.hintText}
+          initialValue={bcvPrice}
+          onSavePromise={updateBcvPrice}
+          clearCache={bcvClearCache}
+          successMessage={BCV_CONFIG_TEXT.successMessage}
+          errorMessage={BCV_CONFIG_TEXT.errorMessage}
+          validationErrorMsg={BCV_CONFIG_TEXT.validationErrorMsg}
+      />
     </div>
   );
 };

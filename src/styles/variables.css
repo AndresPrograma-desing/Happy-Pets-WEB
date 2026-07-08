@@ -121,7 +121,20 @@
   
 
   /*Bordes*/
-  --border-gray-low: #a9a9a9;
-  --border-gray-high: #f3f4f6;
+  --border-gray-low: #9b9b9b;
+  --border-gray-hight: #575757;
+  --border-white: #f3f4f6;
+  --border-black: #000000;
 
+   /* Gradients */
+  --gr-login: linear-gradient(135deg, #0041f2, #1341e0);
+  --gr-login-hover: linear-gradient(135deg, #0039d1, #1039c2);
+  --gr-create: linear-gradient(135deg, #0041f2, #0039d1);
+  --gr-create-hover: linear-gradient(135deg, #0039d1, #1039c2);
+  --gr-danger: linear-gradient(135deg, #d10000, #c20000);
+  --gr-danger-hover: linear-gradient(135deg, #c20000, #a30000);
+  --gr-cancel: linear-gradient(135deg, #d10000, #c20000);
+  --gr-cancel-hover: linear-gradient(135deg, #c20000, #a30000);
+  --gr-spinner-green-blue: linear-gradient(135deg, #027800, #0284c7);
+  --gr-spinner-green-blue-hover: linear-gradient(135deg, #0039d1, #1039c2);
 }

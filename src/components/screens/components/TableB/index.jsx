@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import styles from './index.module.css';
-import { RefreshCw, AlertCircle, Inbox, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertCircle, Inbox, ChevronDown, ChevronUp } from 'lucide-react';
 import Barnner from '../Barnner';
-// import {Pagina}
 import Button from '../Button';
+import Loading from '../Loading/Index';
 
 const TableB = ({
   columns = [],
@@ -26,45 +26,6 @@ const TableB = ({
     }));
   };
 
-  if (loading) {
-    return (
-      <div className={styles.centerSection}>
-        <div className={styles.loaderWrapper}>
-          <RefreshCw size={32} className={styles.spinningLoader} />
-          <span className={styles.loaderText}>Cargando datos...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.centerSection}>
-        <div className={styles.errorMessage}>
-          <AlertCircle size={32} />
-          <span>{error}</span>
-        </div>
-        {onRetry && (
-          <Button
-            type={"button"}
-            variant={Button.VARIANTS.PRIMARY}
-            size={Button.SIZES.LARGE}
-            color={Button.COLORS.GREEN}
-            onClick={onRetry}>Reintentar</Button>
-        )}
-      </div>
-    );
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <div className={styles.emptyState}>
-        <EmptyIcon size={48} className={styles.emptyIcon} />
-        <p>{emptyMessage}</p>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.tableContainer}>
       <table className={styles.modernTable}>
@@ -82,12 +43,49 @@ const TableB = ({
           </tr>
         </thead>
         <tbody>
-          {data.map((row, rowIndex) => {
-            const key = row[rowKey] || rowIndex;
-            const isExpanded = !!expandedKeys[key];
-            const canExpand = expandable?.rowExpandable ? expandable.rowExpandable(row) : true;
+          {loading ? (
+            <tr>
+              <td colSpan={columns.length + (expandable ? 1 : 0)} style={{ padding: 0 }}>
+                <div className={styles.tableLoadingContainer}>
+                  <Loading size="large" text="" />
+                </div>
+              </td>
+            </tr>
+          ) : error ? (
+            <tr>
+              <td colSpan={columns.length + (expandable ? 1 : 0)} style={{ padding: 0 }}>
+                <div className={styles.centerSection}>
+                  <div className={styles.errorMessage}>
+                    <AlertCircle size={32} />
+                    <span>{error}</span>
+                  </div>
+                  {onRetry && (
+                    <Button
+                      type={"button"}
+                      variant={Button.VARIANTS.PRIMARY}
+                      size={Button.SIZES.LARGE}
+                      color={Button.COLORS.GREEN}
+                      onClick={onRetry}>Reintentar</Button>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ) : (!data || data.length === 0) ? (
+            <tr>
+              <td colSpan={columns.length + (expandable ? 1 : 0)} style={{ padding: 0 }}>
+                <div className={styles.emptyState}>
+                  <EmptyIcon size={48} className={styles.emptyIcon} />
+                  <p>{emptyMessage}</p>
+                </div>
+              </td>
+            </tr>
+          ) : (
+            data.map((row, rowIndex) => {
+              const key = row[rowKey] || rowIndex;
+              const isExpanded = !!expandedKeys[key];
+              const canExpand = expandable?.rowExpandable ? expandable.rowExpandable(row) : true;
 
-            return (
+              return (
               <React.Fragment key={key}>
                 <tr 
                   className={`${styles.tableRow} ${isExpanded ? styles.rowExpanded : ''} ${rowClassName ? rowClassName(row, rowIndex) : ''}`}
@@ -150,7 +148,7 @@ const TableB = ({
                 )}
               </React.Fragment>
             );
-          })}
+          }))}
         </tbody>
       </table>
     </div>

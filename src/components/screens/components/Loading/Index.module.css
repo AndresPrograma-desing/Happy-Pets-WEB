@@ -7,12 +7,12 @@
   width: 100%;
   color: var(--text-color, #64748b);
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.5); /* Subtle background so it replaces the card visually */
+  background-color: rgba(106, 105, 105, 0);
 }
 
 .spinner {
   border: 3px solid rgba(0, 0, 0, 0.05);
-  border-left-color: var(--btn-blue, #0041f2);
+  border-left-color: var(--btn-blue);
   border-radius: 50%;
   animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
@@ -48,9 +48,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.6;
   }

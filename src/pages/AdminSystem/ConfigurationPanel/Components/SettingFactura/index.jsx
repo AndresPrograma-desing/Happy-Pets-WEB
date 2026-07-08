@@ -4,15 +4,15 @@ import { settingReport } from '../../../../../services/api';
 import { useReportSettings } from '../../../../../hooks/RequestSetting'; 
 import { getText } from '../../../../../constants';
 import PlaceholderButton from '../../../../../components/screens/components/PlaceholderButton';
+import Loading from '../../../../../components/screens/components/Loading/Index';
 
 const ConfigFactura = () => {
 
     const { daysf, loading: isLoading, clearCache } = useReportSettings();
     if (isLoading) {
         return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '1rem', color: '#64748b' }}>
-                <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
-                <span>{getText("configReport.chargingConfig")}</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', width: '100%' }}>
+                <Loading size="medium" text="" />
             </div>
         );
     }

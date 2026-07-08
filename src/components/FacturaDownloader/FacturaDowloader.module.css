@@ -1,327 +1,118 @@
-.doctorCell {
-  color: #fff !important;
-  font-weight: 600;
-}
 .container {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--text-main);
-}
-
-.container {
-  padding: 30px;
-  background-color: var(--bg-facturas); 
-
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  
-}
-
-.header {
   display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.statsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.controlsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 35px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
 }
 
-.headerTitle h1 {
-  font-size: 28px;
-  font-weight: 800;
-  color: #ffffff; /* Blanco puro para el título principal */
-  margin: 0;
-  letter-spacing: -0.5px;
-}
-
-.headerTitle p {
-  color: var(--text-muted); /* Letras más claras/apagadas */
-  margin: 5px 0 0 0;
-  font-size: 15px;
-}
-
-.stats {
+.controlsLeft {
   display: flex;
-  gap: 15px;
-}
-
-.statCard {
-  background-color: var(--bg-main); /* Fondo más oscuro dentro de la tarjeta */
-  padding: 15px 20px;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  min-width: 110px;
-  transition: transform 0.2s ease;
-}
-
-.statCard:hover {
-  transform: translateY(-3px);
-  border-color: var(--text-muted);
-}
-
-.statValue {
-  display: block;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--accent-green); /* Valor resaltado en VERDE */
-}
-
-.statLabel {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 4px;
-}
-.controls {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 25px;
   align-items: center;
-}
-
-.searchWrapper {
-  position: relative;
+  gap: 1rem;
   flex: 1;
+  max-width: 600px;
 }
 
-.searchIconInside {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  opacity: 0.6; 
-  filter: invert(1); 
-}
-
-.searchInput {
-  width: 100%;
-  padding: 12px 12px 12px 45px;
-  background-color: var(--bg-main); /* Input oscuro */
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  color: var(--text-main); /* Letras claras al escribir */
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: var(--accent-blue); /* Borde AZUL al hacer focus */
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-}
-
-.searchInput::placeholder {
-  color: #64748b; /* Placeholder claro pero legible */
+.controlsRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .filterSelect {
-  padding: 12px 20px;
-  background-color: var(--bg-main);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  color: var(--text-main); /* Letras claras en el selector */
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background-color: #f8fafc;
+  outline: none;
   cursor: pointer;
-  font-size: 14px;
 }
 
-.refreshBtn {
-  background-color: var(--accent-blue); /* Botón principal AZUL */
-  color: #ffffff;
-  padding: 12px 20px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 600;
+.filterSelect:focus {
+  border-color: #94a3b8;
+}
+
+.actionContainer {
   display: flex;
   align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
-.refreshBtn:hover {
-  background-color: #2563eb; /* Azul un poco más oscuro al pasar el mouse */
-}
-
-/* ==========================================================
-   Tabla de Citas
-   ========================================================== */
-.tableWrapper {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 8px; /* Espaciado entre filas para efecto de tarjetas */
-}
-
-.table th {
-  text-align: left;
-  padding: 15px;
-  color: var(--text-muted); /* Letras de cabecera claras/gris */
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-bottom: 2px solid var(--border-color);
-}
-
-.tableRow {
-  background-color: var(--bg-main); /* Filas oscuras */
-  border-radius: 10px;
-  transition: background-color 0.2s ease;
-}
-
-.tableRow:hover {
-  background-color: var(--bg-hover); /* Fondo más claro al pasar el mouse */
-}
-
-.table td {
-  padding: 18px 15px;
-  border-top: 1px solid transparent;
-  border-bottom: 1px solid transparent;
-  font-size: 14px;
-}
-
-/* Bordes redondeados para el efecto de tarjeta en las filas */
-.tableRow td:first-child {
-  border-left: 1px solid transparent;
-  border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
-}
-
-.tableRow td:last-child {
-  border-right: 1px solid transparent;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-}
-
-/* Celdas especiales con texto secundario */
-.dateCell, .clientCell, .petCell {
-  display: flex;
-  flex-direction: column;
-  color: var(--text-main);
-}
-
-.dateCell small, .clientCell small, .petCell small {
-  color: rgb(245, 245, 245); /* Letras más claras para detalles secundarios */
-  font-size: 12px;
-  margin-top: 3px;
-}
-
-.idCell {
-  color: rgb(2, 35, 168); /* ID resaltado en BLANCO */
-  font-weight: 700;
-}
-
-/* ==========================================================
-   Badges de Estado (Colores adaptados a fondo oscuro)
-   ========================================================== */
 .statusBadge {
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border: 1px solid;
-  /* El JS inyecta colores pasteles, que resaltan bien sobre fondo oscuro */
 }
 
-/* ==========================================================
-   Botones de Acción y Vistas
-   ========================================================== */
-.actionContainer {
+.dateCell {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
+  color: #1e293b;
 }
 
-/* Botón Descargar (Sólido VERDE) */
-.downloadBtn {
-  background-color: var(--accent-green); /* VERDE para acción principal positiva */
-  color: #ffffff;
-  border: none;
-  padding: 9px 16px;
-  border-radius: 8px;
+.dateCell small {
+  color: #64748b;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.idCell {
+  color: #0ea5a4;
   font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
+}
+
+.clientCell {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: opacity 0.2s ease;
+  flex-direction: column;
+  color: #1e293b;
 }
 
-.downloadBtn:hover {
-  opacity: 0.85;
+.clientPhone {
+  color: #64748b;
+  font-size: 0.75rem;
+  margin-top: 2px;
 }
 
-.downloadBtn:disabled {
-  background-color: #475569;
-  cursor: not-allowed;
-}
-
-/* Botón Ver Factura (Outline AZUL) */
-.viewBtn {
-  color: var(--accent-blue); /* Letras AZULES */
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid var(--accent-blue); /* Borde AZUL */
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.viewBtn:hover {
-  background-color: rgba(59, 130, 246, 0.1); /* Fondo azul muy suave al hover */
-  border-color: #60a5fa; /* Borde azul más claro */
-}
-
-.btnIcon {
-  width: 14px;
-  height: 14px;
-  filter: invert(1); /* Hace que los iconos de los botones sean blancos */
-}
-.volverLink {
-  background-color: var(--accent-blue);
-  padding: 10px 16px;
-  border-radius: 8px;
-  color: var(--text-main);
-  text-decoration: none;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
+.petCell {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  color: #1e293b;
 }
 
-/* ==========================================================
-   Utilidades y Animaciones
-   ========================================================== */
-.errorMessage {
-  background-color: rgba(239, 68, 68, 0.15); /* Fondo rojo oscuro suave */
-  color: #f87171; /* Texto rojo claro */
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ef4444;
-  margin-bottom: 20px;
-  font-size: 14px;
-  text-align: center;
+.petCell small {
+  color: #64748b;
+  font-size: 0.75rem;
+  margin-top: 2px;
 }
-.filterIcon {
-  width: 16px;
-  height: 16px;
-  filter: invert(1); /* Icono blanco para el filtro */
+
+.doctorCell {
+  color: #475569;
+  font-weight: 500;
 }
-/* Loader de carga (Spinner blanco) */
+
 .btnLoader {
   width: 14px;
   height: 14px;
@@ -331,182 +122,23 @@
   display: inline-block;
   animation: rotation 1s linear infinite;
 }
-.disabledBtn {
-  background-color: #0048ac;
-  cursor: not-allowed;
-}
 
 @keyframes rotation {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-.rotating {
-  animation: rotation 2s linear infinite;
-}
-
-.textRight { text-align: right; }
-.textCenter { text-align: center; padding: 50px !important; color: var(--text-muted); }
-
-
-@media (max-width: 900px) {
-  .container {
-    padding: 20px;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
-
-  .stats {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .statCard {
-    flex: 1 1 0;
-    min-width: 100px;
-  }
-
-  .controls {
-    flex-wrap: wrap;
-  }
-
-  .searchWrapper {
-    flex: 1 1 100%;
-  }
-
-  .filterSelect,
-  .refreshBtn {
-    flex: 1 1 auto;
-  }
-}
-
-/* Móviles (pantallas pequeñas) */
-@media (max-width: 640px) {
-  .container {
-    padding: 16px 12px;
-    border-radius: 12px;
-  }
-
-  .headerTitle h1 {
-    font-size: 24px;
-  }
-
-  .headerTitle p {
-    font-size: 13px;
-  }
-
-  .stats {
-    gap: 10px;
-  }
-
-  .statCard {
-    padding: 12px 10px;
-  }
-
-  .statValue {
-    font-size: 20px;
-  }
-
-  .statLabel {
-    font-size: 10px;
-  }
-
-  .controls {
-    gap: 10px;
-  }
-
-  .searchInput {
-    padding: 10px 10px 10px 40px;
-    font-size: 13px;
-  }
-
-  .searchIconInside {
-    left: 10px;
-    width: 16px;
-    height: 16px;
-  }
-
-  .filterSelect {
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-
-  .refreshBtn {
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-
-  .table th,
-  .table td {
-    padding: 12px 10px;
-    font-size: 13px;
-  }
-
-  .dateCell small,
-  .clientCell small,
-  .petCell small {
-    font-size: 11px;
-  }
-
-  .actionContainer {
-    gap: 6px;
-  }
-
-  .downloadBtn,
-  .viewBtn {
-    padding: 7px 12px;
-    font-size: 12px;
-  }
-
-  .btnIcon {
-    width: 12px;
-    height: 12px;
-  }
-
-  /* Ajuste opcional para que las acciones no se desborden */
-  .tableWrapper {
-    margin: 0 -4px; /* compensa el padding reducido del contenedor */
-    padding: 0 4px;
-  }
-}
-
-/* Pantallas muy pequeñas (ej. < 480px) */
-@media (max-width: 480px) {
-  .header {
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-  }
-
-  .stats {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .statCard {
-    width: 100%;
-  }
-
-  .controls {
+@media (max-width: 768px) {
+  .controlsWrapper {
     flex-direction: column;
     align-items: stretch;
   }
-
-  .filterSelect,
-  .refreshBtn {
-    width: 100%;
-    justify-content: center;
+  .controlsLeft {
+    max-width: 100%;
+    flex-direction: column;
+    align-items: stretch;
   }
-
-  .actionContainer {
-    align-items: flex-start; /* para mejor lectura en móvil */
-  }
-
-  .table th {
-    white-space: nowrap; /* mantiene cabeceras legibles con scroll */
+  .controlsRight {
+    justify-content: flex-end;
   }
 }

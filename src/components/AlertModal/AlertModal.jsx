@@ -160,7 +160,7 @@ export default function AlertModal({
   const parsed = formatModalMessage(message);
 
   const content = (
-    <div data-test="alert-modal" className={styles.modalOverlay} onClick={onClose || (() => {})}>
+    <div data-test="alert-modal" className={styles.modalOverlay} onClick={onClose || (() => { })}>
       <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
         <h3 className={styles.modalTitle}>
           <img src={getIcon('warning')} alt="alert" className={styles.warningIcon} />
@@ -187,7 +187,7 @@ export default function AlertModal({
               />
             </div>
           )}
-          
+
           {showInput && inputType !== 'select' && (
             <div style={{ marginTop: '16px', marginBottom: '8px' }}>
               <TextField
@@ -210,13 +210,22 @@ export default function AlertModal({
         {!hideActions && (
           <div className={styles.modalActions} style={{ marginTop: 12 }}>
             {typeof onClose === 'function' && (
-              <Button variant="primary" color={Button.COLORS.DANGER} fullWidth onClick={onClose}>{cancelText}</Button>
+              <Button 
+                fullWidth
+                borderColor="var(--border-gray-low)"
+                onClick={onClose}>{cancelText}
+              </Button>
             )}
 
             {typeof onConfirm === 'function' ? (
-              <Button variant="primary" color={Button.COLORS.PRIMARY} fullWidth onClick={onConfirm}>{confirmText}</Button>
+              <Button
+                fullWidth  
+                borderColor="var(--border-gray-low)"
+                onClick={onConfirm}>{confirmText}</Button>
             ) : (
-              <Button variant="primary" fullWidth onClick={onClose || (() => {})}>{confirmText}</Button>
+              <Button variant="primary" 
+                fullWidth 
+                onClick={onClose || (() => { })}>{confirmText}</Button>
             )}
           </div>
         )}

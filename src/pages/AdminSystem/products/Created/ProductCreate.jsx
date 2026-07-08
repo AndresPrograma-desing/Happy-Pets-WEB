@@ -230,15 +230,12 @@ export default function ProductCreate({ hideHeader }) {
       </div>
 
       <div className={styles.tableWrapper}>
-        {loading ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Cargando inventario para administración...</div>
-        ) : (
-            <TableA 
-              columns={columns}
-              data={items}
-              keyExtractor={(row) => row.id || row.codigo || row.nombre}
-            />
-        )}
+        <TableA 
+          columns={columns}
+          data={items}
+          loading={loading}
+          keyExtractor={(row) => row.id || row.codigo || row.nombre}
+        />
       </div>
 
       {/* MODAL DEL FORMULARIO */}

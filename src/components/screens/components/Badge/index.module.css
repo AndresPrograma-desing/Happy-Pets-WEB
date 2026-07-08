@@ -1,0 +1,18 @@
+.badgeContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.badgeLabel {
+  font-weight: 600;
+  color: #334155;
+}
+
+.badgeValue {
+  color: #64748b;
+}

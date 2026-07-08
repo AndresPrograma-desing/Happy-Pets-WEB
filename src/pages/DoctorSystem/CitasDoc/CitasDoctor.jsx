@@ -209,11 +209,10 @@ function CitasDoctor() {
 
 			{!!localError && <div className={styles.errorText}>{localError}</div>}
 
-			{loading && <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Cargando citas...</div>}
-			{!loading && !error && (
-				<div className={styles.contentWrap}>
+			<div className={styles.contentWrap}>
 					<PanelCitas
 						citas={citas}
+						loading={loading}
 						deletingId={deletingId}
 						renderField={renderField}
 						formatDate={formatDate}
@@ -221,8 +220,7 @@ function CitasDoctor() {
 						getCitaId={getCitaId}
 						onDelete={handleDelete}
 					/>
-				</div>
-			)}
+			</div>
 
 			<AlertModal
 				open={showDeleteModal}

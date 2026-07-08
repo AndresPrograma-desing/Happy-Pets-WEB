@@ -380,6 +380,14 @@ export async function createPetForExistingClient(body) {
 //Notificacion PUSH
 }
 
+export async function createConsulta(payload) {
+  return request('/consultas/create', { method: 'POST', body: payload });
+}
+
+export async function getConsultaById(id) {
+  return request(`/Consultas/${id}`, { method: 'GET' });
+}
+
 export default {
   request,
   login,
@@ -409,4 +417,6 @@ export default {
   markMessageAsRead,
   searchClients,
   createPetForExistingClient,
+  createConsulta,
+  getConsultaById,
 };

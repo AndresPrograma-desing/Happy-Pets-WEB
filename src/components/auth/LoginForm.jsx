@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styles from "./LoginForm.module.css";
+import { HelpCircle } from 'lucide-react';
 import CustomSelect from '../UI/DesplegableSelector/CustomSelect';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
 import { handleLoginSubmit } from './utils';
 import Frame from '../screens/components/Frame/Index';
 import TextField from '../screens/components/Material-UI/Components/TextField/Index';
 import Button from '../screens/components/Button/index';
+import ModalTooltip from '../ModalTooltip/ModalTooltip'
 import Selector from '../screens/components/Material-UI/Components/Selector/Index';
 import { getCodeRecovery, sendCodeRecovery } from '../../services/api';
 
@@ -68,17 +70,18 @@ function LoginForm() {
 
     if (mode === 'password_sent') {
         return (
-            <Frame title="Contraseña Enviada" error={apiError}>
-                <p style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '0.9rem', color: '#333' }}>
-                    Se ha enviado una nueva contraseña a tu correo electrónico.
-                </p>
+            <Frame 
+                title="Contraseña Enviada" 
+                content="Se ha enviado una nueva contraseña a tu correo electrónico."
+                error={apiError}
+            >
                 <div className={styles.actionGroup}>
                     <Button 
                         onClick={() => {
                             setMode('login');
                             setApiError(null);
                         }} 
-                        variant="secondary"
+                        borderColor={"var(--border-gray-low)"}
                         fullWidth
                     >
                         Volver al Login
@@ -90,10 +93,14 @@ function LoginForm() {
 
     if (mode === 'request_email') {
         return (
-            <Frame title="Recuperar Contraseña" error={apiError}>
-                <p style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '0.9rem', color: '#333' }}>
-                    Ingresa tu correo para recibir un código de recuperación.
-                </p>
+            <Frame title="Recuperar Contraseña" 
+            icon={
+                <ModalTooltip text="El código será enviado a esta dirección para que puedas recuperar el acceso a tu cuenta.">
+                    <HelpCircle size={20} style={{ cursor: 'help' }} />
+                </ModalTooltip>
+            }   
+            content="Ingresa tu correo para recibir un código de recuperación."
+            error={apiError}>
                 <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
                     <TextField
                         key="recoveryEmail"
@@ -112,8 +119,7 @@ function LoginForm() {
                                 setMode('login');
                                 setApiError(null);
                             }} 
-                            variant="secondary"
-                            disabled={loading}
+                            borderColor={"var(--border-gray-low)"}
                             fullWidth
                         >
                             Volver
@@ -126,10 +132,11 @@ function LoginForm() {
 
     if (mode === 'code_entry') {
         return (
-            <Frame title="Verificar Código" error={apiError}>
-                <p style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '0.9rem', color: '#333' }}>
-                    Ingresa el código que hemos enviado a tu correo.
-                </p>
+            <Frame 
+                title="Verificar Código" 
+                content="Ingresa el código que hemos enviado a tu correo."
+                error={apiError}
+            >
                 <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
                     <TextField
                         key="code"
@@ -148,8 +155,7 @@ function LoginForm() {
                                 setMode('login');
                                 setApiError(null);
                             }} 
-                            variant=""
-                            disabled={loading}
+                            borderColor={"var(--border-gray-low)"}
                             fullWidth
                         >
                             Volver
@@ -196,19 +202,23 @@ function LoginForm() {
                 </div>
                 
                 <div className={styles.actionGroup} style={{ flexDirection: 'column', gap: '0.5rem' }}>
-                    <Button type="submit" variant="primary" disabled={loading} fullWidth>
+                    <Button 
+                    type="submit" 
+                    variant="primary" 
+                    disabled={loading} fullWidth>
                         Ingresar
+
                     </Button>
                     <Button 
                         onClick={() => {
                             setMode('request_email');
                             setApiError(null);
                         }}
-                        variant="secondary"
                         disabled={loading}
+                        borderColor={"var(--border-gray-low)"}
                         fullWidth
                     >
-                        Recuperar contraseña
+                        Recuperar contraseña 
                     </Button>
                 </div>
             </form>
