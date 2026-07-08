@@ -300,12 +300,8 @@ export default function Recetas() {
             keyExtractor={(row) => row.id} 
             loading={loading} 
             error={error}
-            emptyMessage={
-              <div className={styles.emptyState}>
-                <Ban size={32} />
-                <span>{error ? 'Hubo un error al cargar las recetas.' : TEXT_RECETAS_GESTION.empty}</span>
-              </div>
-            }
+            emptyIcon={Ban}
+            emptyMessage={error ? 'Hubo un error al cargar las recetas.' : TEXT_RECETAS_GESTION.empty}
           />
         </div>
 

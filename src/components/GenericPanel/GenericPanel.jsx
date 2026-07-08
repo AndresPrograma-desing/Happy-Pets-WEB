@@ -15,6 +15,7 @@ import { renderIcon } from '../hook/RenderIcon';
 import ToggleCard from '../screens/components/ToggleCard';
 import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
+import { getUserRole, getDisplayRoleName, getDefaultMenus } from './Utils';
 
 function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'user', menuItems }) {
   const navigate = useNavigate();
@@ -42,58 +43,8 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
     setShowWelcome(false);
   };
 
-  const defaultMenus = {
-    user: [
-      { label: getText("userInterface.menuItemDashboard"), path: '/', icon: 'house' },
-      { label: 'Proyectos', path: '/projects', icon: 'service' },
-      { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },
-    ],
-    admin: [
-      { label: getText("generalPanelTexts.titleA"), path: '/AdminSystem', icon: 'adminRole' },
-      { label: getText("adminInterface.menuItemDashboard"), path: '/AdminSystem/dashboard', icon: 'dashboard' },
-      { label: getText("adminInterface.menuItemUsers"), path: '/AdminSystem/users', icon: 'user' },
-      {
-        label: getText("adminInterface.menuItemProducts"), icon: 'box',
-        subItems: [
-          { label: 'Ver productos', path: '/AdminSystem/products', state: { view: 'list' } },
-          { label: 'Administrar productos', path: '/AdminSystem/products', state: { view: 'manage' } }
-        ]
-      },
-      // { label: getText("generalPanelTexts.optionsNavegations.whatsapp"), icon: <Link2 style={{ stroke: '#ffffff' }} />, onClick: () => setShowWhatsAppModal(true) },
-      { label: getText("adminInterface.menuItemMessages"), path: '/panel-menssage', icon: 'message' },
-      { label: getText("adminInterface.genericPanelFacturas"), path: '/facturas', icon: 'fileCheck' },
-      { label: getText("generalPanelTexts.optionsNavegations.notificationCreated"), icon: <BellPlus style={{ stroke: '#ffffff' }} />, onClick: () => setShowNotificationModal(true) },
-      { label: getText("generalPanelTexts.optionsNavegations.clientList"), path: '/clients', icon: <Users style={{ stroke: '#ffffff' }} /> },
-      { label: 'Plantillas Emails', path: '/AdminSystem/emails', icon: <Mail style={{ stroke: '#ffffff' }} /> },
-      { label: getText("adminInterface.menuItemSettings"), path: '/AdminSystem/settings', icon: 'engranaje' },
-    ],
-    secretaria: [
-      { label: 'Panel', path: '/SecretariaSystem', icon: 'secretariaRole' },
-      {
-        label: 'Citas', icon: 'calendario',
-        subItems: [
-          { label: 'Lista de Citas', path: '/citas', state: { role: 'secretaria' } },
-          { label: 'Nueva Cita', path: '/citas/crear', state: { role: 'secretaria' } },
-          { label: 'Nuevo Usuario', path: '/clientes/crear' }
-        ]
-      },
-      { label: 'Gestion de Recibos', path: '/factura-manager', icon: 'fileText' },
-      { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },
-      { label: 'Ver Facturas', path: '/facturas', icon: 'fileCheck' },
-      { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus' },
-      { label: 'Crear Alerta', icon: <BellPlus style={{ stroke: '#ffffff' }} />, onClick: () => setShowNotificationModal(true) },
-    ],
-    doctor: [
-      { label: 'Panel Médico', path: '/doctor', icon: 'userCita' },
-      { label: 'Mis Citas', path: '/citas', icon: 'calendario' },
-      { label: 'Historias Clínicas', path: '/doctor/pacientes', icon: 'fileText' },
-      { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus' },
-      { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },
-      { label: 'Ver Facturas', path: '/facturas', icon: 'fileCheck' },
-      { label: 'Asistente Virtual', path: '/asistente-virtual', icon: <BotIcon style={{ stroke: '#ffffff' }} />, newTab: true },
-      { label: 'Crear Alerta', icon: <BellPlus style={{ stroke: '#ffffff' }} />, onClick: () => setShowNotificationModal(true) },
-    ],
-  };
+  const actualRole = getUserRole() || role;
+  const defaultMenus = getDefaultMenus({ setShowNotificationModal, setShowWhatsAppModal });
 
   const toggleMenu = (label) => {
     setExpandedMenus(prev => {
@@ -103,7 +54,7 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
     });
   };
 
-  const items = menuItems || defaultMenus[role] || defaultMenus.user;
+  const items = menuItems || defaultMenus[actualRole] || defaultMenus.user;
 
   const handleNavigate = (item) => {
     if (!item) return;
@@ -149,7 +100,7 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
           `}</style>
           <div style={{ boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', borderRadius: '12px', background: 'white' }}>
             <ToggleCard
-              title={`¡Bienvenido, ${userName || (role === 'admin' ? 'Administrador' : role === 'doctor' ? 'Doctor' : role === 'secretaria' ? 'Secretaria' : 'Usuario')}!`}
+              title={`¡Bienvenido, ${userName || getDisplayRoleName(actualRole)}!`}
               description={GENERIC_PANEL_TEXT.welcomeCard.description}
               icon={Users}
               onClose={dismissWelcome}
@@ -215,7 +166,7 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
         <div className={styles.mainWrapper}>
           <header className={styles.topBar}>
             <div className={styles.userBadge}>
-              {userName || (role === 'admin' ? 'Administrador' : role === 'doctor' ? 'Doctor' : role === 'secretaria' ? 'Secretaria' : 'Usuario')}
+              {userName || getDisplayRoleName(actualRole)}
             </div>
           </header>
 

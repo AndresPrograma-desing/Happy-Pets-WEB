@@ -72,10 +72,10 @@ const TableB = ({
             </tr>
           ) : (!data || data.length === 0) ? (
             <tr>
-              <td colSpan={columns.length + (expandable ? 1 : 0)} style={{ padding: 0 }}>
+              <td colSpan={columns.length + (expandable ? 1 : 0)} style={{ padding: '1.5rem' }}>
                 <div className={styles.emptyState}>
                   <EmptyIcon size={48} className={styles.emptyIcon} />
-                  <p>{emptyMessage}</p>
+                  <p style={{ margin: 0 }}>{emptyMessage}</p>
                 </div>
               </td>
             </tr>

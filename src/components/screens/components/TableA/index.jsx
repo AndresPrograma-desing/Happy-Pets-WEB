@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './index.module.css';
 import Loading from '../Loading/Index';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Inbox } from 'lucide-react';
 import Button from '../Button';
 
 const TableA = ({ 
@@ -12,6 +12,7 @@ const TableA = ({
   loading = false, 
   error = null, 
   onRetry,
+  emptyIcon: EmptyIcon = Inbox,
   emptyMessage = "No hay datos disponibles" 
 }) => {
   return (
@@ -56,8 +57,11 @@ const TableA = ({
             </tr>
           ) : (!data || data.length === 0) ? (
             <tr>
-              <td colSpan={columns.length} className={styles.emptyState}>
-                {emptyMessage}
+              <td colSpan={columns.length} style={{ padding: '1.5rem' }}>
+                <div className={styles.emptyState}>
+                  <EmptyIcon size={48} className={styles.emptyIcon} />
+                  <p style={{ margin: 0 }}>{emptyMessage}</p>
+                </div>
               </td>
             </tr>
           ) : (
