@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Index.module.css';
+import ModalTooltip from '../../../ModalTooltip/ModalTooltip';
+import { SWITCH_TEXTS } from './constants';  
 
 const Switch = ({ 
   value = false, 
@@ -14,9 +16,6 @@ const Switch = ({
   const [active, setActive] = useState(value);
   const [ripples, setRipples] = useState([]);
 
-  console.log("Switch props received -> activeColor:", activeColor);
-
-  // Sync with prop
   useEffect(() => {
     setActive(value);
   }, [value]);
@@ -24,23 +23,15 @@ const Switch = ({
   const handleClick = (e) => {
     if (disabled) return;
 
-    // Create ripple effect
     const button = e.currentTarget;
     const rect = button.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height);
     const x = e.clientX - rect.left - size / 2;
     const y = e.clientY - rect.top - size / 2;
 
-    const newRipple = {
-      x,
-      y,
-      size,
-      id: Date.now()
-    };
-
+    const newRipple = { x, y, size, id: Date.now() };
     setRipples((prev) => [...prev, newRipple]);
 
-    // Clean up ripple after animation
     setTimeout(() => {
       setRipples((prev) => prev.filter((ripple) => ripple.id !== newRipple.id));
     }, 600);
@@ -59,32 +50,35 @@ const Switch = ({
     ...style,
     backgroundColor: active ? activeColor : inactiveColor,
   };
+  const tooltipText = active ? SWITCH_TEXTS.enabled : SWITCH_TEXTS.disabled;
 
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={active}
-      disabled={disabled}
-      className={`${styles.switchButton} ${statusClass} ${className}`}
-      style={dynamicStyle}
-      onClick={handleClick}
-    >
-      <div className={styles.thumb} style={{ backgroundColor: thumbColor }} />
-      
-      {ripples.map((ripple) => (
-        <span
-          key={ripple.id}
-          className={styles.ripple}
-          style={{
-            left: ripple.x,
-            top: ripple.y,
-            width: ripple.size,
-            height: ripple.size
-          }}
-        />
-      ))}
-    </button>
+    <ModalTooltip text={tooltipText}>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={active}
+        disabled={disabled}
+        className={`${styles.switchButton} ${statusClass} ${className}`}
+        style={dynamicStyle}
+        onClick={handleClick}
+      >
+        <div className={styles.thumb} style={{ backgroundColor: thumbColor }} />
+        
+        {ripples.map((ripple) => (
+          <span
+            key={ripple.id}
+            className={styles.ripple}
+            style={{
+              left: ripple.x,
+              top: ripple.y,
+              width: ripple.size,
+              height: ripple.size
+            }}
+          />
+        ))}
+      </button>
+    </ModalTooltip>
   );
 };
 
