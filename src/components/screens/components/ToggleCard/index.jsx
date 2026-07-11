@@ -8,10 +8,13 @@ const ToggleCard = ({
   action,
   children,
   onClose,
-  closeText = "Cerrar"
+  closeText = "Cerrar",
+  variant = "default" // "floating" or "default"
 }) => {
+  const containerClass = `${styles.toggleContainer} ${variant === 'floating' ? styles.floatingVariant : ''}`;
+
   return (
-    <div className={styles.toggleContainer}>
+    <div className={containerClass}>
       <div className={styles.content}>
         <div className={styles.textBlock}>
           <div className={styles.headerLine}>

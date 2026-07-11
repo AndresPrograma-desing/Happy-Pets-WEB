@@ -26,6 +26,7 @@ export default function Selector({
             className={className}
             options={options}
             autoHighlight
+            openOnFocus
             getOptionLabel={(option) => option.label || ""}
             value={selectedOption}
             onChange={(event, newValue) => {

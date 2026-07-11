@@ -13,6 +13,7 @@ import Badge from '../screens/components/Badge';
 import Button from '../screens/components/Button';
 import Selector from '../screens/components/Material-UI/Components/Selector/Index';
 import { TEXT_FACTURAS } from './constants';
+import SearchInput from '../UI/Search/Search';
 
 export default function FacturaManager() {
   const {
@@ -89,14 +90,12 @@ export default function FacturaManager() {
 
       <div className={styles.controlsWrapper}>
         <div className={styles.controlsLeft}>
-          <div style={{ position: 'relative', flex: 1 }}>
-            <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              type="text"
-              placeholder={TEXT_FACTURAS.searchPlaceholder}
-              style={{ width: '100%', padding: '8px 12px 8px 32px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.9rem', outline: 'none' }}
+          <div style={{ flex: 1 }}>
+            <SearchInput
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={setSearchTerm}
+              placeholder={TEXT_FACTURAS.searchPlaceholder}
+              label="Buscar Factura"
             />
           </div>
           <Selector

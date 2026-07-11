@@ -1,27 +1,23 @@
 import React from 'react';
-import { Search, X } from 'lucide-react';
-import styles from './Search.module.css';
+import Search from '../../screens/components/Material-UI/Components/Search/Index';
+import { Search as SearchIcon } from 'lucide-react';
 
-export default function SearchInput({ value, onChange, placeholder = "Buscar..." }) {
+export default function SearchInput({ value, onChange, placeholder = "Buscar...", label = "Buscar" }) {
   return (
-    <div className={styles.searchContainer}>
-      <Search className={styles.searchIcon} size={18} />
-      <input
-        type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={styles.inputField}
-      />
-      {value && (
-        <button 
-          className={styles.clearButton} 
-          onClick={() => onChange('')}
-          type="button"
-        >
-          <X size={14} />
-        </button>
-      )}
-    </div>
+    <Search
+      freeSolo
+      options={[]}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      label={label}
+      slotProps={{
+        input: {
+          startAdornment: (
+            <SearchIcon size={18} style={{ color: '#64748b', marginRight: '8px' }} />
+          )
+        }
+      }}
+    />
   );
 }

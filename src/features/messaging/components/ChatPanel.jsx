@@ -5,6 +5,7 @@ import { useMessaging, getInitials } from '../logic/index.js';
 import { Send, Search, User, Mail, Inbox } from 'lucide-react';
 import ToggleCard from '../../../components/screens/components/ToggleCard';
 import PlaceholderButton from '../../../components/screens/components/PlaceholderButton';
+import SearchInput from '../../../components/UI/Search/Search';
 
 export default function ChatPanel({ currentUserId, pollInterval = 3000 }) {
   const {
@@ -40,16 +41,12 @@ export default function ChatPanel({ currentUserId, pollInterval = 3000 }) {
         {/* Left Sidebar (Inbox List) */}
         <aside className={`${styles.inboxSidebar} ${isMobile && !showContactsList ? styles.hideOnMobile : ''}`}>
           <div className={styles.sidebarHeader}>
-            <div className={styles.searchWrap}>
-              <Search size={18} className={styles.searchIcon} />
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Buscar en la bandeja..."
-                value={contactSearch}
-                onChange={(e) => setContactSearch(e.target.value)}
-              />
-            </div>
+            <SearchInput
+              value={contactSearch}
+              onChange={setContactSearch}
+              placeholder="Buscar en la bandeja..."
+              label="Buscar"
+            />
           </div>
           
           <div className={styles.conversationList}>

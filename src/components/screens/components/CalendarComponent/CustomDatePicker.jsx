@@ -3,6 +3,7 @@ import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterv
 import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, CalendarDays, X, ChevronDown } from 'lucide-react';
 import styles from './CustomDatePicker.module.css';
+import TextField from '../Material-UI/Components/TextField/Index';
 
 const CustomDatePicker = ({ label, name, value, onChange, required = false, disabled = false }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -117,27 +118,26 @@ const CustomDatePicker = ({ label, name, value, onChange, required = false, disa
 
   return (
     <div className={styles.inputGroup} onClick={(e) => e.stopPropagation()}>
-      {label && (
-        <label className={styles.label}>
-          {label} {required && <span className={styles.required}>*</span>}
-        </label>
-      )}
-      <div className={styles.inputWrapper}>
-        <input
-          type="text"
-          value={selectedDate ? format(selectedDate, 'dd/MM/yyyy') : ''}
-          readOnly
-          placeholder="dd/mm/aaaa"
-          onClick={() => !disabled && setIsOpen(true)}
-          className={styles.dateInput}
-          disabled={disabled}
-        />
-        <CalendarDays 
-          size={16} 
-          className={styles.inputIcon} 
-          onClick={() => !disabled && setIsOpen(true)}
-        />
-      </div>
+      <TextField
+        label={label}
+        value={selectedDate ? format(selectedDate, 'dd/MM/yyyy') : ''}
+        readOnly
+        placeholder="dd/mm/aaaa"
+        onClick={() => !disabled && setIsOpen(true)}
+        disabled={disabled}
+        required={required}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <CalendarDays 
+                size={16} 
+                style={{ cursor: 'pointer', color: '#64748b' }}
+                onClick={() => !disabled && setIsOpen(true)}
+              />
+            )
+          }
+        }}
+      />
 
       {isOpen && (
         <div className={styles.modalBackdrop} onClick={() => { setIsOpen(false); setShowSelectors(false); }}>

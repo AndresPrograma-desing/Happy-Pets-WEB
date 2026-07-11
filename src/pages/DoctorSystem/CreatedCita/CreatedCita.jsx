@@ -11,17 +11,21 @@ import CustomTimePicker from '../../../components/UI/HoursComponent/CustomTimePi
 import CustomSelect from '../../../components/UI/DesplegableSelector/CustomSelect';
 import { normalizeUserMascotaResults } from './utils';
 import GenericPanel from '../../../components/GenericPanel/GenericPanel';
+import MultilinePlaceholder from '../../../components/screens/components/Material-UI/Components/MultilinePlaceholder/index';
+import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
+import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
+import Button from '../../../components/screens/components/Button';
 
 export default function CreatedCita() {
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams] = useSearchParams();
-    
+
     const roleFromState = String(location.state?.role || '').toLowerCase();
     const roleFromQuery = String(searchParams.get('role') || '').toLowerCase();
     const activeRole = roleFromState || roleFromQuery || 'doctor';
     const isSecretariaFlow = activeRole.includes('secret');
-    
+
     const [showSelectModal, setShowSelectModal] = useState(false);
     const [clientes, setClientes] = useState([]);
     const [doctores, setDoctores] = useState([]);
@@ -52,36 +56,36 @@ export default function CreatedCita() {
     const [mascotaDisplayName, setMascotaDisplayName] = useState('');
 
     useEffect(() => {
-    if (!showSelectModal) return;
-    
-    const name = query.trim();
-    if (name.length < 2) {
-        setClientes([]);
-        return;
-    }
-    
-    let cancelled = false;
-    
-    const t = setTimeout(async () => {
-        try {
-            setLookupLoading(true);
-            const res = await searchClients(name); 
-            
-            if (cancelled) return;
-            
-            setClientes(normalizeUserMascotaResults(res));
-        } catch (err) {
-            if (!cancelled) setError(err?.message || 'No se pudieron cargar usuarios por nombre');
-        } finally {
-            if (!cancelled) setLookupLoading(false);
+        if (!showSelectModal) return;
+
+        const name = query.trim();
+        if (name.length < 2) {
+            setClientes([]);
+            return;
         }
-    }, 250);
-    
-    return () => {
-        cancelled = true;
-        clearTimeout(t);
-    };
-}, [query, showSelectModal]);
+
+        let cancelled = false;
+
+        const t = setTimeout(async () => {
+            try {
+                setLookupLoading(true);
+                const res = await searchClients(name);
+
+                if (cancelled) return;
+
+                setClientes(normalizeUserMascotaResults(res));
+            } catch (err) {
+                if (!cancelled) setError(err?.message || 'No se pudieron cargar usuarios por nombre');
+            } finally {
+                if (!cancelled) setLookupLoading(false);
+            }
+        }, 250);
+
+        return () => {
+            cancelled = true;
+            clearTimeout(t);
+        };
+    }, [query, showSelectModal]);
 
     useEffect(() => {
         let cancelled = false;
@@ -237,147 +241,153 @@ export default function CreatedCita() {
     };
 
     return (
-        <GenericPanel 
-            title="Agendar nueva cita" 
+        <GenericPanel
+            title="Agendar nueva cita"
             message="Registra los detalles de la consulta, paciente y doctor responsable."
             role={activeRole}
         >
             <div className={styles.formWrapper}>
-                <div className={styles.formHeaderActions}>
-                    <button type="button" className={styles.backBtn} onClick={() => navigate('/citas', { state: { role: location.state?.role ?? 'doctor' } })}>
-                        <ArrowLeft size={16} /> Volver a citas
-                    </button>
-                </div>
 
                 <form className={styles.modernCard} onSubmit={handleSubmit}>
-                {error && <div className={styles.error}>{error}</div>}
+                    {error && <div className={styles.error}>{error}</div>}
 
-                <SelectModal
-                    open={showSelectModal}
-                    onClose={() => { setShowSelectModal(false); setQuery(''); setClientes([]); }}
-                    onSelectMascota={handleSelectMascota}
-                    clients={clientes}
-                    query={query}
-                    setQuery={setQuery}
-                    loading={lookupLoading}
-                />
+                    <SelectModal
+                        open={showSelectModal}
+                        onClose={() => { setShowSelectModal(false); setQuery(''); setClientes([]); }}
+                        onSelectMascota={handleSelectMascota}
+                        clients={clientes}
+                        query={query}
+                        setQuery={setQuery}
+                        loading={lookupLoading}
+                    />
 
-                <div className={styles.rowThree}>
-                    <div className={styles.group}>
-                        <label className={styles.label}>Mascota</label>
-                        <ModalTooltip text="Haz clic para seleccionar cliente y mascota." placement="right">
-                            <input
-                                className={styles.input}
-                                value={mascotaDisplayName}
-                                readOnly
-                                placeholder="Seleccione un cliente para asociar mascota"
-                                style={{ cursor: 'pointer', background: 'white' }}
-                                onClick={() => setShowSelectModal(true)}
+                    <div className={styles.row}>
+                        <div className={styles.group}>
+                            <ModalTooltip text="Haz clic para seleccionar cliente y mascota." placement="right">
+                                <TextField
+                                    label="Mascota"
+                                    value={mascotaDisplayName}
+                                    readOnly
+                                    placeholder="Seleccione un cliente para asociar mascota"
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => setShowSelectModal(true)}
+                                />
+                            </ModalTooltip>
+                        </div>
+                        <div className={styles.group}>
+                            {isSecretariaFlow ? (
+                                <Selector
+                                    label="Doctor"
+                                    options={doctores.map((d) => ({
+                                        value: String(d.id),
+                                        label: d.fullName || `Doctor ${d.id}`
+                                    }))}
+                                    value={form.doctor_id}
+                                    placeholder="Selecciona un doctor"
+                                    onChange={(e) => {
+                                        handleChange({
+                                            target: { name: 'doctor_id', value: e.target.value }
+                                        });
+                                    }}
+                                />
+                            ) : (
+                                <>
+                                    <label className={styles.label}>Doctor</label>
+                                    <input
+                                        className={styles.input}
+                                        value={doctorName || (form.doctor_id ? `Doctor ${form.doctor_id}` : '')}
+                                        readOnly
+                                        placeholder={loadingDoctor ? 'Cargando doctor...' : 'Doctor cargado de sesión'}
+                                    />
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className={styles.row}>
+                        <div className={styles.group}>
+                            <CustomDatePicker
+                                label="Fecha de cita"
+                                name="fecha_cita"
+                                value={form.fecha_cita}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div className={styles.group}>
+                            <CustomTimePicker
+                                label="Hora de cita"
+                                name="hora_cita"
+                                value={form.hora_cita}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className={styles.row}>
+                        <div className={styles.group}>
+                            <TextField
+                                label="Tipo de cita"
+                                name="tipo_cita"
+                                value={form.tipo_cita}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div className={styles.group}>
+                            <TextField
+                                label="Motivo"
+                                name="motivo"
+                                value={form.motivo}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className={styles.group} style={{ marginBottom: '1.5rem' }}>
+                        <MultilinePlaceholder
+                            label="Notas"
+                            name="notas"
+                            value={form.notas}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className={styles.group} style={{ marginBottom: '1.5rem' }}>
+                        <ModalTooltip text="Selecciona el método de pago acordado para esta cita." placement="top">
+                            <Selector
+                                label="Método de pago"
+                                options={[
+                                    { value: 'efectivo', label: 'Efectivo' },
+                                    { value: 'pago_movil', label: 'Pago Móvil' },
+                                    { value: 'transferencia', label: 'Transferencia' },
+                                    { value: 'No definido', label: 'No definido' },
+                                ]}
+                                value={form.metodo_pago}
+                                onChange={(e) => setForm((prev) => ({ ...prev, metodo_pago: e.target.value }))}
+                                placeholder="Selecciona método de pago"
                             />
                         </ModalTooltip>
                     </div>
-                    <div className={styles.group}>
-                        {isSecretariaFlow ? (
-                            <CustomSelect
-                                label="Doctor"
-                                options={doctores.map((d) => ({
-                                    id: String(d.id),
-                                    name: d.fullName || `Doctor ${d.id}`
-                                }))}
-                                value={form.doctor_id}
-                                placeholder="Selecciona un doctor"
-                                onChange={(selectedId) => {
-                                    handleChange({
-                                        target: { name: 'doctor_id', value: selectedId }
-                                    });
-                                }}
-                            />
-                        ) : (
-                            <>
-                                <label className={styles.label}>Doctor</label>
-                                <input
-                                    className={styles.input}
-                                    value={doctorName || (form.doctor_id ? `Doctor ${form.doctor_id}` : '')}
-                                    readOnly
-                                    placeholder={loadingDoctor ? 'Cargando doctor...' : 'Doctor cargado de sesión'}
-                                />
-                            </>
-                        )}
-                    </div>
 
-                    <div className={styles.group}>
-                        <label className={styles.label}>Secretaria</label>
-                        <input
-                            className={styles.input}
-                            value={secretariaName || (form.secretaria_id ? `Secretaria ${form.secretaria_id}` : '')}
-                            readOnly
-                        />
+                    <div className={styles.actions}>
+                        <Button
+                            onClick={() => navigate(-1)}
+                            variant={Button.VARIANTS.BACK}
+                            borderColor="var(--border-gray-low)"
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleSubmit}
+                            variant={Button.VARIANTS.CREATE}
+                        >
+                            Crear cita
+                        </Button>
                     </div>
-                </div>
-
-                <div className={styles.row}>
-                    <div className={styles.group}>
-                        <label className={styles.label}>Fecha de cita</label>
-                        <CustomDatePicker
-                            label="Fecha de cita"
-                            name="fecha_cita"
-                            value={form.fecha_cita}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className={styles.group}>
-                        <label className={styles.label}>Hora de cita</label>
-                        <CustomTimePicker
-                            label="Hora de cita"
-                            name="hora_cita"
-                            value={form.hora_cita}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div className={styles.row}>
-                    <div className={styles.group}>
-                        <label className={styles.label}>Tipo de cita</label>
-                        <input className={styles.input} name="tipo_cita" value={form.tipo_cita} onChange={handleChange} required />
-                    </div>
-                    <div className={styles.group}>
-                        <label className={styles.label}>Motivo</label>
-                        <input className={styles.input} name="motivo" value={form.motivo} onChange={handleChange} required />
-                    </div>
-                </div>
-
-                <div className={styles.group}>
-                    <label className={styles.label}>Notas</label>
-                    <textarea className={styles.textarea} name="notas" value={form.notas} onChange={handleChange} />
-                </div>
-
-                <div className={styles.group}>
-                    <ModalTooltip text="Selecciona el método de pago acordado para esta cita." placement="top">
-                        <CustomSelect
-                            label="Método de pago"
-                            name="metodo_pago"
-                            options={[
-                                { id: 'efectivo', name: 'Efectivo' },
-                                { id: 'pago_movil', name: 'Pago Móvil' },
-                                { id: 'transferencia', name: 'Transferencia' },
-                                { id: 'No definido', name: 'No definido' },
-                            ]}
-                            value={form.metodo_pago}
-                            onChange={(selectedId) => setForm((prev) => ({ ...prev, metodo_pago: selectedId }))}
-                            placeholder="Selecciona método de pago"
-                            style={{ width: '100%' }}
-                        />
-                    </ModalTooltip>
-                </div>
-
-                <div className={styles.actions}>
-                    <button type="button" className={styles.secondary} onClick={() => navigate(-1)}>Cancelar</button>
-                    <button type="submit" className={styles.primary} disabled={submitting}>{submitting ? 'Creando...' : 'Crear cita'}</button>
-                </div>
-            </form>
+                </form>
             </div>
 
             <AlertModal

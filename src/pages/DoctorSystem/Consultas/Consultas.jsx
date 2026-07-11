@@ -19,6 +19,7 @@ import {
 import ModalTooltip from '../../../components/ModalTooltip/ModalTooltip';
 import { FormCard, FormInput, FormTextArea } from '../../../components/screens/components/FormControls';
 import Button from '../../../components/screens/components/Button';
+import MultilinePlaceholder from '../../../components/screens/components/Material-UI/Components/MultilinePlaceholder/index';
 
 function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const { state } = useLocation();
@@ -174,7 +175,10 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
               <p>Paciente: <strong>{defaultMascotaNombre}</strong> • ID Cita: #{form.cita_id}</p>
             </div>
           </div>
-          <Button variant="outline" color="#64748b" onClick={() => (onCancel ? onCancel() : navigate(-1))} icon={ArrowLeft}>
+          <Button 
+            variant={Button.VARIANTS.BACK} 
+            onClick={() => (onCancel ? onCancel() : navigate(-1))}
+          >
             Volver
           </Button>
         </header>
@@ -320,12 +324,12 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
                         />
                       </div>
                       <div className={styles.fullWidth}>
-                        <textarea 
-                          className={styles.subInput}
-                          placeholder="Instrucciones adicionales para el dueño..." 
+                        <MultilinePlaceholder 
+                          label="Instrucciones adicionales para el dueño..."
                           value={p.instrucciones} 
                           onChange={(e) => updateProducto(idx, 'instrucciones', e.target.value)} 
-                          rows="1"
+                          rows={2}
+                          size="small"
                         />
                       </div>
                     </div>

@@ -1,22 +1,17 @@
 import React, { forwardRef } from 'react';
-import styles from './index.module.css';
+import TextField from '../Material-UI/Components/TextField/Index';
 
-const Input = forwardRef(({ label, id, className = '', containerClassName = '', error, ...props }, ref) => {
+const Input = forwardRef(({ label, id, className = '', containerClassName = '', error, helperText, ...props }, ref) => {
     return (
-        <div className={`${styles.inputGroup} ${containerClassName}`}>
-            {label && (
-                <label htmlFor={id} className={styles.label}>
-                    {label}
-                </label>
-            )}
-            <input
-                id={id}
-                ref={ref}
-                className={`${styles.input} ${error ? styles.inputError : ''} ${className}`}
-                {...props}
-            />
-            {error && <span className={styles.errorText}>{error}</span>}
-        </div>
+        <TextField
+            id={id}
+            label={label}
+            error={error}
+            helperText={error || helperText}
+            ref={ref}
+            className={className}
+            {...props}
+        />
     );
 });
 

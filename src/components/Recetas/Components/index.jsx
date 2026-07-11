@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 
 import DrawPanel from '../../screens/components/DrawPanel';
+import MultilinePlaceholder from '../../screens/components/Material-UI/Components/MultilinePlaceholder/index';
 import api from '../../../services/api';
 import Button from '../../screens/components/Button';
 import Badge from '../../screens/components/Badge';
@@ -38,31 +39,7 @@ import {
 
 import { TEXT_RECETAS_GESTION } from '../constants';
 
-function SearchInput({ value, onChange, placeholder = TEXT_RECETAS_GESTION.searchPlaceholder }) {
-  return (
-    <div className={styles.searchInputWrapper}>
-      <Search size={18} color="#94a3b8" />
-      <input
-        type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={styles.searchInput}
-      />
-      {value && (
-        <Button
-          type="button"
-          variant="ghost"
-          color="#94a3b8"
-          circle
-          onClick={() => onChange('')}
-          icon={X}
-          style={{ padding: '4px', minWidth: 'auto' }}
-        />
-      )}
-    </div>
-  );
-}
+import SearchInput from '../../UI/Search/Search';
 
 const RecetasHeader = React.memo(function RecetasHeader({ onRefresh, pdfOnly, onPdfToggle }) {
   return (
@@ -326,14 +303,11 @@ export default function Recetas() {
               </div>
             )}
             <div className={styles.editFormGroup}>
-              <label className={styles.editLabel}>
-                Receta / Indicaciones
-              </label>
-              <textarea
+              <MultilinePlaceholder
+                label="Receta / Indicaciones"
                 value={editRecetaText}
                 onChange={(e) => setEditRecetaText(e.target.value)}
                 rows={10}
-                className={styles.editTextArea}
                 placeholder="Escribe la receta o indicaciones médicas..."
               />
             </div>

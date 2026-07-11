@@ -18,28 +18,28 @@ export function FormCard({ icon: Icon, title, children, headerActions }) {
     );
 }
 
+import TextField from '../Material-UI/Components/TextField/Index';
+
 export function FormInput({ label, icon: Icon, ...props }) {
     return (
         <div className={styles.inputGroup}>
-            {label && (
-                <label className={styles.label}>
-                    {Icon && <Icon size={14} />} {label}
-                </label>
-            )}
-            <input className={styles.input} {...props} />
+            <TextField 
+                label={label} 
+                {...props} 
+            />
         </div>
     );
 }
 
+import MultilinePlaceholder from '../Material-UI/Components/MultilinePlaceholder/index';
+
 export function FormTextArea({ label, icon: Icon, ...props }) {
     return (
         <div className={styles.inputGroup}>
-            {label && (
-                <label className={styles.label}>
-                    {Icon && <Icon size={14} />} {label}
-                </label>
-            )}
-            <textarea className={styles.textarea} {...props} />
+            <MultilinePlaceholder 
+                label={label} 
+                {...props} 
+            />
         </div>
     );
 }

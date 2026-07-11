@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Clock, X, ChevronUp, ChevronDown } from 'lucide-react';
 import styles from './CustomTimePicker.module.css';
+import TextField from '../../screens/components/Material-UI/Components/TextField/Index';
 
 const CustomTimePicker = ({ label, name, value, onChange, required = false, disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -108,28 +109,26 @@ const CustomTimePicker = ({ label, name, value, onChange, required = false, disa
 
   return (
     <div className={styles.inputGroup} onClick={(e) => e.stopPropagation()}>
-      {label && (
-        <label className={styles.label}>
-          {label} {required && <span className={styles.required}>*</span>}
-        </label>
-      )}
-      
-      <div className={styles.inputWrapper}>
-        <input
-          type="text"
-          value={getDisplayValue()}
-          readOnly
-          placeholder="00:00 AM"
-          onClick={() => !disabled && setIsOpen(true)}
-          className={styles.timeInput}
-          disabled={disabled}
-        />
-        <Clock 
-          size={16} 
-          className={styles.inputIcon} 
-          onClick={() => !disabled && setIsOpen(true)}
-        />
-      </div>
+      <TextField
+        label={label}
+        value={getDisplayValue()}
+        readOnly
+        placeholder="00:00 AM"
+        onClick={() => !disabled && setIsOpen(true)}
+        disabled={disabled}
+        required={required}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <Clock 
+                size={16} 
+                style={{ cursor: 'pointer', color: '#64748b' }}
+                onClick={() => !disabled && setIsOpen(true)}
+              />
+            )
+          }
+        }}
+      />
 
       {isOpen && (
         <div className={styles.modalBackdrop} onClick={() => setIsOpen(false)}>

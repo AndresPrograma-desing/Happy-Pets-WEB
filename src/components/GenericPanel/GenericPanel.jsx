@@ -11,6 +11,7 @@ import { logout, getUserNameFromLoginSession } from '../../services/api';
 import { getText } from '../../constants';
 import NotificationForm from '../NotificationForm/NotificationForm';
 import WhatsAppStatusModal from '../WSMessage/components/WhatsAppStatusModal';
+import DrawPanel from '../screens/components/DrawPanel';
 import { renderIcon } from '../hook/RenderIcon';
 import ToggleCard from '../screens/components/ToggleCard';
 import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
@@ -22,6 +23,7 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [notificationLoading, setNotificationLoading] = useState(false);
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [loggedOut, setLoggedOut] = useState(false);
   const [userName] = useState(() => getUserNameFromLoginSession());
@@ -82,31 +84,13 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
       <StatusModal userId={userId} />
 
       {showWelcome && (
-        <div style={{
-          position: 'fixed',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 9999,
-          width: '90%',
-          maxWidth: '500px',
-          animation: 'fadeInDown 0.5s ease-out'
-        }}>
-          <style>{`
-            @keyframes fadeInDown {
-              from { opacity: 0; transform: translate(-50%, -20px); }
-              to { opacity: 1; transform: translate(-50%, 0); }
-            }
-          `}</style>
-          <div style={{ boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', borderRadius: '12px', background: 'white' }}>
-            <ToggleCard
-              title={`¡Bienvenido, ${userName || getDisplayRoleName(actualRole)}!`}
-              description={GENERIC_PANEL_TEXT.welcomeCard.description}
-              icon={Users}
-              onClose={dismissWelcome}
-            />
-          </div>
-        </div>
+        <ToggleCard
+          title={`¡Bienvenido, ${userName || getDisplayRoleName(actualRole)}!`}
+          description={GENERIC_PANEL_TEXT.welcomeCard.description}
+          icon={Users}
+          onClose={dismissWelcome}
+          variant="floating"
+        />
       )}
 
       <div className={styles.layoutContainer}>
@@ -189,17 +173,23 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
           onConfirm={confirmLogout}
         />
 
-        <AlertModal
-          open={showNotificationModal}
+        <DrawPanel
+          isOpen={showNotificationModal}
           title="Nuevo Ticket de Control"
           onClose={() => setShowNotificationModal(false)}
-          hideActions={true}
+          width="400px"
+          showActions={true}
+          formId="notification-form"
+          confirmText="Crear Notificación"
+          cancelText="Cancelar"
+          loading={notificationLoading}
         >
           <NotificationForm
             onSuccess={() => setShowNotificationModal(false)}
             onClose={() => setShowNotificationModal(false)}
+            onLoading={setNotificationLoading}
           />
-        </AlertModal>
+        </DrawPanel>
 
         <AlertModal
           open={showWhatsAppModal}

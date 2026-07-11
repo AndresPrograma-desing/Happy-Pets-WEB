@@ -1,0 +1,16 @@
+export const NOTIFICATION_FORM_TEXTS = {
+  validationErrorTitle: 'Error de validación',
+  validationErrorMessage: 'Por favor, rellene todos los campos obligatorios.',
+  submitErrorMessage: 'Ocurrió un error al intentar crear la notificación.',
+  titleLabel: 'Título *',
+  messageLabel: 'Mensaje de Alerta *',
+  typeLabel: 'Tipo *',
+  typePlaceholder: 'Seleccione tipo',
+  priorityLabel: 'Prioridad *',
+  priorityPlaceholder: 'Seleccione prioridad',
+  destinationLabel: 'Destino *',
+  destinationPlaceholder: 'Seleccione destino',
+  cancelButton: 'Cancelar',
+  submitButtonDefault: 'Crear Notificación',
+  submitButtonLoading: 'Enviando...',
+};

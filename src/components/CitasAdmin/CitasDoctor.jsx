@@ -9,6 +9,7 @@ import { renderField, formatDate, formatTime, getCitaId, useCitasLogic, CitasMod
 import GenericPanel from '../GenericPanel/GenericPanel';
 import DrawPanel from '../screens/components/DrawPanel';
 import Consultas from '../../pages/DoctorSystem/Consultas/Consultas';
+import SearchInput from '../UI/Search/Search';
 
 function CitasLayout(props) {
     const {
@@ -78,12 +79,11 @@ function CitasLayout(props) {
             </div>
 
             <div style={{ padding: '0.5rem 1rem' }}>
-                <input
-                    ref={searchInputRef}
-                    placeholder="Buscar por paciente, teléfono, mascota o motivo..."
+                <SearchInput
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ width: '100%', padding: '0.6rem', borderRadius: 8, border: '1px solid var(--line)' }}
+                    onChange={setSearchTerm}
+                    placeholder="Buscar por paciente, teléfono, mascota o motivo..."
+                    label="Buscar Citas"
                 />
             </div>
 

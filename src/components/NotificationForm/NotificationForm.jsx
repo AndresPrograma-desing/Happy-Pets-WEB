@@ -1,29 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './NotificationForm.module.css';
 import { createdNotification } from '../../services/api';
 import ErrorMessage from '../Notification/Error/ErrorMessage';
-import CustomSelect from '../UI/DesplegableSelector/CustomSelect';
-import Button from '../screens/components/Button/index';
+import Selector from '../screens/components/Material-UI/Components/Selector/Index';
+import MultilinePlaceholder from '../screens/components/Material-UI/Components/MultilinePlaceholder/index';
+import TextField from '../screens/components/Material-UI/Components/TextField/Index';
+import { getUserRole } from '../GenericPanel/Utils';
+import { NOTIFICATION_FORM_TEXTS } from './constants';
 
 const actorOptions = [
-  { id: 'Doctor', name: 'Doctor' },
-  { id: 'Admin', name: 'Admin' },
-  { id: 'Secretaria', name: 'Secretaria' }
+  { value: 'Doctor', label: 'Doctor' },
+  { value: 'Admin', label: 'Admin' },
+  { value: 'Secretaria', label: 'Secretaria' }
 ];
 
 const typeOptions = [
-  { id: 'Normal', name: 'Normal' },
-  { id: 'Urgent', name: 'Urgente' },
-  { id: 'Info', name: 'Información' }
+  { value: 'Normal', label: 'Normal' },
+  { value: 'Urgent', label: 'Urgente' },
+  { value: 'Info', label: 'Información' }
 ];
 
 const priorityOptions = [
-  { id: '1', name: 'Baja (1)' },
-  { id: '2', name: 'Media (2)' },
-  { id: '3', name: 'Alta (3)' }
+  { value: '1', label: 'Baja (1)' },
+  { value: '2', label: 'Media (2)' },
+  { value: '3', label: 'Alta (3)' }
 ];
 
-const NotificationForm = ({ onSuccess, onClose }) => {
+const roleMap = {
+  admin: 'Admin',
+  doctor: 'Doctor',
+  secretaria: 'Secretaria'
+};
+
+const NotificationForm = ({ onSuccess, onClose, onLoading }) => {
   const [formData, setFormData] = useState({
     title: '',
     message: '',
@@ -37,6 +46,17 @@ const NotificationForm = ({ onSuccess, onClose }) => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const role = getUserRole();
+    const originRole = roleMap[role] || (role ? role.charAt(0).toUpperCase() + role.slice(1) : '');
+    if (originRole) {
+      setFormData((prev) => ({
+        ...prev,
+        origin: originRole
+      }));
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,11 +86,12 @@ const NotificationForm = ({ onSuccess, onClose }) => {
       !formData.origin ||
       !formData.destination
     ) {
-      setError('Por favor, rellene todos los campos obligatorios.');
+      setError(NOTIFICATION_FORM_TEXTS.validationErrorMessage);
       return;
     }
 
     setLoading(true);
+    if (onLoading) onLoading(true);
     setError('');
 
     try {
@@ -78,32 +99,30 @@ const NotificationForm = ({ onSuccess, onClose }) => {
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
-      setError('Ocurrió un error al intentar crear la notificación.');
+      setError(NOTIFICATION_FORM_TEXTS.submitErrorMessage);
     } finally {
       setLoading(false);
+      if (onLoading) onLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.formContainer}>
-      <ErrorMessage message={error} title="Error de validación" variant="danger" />
+    <form id="notification-form" onSubmit={handleSubmit} className={styles.formContainer}>
+      <ErrorMessage message={error} title={NOTIFICATION_FORM_TEXTS.validationErrorTitle} variant="danger" />
 
       <div className={styles.fieldGroup}>
-        <label className={styles.label}>Título *</label>
-        <input
-          type="text"
+        <TextField
+          label={NOTIFICATION_FORM_TEXTS.titleLabel}
           name="title"
-          className={styles.input}
           value={formData.title}
           onChange={handleChange}
         />
       </div>
 
       <div className={styles.fieldGroup}>
-        <label className={styles.label}>Mensaje de Alerta *</label>
-        <textarea
+        <MultilinePlaceholder
+          label={NOTIFICATION_FORM_TEXTS.messageLabel}
           name="message"
-          className={styles.textarea}
           value={formData.message}
           onChange={handleChange}
         />
@@ -111,55 +130,34 @@ const NotificationForm = ({ onSuccess, onClose }) => {
 
       <div className={styles.row}>
         <div className={styles.fieldGroup}>
-          <CustomSelect
-            label="Tipo *"
+          <Selector
+            label={NOTIFICATION_FORM_TEXTS.typeLabel}
             options={typeOptions}
             value={formData.type}
-            onChange={(selectedId) => handleCustomSelectChange('type', selectedId)}
-            placeholder="Seleccione tipo"
+            onChange={(e) => handleCustomSelectChange('type', e.target.value)}
+            placeholder={NOTIFICATION_FORM_TEXTS.typePlaceholder}
           />
         </div>
 
         <div className={styles.fieldGroup}>
-          <CustomSelect
-            label="Prioridad *"
+          <Selector
+            label={NOTIFICATION_FORM_TEXTS.priorityLabel}
             options={priorityOptions}
             value={formData.priority}
-            onChange={(selectedId) => handleCustomSelectChange('priority', selectedId)}
-            placeholder="Seleccione prioridad"
+            onChange={(e) => handleCustomSelectChange('priority', e.target.value)}
+            placeholder={NOTIFICATION_FORM_TEXTS.priorityPlaceholder}
           />
         </div>
       </div>
 
-      <div className={styles.row}>
-        <div className={styles.fieldGroup}>
-          <CustomSelect
-            label="Origen *"
-            options={actorOptions}
-            value={formData.origin}
-            onChange={(selectedId) => handleCustomSelectChange('origin', selectedId)}
-            placeholder="Seleccione origen"
-          />
-        </div>
-
-        <div className={styles.fieldGroup}>
-          <CustomSelect
-            label="Destino *"
-            options={actorOptions}
-            value={formData.destination}
-            onChange={(selectedId) => handleCustomSelectChange('destination', selectedId)}
-            placeholder="Seleccione destino"
-          />
-        </div>
-      </div>
-
-      <div className={styles.actions} style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-        <Button type="button" variant="secondary" onClick={onClose} disabled={loading} fullWidth>
-          Cancelar
-        </Button>
-        <Button type="submit" variant="primary" color={Button.COLORS.PRIMARY} disabled={loading} fullWidth>
-          {loading ? 'Enviando...' : 'Crear Notificación'}
-        </Button>
+      <div className={styles.fieldGroup}>
+        <Selector
+          label={NOTIFICATION_FORM_TEXTS.destinationLabel}
+          options={actorOptions}
+          value={formData.destination}
+          onChange={(e) => handleCustomSelectChange('destination', e.target.value)}
+          placeholder={NOTIFICATION_FORM_TEXTS.destinationPlaceholder}
+        />
       </div>
     </form>
   );

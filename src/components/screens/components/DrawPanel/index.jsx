@@ -9,7 +9,13 @@ const DrawPanel = ({
   onClose, 
   title, 
   children,
-  width = '350px'
+  width = '350px',
+  showActions = false,
+  onConfirm,
+  confirmText = 'Confirmar',
+  cancelText = 'Cancelar',
+  formId,
+  loading = false
 }) => {
   const [render, setRender] = useState(isOpen);
 
@@ -47,6 +53,27 @@ const DrawPanel = ({
         <div className={styles.content}>
           {children}
         </div>
+        {showActions && (
+          <div className={styles.footer}>
+            <Button variant="" 
+            onClick={onClose} 
+            border={Button.COLORS.RED}
+            disabled={loading} fullWidth>
+              {cancelText}
+            </Button>
+            <Button 
+              type={formId ? 'submit' : 'button'} 
+              form={formId} 
+              variant="primary" 
+              color={Button.COLORS.PRIMARY} 
+              onClick={onConfirm} 
+              disabled={loading} 
+              fullWidth
+            >
+              {confirmText}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

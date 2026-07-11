@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getProducts } from '../../../services/api';
-import styles from './AgreeProduct.module.css';
-import { Search, BanIcon } from 'lucide-react';
+import Search from '../../screens/components/Material-UI/Components/Search/Index';
 
 function normalizeProducts(res) {
     if (Array.isArray(res)) return res;
@@ -16,7 +15,7 @@ function getProductId(product) {
     return product?.id || product?._id || product?.ID || null;
 }
 
-export default function AgreeProduct({ value, initialLabel = '', placeholder = 'Buscar...', onSelect }) {
+export default function AgreeProduct({ value, initialLabel = '', placeholder = 'Buscar producto...', onSelect }) {
     const [allProducts, setAllProducts] = useState([]);
     const [query, setQuery] = useState(initialLabel || '');
     const [open, setOpen] = useState(false);
@@ -46,91 +45,36 @@ export default function AgreeProduct({ value, initialLabel = '', placeholder = '
         };
     }, []);
 
-    useEffect(() => {
-        if (initialLabel) {
-            setQuery(initialLabel);
-            return;
-        }
-        if (!value) {
-            setQuery('');
-            return;
-        }
-        const found = allProducts.find((p) => String(getProductId(p)) === String(value));
-        if (found) {
-            setQuery(getProductName(found));
-        }
-    }, [value, initialLabel, allProducts]);
+    const options = useMemo(() => {
+        return allProducts.map((p) => ({
+            value: String(getProductId(p)),
+            label: getProductName(p),
+            _raw: p
+        }));
+    }, [allProducts]);
 
-    const filteredProducts = useMemo(() => {
-        const term = query.trim().toLowerCase();
-        if (!term) return allProducts.slice(0, 8);
-        return allProducts
-            .filter((p) => getProductName(p).toLowerCase().includes(term))
-            .slice(0, 8);
-    }, [allProducts, query]);
-
-    const handlePick = (product) => {
-        const name = getProductName(product);
-        setQuery(name);
-        setOpen(false);
-        if (typeof onSelect === 'function') onSelect(product);
-    };
-
-    const handleBlur = () => {
-        setTimeout(() => {
-            setOpen(false);
-            if (!value) {
-                setQuery('');
-            } else {
-                const found = allProducts.find((p) => String(getProductId(p)) === String(value));
-                if (found) setQuery(getProductName(found));
-            }
-        }, 200);
-    };
+    const selectedOption = useMemo(() => {
+        if (!value) return null;
+        return options.find((opt) => opt.value === String(value)) || null;
+    }, [value, options]);
 
     return (
-        <div className={styles.wrapper}>
-            <div className={styles.inputContainer}>
-                <Search className={styles.searchIcon} size={16} />
-                <input
-                    className={styles.input}
-                    type="text"
-                    value={query}
-                    placeholder={loading ? 'Cargando productos...' : placeholder}
-                    onFocus={() => setOpen(true)}
-                    onBlur={handleBlur}
-                    onChange={(e) => {
-                        setQuery(e.target.value);
-                        setOpen(true);
-                    }}
-                />
-            </div>
-
-            {open && (
-                <div className={styles.dropdown}>
-                    {filteredProducts.length === 0 ? (
-                        <div className={styles.empty}>
-                            <BanIcon size={20} /> No hay modificaciones
-                        </div>
-                    ) : (
-                        filteredProducts.map((product) => {
-                            const id = getProductId(product);
-                            const name = getProductName(product);
-                            return (
-                                <button
-                                    key={id ?? name}
-                                    type="button"
-                                    className={styles.item}
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => handlePick(product)}
-                                >
-                                    <span>{name}</span>
-                                </button>
-                            );
-                        })
-                    )}
-                </div>
-            )}
-        </div>
+        <Search
+            open={open}
+            onOpen={() => setOpen(true)}
+            onClose={() => setOpen(false)}
+            options={options}
+            loading={loading}
+            value={selectedOption}
+            onChange={(selected) => {
+                if (selected && selected._raw) {
+                    onSelect(selected._raw);
+                }
+            }}
+            inputValue={query}
+            onInputChange={(val) => setQuery(val || '')}
+            label="Producto"
+            placeholder={placeholder}
+        />
     );
-}
+}

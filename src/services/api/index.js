@@ -380,6 +380,35 @@ export async function createPetForExistingClient(body) {
 //Notificacion PUSH
 }
 
+export async function requestPasswordReset(email) {
+  return request('/users/request-password-reset', {
+    method: 'POST',
+    body: { email: String(email).trim() },
+  });
+}
+
+export async function getResetStatus(email) {
+  return request(`/users/reset-status/${encodeURIComponent(email)}`, {
+    method: 'GET',
+  });
+}
+
+export async function getPendingResets() {
+  return request('/users/pending-resets', {
+    method: 'GET',
+  });
+}
+
+export async function assignNewPassword(email, new_password) {
+  return request('/users/assign-new-password', {
+    method: 'POST',
+    body: { 
+      email: String(email).trim(),
+      new_password: String(new_password).trim() 
+    },
+  });
+}
+
 export async function createConsulta(payload) {
   return request('/consultas/create', { method: 'POST', body: payload });
 }
@@ -419,4 +448,8 @@ export default {
   createPetForExistingClient,
   createConsulta,
   getConsultaById,
+  requestPasswordReset,
+  getResetStatus,
+  getPendingResets,
+  assignNewPassword,
 };
