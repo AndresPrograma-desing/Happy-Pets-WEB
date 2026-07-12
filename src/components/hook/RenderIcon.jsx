@@ -8,7 +8,7 @@ export const renderIcon = (icon, classNameStyles = '') => {
     return <img src={getIcon(icon)} alt="" className={classNameStyles} />;
   }
 
-  const iconColor = icon.props.color || '#ffffff';
+  const iconColor = icon.props.color || 'currentColor';
 
   return React.cloneElement(icon, {
     className: `${icon.props.className || ''} ${classNameStyles}`.trim(),

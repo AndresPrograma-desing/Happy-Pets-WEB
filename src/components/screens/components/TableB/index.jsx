@@ -55,18 +55,17 @@ const TableB = ({
             <tr>
               <td colSpan={columns.length + (expandable ? 1 : 0)} style={{ padding: 0 }}>
                 <div className={styles.centerSection}>
-                  <div className={styles.errorMessage}>
-                    <AlertCircle size={32} />
-                    <span>{error}</span>
+                  <div style={{ marginBottom: '16px' }}>
+                    <Loading size="large" phrases={[error, "Revisando conexión", "Por favor, intenta de nuevo"]} />
                   </div>
-                  {onRetry && (
+                  {/* {onRetry && (
                     <Button
                       type={"button"}
                       variant={Button.VARIANTS.PRIMARY}
                       size={Button.SIZES.LARGE}
                       color={Button.COLORS.GREEN}
                       onClick={onRetry}>Reintentar</Button>
-                  )}
+                  )} */}
                 </div>
               </td>
             </tr>

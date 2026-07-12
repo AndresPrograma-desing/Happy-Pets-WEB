@@ -5,7 +5,7 @@ import ErrorMessage from '../Notification/Error/ErrorMessage';
 import Selector from '../screens/components/Material-UI/Components/Selector/Index';
 import MultilinePlaceholder from '../screens/components/Material-UI/Components/MultilinePlaceholder/index';
 import TextField from '../screens/components/Material-UI/Components/TextField/Index';
-import { getUserRole } from '../GenericPanel/Utils';
+import { getUserRole } from '../GenericPanel/Routes';
 import { NOTIFICATION_FORM_TEXTS } from './constants';
 
 const actorOptions = [

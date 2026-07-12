@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import styles from './CreatedUser.module.css';
 import { createUser } from '../../services/api';
 import { applyServerErrorsToForm } from '../../utils/apiErrors';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
 import DrawPanel from '../../components/screens/components/DrawPanel/index';
 import TextField from '../../components/screens/components/Material-UI/Components/TextField/Index';
+import Selector from '../../components/screens/components/Material-UI/Components/Selector/Index';
 const EyeIcon = ({ visible }) => (
   visible ? (
     <img
@@ -30,7 +31,7 @@ function CreatedUser() {
   const overlayRef = useRef(null);
   const firstInputRef = useRef(null);
 
-  const { register, handleSubmit, formState: { errors }, reset, setError, clearErrors } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset, setError, clearErrors, control } = useForm({
     defaultValues: { rol: 'doctor' }
   });
 
@@ -151,11 +152,23 @@ function CreatedUser() {
           </div>
 
           <div className={styles.field}>
-            <select {...register('rol')}>
-              <option value="doctor">Doctor</option>
-              <option value="admin">Administrador</option>
-              <option value="secretaria">Secretaria</option>
-            </select>
+            <Controller
+              name="rol"
+              control={control}
+              defaultValue="doctor"
+              render={({ field }) => (
+                <Selector
+                  label="Rol"
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  options={[
+                    { value: 'doctor', label: 'Doctor' },
+                    { value: 'admin', label: 'Administrador' },
+                    { value: 'secretaria', label: 'Secretaria' }
+                  ]}
+                />
+              )}
+            />
           </div>
 
           {message && (

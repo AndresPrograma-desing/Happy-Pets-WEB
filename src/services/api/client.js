@@ -124,9 +124,17 @@ export async function request(path, { method = 'GET', body, headers = {}, auth =
     if (res.status === 401) {
       try { logout(); } catch (err) { if (import.meta.env.DEV) console.error('logout failed', err); }
     }
-    const err = new Error((data && (data.error || data.message)) || res.statusText);
+    const errMsg = (data && (data.error || data.message)) || res.statusText || 'Error en la petición';
+    const err = new Error(errMsg);
     err.status = res.status;
     err.body = data;
+    
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('api-error', { 
+        detail: { message: errMsg, status: res.status } 
+      }));
+    }
+
     throw err;
   }
 

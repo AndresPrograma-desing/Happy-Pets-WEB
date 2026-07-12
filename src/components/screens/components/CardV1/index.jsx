@@ -55,34 +55,38 @@ const CardV1 = ({
   footerIcon: FooterIcon,
   footerIconColor,
   footerContent,
+  className = '',
+  variant = 'default', // 'default' or 'glass-pink-green'
   children
 }) => {
+  const cardClassName = `${styles.card} ${variant === 'glass-pink-green' ? 'glass-pink-green' : ''} ${className}`.trim();
+
   return (
-    <div className={styles.card}>
+    <div className={cardClassName}>
       {/* TOP SECTION */}
       <div className={styles.topSection}>
         <div className={styles.badgeContainer}>
           {badgeText && (
-            <div 
-              className={styles.badge} 
+            <div
+              className={styles.badge}
               style={{ backgroundColor: badgeBgColor, color: badgeTextColor }}
             >
               {BadgeIcon && <BadgeIcon size={14} />}
               <span>{badgeText}</span>
             </div>
           )}
-          
+
           {extraBadges.map((badge, idx) => (
-            <div 
+            <div
               key={idx}
-              className={styles.badge} 
+              className={styles.badge}
               style={{ backgroundColor: badge.bgColor, color: badge.textColor }}
             >
               <span>{badge.text}</span>
             </div>
           ))}
         </div>
-        
+
         {ActionIcon && (
           actionTooltip ? (
             <ModalTooltip text={actionTooltip}>
@@ -143,10 +147,10 @@ const CardV1 = ({
       {footerContent && (
         <div className={styles.footer}>
           {FooterIcon && (
-            <FooterIcon 
-              size={12} 
-              className={styles.trend} 
-              style={footerIconColor ? { color: footerIconColor } : {}} 
+            <FooterIcon
+              size={12}
+              className={styles.trend}
+              style={footerIconColor ? { color: footerIconColor } : {}}
             />
           )}
           {footerContent}

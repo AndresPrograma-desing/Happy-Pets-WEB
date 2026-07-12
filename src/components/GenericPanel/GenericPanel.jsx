@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import StatusModal from '../common/statusWarning';
 import { getUserId } from '../../context/LocalStorage';
@@ -6,7 +6,7 @@ import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import styles from './GenericPanel.module.css';
 import AlertModal from '../AlertModal/AlertModal';
 import Footer from '../Footer/Footer';
-import { BellPlus, Link2, Users, BotIcon, Mail } from 'lucide-react';
+import { BellPlus, Link2, Users, BotIcon, Mail, Pencil, Check, X, CircleUser, AlertCircle } from 'lucide-react';
 import { logout, getUserNameFromLoginSession } from '../../services/api';
 import { getText } from '../../constants';
 import NotificationForm from '../NotificationForm/NotificationForm';
@@ -15,8 +15,11 @@ import DrawPanel from '../screens/components/DrawPanel';
 import { renderIcon } from '../hook/RenderIcon';
 import ToggleCard from '../screens/components/ToggleCard';
 import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
+import UserEditPopover from '../screens/components/UserEditPopover';
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
-import { getUserRole, getDisplayRoleName, getDefaultMenus } from './Utils';
+import { getUserRole, getDisplayRoleName, getDefaultMenus } from './Routes';
+import { syncStorageName, fetchProfileName } from './utils';
+import InputWithIcon from '../screens/components/Material-UI/Components/InputWithIcon/Index';
 
 function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'user', menuItems }) {
   const navigate = useNavigate();
@@ -26,7 +29,34 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [loggedOut, setLoggedOut] = useState(false);
-  const [userName] = useState(() => getUserNameFromLoginSession());
+  const [currentUserName, setCurrentUserName] = useState(() => getUserNameFromLoginSession());
+  const [globalApiError, setGlobalApiError] = useState(null);
+
+  React.useEffect(() => {
+    const handleApiError = (event) => {
+      setGlobalApiError(event.detail?.message || 'Hubo un error en la solicitud');
+      setTimeout(() => setGlobalApiError(null), 8000);
+    };
+    window.addEventListener('api-error', handleApiError);
+    return () => window.removeEventListener('api-error', handleApiError);
+  }, []);
+
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const actualName = await fetchProfileName();
+      if (!mounted) return;
+      if (actualName) {
+        setCurrentUserName(actualName);
+        syncStorageName(actualName);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const isEditingName = Boolean(anchorElUser);
+  const [tempUserName, setTempUserName] = useState('');
+  const overlayRef = useRef(null);
   const [expandedMenus, setExpandedMenus] = useState(() => {
     try {
       const saved = sessionStorage.getItem('expandedMenus');
@@ -58,6 +88,12 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
 
   const items = menuItems || defaultMenus[actualRole] || defaultMenus.user;
 
+  const handleConfirmEditName = (newName) => {
+    syncStorageName(newName);
+    setCurrentUserName(newName);
+    setAnchorElUser(null);
+  };
+
   const handleNavigate = (item) => {
     if (!item) return;
     if (item.onClick) return item.onClick();
@@ -85,10 +121,21 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
 
       {showWelcome && (
         <ToggleCard
-          title={`¡Bienvenido, ${userName || getDisplayRoleName(actualRole)}!`}
+          title={`¡Bienvenido, ${currentUserName || getDisplayRoleName(actualRole)}!`}
           description={GENERIC_PANEL_TEXT.welcomeCard.description}
           icon={Users}
           onClose={dismissWelcome}
+          variant="floating"
+        />
+      )}
+
+      {globalApiError && (
+        <ToggleCard
+          title="Atención"
+          description={globalApiError}
+          icon={AlertCircle}
+          iconColorVariant="red"
+          onClose={() => setGlobalApiError(null)}
           variant="floating"
         />
       )}
@@ -149,9 +196,29 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
 
         <div className={styles.mainWrapper}>
           <header className={styles.topBar}>
-            <div className={styles.userBadge}>
-              {userName || getDisplayRoleName(actualRole)}
-            </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className={styles.userBadge}>
+                  {currentUserName || getDisplayRoleName(actualRole)}
+                </div>
+                <button 
+                  onClick={(e) => {
+                    setTempUserName(currentUserName || '');
+                    setAnchorElUser(e.currentTarget);
+                  }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px', color: '#ffffff' }}
+                  aria-label="Editar nombre"
+                >
+                  <Pencil size={14} />
+                </button>
+              </div>
+
+              <UserEditPopover
+                open={isEditingName}
+                anchorEl={anchorElUser}
+                onClose={() => setAnchorElUser(null)}
+                currentName={currentUserName}
+                onSuccess={handleConfirmEditName}
+              />
           </header>
 
           <main className={styles.contentArea}>

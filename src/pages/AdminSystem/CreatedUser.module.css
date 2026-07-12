@@ -53,7 +53,7 @@
 .field {
   margin-bottom: 14px;
 }
-.field input,
+.field input:not([class*="Mui"]),
 .field select {
   width: 100%;
   padding: 10px 12px;
@@ -64,12 +64,12 @@
   transition: border 0.15s;
   background: white;
 }
-.field input:focus,
+.field input:not([class*="Mui"]):focus,
 .field select:focus {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
-.field input::placeholder { color: #94a3b8; }
+.field input:not([class*="Mui"])::placeholder { color: #94a3b8; }
 
 .passwordWrapper {
   position: relative;

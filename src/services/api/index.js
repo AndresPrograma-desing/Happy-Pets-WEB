@@ -417,6 +417,10 @@ export async function getConsultaById(id) {
   return request(`/Consultas/${id}`, { method: 'GET' });
 }
 
+export async function updateUserName(payload) {
+  return request('/Users/update-user-name', { method: 'PATCH', body: payload });
+}
+
 export default {
   request,
   login,
@@ -452,4 +456,5 @@ export default {
   getResetStatus,
   getPendingResets,
   assignNewPassword,
+  updateUserName,
 };

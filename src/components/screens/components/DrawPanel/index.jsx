@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import styles from './index.module.css';
 
@@ -29,7 +30,7 @@ const DrawPanel = ({
 
   if (!render) return null;
 
-  return (
+  return createPortal(
     <div 
       className={`${styles.overlay} ${isOpen ? styles.fadeIn : styles.fadeOut}`} 
       onClick={onClose}
@@ -75,7 +76,8 @@ const DrawPanel = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

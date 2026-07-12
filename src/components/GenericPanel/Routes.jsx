@@ -41,9 +41,9 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     },
     { label: getText("adminInterface.menuItemMessages"), path: '/panel-menssage', icon: 'message' },
     { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck' },
-    { label: getText("generalPanelTexts.optionsNavegations.notificationCreated"), icon: <BellPlus style={{ stroke: '#ffffff' }} />, onClick: () => setShowNotificationModal(true) },
-    { label: getText("generalPanelTexts.optionsNavegations.clientList"), path: '/clients', icon: <Users style={{ stroke: '#ffffff' }} /> },
-    { label: 'Plantillas Emails', path: '/AdminSystem/emails', icon: <Mail style={{ stroke: '#ffffff' }} /> },
+    { label: getText("generalPanelTexts.optionsNavegations.notificationCreated"), icon: <BellPlus />, onClick: () => setShowNotificationModal(true) },
+    { label: getText("generalPanelTexts.optionsNavegations.clientList"), path: '/clients', icon: <Users /> },
+    { label: 'Plantillas Emails', path: '/AdminSystem/emails', icon: <Mail /> },
     { label: getText("adminInterface.menuItemSettings"), path: '/AdminSystem/settings', icon: 'engranaje' },
   ],
   secretaria: [
@@ -60,7 +60,7 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },
     { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck' },
     { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus' },
-    { label: 'Crear Alerta', icon: <BellPlus style={{ stroke: '#ffffff' }} />, onClick: () => setShowNotificationModal(true) },
+    { label: 'Crear Alerta', icon: <BellPlus />, onClick: () => setShowNotificationModal(true) },
   ],
   doctor: [
     { label: 'Panel Médico', path: '/doctor', icon: 'userCita' },
@@ -69,7 +69,7 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus' },
     { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },
     { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck' },
-    { label: 'Asistente Virtual', path: '/asistente-virtual', icon: <BotIcon style={{ stroke: '#ffffff' }} />, newTab: true },
-    { label: 'Crear Alerta', icon: <BellPlus style={{ stroke: '#ffffff' }} />, onClick: () => setShowNotificationModal(true) },
+    { label: 'Asistente Virtual', path: '/asistente-virtual', icon: <BotIcon />, newTab: true },
+    { label: 'Crear Alerta', icon: <BellPlus />, onClick: () => setShowNotificationModal(true) },
   ],
 });

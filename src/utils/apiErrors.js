@@ -20,9 +20,14 @@ export function getApiBody(err) {
 }
 
 export function getAlertPayload(err) {
+  const parsed = parseServerErrors(err);
+  if (parsed.general && parsed.general.length > 0) {
+    return parsed.general.join('\n');
+  }
   const body = getApiBody(err);
   if (!body) return err?.message ?? String(err);
-  return body;
+  if (typeof body === 'string') return body;
+  return JSON.stringify(body);
 }
 
 function toCamelCaseField(field) {
