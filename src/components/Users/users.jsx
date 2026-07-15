@@ -7,6 +7,7 @@ import AlertModal from "../AlertModal/AlertModal";
 import ModalTooltip from "../ModalTooltip/ModalTooltip";
 import GenericPanel from "../GenericPanel/GenericPanel";
 import TableA from "../screens/components/TableA";
+import UserAvatar from "../screens/components/Profile/Avatar/Index";
 
 const Users = () => {
   const [userList, setUserList] = React.useState([]);
@@ -106,7 +107,12 @@ const Users = () => {
     {
       header: 'Usuario',
       render: (user) => (
-        <UserCircle size={28} color={user.activo ? "#10b981" : "#ef4444"} />
+        <UserAvatar
+          src={user.avatarUrl}
+          name={user.nombre}
+          size={28}
+          editable={false}
+        />
       )
     },
     {

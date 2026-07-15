@@ -154,6 +154,8 @@ export default function AlertModal({
   onInputChange,
   inputOptions = [],
   inputError = '',
+  imageUrl = '',
+  showWarningIcon = true,
 }) {
   if (!open) return null;
 
@@ -163,9 +165,18 @@ export default function AlertModal({
     <div data-test="alert-modal" className={styles.modalOverlay} onClick={onClose || (() => { })}>
       <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
         <h3 className={styles.modalTitle}>
-          <img src={getIcon('warning')} alt="alert" className={styles.warningIcon} />
+          {showWarningIcon && <img src={getIcon('warning')} alt="alert" className={styles.warningIcon} />}
           {title}</h3>
         <div className={styles.modalBody}>
+          {imageUrl && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px', marginBottom: '16px' }}>
+              <img 
+                src={imageUrl} 
+                alt="preview" 
+                style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: '6px', objectFit: 'contain' }} 
+              />
+            </div>
+          )}
           {parsed.text && <p className={styles.modalText}>{parsed.text}</p>}
           {parsed.list.length > 0 && (
             <ul className={styles.modalErrorList}>
@@ -220,7 +231,7 @@ export default function AlertModal({
             {typeof onConfirm === 'function' ? (
               <Button
                 fullWidth  
-                borderColor="var(--border-gray-low)"
+                // borderColor="var(--border-gray-low)"
                 onClick={onConfirm}>{confirmText}</Button>
             ) : (
               <Button variant="primary" 

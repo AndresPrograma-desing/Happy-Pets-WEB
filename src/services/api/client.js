@@ -120,11 +120,37 @@ export async function request(path, { method = 'GET', body, headers = {}, auth =
     }
   }
 
-  if (!res.ok) {
+    if (!res.ok) {
     if (res.status === 401) {
       try { logout(); } catch (err) { if (import.meta.env.DEV) console.error('logout failed', err); }
     }
-    const errMsg = (data && (data.error || data.message)) || res.statusText || 'Error en la petición';
+
+    // 1. Priorizamos el mensaje detallado enviado por el backend en el JSON
+    let errMsg = (data && (data.error || data.message));
+
+    // 2. Si el backend no envió un mensaje personalizado, asignamos mensajes amigables según el status code
+    if (!errMsg) {
+      switch (res.status) {
+        case 400:
+          errMsg = 'Solicitud incorrecta. Verifique los datos enviados.';
+          break;
+        case 401:
+          errMsg = 'Sesión expirada o no autorizada. Por favor, inicie sesión nuevamente.';
+          break;
+        case 403:
+          errMsg = 'No tiene permisos para realizar esta acción.';
+          break;
+        case 404:
+          errMsg = 'El recurso solicitado no fue encontrado.';
+          break;
+        case 500:
+          errMsg = 'Error interno del servidor. Intente de nuevo más tarde.';
+          break;
+        default:
+          errMsg = res.statusText || `Error en la petición (Código: ${res.status})`;
+      }
+    }
+
     const err = new Error(errMsg);
     err.status = res.status;
     err.body = data;
@@ -137,6 +163,7 @@ export async function request(path, { method = 'GET', body, headers = {}, auth =
 
     throw err;
   }
+
 
   return data;
 }

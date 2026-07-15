@@ -1,0 +1,43 @@
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.avatarGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.helperText {
+  font-size: 12px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.normalText {
+  color: #888888;
+}
+
+.errorText {
+  color: var(--SW-red, #d32f2f);
+}
+
+.boldText {
+  font-weight: 700 !important;
+  /* text-shadow: 0.05px 0 0 currentColor, -0.05px 0 0 currentColor; */
+  color: var(--SW-Text-light, #000000);
+}
+
+.boldTextError {
+  font-weight: 700 !important;
+  color: var(--SW-red, #d32f2f);
+}
+
+.inputWrapper {
+  width: 100%;
+}

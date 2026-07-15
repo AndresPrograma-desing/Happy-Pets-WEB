@@ -15,13 +15,26 @@ import DrawPanel from '../screens/components/DrawPanel';
 import { renderIcon } from '../hook/RenderIcon';
 import ToggleCard from '../screens/components/ToggleCard';
 import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
-import UserEditPopover from '../screens/components/UserEditPopover';
+
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
 import { getUserRole, getDisplayRoleName, getDefaultMenus } from './Routes';
 import { syncStorageName, fetchProfileName } from './utils';
 import InputWithIcon from '../screens/components/Material-UI/Components/InputWithIcon/Index';
+import EditProfileForm from '../EditProfile/EditProfile';
+import Loading from '../screens/components/Loading/Index';
+import UserAvatar from '../screens/components/Profile/Avatar/Index';
 
-function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'user', menuItems }) {
+let hasLoadedOnce = false;
+
+function GenericPanel({ 
+  title, 
+  message, 
+  children, 
+  menuTitle = 'Panel', 
+  role = 'user', 
+  menuItems,
+  showDashboardAvatar = false 
+}) {
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -31,6 +44,14 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
   const [loggedOut, setLoggedOut] = useState(false);
   const [currentUserName, setCurrentUserName] = useState(() => getUserNameFromLoginSession());
   const [globalApiError, setGlobalApiError] = useState(null);
+
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [currentAvatar, setCurrentAvatar] = useState(() => {
+    return localStorage.getItem('user_avatar_url') || '';
+  });
+
+  const [showOverlay, setShowOverlay] = useState(!hasLoadedOnce);
+  const [fadeOverlay, setFadeOverlay] = useState(false);
 
   React.useEffect(() => {
     const handleApiError = (event) => {
@@ -44,19 +65,38 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
   React.useEffect(() => {
     let mounted = true;
     (async () => {
-      const actualName = await fetchProfileName();
-      if (!mounted) return;
-      if (actualName) {
-        setCurrentUserName(actualName);
-        syncStorageName(actualName);
+      try {
+        const profile = await fetchProfileName();
+        if (!mounted) return;
+        if (profile) {
+          if (profile.name) {
+            setCurrentUserName(profile.name);
+            syncStorageName(profile.name);
+          }
+          if (profile.avatarUrl) {
+            setCurrentAvatar(profile.avatarUrl);
+            localStorage.setItem('user_avatar_url', profile.avatarUrl);
+          } else {
+            setCurrentAvatar('');
+            localStorage.removeItem('user_avatar_url');
+          }
+        }
+      } catch (err) {
+        console.error('Error cargando perfil inicial:', err);
+      } finally {
+        if (mounted) {
+          hasLoadedOnce = true;
+          setFadeOverlay(true);
+          setTimeout(() => {
+            if (mounted) setShowOverlay(false);
+          }, 500);
+        }
       }
     })();
     return () => { mounted = false; };
   }, []);
-  const [anchorElUser, setAnchorElUser] = useState(null);
-  const isEditingName = Boolean(anchorElUser);
-  const [tempUserName, setTempUserName] = useState('');
-  const overlayRef = useRef(null);
+
+    const overlayRef = useRef(null);
   const [expandedMenus, setExpandedMenus] = useState(() => {
     try {
       const saved = sessionStorage.getItem('expandedMenus');
@@ -88,10 +128,18 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
 
   const items = menuItems || defaultMenus[actualRole] || defaultMenus.user;
 
-  const handleConfirmEditName = (newName) => {
-    syncStorageName(newName);
-    setCurrentUserName(newName);
-    setAnchorElUser(null);
+
+
+  const handleAvatarUpdateSuccess = (newName, newAvatarUrl) => {
+    if (newName) {
+      setCurrentUserName(newName);
+      syncStorageName(newName);
+    }
+    if (newAvatarUrl) {
+      setCurrentAvatar(newAvatarUrl);
+      localStorage.setItem('user_avatar_url', newAvatarUrl);
+    }
+    setShowEditProfileModal(false);
   };
 
   const handleNavigate = (item) => {
@@ -99,7 +147,6 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
     if (item.onClick) return item.onClick();
     if (item.newTab) return window.open(`${window.location.origin}${item.path}`, '_blank', 'noopener,noreferrer');
     if (item.path) {
-      // Allow navigation if the path is different OR if the state is different
       const currentState = JSON.stringify(location.state || {});
       const targetState = JSON.stringify(item.state || {});
       if (location.pathname === item.path && currentState === targetState) return;
@@ -118,6 +165,8 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
   return (
     <>
       <StatusModal userId={userId} />
+
+
 
       {showWelcome && (
         <ToggleCard
@@ -196,35 +245,48 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
 
         <div className={styles.mainWrapper}>
           <header className={styles.topBar}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <UserAvatar 
+                  src={currentAvatar} 
+                  name={currentUserName} 
+                  size={32} 
+                  viewable={true}
+                />
                 <div className={styles.userBadge}>
                   {currentUserName || getDisplayRoleName(actualRole)}
                 </div>
                 <button 
-                  onClick={(e) => {
-                    setTempUserName(currentUserName || '');
-                    setAnchorElUser(e.currentTarget);
-                  }}
+                  onClick={() => setShowEditProfileModal(true)}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px', color: '#ffffff' }}
-                  aria-label="Editar nombre"
+                  aria-label="Editar perfil"
                 >
                   <Pencil size={14} />
                 </button>
               </div>
-
-              <UserEditPopover
-                open={isEditingName}
-                anchorEl={anchorElUser}
-                onClose={() => setAnchorElUser(null)}
-                currentName={currentUserName}
-                onSuccess={handleConfirmEditName}
-              />
           </header>
 
           <main className={styles.contentArea}>
             <div className={styles.card}>
-              {title && <h1 className={styles.mainTitle}>{title}</h1>}
-              {message && <p className={styles.mainMessage}>{message}</p>}
+              {showOverlay && (
+                <div className={`${styles.globalLoaderOverlay} ${fadeOverlay ? styles.fadeOut : ''}`}>
+                  <Loading size="giant" text="Cargando panel" />
+                </div>
+              )}
+              <div className={styles.cardHeaderFlex}>
+                <div className={styles.cardHeaderInfo}>
+                  {title && <h1 className={styles.mainTitle}>{title}</h1>}
+                  {message && <p className={styles.mainMessage}>{message}</p>}
+                </div>
+                {showDashboardAvatar && (
+                  <div className={styles.dashboardAvatarWrap}>
+                    <UserAvatar 
+                      src={currentAvatar} 
+                      name={currentUserName} 
+                      size={140} 
+                    />
+                  </div>
+                )}
+              </div>
               <div className={styles.extraContent}>{children}</div>
             </div>
           </main>
@@ -266,6 +328,24 @@ function GenericPanel({ title, message, children, menuTitle = 'Panel', role = 'u
         >
           <WhatsAppStatusModal />
         </AlertModal>
+
+        <DrawPanel
+          isOpen={showEditProfileModal}
+          onClose={() => setShowEditProfileModal(false)}
+          title="Editar Avatar"
+          width="400px"
+          showActions={true}
+          confirmText="Guardar Cambios"
+          cancelText="Cancelar"
+          formId="editProfileForm"
+        >
+          <EditProfileForm
+            formId="editProfileForm"
+            currentName={currentUserName || getDisplayRoleName(actualRole)}
+            currentAvatarUrl={currentAvatar}
+            onSuccess={handleAvatarUpdateSuccess}
+          />
+        </DrawPanel>
       </div>
     </>
   );

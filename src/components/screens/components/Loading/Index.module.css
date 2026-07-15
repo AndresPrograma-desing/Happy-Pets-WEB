@@ -35,6 +35,12 @@
   border-width: 4px;
 }
 
+.giant .spinner {
+  width: 64px;
+  height: 64px;
+  border-width: 5px;
+}
+
 /* --- Animaciones de Texto --- */
 .text {
   font-size: 0.95rem;

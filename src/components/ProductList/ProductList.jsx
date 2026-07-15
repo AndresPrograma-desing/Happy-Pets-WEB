@@ -7,6 +7,7 @@ import Selector from '../screens/components/Material-UI/Components/Selector/Inde
 import usePolling from '../../hooks/UsePolling';
 import useCategories from '../../hooks/requestCategories';
 import AlertModal from '../AlertModal/AlertModal';
+import DrawPanel from '../screens/components/DrawPanel';
 import { getAlertPayload } from '../../utils/apiErrors';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
 import EditProducts from '../../pages/AdminSystem/products/Created/EditProducts/EditProducts';
@@ -202,15 +203,17 @@ export default function ProductList() {
                 )}
             </div>
 
-            <AlertModal
-                open={alertOpen}
+            <DrawPanel
+                isOpen={alertOpen && !!selectedProduct}
                 title={alertTitle}
-                confirmText={selectedProduct ? "Actualizar" : "Entendido"}
-                cancelText={selectedProduct ? "Cancelar" : null}
+                confirmText="Actualizar"
+                cancelText="Cancelar"
                 onClose={() => { setAlertOpen(false); setSelectedProduct(null); }}
                 onConfirm={handleConfirmModal}
+                showActions={true}
+                width="600px"
             >
-                {selectedProduct ? (
+                {selectedProduct && (
                     <EditProducts
                         ref={editFormRef}
                         productData={selectedProduct}
@@ -221,9 +224,17 @@ export default function ProductList() {
                         }}
                         onError={(err) => setAlertMessage(getAlertPayload(err))}
                     />
-                ) : (
-                    <p>{alertMessage}</p>
                 )}
+            </DrawPanel>
+
+            <AlertModal
+                open={alertOpen && !selectedProduct}
+                title={alertTitle}
+                confirmText="Entendido"
+                onClose={() => { setAlertOpen(false); setSelectedProduct(null); }}
+                onConfirm={handleConfirmModal}
+            >
+                <p>{alertMessage}</p>
             </AlertModal>
         </div>
     );

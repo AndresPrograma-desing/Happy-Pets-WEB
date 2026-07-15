@@ -5,7 +5,7 @@ import { Navigate } from 'react-router-dom';
 import AlertModal from '../../AlertModal/AlertModal';
 import { logout } from '../../../services/api';
 import { getIcon } from '../../../assets/icons/ExportIcon/Index';
-
+import Button from '../../screens/components/Button';
 
 export function SidebarLayout({ menuTitle = "ADMIN", children }) {
 	return (
@@ -51,10 +51,14 @@ export function SidebarLogic({ menuTitle = "ADMIN", children }) {
 				</div>
 			</nav>
 			<div className={styles.sidebarFooter}>
-				<button className={styles.logoutBtn} onClick={() => setShowLogoutModal(true)}>
-					<img src={getIcon('exit')} alt="Salir" className={styles.icon} />
-					<span>Cerrar Sesión</span>
-				</button>
+				<Button
+					variant={Button.VARIANTS.DANGER}
+					color={Button.COLORS.TRANSPARENT}
+					borderColor="var(--SW-red)"
+					icon={LogOutIcon}
+					onClick={() => setShowLogoutModal(true)}>
+					Cerrar seccion
+				</Button>
 			</div>
 			<AlertModal
 				open={showLogoutModal}

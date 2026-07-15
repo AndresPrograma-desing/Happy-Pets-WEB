@@ -15,6 +15,7 @@ function SecretariaSystem() {
       title="Página de la Secretaria"
       message="Estamos trabajando para ofrecerte la mejor experiencia."
       role="secretaria"
+      showDashboardAvatar={true}
     >
       <hr style={{ border: '0', borderTop: '1px solid #131414', margin: '1.5rem 0' }} />
       <div className={styles.cardContainer}>

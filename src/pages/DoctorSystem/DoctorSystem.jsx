@@ -16,6 +16,7 @@ function DoctorSystem() {
       title="Página del Doctor"
       message="Estamos trabajando para ofrecerte la mejor experiencia."
       role="doctor"
+      showDashboardAvatar={true}
     >
       <hr style={{ border: '0', borderTop: '1px solid #131414', margin: '1.5rem 0' }} />
      

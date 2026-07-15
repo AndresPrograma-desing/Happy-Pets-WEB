@@ -420,7 +420,9 @@ export async function getConsultaById(id) {
 export async function updateUserName(payload) {
   return request('/Users/update-user-name', { method: 'PATCH', body: payload });
 }
-
+export async function ChangeProfileAvatar(payload) {
+  return request('/Profile/update-profile', { method: 'POST', body: payload });
+}
 export default {
   request,
   login,

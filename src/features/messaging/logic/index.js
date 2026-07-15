@@ -1,25 +1,31 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  getProfile, getUsers, getUserMessages, 
-  getConversation, sendMessage, markMessageAsRead 
+import {
+  getProfile, getUsers, getUserMessages,
+  getConversation, sendMessage, markMessageAsRead
 } from '../../../services/api';
 
 // --- Utils ---
 export const extractList = (data) => {
   if (Array.isArray(data)) return data;
-  return Array.isArray(data?.data) ? data.data : 
-         Array.isArray(data?.result) ? data.result : 
-         Array.isArray(data?.items) ? data.items : [];
+  return Array.isArray(data?.data) ? data.data :
+    Array.isArray(data?.result) ? data.result :
+      Array.isArray(data?.items) ? data.items : [];
 };
 
 export const normalizeUser = (user) => {
   const id = user?.id ?? user?.userId ?? user?.usuarioId ?? user?.Id ?? '';
   const nombre = user?.nombre ?? user?.name ?? user?.first_name ?? user?.firstName ?? '';
   const apellido = user?.apellido ?? user?.last_name ?? user?.lastName ?? '';
-  const fullName = `${String(nombre).trim()} ${String(apellido).trim()}`.trim() || 
-                   user?.username || user?.email || `Usuario ${id}`;
-  return { id: String(id), name: fullName, rol: user?.rol ?? user?.role ?? '', raw: user };
+  const fullName = `${String(nombre).trim()} ${String(apellido).trim()}`.trim() ||
+    user?.username || user?.email || `Usuario ${id}`;
+  return {
+    id: String(id),
+    name: fullName,
+    rol: user?.rol ?? user?.role ?? '',
+    avatarUrl: user?.avatarUrl ?? user?.avatar_url ?? null,
+    raw: user
+  };
 };
 
 export const normalizeMessage = (msg) => ({
@@ -49,13 +55,13 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
   const [contactSearch, setContactSearch] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [status, setStatus] = useState({ users: true, convs: true, msgs: false, sending: false });
-  
+
   const pollRef = useRef(null);
   const messagesEndRef = useRef(null);
   const messagesWrapRef = useRef(null);
   const isAtBottomRef = useRef(true);
   const lastMessageIdRef = useRef(null);
-  
+
   // Mobile responsive state
   const [isMobile, setIsMobile] = useState(false);
   const [showContactsList, setShowContactsList] = useState(true);
@@ -124,13 +130,13 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
 
       const msgItems = extractList(rawMsgs);
       const convMap = new Map();
-      userList.forEach(u => convMap.set(u.id, { id: u.id, name: u.name, lastMessage: '', lastAt: '', unread: 0 }));
+      userList.forEach(u => convMap.set(u.id, { id: u.id, name: u.name, avatarUrl: u.avatarUrl, lastMessage: '', lastAt: '', unread: 0 }));
 
       msgItems.forEach(raw => {
         const m = normalizeMessage(raw);
         const otherId = m.from === currentUser.id ? m.to : m.from;
         if (!otherId || otherId === currentUser.id) return;
-        const entry = convMap.get(otherId) || { id: otherId, name: `Usuario ${otherId}`, unread: 0 };
+        const entry = convMap.get(otherId) || { id: otherId, name: `Usuario ${otherId}`, avatarUrl: null, unread: 0 };
         if (!entry.lastAt || new Date(m.createdAt) > new Date(entry.lastAt)) {
           entry.lastAt = m.createdAt;
           entry.lastMessage = m.content;
@@ -155,12 +161,12 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
       const raw = await getConversation(currentUser.id, otherId);
       const normalized = extractList(raw).map(normalizeMessage).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
       setMessages(normalized);
-      
+
       if (markRead) {
         const unread = normalized.filter(m => m.to === currentUser.id && !m.read);
         if (unread.length) {
           await Promise.allSettled(unread.map(m => markMessageAsRead(m.id)));
-          setMessages(prev => prev.map(m => 
+          setMessages(prev => prev.map(m =>
             m.to === currentUser.id && !m.read ? { ...m, read: true } : m
           ));
         }
@@ -192,7 +198,7 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
   // Polling
   useEffect(() => {
     if (!currentUser?.id) return;
-    
+
     const poll = async () => {
       await loadConversationsAndUsers();
       if (selectedUser) {
@@ -203,7 +209,7 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
           const newUnread = normalized.filter(m => m.to === currentUser.id && !m.read);
           if (newUnread.length) {
             await Promise.allSettled(newUnread.map(m => markMessageAsRead(m.id)));
-            setMessages(prev => prev.map(m => 
+            setMessages(prev => prev.map(m =>
               m.to === currentUser.id && !m.read ? { ...m, read: true } : m
             ));
           }
@@ -220,7 +226,7 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
   useEffect(() => {
     if (!messages || messages.length === 0) return;
     const lastMsgId = messages[messages.length - 1].id;
-    
+
     // Solo auto-scrollear si llegó un mensaje NUEVO y estamos en el fondo
     if (lastMsgId !== lastMessageIdRef.current) {
       lastMessageIdRef.current = lastMsgId;
@@ -241,13 +247,13 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
       const newMsg = normalizeMessage(response || payload);
       setMessages(prev => [...prev, newMsg]);
       setMessageInput('');
-      
+
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         if (messagesWrapRef.current) messagesWrapRef.current.scrollTop = messagesWrapRef.current.scrollHeight;
         isAtBottomRef.current = true;
       }, 50);
-      
+
       await loadConversationsAndUsers();
     } catch (err) {
       console.error('Error enviando mensaje:', err);

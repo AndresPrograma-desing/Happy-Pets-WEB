@@ -162,6 +162,7 @@
 }
 
 .card {
+  position: relative;
   width: 100%;
   max-width: 1000px;
   background: var(--letter-white);
@@ -294,5 +295,70 @@ svg.icon {
   .mainMessage,
   .message {
     font-size: 0.95rem;
+  }
+}
+
+.globalLoaderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 12px;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s;
+  opacity: 1;
+  visibility: visible;
+}
+
+.globalLoaderOverlay.fadeOut {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.cardHeaderFlex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.cardHeaderInfo {
+  flex: 1;
+}
+
+.cardHeaderInfo h1,
+.cardHeaderInfo .mainTitle,
+.cardHeaderInfo .title {
+  margin: 0 0 8px 0 !important;
+}
+
+.cardHeaderInfo p,
+.cardHeaderInfo .mainMessage,
+.cardHeaderInfo .message {
+  margin: 0 !important;
+}
+
+.dashboardAvatarWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .cardHeaderFlex {
+    flex-direction: column-reverse;
+    align-items: center;
+    text-align: center;
   }
 }

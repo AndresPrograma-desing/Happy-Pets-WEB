@@ -137,7 +137,7 @@
 .reportGrid {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 1px;
     max-height: 350px;
     overflow-y: auto;
     padding-right: 5px;
@@ -187,7 +187,7 @@
 
 .downloadBtnSmall:hover:not(:disabled) {
     background-color: #10b981;
-    color: white;
+    color: white !important;
 }
  
 .spinner {
@@ -462,3 +462,22 @@
     opacity: 0.6;
 }
 /* Colores para el selector de moneda */
+
+/* Estilos de reportes dentro del DrawPanel */
+.reportDrawerContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.reportDivider {
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+  margin: 15px 0;
+}
+
+.historySection {
+  margin-top: 10px;
+}
+

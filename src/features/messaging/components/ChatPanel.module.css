@@ -373,15 +373,15 @@
   .emailContainer {
     height: calc(100vh - 120px);
   }
-  
+
   .inboxSidebar {
     width: 100%;
   }
-  
+
   .hideOnMobile {
     display: none !important;
   }
-  
+
   .backBtn {
     background: transparent;
     border: none;

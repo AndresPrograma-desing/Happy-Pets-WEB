@@ -1,9 +1,5 @@
 import { getProfile } from '../../services/api';
 
-/**
- * Sincroniza el nuevo nombre de usuario en el Local/Session Storage
- * para que toda la app mantenga la coherencia.
- */
 export const syncStorageName = (newName) => {
   try {
     const raw = sessionStorage.getItem('auth_login_data') || localStorage.getItem('auth_login_data');
@@ -23,15 +19,17 @@ export const syncStorageName = (newName) => {
   }
 };
 
-/**
- * Obtiene el perfil actualizado desde el backend y extrae el nombre correcto.
- */
 export const fetchProfileName = async () => {
   try {
     const profile = await getProfile();
     const data = profile?.data || profile?.user || profile;
     const fullName = data?.name || data?.nombre || null;
-    return fullName ? fullName.split(' ')[0] : null;
+    const avatarUrl = data?.avatarUrl || data?.avatar_url || data?.avatar || null;
+    
+    return {
+      name: fullName ? fullName.split(' ')[0] : null,
+      avatarUrl: avatarUrl
+    };
   } catch (err) {
     console.error('Error al obtener el perfil en GenericPanel:', err);
     return null;

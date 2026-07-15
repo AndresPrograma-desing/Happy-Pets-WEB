@@ -17,6 +17,7 @@ function AdminSystem() {
       title={getText("adminInterface.genericPanelTitle")}
       message={getText("adminInterface.genericPanelMessage")}
       role="admin"
+      showDashboardAvatar={true}
     >
       <div style={{ marginBottom: 24 }}>
         <CreatedUser />

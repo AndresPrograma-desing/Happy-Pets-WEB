@@ -10,6 +10,7 @@ import {
 
 import TableA from '../../../../components/screens/components/TableA';
 import AlertModal from '../../../../components/AlertModal/AlertModal';
+import DrawPanel from '../../../../components/screens/components/DrawPanel';
 import { getAlertPayload } from '../../../../utils/apiErrors';
 import TextField from '../../../../components/screens/components/Material-UI/Components/TextField/Index';
 import Selector from '../../../../components/screens/components/Material-UI/Components/Selector/Index';
@@ -238,14 +239,16 @@ export default function ProductCreate({ hideHeader }) {
         />
       </div>
 
-      {/* MODAL DEL FORMULARIO */}
-      <AlertModal 
-        open={showForm} 
+      {/* PANEL DEL FORMULARIO */}
+      <DrawPanel 
+        isOpen={showForm} 
         title="Registro de Nuevo Producto"
         onClose={() => setShowForm(false)}
         onConfirm={handleCreateSubmit}
         confirmText="Registrar"
         cancelText="Cancelar"
+        showActions={true}
+        width="600px"
       >
         <ProductFormContent 
           form={form}
@@ -258,7 +261,7 @@ export default function ProductCreate({ hideHeader }) {
           })}
           loadingCats={loadingCats}
         />
-      </AlertModal>
+      </DrawPanel>
 
       {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN */}
       <AlertModal 

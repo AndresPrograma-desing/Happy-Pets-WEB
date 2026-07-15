@@ -24,6 +24,7 @@ import Button from "../../../components/screens/components/Button/index";
 const Settings = () => {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showResendPanel, setShowResendPanel] = useState(false);
+  const [showReportPanel, setShowReportPanel] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
   const misFrases = ["Cargando", "Esperando la aceptación de la solicitud", "Enviale un mensaje"];
 
@@ -143,11 +144,9 @@ const Settings = () => {
               description={getText("setting.gestionReport")}
               icon={FileText}
               iconColorVariant="green"
-              onToggle={() => toggleMenu('reports')}
-              isOpen={activeMenu === 'reports'}
-            >
-              <Report />
-            </DesplegablePanel>
+              onToggle={() => setShowReportPanel(true)}
+              isOpen={false}
+            />
 
             <DesplegablePanel
               title={getText("resendConfig.panelTitle")}
@@ -361,6 +360,15 @@ const Settings = () => {
         width="450px"
       >
         <SettingResend />
+      </DrawPanel>
+
+      <DrawPanel
+        isOpen={showReportPanel}
+        onClose={() => setShowReportPanel(false)}
+        title={getText("setting.report")}
+        width="450px"
+      >
+        <Report />
       </DrawPanel>
     </GenericPanel>
   );
