@@ -117,3 +117,138 @@ export function getUserNameFromLoginSession() {
     return '';
   }
 }
+
+export function extractUserFirstName(source) {
+  if (!source || typeof source !== 'object') return '';
+  return (
+    source?.nombre ??
+    source?.name ??
+    source?.first_name ??
+    source?.firstName ??
+    ''
+  );
+}
+
+export function extractUserLastName(source) {
+  if (!source || typeof source !== 'object') return '';
+  return (
+    source?.apellido ??
+    source?.last_name ??
+    source?.lastName ??
+    ''
+  );
+}
+
+export function getUserFirstNameFromLoginSession() {
+  try {
+    const raw = getStorageValue(LOGIN_DATA_KEY);
+    if (!raw) return '';
+    const data = JSON.parse(raw);
+    const firstName = (
+      extractUserFirstName(data) ||
+      extractUserFirstName(data?.user) ||
+      extractUserFirstName(data?.doctor) ||
+      extractUserFirstName(data?.usuario) ||
+      extractUserFirstName(data?.profile) ||
+      extractUserFirstName(data?.data) ||
+      ''
+    );
+    if (firstName) return firstName;
+
+    const fullName = getUserNameFromLoginSession();
+    if (fullName) {
+      return fullName.trim().split(/\s+/)[0] || '';
+    }
+    return '';
+  } catch (err) {
+    return '';
+  }
+}
+
+export function getUserLastNameFromLoginSession() {
+  try {
+    const raw = getStorageValue(LOGIN_DATA_KEY);
+    if (!raw) return '';
+    const data = JSON.parse(raw);
+    const lastName = (
+      extractUserLastName(data) ||
+      extractUserLastName(data?.user) ||
+      extractUserLastName(data?.doctor) ||
+      extractUserLastName(data?.usuario) ||
+      extractUserLastName(data?.profile) ||
+      extractUserLastName(data?.data) ||
+      ''
+    );
+    if (lastName) return lastName;
+
+    const fullName = getUserNameFromLoginSession();
+    if (fullName) {
+      const parts = fullName.trim().split(/\s+/);
+      if (parts.length > 1) {
+        return parts.slice(1).join(' ');
+      }
+    }
+    return '';
+  } catch (err) {
+    return '';
+  }
+}
+
+export function getUserEmailFromLoginSession() {
+  try {
+    const raw = getStorageValue(LOGIN_DATA_KEY);
+    if (!raw) return '';
+    const data = JSON.parse(raw);
+    return (
+      data?.email ??
+      data?.user?.email ??
+      data?.doctor?.email ??
+      data?.usuario?.email ??
+      data?.profile?.email ??
+      data?.data?.email ??
+      ''
+    );
+  } catch (err) {
+    return '';
+  }
+}
+
+export function syncStorageProfileData(newName, newLastName, newEmail) {
+  try {
+    const raw = sessionStorage.getItem(LOGIN_DATA_KEY) || localStorage.getItem(LOGIN_DATA_KEY);
+    if (raw) {
+      const authData = JSON.parse(raw);
+      
+      const updateSource = (source) => {
+        if (!source || typeof source !== 'object') return;
+        if ('nombre' in source || source.nombre !== undefined) source.nombre = newName;
+        if ('name' in source || source.name !== undefined) source.name = newName;
+        if ('first_name' in source || source.first_name !== undefined) source.first_name = newName;
+        if ('firstName' in source || source.firstName !== undefined) source.firstName = newName;
+        
+        if ('apellido' in source || source.apellido !== undefined) source.apellido = newLastName;
+        if ('last_name' in source || source.last_name !== undefined) source.last_name = newLastName;
+        if ('lastName' in source || source.lastName !== undefined) source.lastName = newLastName;
+
+        if ('email' in source || source.email !== undefined) source.email = newEmail;
+      };
+
+      updateSource(authData);
+      updateSource(authData.usuario);
+      updateSource(authData.user);
+      updateSource(authData.doctor);
+      updateSource(authData.profile);
+      updateSource(authData.data);
+      
+      sessionStorage.setItem(LOGIN_DATA_KEY, JSON.stringify(authData));
+      localStorage.setItem(LOGIN_DATA_KEY, JSON.stringify(authData));
+    }
+  } catch (err) {
+    console.error('Error sincronizando datos de perfil en storage:', err);
+  }
+}
+
+export function syncStorageNameAndLastName(newName, newLastName) {
+  const currentEmail = getUserEmailFromLoginSession();
+  syncStorageProfileData(newName, newLastName, currentEmail);
+}

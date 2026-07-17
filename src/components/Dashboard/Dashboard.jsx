@@ -16,8 +16,8 @@ import {
   TableCell,
   TableBody
 } from '@mui/material';
-import { BoxIcon, UserCircle, FileText, CircleDollarSign, Download, Filter } from 'lucide-react';
-import { fetchDashboardMockData } from './utils';
+import { BoxIcon, UserCircle, FileText, CircleDollarSign, Download, Filter, Calendar } from 'lucide-react';
+import { getDashboardStats } from '../../services/api/Dashboard';
 import Loading from '../screens/components/Loading/Index';
 
 export default function Dashboard() {
@@ -29,11 +29,11 @@ export default function Dashboard() {
     const loadData = async () => {
       try {
         setLoading(true);
-        const result = await fetchDashboardMockData();
+        const result = await getDashboardStats();
         setData(result);
         setError(null);
       } catch (err) {
-        setError("Error al cargar los datos simulados.");
+        setError("Error al cargar los datos del panel.");
       } finally {
         setLoading(false);
       }
@@ -43,7 +43,7 @@ export default function Dashboard() {
   }, []);
 
   if (loading) {
-    return <Loading size="large" text="Cargando dashboard..." />;
+    return <Loading size="large" phrases={["Cargando Dashboard", "Calculando Datos"]} />;
   }
 
   if (error) {
@@ -56,7 +56,24 @@ export default function Dashboard() {
 
   if (!data) return null;
 
-  const { kpis, chartData, recentOrders } = data;
+  const kpis = {
+    totalRevenue: data.total_ganancias || 0,
+    totalCitas: data.total_citas || 0,
+    totalClients: data.total_clientes || 0,
+    totalMascotas: data.total_mascotas || 0,
+  };
+
+  const chartData = (data.ganancias_mensuales && data.ganancias_mensuales.length > 0)
+    ? data.ganancias_mensuales
+    : [
+        { month: 'Ene', revenue: 0 }, { month: 'Feb', revenue: 0 }, { month: 'Mar', revenue: 0 },
+        { month: 'Abr', revenue: 0 }, { month: 'May', revenue: 0 }, { month: 'Jun', revenue: 0 },
+        { month: 'Jul', revenue: 0 }, { month: 'Ago', revenue: 0 }, { month: 'Sep', revenue: 0 },
+        { month: 'Oct', revenue: 0 }, { month: 'Nov', revenue: 0 }, { month: 'Dic', revenue: 0 }
+      ];
+
+  const ultimasCitas = data.ultimas_citas || [];
+
   const formatCurrency = (val) => new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'USD' }).format(val);
 
   // Estilos compartidos para las tarjetas (haciendo match con TableB)
@@ -72,40 +89,39 @@ export default function Dashboard() {
   const tableColumns = [
     {
       key: 'detail',
-      label: 'Detalle de Factura',
+      label: 'Detalle de Cita',
       width: '35%',
       render: (row) => (
         <Box>
           <Typography variant="body1" fontWeight="600" color="#111827">
-            {row.clientName}
+            {row.cliente_nombre} - {row.mascota_nombre}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Factura #{row.id}
+            {row.motivo}
           </Typography>
         </Box>
       )
     },
     {
-      key: 'total',
-      label: 'Total',
+      key: 'type',
+      label: 'Tipo',
       width: '20%',
       align: 'center',
       render: (row) => (
-        <Typography variant="body1" fontWeight="500" color="#111827">
-          {formatCurrency(row.amount)}
+        <Typography variant="body1" fontWeight="500" color="#111827" sx={{ textTransform: 'capitalize' }}>
+          {row.tipo_cita}
         </Typography>
       )
     },
     {
       key: 'date',
-      label: 'Fecha',
+      label: 'Fecha y Hora',
       width: '25%',
       align: 'center',
       render: (row) => {
-        const dateObj = new Date(row.date);
         return (
           <Typography variant="body2" color="text.secondary">
-            {dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+            {row.fecha_cita} a las {row.hora_cita}
           </Typography>
         );
       }
@@ -115,24 +131,29 @@ export default function Dashboard() {
       label: 'Estado',
       width: '20%',
       align: 'center',
-      render: (row) => (
-        <Chip
-          label={row.status}
-          size="small"
-          sx={{
-            fontWeight: '600',
-            borderRadius: '4px',
-            fontSize: '0.8rem',
-            py: 1.5,
-            backgroundColor:
-              row.status === 'Pagado' ? '#d1fae5' :
-                row.status === 'Pendiente' ? '#fef3c7' : '#fee2e2',
-            color:
-              row.status === 'Pagado' ? '#065f46' :
-                row.status === 'Pendiente' ? '#92400e' : '#991b1b',
-          }}
-        />
-      )
+      render: (row) => {
+        const est = (row.estado || '').toLowerCase();
+        let bg = '#e5e7eb';
+        let col = '#374151';
+        if (est === 'completada') { bg = '#d1fae5'; col = '#065f46'; }
+        else if (est === 'programada' || est === 'en_curso') { bg = '#fef3c7'; col = '#92400e'; }
+        else if (est === 'cancelada' || est === 'no_asistida') { bg = '#fee2e2'; col = '#991b1b'; }
+        
+        return (
+          <Chip
+            label={(row.estado || '').replace('_', ' ').toUpperCase()}
+            size="small"
+            sx={{
+              fontWeight: '600',
+              borderRadius: '4px',
+              fontSize: '0.8rem',
+              py: 1.5,
+              backgroundColor: bg,
+              color: col,
+            }}
+          />
+        )
+      }
     }
   ];
 
@@ -182,8 +203,8 @@ export default function Dashboard() {
                   {formatCurrency(kpis.totalRevenue)}
                 </Typography>
               </Box>
-              <Typography variant="caption" sx={{ color: kpis.revenueGrowthPct >= 0 ? '#10b981' : '#ef4444', fontWeight: '500', mt: 2, display: 'inline-block' }}>
-                {kpis.revenueGrowthPct >= 0 ? '+' : ''}{kpis.revenueGrowthPct}% vs mes anterior
+              <Typography variant="caption" sx={{ color: '#6b7280', fontWeight: '500', mt: 2, display: 'inline-block' }}>
+                Total acumulado
               </Typography>
             </CardContent>
           </Card>
@@ -195,16 +216,16 @@ export default function Dashboard() {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                   <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Total Pedidos
+                    Total Citas
                   </Typography>
-                  <BoxIcon size={20} color="#6b7280" />
+                  <Calendar size={20} color="#6b7280" />
                 </Box>
                 <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
-                  {kpis.totalOrders}
+                  {kpis.totalCitas}
                 </Typography>
               </Box>
-              <Typography variant="caption" sx={{ color: kpis.ordersGrowthPct >= 0 ? '#10b981' : '#ef4444', fontWeight: '500', mt: 2, display: 'inline-block' }}>
-                {kpis.ordersGrowthPct >= 0 ? '+' : ''}{kpis.ordersGrowthPct}% vs mes anterior
+              <Typography variant="caption" sx={{ color: '#6b7280', fontWeight: '500', mt: 2, display: 'inline-block' }}>
+                Citas registradas
               </Typography>
             </CardContent>
           </Card>
@@ -224,8 +245,8 @@ export default function Dashboard() {
                   {kpis.totalClients}
                 </Typography>
               </Box>
-              <Typography variant="caption" sx={{ color: kpis.clientsGrowthPct >= 0 ? '#10b981' : '#ef4444', fontWeight: '500', mt: 2, display: 'inline-block' }}>
-                {kpis.clientsGrowthPct >= 0 ? '+' : ''}{kpis.clientsGrowthPct}% vs mes anterior
+              <Typography variant="caption" sx={{ color: '#6b7280', fontWeight: '500', mt: 2, display: 'inline-block' }}>
+                Clientes registrados
               </Typography>
             </CardContent>
           </Card>
@@ -237,16 +258,16 @@ export default function Dashboard() {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                   <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Tasa de Pagos
+                    Total Mascotas
                   </Typography>
-                  <FileText size={20} color="#6b7280" />
+                  <BoxIcon size={20} color="#6b7280" />
                 </Box>
                 <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
-                  {kpis.paidRatePct}%
+                  {kpis.totalMascotas}
                 </Typography>
               </Box>
               <Typography variant="caption" sx={{ color: '#6b7280', fontWeight: '500', mt: 2, display: 'inline-block' }}>
-                Facturas canceladas exitosamente
+                Mascotas registradas
               </Typography>
             </CardContent>
           </Card>
@@ -311,15 +332,15 @@ export default function Dashboard() {
             <CardContent sx={{ p: 0 }}>
               <Box sx={{ p: 4, pb: 3 }}>
                 <Typography variant="h5" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
-                  Pedidos Recientes
+                  Citas Recientes
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Historial de las últimas transacciones registradas en el sistema
+                  Historial de las últimas citas registradas en el sistema
                 </Typography>
               </Box>
               <Divider />
               <TableContainer component={Box} sx={{ width: '100%', overflowX: 'auto' }}>
-                <Table sx={{ minWidth: 650, width: '100%' }} aria-label="pedidos recientes">
+                <Table sx={{ minWidth: 650, width: '100%' }} aria-label="citas recientes">
                   <TableHead sx={{ backgroundColor: '#f9fafb' }}>
                     <TableRow>
                       {tableColumns.map((col) => (
@@ -343,7 +364,7 @@ export default function Dashboard() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {recentOrders.map((row) => (
+                    {ultimasCitas.map((row) => (
                       <TableRow 
                         key={row.id}
                         sx={{ 

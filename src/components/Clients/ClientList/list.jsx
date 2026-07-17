@@ -28,6 +28,8 @@ export default function ClientList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 5;
 
   const [showPetModal, setShowPetModal] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState(null);
@@ -92,6 +94,16 @@ export default function ClientList() {
       return nombreCompleto.includes(query) || identificacion.includes(query) || telefono.includes(query) || mascotaMatch;
     });
   }, [clients, search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const pageCount = Math.ceil(filteredClients.length / itemsPerPage);
+  const paginatedClients = useMemo(() => {
+    const startIndex = (page - 1) * itemsPerPage;
+    return filteredClients.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredClients, page]);
 
   const columns = [
     {
@@ -216,6 +228,10 @@ export default function ClientList() {
       title="Gestión de Clientes" 
       message="Administra la información de los propietarios y el historial clínico de sus mascotas" 
       role="admin" // You might want to get role dynamically later
+      showPagination={true}
+      paginationCount={pageCount}
+      paginationPage={page}
+      onPaginationChange={(e, v) => setPage(v)}
     >
       <div className={styles.actionHeader}>
         <div className={styles.searchCenterer}>

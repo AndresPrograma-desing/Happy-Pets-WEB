@@ -19,6 +19,14 @@ const Users = () => {
   const [userToDelete, setUserToDelete] = React.useState(null);
   const [showStatusConfirm, setShowStatusConfirm] = React.useState(false);
   const [userToToggle, setUserToToggle] = React.useState(null);
+  const [page, setPage] = React.useState(1);
+  const itemsPerPage = 8;
+
+  const pageCount = Math.ceil(userList.length / itemsPerPage);
+  const paginatedUsers = React.useMemo(() => {
+    const start = (page - 1) * itemsPerPage;
+    return userList.slice(start, start + itemsPerPage);
+  }, [userList, page]);
 
   const navigate = useNavigate();
 
@@ -179,6 +187,10 @@ const Users = () => {
       message="Administra los usuarios del sistema, sus roles y estados."
       role="admin"
       menuTitle="Panel de Administración"
+      showPagination={true}
+      paginationCount={pageCount}
+      paginationPage={page}
+      onPaginationChange={(e, v) => setPage(v)}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>

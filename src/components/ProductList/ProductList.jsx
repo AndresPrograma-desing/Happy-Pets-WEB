@@ -1,4 +1,5 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState, useEffect, useMemo } from 'react';
+import GenericPanel from '../GenericPanel/GenericPanel';
 import { PackageSearch } from 'lucide-react';
 import styles from './ProductList.module.css';
 import Filter from '../screens/components/Filter/Index';
@@ -40,6 +41,19 @@ export default function ProductList() {
         categoryMap,
         editFormRef
     });
+
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 8;
+
+    useEffect(() => {
+        setPage(1);
+    }, [searchTerm, filterCategory, maxPrice]);
+
+    const pageCount = Math.ceil(filteredProducts.length / itemsPerPage);
+    const paginatedProducts = useMemo(() => {
+        const start = (page - 1) * itemsPerPage;
+        return filteredProducts.slice(start, start + itemsPerPage);
+    }, [filteredProducts, page]);
 
     const { currency, convertAmount, isLoading: currencyLoading } = useCurrency();
     const esUSD = currency?.toUpperCase() === 'USD';
@@ -135,9 +149,18 @@ export default function ProductList() {
     ];
 
     return (
-        <div className={styles.content}>
-            <Filter
-                onClear={handleClearFilters}
+        <GenericPanel
+            title="Inventario de Productos"
+            role="admin"
+            menuTitle="Panel de Administración"
+            showPagination={true}
+            paginationCount={pageCount}
+            paginationPage={page}
+            onPaginationChange={(e, p) => setPage(p)}
+        >
+            <div className={styles.content}>
+                <Filter
+                    onClear={handleClearFilters}
                 searchTerm={searchTerm}
                 title="Filtros de Productos"
             >
@@ -237,5 +260,6 @@ export default function ProductList() {
                 <p>{alertMessage}</p>
             </AlertModal>
         </div>
+        </GenericPanel>
     );
 }

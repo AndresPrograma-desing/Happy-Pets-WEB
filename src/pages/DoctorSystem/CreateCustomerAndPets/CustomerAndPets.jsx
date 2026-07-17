@@ -6,6 +6,7 @@ import CustomDatePicker from '../../../components/screens/components/CalendarCom
 import AlertModal from '../../../components/AlertModal/AlertModal'; 
 import { User, Mail, Phone, MapPin, IdCard, PawPrint, Award, Palette, HeartHandshake, Weight, Activity, ShieldAlert, Notebook,Dna } from 'lucide-react';
 import GenericPanel from '../../../components/GenericPanel/GenericPanel';
+import Button, { COLORS } from '../../../components/screens/components/Button';
 
 const initialForm = {
     nombre: '',
@@ -270,14 +271,17 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             </div>
 
             <div className={styles.actions}>
-                <button type="submit" className={styles.primary} disabled={isSubmitting}>
-                    {isSubmitting ? 'Guardando registro...' : 'Crear Cliente y Mascota'}
-                </button>
-                {typeof onCancel === 'function' && (
-                    <button type="button" className={styles.secondary} onClick={onCancel}>
-                        Cancelar
-                    </button>
-                )}
+                <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSubmitting}>
+                    {isSubmitting ? 'Guardando registro' : 'Crear Cliente y Mascota'}
+                </Button>
+                <Button 
+                variant="contained" 
+                color={COLORS.TRANSPARENT} 
+                borderColor="var('--border-gray-low')" 
+                onClick={onCancel} 
+                disabled={isSubmitting}>
+                    Cancelar
+                </Button>
             </div>
         </form>
     );

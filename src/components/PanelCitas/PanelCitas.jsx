@@ -19,6 +19,7 @@ function PanelCitas({
     fetchCitasFn,
     polling = true,
     pollingInterval = 10000,
+    onViewHistory,
 }) {
     const navigate = useNavigate();
 
@@ -48,6 +49,7 @@ function PanelCitas({
             onDelete={onDelete}
             primaryActionLabel={primaryActionLabel}
             onPrimaryAction={handlePrimaryActionFallback}
+            onViewHistory={onViewHistory}
         />
     );
 }

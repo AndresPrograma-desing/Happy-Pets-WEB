@@ -1,0 +1,30 @@
+.iaSummaryCard {
+  background: linear-gradient(135deg, #fdf4ff 0%, #f0fdf4 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.iaSummaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #103529;
+  margin-bottom: 1rem;
+}
+
+.iaSummaryHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.iaSummaryText {
+  color: #334155;
+  line-height: 1.6;
+  font-size: 1rem;
+  margin: 0;
+}
+
+

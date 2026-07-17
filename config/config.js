@@ -2,8 +2,19 @@
 const baseURL_Tunnel = "https://g27frlv5-5168.use2.devtunnels.ms";
 const baseURL_LocalHost = "http://localhost:5168";
 
+// Selecciona la URL base según el modo de Vite (local o tunnel/server)
+const getBaseURL = () => {
+    if (typeof import.meta === 'undefined' || !import.meta.env) {
+        return baseURL_LocalHost;
+    }
+    if (import.meta.env.MODE === 'tunnel') {
+        return baseURL_Tunnel;
+    }
+    return baseURL_LocalHost;
+};
+
 export const DEV_URL_API = {
-    baseURL: baseURL_LocalHost
+    baseURL: getBaseURL()
 };
 
 // Flag to use dummy data without a backend API (dynamic via localStorage)

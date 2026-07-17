@@ -1,9 +1,10 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Index.module.css';
 
-function Frame({ title, icon, content, error, children, className = '' }) {
-    return (
-        <div className={`${styles.frameCard} ${className}`}>
+function Frame({ title, icon, content, error, children, className = '', isModal = false, onClose }) {
+    const frameContent = (
+        <div className={`${styles.frameCard} ${className}`} onClick={(e) => e.stopPropagation()}>
             {(title || icon) && (
                 <div className={styles.headerContainer}>
                     {title && <h3 className={styles.frameTitle}>{title}</h3>}
@@ -15,6 +16,17 @@ function Frame({ title, icon, content, error, children, className = '' }) {
             {children}
         </div>
     );
+
+    if (isModal) {
+        return createPortal(
+            <div className={styles.modalOverlay} onClick={onClose}>
+                {frameContent}
+            </div>,
+            document.body
+        );
+    }
+
+    return frameContent;
 }
 
 export default Frame;

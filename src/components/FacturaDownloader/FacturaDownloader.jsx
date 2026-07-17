@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import styles from './FacturaDowloader.module.css';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
 import AlertModal from '../AlertModal/AlertModal';
@@ -63,6 +63,19 @@ export default function FacturaManager() {
     completadas: (citas || []).filter(c => (c.estado || '').toLowerCase() === 'completada').length,
   }), [citas]);
 
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, filterEstado]);
+
+  const pageCount = Math.ceil((filteredCitas || []).length / itemsPerPage);
+  const paginatedCitas = useMemo(() => {
+    const start = (page - 1) * itemsPerPage;
+    return (filteredCitas || []).slice(start, start + itemsPerPage);
+  }, [filteredCitas, page]);
+
   const columns = useMemo(() => getFacturaColumns({
     generatingId,
     invoiceUrls,
@@ -75,7 +88,15 @@ export default function FacturaManager() {
   }), [generatingId, invoiceUrls, handleFileDownload, handleGenerate, setPreviewIframeUrl, setPreviewInvoice, setPreviewCitaId, setPreviewOpen]);
 
   return (
-    <GenericPanel title={TEXT_FACTURAS.title} menuTitle={TEXT_FACTURAS.menuTitle} role="secretaria">
+    <GenericPanel 
+      title={TEXT_FACTURAS.title} 
+      menuTitle={TEXT_FACTURAS.menuTitle} 
+      role="secretaria"
+      showPagination={true}
+      paginationCount={pageCount}
+      paginationPage={page}
+      onPaginationChange={(e, v) => setPage(v)}
+    >
     <div className={styles.container}>
       {Object.keys(invoiceUrls || {}).map((id) => (
         <PollFactura

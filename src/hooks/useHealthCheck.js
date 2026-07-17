@@ -11,10 +11,7 @@ export function useHealthCheck() {
   const isMountedRef = useRef(true);
   const controllerRef = useRef(null);
   const hasCheckedOnceRef = useRef(false);
-
-  const HEALTH_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_HEALTH_URL)
-    ? import.meta.env.VITE_HEALTH_URL
-    : `${DEV_URL_API.baseURL}/Health`;
+  const HEALTH_URL = `${DEV_URL_API.baseURL}/Health`;
 
 
   const checkBackend = useCallback(async () => {

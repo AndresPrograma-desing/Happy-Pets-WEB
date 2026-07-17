@@ -1,0 +1,212 @@
+.pageWrapper {
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.portalContainer {
+    max-width: 1000px;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.logo {
+    width: 140px;
+    height: auto;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.title {
+    color: #0f172a;
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    color: #64748b;
+    font-size: 1.15rem;
+    margin: 0;
+}
+
+.searchSection {
+    display: flex;
+    gap: 1rem;
+    max-width: 700px;
+    margin: 0 auto 3rem auto;
+    align-items: center;
+}
+
+.searchInputWrapper {
+    flex: 1;
+}
+
+.resultsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #334155;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.75rem;
+}
+
+.mockBanner {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem;
+    background-color: #fef3c7;
+    color: #d97706;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    border: 1px dashed #fbbf24;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .searchSection {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .pageWrapper {
+        padding: 1rem;
+    }
+    .portalContainer {
+        padding: 1.5rem;
+    }
+    .title {
+        font-size: 1.8rem;
+    }
+}
+
+.fullPageLoader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(8px);
+}
+
+.topBar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: -1rem;
+    padding-bottom: 1rem;
+}
+
+.contactInfoItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.contactInfoItem:last-child {
+    border-bottom: none;
+}
+
+.contactIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #f8fafc;
+    border-radius: 50%;
+    color: #0ea5e9;
+}
+
+.contactText {
+    display: flex;
+    flex-direction: column;
+}
+
+.contactLabel {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.contactValue {
+    font-size: 1rem;
+    color: #334155;
+    font-weight: 500;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.formLabel {
+    font-size: 0.85rem;
+    color: #475569;
+    font-weight: 600;
+}
+
+.inputField, .textareaField {
+    padding: 0.75rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.inputField:focus, .textareaField:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.textareaField {
+    min-height: 100px;
+    resize: vertical;
+}

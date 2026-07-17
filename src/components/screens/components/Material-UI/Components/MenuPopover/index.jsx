@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { ChevronRight } from 'lucide-react';
+import Button from '../../../Button';
 
 export default function MenuPopover({ item, styles, renderIcon, onNavigate }) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -24,20 +25,23 @@ export default function MenuPopover({ item, styles, renderIcon, onNavigate }) {
 
   return (
     <div style={{ width: '100%' }}>
-      <button
+      <Button
         id={`menu-button-${item.label}`}
+        variant={Button.VARIANTS.GHOST}
+        color="inherit"
         className={styles.navItem}
         aria-controls={open ? `menu-${item.label}` : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
+        style={{ justifyContent: 'flex-start', textTransform: 'none' }}
       >
         {renderIcon(item.icon, styles.icon)}
         <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>
         <span style={{ display: 'flex', alignItems: 'center' }}>
           <ChevronRight size={16} />
         </span>
-      </button>
+      </Button>
 
       <Menu
         id={`menu-${item.label}`}
@@ -56,9 +60,9 @@ export default function MenuPopover({ item, styles, renderIcon, onNavigate }) {
         slotProps={{
           paper: {
             style: {
-              backgroundColor: '#2d3748',
-              color: '#fff',
-              borderRadius: '8px',
+              backgroundColor: '#ffffffff',
+              color: '#000000ff',
+              borderRadius: '3px',
               marginLeft: '4px',
               boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1)',
               minWidth: '200px'
@@ -74,9 +78,9 @@ export default function MenuPopover({ item, styles, renderIcon, onNavigate }) {
               fontSize: '0.9rem',
               py: 1.5,
               px: 2.5,
-              color: '#fff',
+              color: '#000000ff',
               '&:hover': {
-                backgroundColor: '#4a5568'
+                backgroundColor: '#b3b3b44b'
               }
             }}
           >

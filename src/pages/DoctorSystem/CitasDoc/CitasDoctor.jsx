@@ -234,7 +234,7 @@ function CitasDoctor() {
 
 			<AlertModal
 				open={showCreateClientModal}
-				title="Crear usuario"
+				title="Crear cliente"
 				message={createClientError || 'Crea un nuevo usuario rapidamente'}
 				onClose={closeCreateClientModal}
 				hideActions={true}

@@ -1,0 +1,211 @@
+.historialContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.searchContainer {
+  background-color: var(--color-card-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 0.5rem;
+}
+
+.mainTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--letter, #103529);
+  margin: 0;
+}
+
+.petInfoBanner {
+  background: linear-gradient(135deg, #103529 0%, #1e5c4a 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+}
+
+.petInfoHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 1rem;
+}
+
+.petInfoTitle {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.petInfoSubtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.petInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.petInfoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.petInfoLabel {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.petInfoValue {
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+
+
+.iaGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .iaGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+.iaDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.riskAlertsCard {
+  background-color: var(--color-danger-bg, #fee2e2);
+  border: 1px solid var(--color-danger, #ea1f1f);
+  padding: 1.25rem;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+}
+
+.alertHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-danger, #ea1f1f);
+  margin-bottom: 0.5rem;
+}
+
+.alertHeader h4 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.alertText {
+  margin: 0;
+  color: var(--color-text, #1e293b);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.suggestionsCard {
+  background-color: var(--color-card-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  padding: 1.25rem;
+  border-radius: 12px;
+}
+
+.suggestionsCard h4 {
+  margin: 0 0 0.75rem 0;
+  font-weight: 600;
+  color: var(--letter, #103529);
+  font-size: 1rem;
+}
+
+.suggestionsList {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.recordsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.analysisTime {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #64748b);
+  margin-top: 0.5rem;
+  text-align: right;
+}
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #ef4444;
+  font-size: 1.1rem;
+  gap: 1rem;
+}
+
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background-color: var(--color-card-bg, #ffffff);
+  border: 1px dashed var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  color: var(--color-text-muted, #64748b);
+  font-size: 1rem;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.emptyIcon {
+  color: var(--text-muted, #64748b);
+  margin-bottom: 0.25rem;
+}

@@ -9,7 +9,7 @@
 .subSidebar {
   width: 240px;
   flex-shrink: 0;
-  background-color: var(--white, #a90000);
+  background-color: black;
   border: 1px solid var(--gray-200, #e2e8f0);
   border-radius: 12px;
   padding: 1rem;

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TableB from '../screens/components/TableB';
 import tableStyles from '../screens/components/TableB/index.module.css';
 import styles from './PanelCitas.module.css';
 import { Phone, PawPrint, Calendar, Clock, Stethoscope, FileText, Trash2, XCircle, PlayCircle } from 'lucide-react';
 
 import Button from '../screens/components/Button/index';
+import Container from '../screens/components/Container/index';
 
 function PanelCitasTable({
   listaCitas = [],
@@ -18,7 +20,9 @@ function PanelCitasTable({
   onCancel, // Nuevo prop para cancelar
   primaryActionLabel,
   onPrimaryAction,
+  onViewHistory,
 }) {
+  const navigate = useNavigate();
   const columns = [
     { 
       label: 'Paciente', 
@@ -120,6 +124,28 @@ function PanelCitasTable({
             >
               {primaryActionLabel || 'Empezar Consulta'}
             </Button>
+            {(() => {
+              const mascotaId = row.mascota_id || row.Mascotum?.id || row.mascota?.id;
+              if (!mascotaId) return null;
+              return (
+                <Button 
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (typeof onViewHistory === 'function') {
+                      onViewHistory(row);
+                    } else {
+                      navigate('/doctor/pacientes', { state: { mascotaId } }); 
+                    }
+                  }}
+                  disabled={isDeleting}
+                  icon={FileText}
+                  variant="outline"
+                  color={Button.COLORS.BLUE}
+                >
+                  Ver Historial
+                </Button>
+              );
+            })()}
             {onCancel && (
               <Button
                 onClick={(e) => { e.stopPropagation(); onCancel(row); }}
@@ -144,18 +170,30 @@ function PanelCitasTable({
     );
   };
 
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const pageCount = Math.ceil((listaCitas || []).length / itemsPerPage) || 1;
+
   return (
-    <TableB
-      columns={columns}
-      data={listaCitas}
-      loading={loading}
-      rowKey={(row) => getCitaId(row)}
-      emptyMessage="No hay citas registradas."
-      expandable={{
-        expandedRowRender,
-        rowExpandable: () => true
-      }}
-    />
+    <Container 
+      showPagination={true}
+      paginationCount={pageCount}
+      paginationPage={page}
+      onPaginationChange={(e, v) => setPage(v)}
+      style={{ padding: 0, boxShadow: 'none', background: 'transparent' }}
+    >
+      <TableB
+        columns={columns}
+        data={listaCitas}
+        loading={loading}
+        rowKey={(row) => getCitaId(row)}
+        emptyMessage="No hay citas registradas."
+        expandable={{
+          expandedRowRender,
+          rowExpandable: () => true
+        }}
+      />
+    </Container>
   );
 }
 

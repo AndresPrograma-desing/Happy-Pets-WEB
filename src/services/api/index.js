@@ -8,7 +8,12 @@ import {
   TOKEN_KEY,
   LOGIN_DATA_KEY,
   DOCTOR_ID_KEY,
-  extractDoctorId
+  extractDoctorId,
+  getUserFirstNameFromLoginSession,
+  getUserLastNameFromLoginSession,
+  syncStorageNameAndLastName,
+  getUserEmailFromLoginSession,
+  syncStorageProfileData
 } from './storage';
 
 export {
@@ -16,7 +21,12 @@ export {
   getToken,
   logout,
   getDoctorIdFromLoginSession,
-  getUserNameFromLoginSession
+  getUserNameFromLoginSession,
+  getUserFirstNameFromLoginSession,
+  getUserLastNameFromLoginSession,
+  syncStorageNameAndLastName,
+  getUserEmailFromLoginSession,
+  syncStorageProfileData
 };
 
 export async function login(credentials) {
@@ -423,6 +433,20 @@ export async function updateUserName(payload) {
 export async function ChangeProfileAvatar(payload) {
   return request('/Profile/update-profile', { method: 'POST', body: payload });
 }
+
+export async function getMedicalHistory(id) {
+  return request(`/MedicalHistory/mascota/${encodeURIComponent(id)}`, { method: 'GET' });
+}
+
+export async function refrestMedicalHistory(id) {
+  return request(`/MedicalHistory/mascota/${encodeURIComponent(id)}/refrescar`, { method: 'POST' });
+}
+export async function grop(pregunta) {
+  return request(`/Groq/consultar?pregunta=${encodeURIComponent(pregunta || '')}`, 
+  { method: 'POST',
+   body: { pregunta }
+   });
+}
 export default {
   request,
   login,
@@ -459,4 +483,12 @@ export default {
   getPendingResets,
   assignNewPassword,
   updateUserName,
+  getUserFirstNameFromLoginSession,
+  getUserLastNameFromLoginSession,
+  syncStorageNameAndLastName,
+  getUserEmailFromLoginSession,
+  syncStorageProfileData,
+  getMedicalHistory,
+  refrestMedicalHistory,
+  grop,
 };

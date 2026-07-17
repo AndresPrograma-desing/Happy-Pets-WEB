@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './index.module.css';
 import { sendEmails } from '../../../services/api/emails';
@@ -70,12 +70,24 @@ export default function Recetas() {
   const { recetas, loading, error, load } = useRecetas();
   const [pdfOnly, setPdfOnly] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const { visibleRecetas } = useRecetasCalculadas(recetas, pdfOnly, searchTerm);
+
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, pdfOnly]);
+
+  const pageCount = Math.ceil(visibleRecetas.length / itemsPerPage);
+  const paginatedRecetas = useMemo(() => {
+    const start = (page - 1) * itemsPerPage;
+    return visibleRecetas.slice(start, start + itemsPerPage);
+  }, [visibleRecetas, page]);
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ title: '', message: '' });
   const [sendingId, setSendingId] = useState(null);
-
-  const { visibleRecetas } = useRecetasCalculadas(recetas, pdfOnly, searchTerm);
 
   const [editPanelOpen, setEditPanelOpen] = useState(false);
   const [selectedReceta, setSelectedReceta] = useState(null);
@@ -176,7 +188,7 @@ export default function Recetas() {
       header: 'Receta / Indicaciones',
       accessor: 'receta',
       render: (row) => (
-        <div style={{ maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#64748b' }}>
+        <div style={{ minWidth: '250px', whiteSpace: 'normal', wordBreak: 'break-word', color: '#64748b' }}>
           {row.receta}
         </div>
       )
@@ -252,6 +264,10 @@ export default function Recetas() {
       message={TEXT_RECETAS_GESTION.subtitle}
       role={userRole}
       menuTitle={userRole === 'secretaria' ? 'Panel de la Secretaria' : 'Panel Médico'}
+      showPagination={true}
+      paginationCount={pageCount}
+      paginationPage={page}
+      onPaginationChange={(e, v) => setPage(v)}
     >
       <div className={styles.mainContainer}>
         

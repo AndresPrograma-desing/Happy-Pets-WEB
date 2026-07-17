@@ -5,6 +5,7 @@ import { getAvatarInitial, stringToColor } from './utils';
 import styles from './Index.module.css';
 import ModalTooltip from '../../../../ModalTooltip/ModalTooltip';
 import AlertModal from '../../../../AlertModal/AlertModal';
+import Loading from '../../Loading/Index';
 
 export default function UserAvatar({ 
   src, 
@@ -21,9 +22,18 @@ export default function UserAvatar({
   if (loading) {
     return (
       <div 
-        className={styles.skeleton}
-        style={{ width: size, height: size }}
-      />
+        style={{ 
+          width: size, 
+          height: size, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          backgroundColor: '#f3f4f6',
+          borderRadius: '50%'
+        }}
+      >
+        <Loading size="small" />
+      </div>
     );
   }
 

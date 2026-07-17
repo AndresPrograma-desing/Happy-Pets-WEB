@@ -2,8 +2,7 @@ import { getStorageValue, logout, TOKEN_KEY } from './storage';
 import { DEV_URL_API, isDummyModeActive } from '../../../config/config';
 import dummyDB from '../../dummy/db.json';
 
-// Cambia aquí si deseas usar el localhost o el tunnel por defecto
-export const API_BASE = (import.meta.env.VITE_API_URL || `${DEV_URL_API.baseURL}/api`).replace(/\/$/, '');
+export const API_BASE = `${DEV_URL_API.baseURL}/api`;
 
 export async function request(path, { method = 'GET', body, headers = {}, auth = true } = {}) {
   if (isDummyModeActive()) {

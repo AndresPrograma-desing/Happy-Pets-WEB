@@ -30,8 +30,8 @@
 
 .brandText {
   font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--sidebar-text);
+  font-weight: 400;
+  color: black;
 }
 
 /* Navigation */
@@ -134,7 +134,7 @@
 
 .topBar,
 .topHeader {
-  height: 60px; 
+  height: 60px;
   background: var(--gr-pink-green);
   backdrop-filter: var(--glass-blur-pink-green);
   -webkit-backdrop-filter: var(--glass-blur-pink-green);
@@ -161,19 +161,7 @@
   justify-content: center;
 }
 
-.card {
-  position: relative;
-  width: 100%;
-  max-width: 1000px;
-  background: var(--letter-white);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  padding: 35px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  height: fit-content;
-  border: 1px solid var(--logo-yellow-border);
-}
+
 
 .mainTitle,
 .title {
@@ -202,6 +190,7 @@
    RESPONSIVE – no altera el diseño de escritorio
    ======================================== */
 @media (max-width: 768px) {
+
   /* Cambiar a layout en columna para que la barra lateral quede arriba */
   .layoutContainer,
   .adminRoot {
@@ -211,8 +200,10 @@
   .sidebar {
     width: 100%;
     height: auto;
-    position: static;          /* deja de ser sticky */
-    order: -1;                 /* asegura que quede primero en el flujo */
+    position: static;
+    /* deja de ser sticky */
+    order: -1;
+    /* asegura que quede primero en el flujo */
   }
 
   .sidebarHeader {
@@ -238,21 +229,24 @@
     padding: 8px 12px;
     font-size: 0.85rem;
     gap: 6px;
-    width: auto;               /* para que no ocupe todo el ancho */
+    width: auto;
+    /* para que no ocupe todo el ancho */
   }
 
   .navItem:hover {
-    transform: none;           /* anula el desplazamiento lateral */
+    transform: none;
+    /* anula el desplazamiento lateral */
   }
 
   .icon {
     width: 16px;
     height: 16px;
   }
+
   .icon:global(svg),
-svg.icon {
-  stroke: #ffffff !important; 
-}
+  svg.icon {
+    stroke: #ffffff !important;
+  }
 
   .sidebarFooter {
     padding: 0.5rem 1rem;
@@ -281,11 +275,7 @@ svg.icon {
     padding: 1.5rem 1rem;
   }
 
-  /* Tarjeta a ancho completo */
-  .card {
-    max-width: 100%;
-    padding: 1.5rem;
-  }
+
 
   .mainTitle,
   .title {

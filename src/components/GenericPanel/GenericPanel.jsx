@@ -6,7 +6,7 @@ import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import styles from './GenericPanel.module.css';
 import AlertModal from '../AlertModal/AlertModal';
 import Footer from '../Footer/Footer';
-import { BellPlus, Link2, Users, BotIcon, Mail, Pencil, Check, X, CircleUser, AlertCircle } from 'lucide-react';
+import { BellPlus, Link2, Users, BotIcon, Mail, Pencil, Check, X, CircleUser, AlertCircle, LogOut } from 'lucide-react';
 import { logout, getUserNameFromLoginSession } from '../../services/api';
 import { getText } from '../../constants';
 import NotificationForm from '../NotificationForm/NotificationForm';
@@ -15,6 +15,7 @@ import DrawPanel from '../screens/components/DrawPanel';
 import { renderIcon } from '../hook/RenderIcon';
 import ToggleCard from '../screens/components/ToggleCard';
 import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
+import Button from '../screens/components/Button';
 
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
 import { getUserRole, getDisplayRoleName, getDefaultMenus } from './Routes';
@@ -23,6 +24,7 @@ import InputWithIcon from '../screens/components/Material-UI/Components/InputWit
 import EditProfileForm from '../EditProfile/EditProfile';
 import Loading from '../screens/components/Loading/Index';
 import UserAvatar from '../screens/components/Profile/Avatar/Index';
+import Container from '../screens/components/Container';
 
 let hasLoadedOnce = false;
 
@@ -33,7 +35,12 @@ function GenericPanel({
   menuTitle = 'Panel', 
   role = 'user', 
   menuItems,
-  showDashboardAvatar = false 
+  showDashboardAvatar = false,
+  showPagination = false,
+  paginationCount = 10,
+  paginationPage = 1,
+  onPaginationChange,
+  paginationProps = {}
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -222,13 +229,16 @@ function GenericPanel({
                       onNavigate={handleNavigate} 
                     />
                   ) : (
-                    <button
+                    <Button
+                      variant={Button.VARIANTS.GHOST}
+                      color="inherit"
                       className={styles.navItem}
                       onClick={() => handleNavigate(it)}
+                      style={{ justifyContent: 'flex-start', textTransform: 'none' }}
                     >
                       {renderIcon(it.icon, styles.icon)}
                       <span style={{ flex: 1, textAlign: 'left' }}>{it.label}</span>
-                    </button>
+                    </Button>
                   )}
                 </div>
               );
@@ -236,10 +246,16 @@ function GenericPanel({
           </nav>
 
           <div className={styles.sidebarFooter}>
-            <button className={styles.logoutBtn} onClick={() => setShowLogoutModal(true)}>
-              {renderIcon('exit', styles.icon)}
-              <span>Cerrar sesión</span>
-            </button>
+            <Button
+              color={Button.COLORS.RED}
+              size={Button.SIZES.MEDIUM}
+              variant={Button.VARIANTS.OUTLINE}
+              onClick={() => setShowLogoutModal(true)}
+              icon={LogOut}
+              fullWidth
+            >
+              Cerrar sesión
+            </Button>
           </div>
         </aside>
 
@@ -255,18 +271,25 @@ function GenericPanel({
                 <div className={styles.userBadge}>
                   {currentUserName || getDisplayRoleName(actualRole)}
                 </div>
-                <button 
-                  onClick={() => setShowEditProfileModal(true)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px', color: '#ffffff' }}
-                  aria-label="Editar perfil"
-                >
-                  <Pencil size={14} />
-                </button>
+                 <Button 
+                   variant={Button.VARIANTS.GHOST}
+                   onClick={() => setShowEditProfileModal(true)}
+                   style={{ minWidth: 0, padding: '4px', color: '#ffffff' }}
+                   aria-label="Editar perfil"
+                 >
+                   <Pencil size={14} />
+                 </Button>
               </div>
           </header>
 
           <main className={styles.contentArea}>
-            <div className={styles.card}>
+            <Container
+              showPagination={showPagination}
+              paginationCount={paginationCount}
+              paginationPage={paginationPage}
+              onPaginationChange={onPaginationChange}
+              paginationProps={paginationProps}
+            >
               {showOverlay && (
                 <div className={`${styles.globalLoaderOverlay} ${fadeOverlay ? styles.fadeOut : ''}`}>
                   <Loading size="giant" text="Cargando panel" />
@@ -288,7 +311,7 @@ function GenericPanel({
                 )}
               </div>
               <div className={styles.extraContent}>{children}</div>
-            </div>
+            </Container>
           </main>
 
           <Footer />

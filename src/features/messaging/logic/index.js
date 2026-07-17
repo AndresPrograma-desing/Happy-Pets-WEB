@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   getProfile, getUsers, getUserMessages,
-  getConversation, sendMessage, markMessageAsRead
+  getConversation, sendMessage, markMessageAsRead,
+  grop
 } from '../../../services/api';
 
 // --- Utils ---
@@ -55,6 +56,42 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
   const [contactSearch, setContactSearch] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [status, setStatus] = useState({ users: true, convs: true, msgs: false, sending: false });
+
+  const groqDbUser = useMemo(() => {
+    return users.find(u => u.rol === 'assistant' || u.raw?.email === 'groq@happy-pets.dev');
+  }, [users]);
+
+  // Apagar indicador de escritura del asistente Groq al llegar mensaje
+  useEffect(() => {
+    if (messages && messages.length > 0 && groqDbUser) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg && lastMsg.from === groqDbUser.id) {
+        setIsTyping(false);
+      }
+    }
+  }, [messages, groqDbUser]);
+
+  // GROQ IA local storage messages
+  const [groqMessages, setGroqMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hp_groq_messages');
+      if (saved) return JSON.parse(saved);
+    } catch(e){}
+    return [
+      {
+        id: 'groq-init',
+        from: 'groq',
+        to: 'me',
+        content: '¡Hola! Soy tu asistente de Inteligencia Artificial GROQ. ¿En qué puedo ayudarte hoy?',
+        createdAt: new Date().toISOString(),
+        read: true
+      }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('hp_groq_messages', JSON.stringify(groqMessages));
+  }, [groqMessages]);
 
   const pollRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -156,6 +193,17 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
   // Load Messages for a user
   const loadMessages = useCallback(async (otherId, markRead = true) => {
     if (!otherId || !currentUser?.id) return;
+    
+    if (otherId === 'groq') {
+      setMessages(groqMessages);
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (messagesWrapRef.current) messagesWrapRef.current.scrollTop = messagesWrapRef.current.scrollHeight;
+        isAtBottomRef.current = true;
+      }, 50);
+      return;
+    }
+
     setStatus(prev => ({ ...prev, msgs: true }));
     try {
       const raw = await getConversation(currentUser.id, otherId);
@@ -191,9 +239,13 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
 
   useEffect(() => {
     if (selectedUser && currentUser?.id) {
-      loadMessages(selectedUser, true);
+      if (selectedUser === 'groq') {
+        setMessages(groqMessages);
+      } else {
+        loadMessages(selectedUser, true);
+      }
     }
-  }, [selectedUser, currentUser?.id, loadMessages]);
+  }, [selectedUser, currentUser?.id, loadMessages, groqMessages]);
 
   // Polling
   useEffect(() => {
@@ -201,7 +253,7 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
 
     const poll = async () => {
       await loadConversationsAndUsers();
-      if (selectedUser) {
+      if (selectedUser && selectedUser !== 'groq') {
         try {
           const raw = await getConversation(currentUser.id, selectedUser);
           const normalized = extractList(raw).map(normalizeMessage).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -239,10 +291,73 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
   // Send message
   const handleSend = async (textParam = null) => {
     const text = (textParam !== null ? textParam : messageInput).trim();
-    if (!text || !selectedUser || status.sending) return;
+    if (!text || !selectedUser) return;
+
+    const isGroqLocal = selectedUser === 'groq';
+    const isGroqDb = groqDbUser && selectedUser === groqDbUser.id;
+
+    if (isGroqLocal) {
+      const userMsg = {
+        id: Math.random().toString(36).substring(7),
+        from: currentUser?.id || 'me',
+        to: 'groq',
+        content: text,
+        createdAt: new Date().toISOString(),
+        read: true
+      };
+      setGroqMessages(prev => [...prev, userMsg]);
+      setMessageInput('');
+
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (messagesWrapRef.current) messagesWrapRef.current.scrollTop = messagesWrapRef.current.scrollHeight;
+        isAtBottomRef.current = true;
+      }, 50);
+
+      setIsTyping(true);
+      try {
+        const response = await grop(text);
+        const answerText = response?.respuesta || response?.response || response?.result || response?.data || (typeof response === 'string' ? response : JSON.stringify(response)) || 'No pude procesar tu solicitud.';
+        
+        const aiMsg = {
+          id: Math.random().toString(36).substring(7),
+          from: 'groq',
+          to: currentUser?.id || 'me',
+          content: answerText,
+          createdAt: new Date().toISOString(),
+          read: true
+        };
+        setGroqMessages(prev => [...prev, aiMsg]);
+      } catch (err) {
+        console.error('Error contacting GROQ:', err);
+        const backendErrorMsg = (typeof err?.body === 'string' && err.body) || err?.body?.error || err?.body?.message || err?.message || 'Lo siento, hubo un problema al obtener una respuesta de la IA. Inténtalo de nuevo.';
+        const errMsg = {
+          id: Math.random().toString(36).substring(7),
+          from: 'groq',
+          to: currentUser?.id || 'me',
+          content: backendErrorMsg,
+          createdAt: new Date().toISOString(),
+          read: true
+        };
+        setGroqMessages(prev => [...prev, errMsg]);
+      } finally {
+        setIsTyping(false);
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
+      }
+      return;
+    }
+
+    if (status.sending) return;
     setStatus(prev => ({ ...prev, sending: true }));
     try {
       const payload = { emisorId: currentUser.id, receptorId: selectedUser, contenido: text };
+      
+      if (isGroqDb) {
+        setIsTyping(true);
+      }
+
       const response = await sendMessage(payload);
       const newMsg = normalizeMessage(response || payload);
       setMessages(prev => [...prev, newMsg]);
@@ -265,10 +380,60 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
 
   const filteredConversations = useMemo(() => {
     const term = contactSearch.toLowerCase();
-    return conversations.filter(c => c.name.toLowerCase().includes(term) || c.id.includes(term));
-  }, [conversations, contactSearch]);
+    
+    let merged = [...conversations];
+    
+    if (groqDbUser) {
+      const groqConv = conversations.find(c => c.id === groqDbUser.id);
+      if (!groqConv) {
+        merged.unshift({
+          id: groqDbUser.id,
+          name: groqDbUser.name,
+          avatarUrl: groqDbUser.avatarUrl,
+          lastMessage: 'Haz clic para iniciar chat con la IA',
+          lastAt: new Date().toISOString(),
+          unread: 0,
+          activo: true
+        });
+      } else {
+        merged = merged.filter(c => c.id !== groqDbUser.id);
+        merged.unshift({
+          ...groqConv,
+          name: groqDbUser.name,
+          avatarUrl: groqDbUser.avatarUrl,
+          activo: true
+        });
+      }
+      merged = merged.filter(c => c.id !== 'groq');
+    } else {
+      const lastGroqMsg = groqMessages[groqMessages.length - 1];
+      const groqConv = {
+        id: 'groq',
+        name: 'Asistente GROQ (IA)',
+        avatarUrl: null,
+        lastMessage: lastGroqMsg ? lastGroqMsg.content : 'Haz clic para iniciar chat',
+        lastAt: lastGroqMsg ? lastGroqMsg.createdAt : new Date().toISOString(),
+        unread: 0,
+        activo: true
+      };
+      merged = [groqConv, ...merged.filter(c => c.id !== 'groq')];
+    }
 
-  const selectedContact = selectedUser ? usersById.get(selectedUser) : null;
+    return merged.filter(c => c.name.toLowerCase().includes(term) || c.id.includes(term));
+  }, [conversations, contactSearch, groqMessages, groqDbUser]);
+
+  const selectedContact = useMemo(() => {
+    if (selectedUser === 'groq') {
+      return {
+        id: 'groq',
+        name: 'Asistente GROQ (IA)',
+        rol: 'Inteligencia Artificial',
+        avatarUrl: null,
+        raw: { email: 'ia@groq.com' }
+      };
+    }
+    return selectedUser ? usersById.get(selectedUser) : null;
+  }, [selectedUser, usersById]);
 
   return {
     currentUser,

@@ -83,7 +83,7 @@ export function getFacturaColumns({
       render: (cita) => {
         const hasUrl = invoiceUrls[cita.id];
         const isGenerating = generatingId === cita.id;
-        const disabledState = ['programada', 'no_asistida', 'cancelada'].includes((cita.estado || '').toLowerCase());
+        const disabledState = !['completada', 'completado', 'completa'].includes((cita.estado || '').toLowerCase());
         
         return (
           <div className={styles.actionContainer}>

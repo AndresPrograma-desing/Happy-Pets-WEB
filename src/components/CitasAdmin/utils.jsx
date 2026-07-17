@@ -287,8 +287,8 @@ export function CitasModals({
 
             <AlertModal
                 open={showCreateClientModal}
-                title="Crear usuario"
-                message={createClientError || 'Crea un nuevo usuario rapidamente'}
+                title="Crear cliente"
+                message={createClientError || 'Crea un nuevo cliente'}
                 onClose={() => setShowCreateClientModal(false)}
                 hideActions={true}
             >

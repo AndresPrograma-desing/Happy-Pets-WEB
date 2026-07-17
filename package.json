@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:local": "vite --mode localhost",
+    "dev:server": "vite --mode tunnel",
     "tunnel": "open-cli https://g27frlv5-5173.use2.devtunnels.ms/ & vite",
     "build": "vite build",
     "lint": "eslint .",

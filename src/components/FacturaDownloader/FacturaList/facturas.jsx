@@ -104,8 +104,20 @@ export default function Facturas() {
     onPaymentUpdate: handlePaymentUpdate
   }), [openQr, handlePaymentUpdate]);
 
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const pageCount = Math.ceil(visibleFacturas.length / itemsPerPage) || 1;
+
   return (
-    <GenericPanel title={TEXT_FACTURAS_LIST.title} menuTitle={TEXT_FACTURAS_LIST.menuTitle} role="secretaria">
+    <GenericPanel 
+      title={TEXT_FACTURAS_LIST.title} 
+      menuTitle={TEXT_FACTURAS_LIST.menuTitle} 
+      role="secretaria"
+      showPagination={true}
+      paginationCount={pageCount}
+      paginationPage={page}
+      onPaginationChange={(e, v) => setPage(v)}
+    >
       <div className={styles.container}>
         <div className={styles.headerControlsContainer}>
           <div className={styles.leftControls} style={{ flex: 1, maxWidth: '750px', flexWrap: 'nowrap' }}>

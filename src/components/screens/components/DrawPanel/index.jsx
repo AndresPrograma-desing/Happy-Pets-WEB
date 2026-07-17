@@ -10,7 +10,7 @@ const DrawPanel = ({
   onClose, 
   title, 
   children,
-  width = '350px',
+  width = '450px',
   showActions = false,
   onConfirm,
   confirmText = 'Confirmar',

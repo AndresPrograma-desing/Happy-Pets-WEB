@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import GenericPanel from '../../GenericPanel/GenericPanel';
 import { getEmailsTemplates } from '../../../services/api/emails';
 import { parseEmailTemplate, sampleData } from './utils';
@@ -12,6 +12,14 @@ const EmailsTemplates = () => {
     const [loading, setLoading] = useState(true);
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 8;
+
+    const pageCount = Math.ceil(templates.length / itemsPerPage);
+    const paginatedTemplates = useMemo(() => {
+        const start = (page - 1) * itemsPerPage;
+        return templates.slice(start, start + itemsPerPage);
+    }, [templates, page]);
 
     useEffect(() => {
         const fetchTemplates = async () => {
@@ -78,6 +86,10 @@ const EmailsTemplates = () => {
             message="Gestiona y visualiza las plantillas de correo electrónico enviadas por el sistema."
             role="admin"
             menuTitle="Panel de Administración"
+            showPagination={true}
+            paginationCount={pageCount}
+            paginationPage={page}
+            onPaginationChange={(e, v) => setPage(v)}
         >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <TableA 

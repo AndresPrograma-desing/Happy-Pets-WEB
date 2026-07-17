@@ -3,6 +3,7 @@ import MuiButton from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import { VARIANTS, SIZES, COLORS } from './utils';
 import styles from './index.module.css';
+import ModalTooltip from '../../../ModalTooltip/ModalTooltip';
 
 const Button = React.forwardRef(({ 
   children, 
@@ -21,6 +22,8 @@ const Button = React.forwardRef(({
   style = {},
   loading = false,
   circle = false,
+  ToolTip = false,
+  title,
   ...props
 }, ref) => {
 
@@ -84,7 +87,7 @@ const Button = React.forwardRef(({
   // Handle icon size
   const iconSize = size === 'small' ? 16 : size === 'large' ? 22 : 18;
 
-  return (
+  const buttonElement = (
     <MuiButton
       ref={ref}
       type={type}
@@ -112,6 +115,13 @@ const Button = React.forwardRef(({
       {circle && Icon ? <span className={loading ? styles.spinning : ''} style={{ display: 'inline-flex' }}><Icon size={iconSize} /></span> : (circle && loading ? <CircularProgress size={iconSize} color="inherit" /> : children)}
     </MuiButton>
   );
+
+  const tooltipText = typeof ToolTip === 'string' ? ToolTip : title;
+  if (ToolTip && tooltipText) {
+    return <ModalTooltip text={tooltipText}>{buttonElement}</ModalTooltip>;
+  }
+
+  return buttonElement;
 });
 
 Button.VARIANTS = VARIANTS;

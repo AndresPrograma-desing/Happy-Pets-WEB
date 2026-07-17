@@ -63,9 +63,9 @@
   --glass-blur-pink-green: blur(10px);
 
   /* Sidebar Glassmorphism */
-  --sidebar-bg: var(--bg-glass-gradient-logo);
-  --sidebar-blur: var(--glass-blur-panel);
-  --sidebar-border-right: 1px solid rgba(14, 165, 233, 0.2);
+  --sidebar-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.5), rgba(255, 255, 255, 0.4), rgba(14, 165, 233, 0.5));
+  --sidebar-blur: blur(24px);
+  --sidebar-border-right: 1px solid rgba(14, 165, 233, 0.3);
   --sidebar-text: #0f172a;
   --sidebar-text-muted: #475569;
   --sidebar-text-active: #0ea5e9;

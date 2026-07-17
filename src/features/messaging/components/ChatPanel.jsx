@@ -19,6 +19,7 @@ export default function ChatPanel({ currentUserId, pollInterval = 3000 }) {
     setMessageInput,
     contactSearch,
     setContactSearch,
+    isTyping,
     status,
     isMobile,
     showContactsList,
@@ -152,6 +153,16 @@ export default function ChatPanel({ currentUserId, pollInterval = 3000 }) {
                         </div>
                       );
                     })}
+                    {isTyping && (
+                      <div className={`${styles.messageBlock} ${styles.messageThem}`}>
+                        <div className={styles.messageAuthor}>
+                          Asistente GROQ (IA)
+                        </div>
+                        <div className={styles.messageBubble} style={{ fontStyle: 'italic', opacity: 0.8 }}>
+                          Escribiendo respuesta...
+                        </div>
+                      </div>
+                    )}
                     <div ref={messagesEndRef} />
                   </div>
 

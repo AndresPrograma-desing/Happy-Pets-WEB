@@ -35,6 +35,8 @@ import ClientList from './components/Clients/ClientList/list';
 import GlobalPushNotification from './components/Notification/Push';
 import EmailsTemplates from './components/Emails/Templates';
 import Recetas from './components/Recetas/Components';
+import PortalClientes from '../PortalClientes/Index';
+import HistorialMedico from './components/HistorialMedico/Index';
 
 function AppContent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +45,7 @@ function AppContent() {
   // Obtener el user_id usando la utilidad
   const userId = getUserId();
   
-  const isPublicRoute = ['/login', '/inicio', '/', '/witing'].includes(location.pathname);
+  const isPublicRoute = ['/login', '/inicio', '/', '/witing', '/portal-cliente'].includes(location.pathname);
 
   useEffect(() => {
     startTransition(() => setIsLoading(true));
@@ -82,11 +84,13 @@ function AppContent() {
           <Route path="/AdminSystem/users" element={<Users />} />
           <Route path="/AdminSystem/emails" element={<EmailsTemplates />} />
           <Route path="/doctor/recetas" element={<Recetas />} />
+          <Route path="/doctor/pacientes" element={<HistorialMedico />} />
           <Route path="/clients" element={<ClientList />} />
           <Route path="/calendar" element={<CalendarTest />} />
           
           <Route path="/health" element={<Health />} />
           <Route path="/witing" element={<WaitingPage />} />
+          <Route path="/portal-cliente" element={<PortalClientes />} />
           <Route path="*" element={<Navigate to="/inicio" replace />} />
         </Routes>
       {/* </div> */}

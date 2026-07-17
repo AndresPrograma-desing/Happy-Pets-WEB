@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './CitasDoctor.module.css';
 import PanelCitas from '../PanelCitas/PanelCitas';
 import AlertModal from '../AlertModal/AlertModal';
@@ -10,6 +10,7 @@ import GenericPanel from '../GenericPanel/GenericPanel';
 import DrawPanel from '../screens/components/DrawPanel';
 import Consultas from '../../pages/DoctorSystem/Consultas/Consultas';
 import SearchInput from '../UI/Search/Search';
+import HistorialMedico from '../HistorialMedico/Index';
 
 function CitasLayout(props) {
     const {
@@ -51,6 +52,18 @@ function CitasLayout(props) {
         primaryActionLabelProp,
         primaryActionHandlerProp
     } = useCitasLogic(props);
+
+    const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
+    const [selectedMascotaIdForHistory, setSelectedMascotaIdForHistory] = useState(null);
+    const [selectedMascotaNombreForHistory, setSelectedMascotaNombreForHistory] = useState('');
+
+    const handleViewHistory = (cita) => {
+        const mascotaId = cita?.mascota_id || cita?.Mascotum?.id || cita?.mascota?.id;
+        const mascotaNombre = cita?.mascota_nombre || cita?.Mascotum?.nombre || cita?.mascota?.nombre || 'Paciente';
+        setSelectedMascotaIdForHistory(mascotaId);
+        setSelectedMascotaNombreForHistory(mascotaNombre);
+        setHistoryDrawerOpen(true);
+    };
 
     const {
         titulo = 'Citas',
@@ -100,6 +113,7 @@ function CitasLayout(props) {
                     primaryActionLabel={primaryActionLabelProp}
                     onPrimaryAction={primaryActionHandlerProp}
                     onDelete={handleDelete}
+                    onViewHistory={handleViewHistory}
                 />
             </div>
 
@@ -140,6 +154,20 @@ function CitasLayout(props) {
                             if (typeof refetch === 'function') refetch();
                         }}
                         onCancel={() => setDrawerOpen(false)}
+                    />
+                )}
+            </DrawPanel>
+
+            <DrawPanel 
+                isOpen={historyDrawerOpen} 
+                onClose={() => setHistoryDrawerOpen(false)} 
+                title={`Historial Clínico - ${selectedMascotaNombreForHistory}`}
+                width="850px"
+            >
+                {selectedMascotaIdForHistory && historyDrawerOpen && (
+                    <HistorialMedico 
+                        isDrawer={true} 
+                        mascotaId={selectedMascotaIdForHistory} 
                     />
                 )}
             </DrawPanel>

@@ -10,15 +10,20 @@ export default function Products() {
 
     if (view === 'manage') {
         return (
-            <GenericPanel title="Administrar Productos" role="admin" menuTitle="Panel de Administración">
+            <GenericPanel 
+                title="Administrar Productos" 
+                role="admin" 
+                menuTitle="Panel de Administración"
+                showPagination={true}
+                paginationCount={10}
+                paginationPage={1}
+            >
                 <ProductCreate hideHeader={true} />
             </GenericPanel>
         );
     }
 
     return (
-        <GenericPanel title="Inventario de Productos" role="admin" menuTitle="Panel de Administración">
-            <ProductList />
-        </GenericPanel>
+        <ProductList />
     );
 }
