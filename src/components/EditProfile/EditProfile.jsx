@@ -4,22 +4,35 @@ import styles from './Index.module.css';
 import InputWithIcon from '../screens/components/Material-UI/Components/InputWithIcon/Index';
 import { Pencil, Mail } from 'lucide-react';
 import Loading from '../screens/components/Loading/Index';
-import { ChangeProfileAvatar, updateUserName, getUserFirstNameFromLoginSession, getUserLastNameFromLoginSession, syncStorageNameAndLastName, getProfile, getUserEmailFromLoginSession, syncStorageProfileData } from '../../services/api';
+import { ChangeProfileAvatar, updateUserName, getUserFirstNameFromLoginSession, getUserLastNameFromLoginSession, syncStorageNameAndLastName, getProfile, getUserEmailFromLoginSession, syncStorageProfileData, getUsers } from '../../services/api';
 import { getUserId } from '../../context/LocalStorage';
+
+const extractList = (res) => {
+  if (Array.isArray(res)) return res;
+  return res?.data ?? res?.result ?? [];
+};
 
 export default function EditProfileForm({ 
   currentName, 
   currentAvatarUrl, 
   onSuccess, 
-  formId 
+  formId,
+  isGroq = false,
+  userId = null,
+  additionalFields = null,
+  onSaveStart = null,
+  onSaveEnd = null,
+  onError = null
 }) {
   const [name, setName] = useState(() => {
+    if (isGroq) return 'Asistente GROQ (IA)';
     const storedFirst = getUserFirstNameFromLoginSession();
     if (storedFirst) return storedFirst;
     if (currentName) return currentName.trim().split(/\s+/)[0] || '';
     return '';
   });
   const [lastName, setLastName] = useState(() => {
+    if (isGroq) return '';
     const storedLast = getUserLastNameFromLoginSession();
     if (storedLast) return storedLast;
     if (currentName) {
@@ -28,22 +41,40 @@ export default function EditProfileForm({
     }
     return '';
   });
-  const [email, setEmail] = useState(() => getUserEmailFromLoginSession() || '');
+  const [email, setEmail] = useState(() => {
+    if (isGroq) return 'ia@groq.com';
+    return getUserEmailFromLoginSession() || '';
+  });
   const [avatarPreview, setAvatarPreview] = useState(currentAvatarUrl || null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fileError, setFileError] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
+  const [targetUserId, setTargetUserId] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const profile = await getProfile();
+        let data = null;
+        if (isGroq) {
+          const res = await getUsers();
+          const userList = extractList(res);
+          data = userList.find(u => u.rol?.toLowerCase() === 'assistant' || u.email === 'groq@happy-pets.dev');
+        } else if (userId) {
+          const res = await getUsers();
+          const userList = extractList(res);
+          data = userList.find(u => String(u.id) === String(userId));
+        } else {
+          const profile = await getProfile();
+          data = profile?.data || profile?.user || profile;
+        }
+
         if (!mounted) return;
-        const data = profile?.data || profile?.user || profile;
         if (data) {
+          setTargetUserId(data.id);
+          
           let firstName = data.nombre || data.firstName || data.first_name || '';
           let lastNameVal = data.apellido || data.lastName || data.last_name || '';
           let emailVal = data.email || data.correo || '';
@@ -58,6 +89,9 @@ export default function EditProfileForm({
           if (firstName) setName(firstName);
           if (lastNameVal) setLastName(lastNameVal);
           if (emailVal) setEmail(emailVal);
+          if (data.avatarUrl || data.avatar_url || data.avatar) {
+            setAvatarPreview(data.avatarUrl || data.avatar_url || data.avatar);
+          }
         }
       } catch (err) {
         console.error("Error fetching profile on mount:", err);
@@ -66,7 +100,7 @@ export default function EditProfileForm({
       }
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [isGroq, userId]);
 
   const MAX_FILE_SIZE = 3 * 1024 * 1024;
 
@@ -95,47 +129,56 @@ export default function EditProfileForm({
     if (fileError || loading) return;
     
     setLoading(true);
+    if (onSaveStart) onSaveStart();
     try {
       let finalName = name;
-      let finalAvatarUrl = currentAvatarUrl;
+      let finalAvatarUrl = avatarPreview;
 
       const initialFirstName = getUserFirstNameFromLoginSession() || currentName || '';
       const initialLastName = getUserLastNameFromLoginSession() || '';
       const initialEmail = getUserEmailFromLoginSession() || '';
 
-      // 1. Si el nombre, apellido o email cambiaron, los actualizamos usando la estructura del DTO de la API .NET
-      if (name !== initialFirstName || lastName !== initialLastName || email !== initialEmail) {
-        const idUser = getUserId();
+      const activeUserId = targetUserId || userId || getUserId();
+
+      // 1. Update Name and Email DTO
+      const isSelf = !isGroq && !userId;
+      if (!isSelf || name !== initialFirstName || lastName !== initialLastName || email !== initialEmail) {
         await updateUserName({ 
-          idUser: Number(idUser),
+          idUser: Number(activeUserId),
           newUserName: name,
           newLastName: lastName,
           email: email
         }); 
         
-        syncStorageProfileData(name, lastName, email);
+        if (isSelf) {
+          syncStorageProfileData(name, lastName, email);
+        }
         finalName = name;
       }
 
-      // 2. Si se seleccionó una foto, la subimos (el backend espera la clave 'avatar')
+      // 2. Update Profile Avatar
       if (selectedFile) {
         const formData = new FormData();
         formData.append('avatar', selectedFile);
         formData.append('username', finalName);
+        if (!isSelf) {
+          formData.append('userId', activeUserId);
+        }
 
         const avatarResponse = await ChangeProfileAvatar(formData);
         if (avatarResponse && avatarResponse.success) {
-          finalAvatarUrl = avatarResponse.data.avatar_url;
+          finalAvatarUrl = avatarResponse.data?.avatar_url || avatarResponse.data?.avatarUrl;
         }
       }
 
-      // Devolvemos ambos valores actualizados al panel principal
-      onSuccess(finalName, finalAvatarUrl);
+      if (onSuccess) onSuccess(finalName, finalAvatarUrl);
 
     } catch (error) {
       console.error("Error al actualizar el perfil:", error);
+      if (onError) onError(error?.message || "Error al actualizar el perfil");
     } finally {
       setLoading(false);
+      if (onSaveEnd) onSaveEnd();
     }
   };
 
@@ -198,16 +241,18 @@ export default function EditProfileForm({
         />
       </div>
       
-      <div className={styles.inputWrapper}>
-        <InputWithIcon 
-          icon={Pencil} 
-          placeholder="Apellido" 
-          value={lastName} 
-          onChange={(e) => setLastName(e.target.value)}
-          disabled={loading} 
-          fullWidth 
-        />
-      </div>
+      {!isGroq && (
+        <div className={styles.inputWrapper}>
+          <InputWithIcon 
+            icon={Pencil} 
+            placeholder="Apellido" 
+            value={lastName} 
+            onChange={(e) => setLastName(e.target.value)}
+            disabled={loading} 
+            fullWidth 
+          />
+        </div>
+      )}
 
       <div className={styles.inputWrapper}>
         <InputWithIcon 
@@ -220,6 +265,8 @@ export default function EditProfileForm({
           fullWidth 
         />
       </div>
+
+      {additionalFields}
     </form>
   );
 }
