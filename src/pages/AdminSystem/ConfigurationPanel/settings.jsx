@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import style from "./settings.module.css";
 import AlertModal from "../../../components/AlertModal/AlertModal";
 import GenericPanel from "../../../components/GenericPanel/GenericPanel";
-import { KeyRound, FileText, Settings2, ClipboardIcon, CircleDollarSign, Mail, Eye, EyeOff } from "lucide-react";
+import { KeyRound, FileText, Settings2, ClipboardIcon, CircleDollarSign, Mail, Eye, EyeOff, Sparkles } from "lucide-react";
 import Report from "./Components/Report/index";
 import { getText } from "../../../constants";
 import ConfigReport from "./Components/SettingReport";
@@ -13,8 +13,11 @@ import AutoDeleteTogglefactura from "./Components/SettingFactura/autoDeleting";
 import CurrencySelector from "./Components/MoneySettings/CurrencySelector";
 import DesplegablePanel from "../../../components/screens/components/DesplegablePanel";
 import SettingResend from "./Components/SettingResend";
+import GroqSettings from "./Components/GroqSettings/index";
 import DrawPanel from "../../../components/screens/components/DrawPanel/index";
 import TextField from "../../../components/screens/components/Material-UI/Components/TextField/Index";
+import MultilinePlaceholder from "../../../components/screens/components/Material-UI/Components/MultilinePlaceholder/index";
+import UserAvatar from "../../../components/screens/components/Profile/Avatar/Index.jsx";
 import useAdminPasswordReset from "../../../hooks/useAdminPasswordReset";
 import ToggleCard from "../../../components/screens/components/ToggleCard";
 import Loading from "../../../components/screens/components/Loading/Index";
@@ -25,7 +28,9 @@ const Settings = () => {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showResendPanel, setShowResendPanel] = useState(false);
   const [showReportPanel, setShowReportPanel] = useState(false);
+  const [showGroqPanel, setShowGroqPanel] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
+  
   const misFrases = ["Cargando", "Esperando la aceptación de la solicitud", "Enviale un mensaje"];
 
   // Change Password State via Real API Polling
@@ -154,6 +159,15 @@ const Settings = () => {
               icon={Mail}
               iconColorVariant="purple"
               onToggle={() => setShowResendPanel(true)}
+              isOpen={false}
+            />
+
+            <DesplegablePanel
+              title="Configuración de GROQ IA"
+              description="Personaliza el nombre, correo, foto de perfil, reglas de respuesta y base de conocimientos de tu IA."
+              icon={Sparkles}
+              iconColorVariant="blue"
+              onToggle={() => setShowGroqPanel(true)}
               isOpen={false}
             />
 
@@ -369,6 +383,15 @@ const Settings = () => {
         width="450px"
       >
         <Report />
+      </DrawPanel>
+
+      <DrawPanel
+        isOpen={showGroqPanel}
+        onClose={() => setShowGroqPanel(false)}
+        title="Ajustes del Asistente GROQ"
+        width="500px"
+      >
+        <GroqSettings onClose={() => setShowGroqPanel(false)} />
       </DrawPanel>
     </GenericPanel>
   );
