@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import EditProfileForm from "../../../../components/EditProfile/EditProfile";
+import EditProfileForm from "../../../../../components/EditProfile/EditProfile";
 import MultilinePlaceholder from "../../../../../components/screens/components/Material-UI/Components/MultilinePlaceholder/index";
 import Button from "../../../../../components/screens/components/Button/index";
 import ErrorMessage from "../../../../../components/Notification/Error/ErrorMessage";
