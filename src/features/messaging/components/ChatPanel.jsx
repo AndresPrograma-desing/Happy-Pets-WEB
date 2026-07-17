@@ -9,6 +9,17 @@ import SearchInput from '../../../components/UI/Search/Search';
 import UserAvatar from '../../../components/screens/components/Profile/Avatar/Index.jsx';
 import Loading from '../../../components/screens/components/Loading/Index.jsx';
 
+const renderMessageContent = (content) => {
+  if (typeof content !== 'string') return content;
+  const parts = content.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const cleanText = part.slice(2, -2);
+      return <strong key={index} className={styles.greenHighlight}>{cleanText}</strong>;
+    }
+    return part;
+  });
+};
 
 export default function ChatPanel({ currentUserId, pollInterval = 3000 }) {
   const {
@@ -148,7 +159,7 @@ export default function ChatPanel({ currentUserId, pollInterval = 3000 }) {
                             </div>
                           )}
                           <div className={styles.messageBubble}>
-                            {m.content}
+                            {renderMessageContent(m.content)}
                           </div>
                         </div>
                       );
