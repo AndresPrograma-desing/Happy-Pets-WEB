@@ -4,11 +4,16 @@ const baseURL_LocalHost = "http://localhost:5168";
 
 // Selecciona la URL base según el modo de Vite (local o tunnel/server)
 const getBaseURL = () => {
-    if (typeof import.meta === 'undefined' || !import.meta.env) {
-        return baseURL_LocalHost;
-    }
-    if (import.meta.env.MODE === 'tunnel') {
-        return baseURL_Tunnel;
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+        if (import.meta.env.VITE_API_URL) {
+            return import.meta.env.VITE_API_URL;
+        }
+        if (import.meta.env.MODE === 'localhost') {
+            return baseURL_LocalHost;
+        }
+        if (import.meta.env.MODE === 'tunnel' || import.meta.env.PROD) {
+            return baseURL_Tunnel;
+        }
     }
     return baseURL_LocalHost;
 };
