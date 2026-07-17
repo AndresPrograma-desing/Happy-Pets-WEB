@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import UserAvatar from '../screens/components/Profile/Avatar/Index';
 import styles from './Index.module.css';
 import InputWithIcon from '../screens/components/Material-UI/Components/InputWithIcon/Index';
+import Selector from '../screens/components/Material-UI/Components/Selector/Index';
 import { Pencil, Mail } from 'lucide-react';
 import Loading from '../screens/components/Loading/Index';
 import { ChangeProfileAvatar, updateUserName, getUserFirstNameFromLoginSession, getUserLastNameFromLoginSession, syncStorageNameAndLastName, getProfile, getUserEmailFromLoginSession, syncStorageProfileData, getUsers } from '../../services/api';
@@ -22,7 +23,9 @@ export default function EditProfileForm({
   additionalFields = null,
   onSaveStart = null,
   onSaveEnd = null,
-  onError = null
+  onError = null,
+  selectorProps = null,
+  actionButtons = null
 }) {
   const [name, setName] = useState(() => {
     if (isGroq) return 'Asistente GROQ (IA)';
@@ -267,6 +270,14 @@ export default function EditProfileForm({
       </div>
 
       {additionalFields}
+
+      {selectorProps && (
+        <div className={styles.inputWrapper} style={{ marginTop: '1.2rem' }}>
+          <Selector {...selectorProps} />
+        </div>
+      )}
+
+      {actionButtons}
     </form>
   );
 }

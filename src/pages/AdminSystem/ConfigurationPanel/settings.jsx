@@ -389,7 +389,6 @@ const Settings = () => {
         isOpen={showGroqPanel}
         onClose={() => setShowGroqPanel(false)}
         title="Ajustes del Asistente GROQ"
-        width="500px"
       >
         <GroqSettings onClose={() => setShowGroqPanel(false)} />
       </DrawPanel>

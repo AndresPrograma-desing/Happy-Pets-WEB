@@ -183,6 +183,7 @@ export default function ChatPanel({ currentUserId, pollInterval = 3000 }) {
                       placeholder="Escribe tu respuesta aquí..."
                       buttonText="Enviar"
                       inputType="text"
+                      multiline={true}
                       onSavePromise={async (val) => {
                         await handleSend(val);
                       }}

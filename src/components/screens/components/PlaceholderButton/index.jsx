@@ -5,6 +5,7 @@ import styles from './index.module.css';
 import { handleAction } from './utils';
 
 import Button from '../Button/index';
+import TextField from '../Material-UI/Components/TextField/Index';
 
 const PlaceholderButton = ({
   icon: Icon,
@@ -19,6 +20,7 @@ const PlaceholderButton = ({
   inputType = 'number',
   min = "1",
   disabled = false,
+  multiline = false,
   
   onSavePromise,
   clearCache,
@@ -53,36 +55,72 @@ const PlaceholderButton = ({
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !isSaving && !disabled) {
-      e.preventDefault();
-      onSaveClick();
+    if (e.key === 'Enter') {
+      if (multiline) {
+        if (e.ctrlKey) {
+          // Ctrl + Enter: insert newline manually
+          e.preventDefault();
+          const start = e.target.selectionStart;
+          const end = e.target.selectionEnd;
+          const val = e.target.value;
+          setValue(val.substring(0, start) + "\n" + val.substring(end));
+          setTimeout(() => {
+            e.target.selectionStart = e.target.selectionEnd = start + 1;
+          }, 0);
+        } else {
+          // Enter alone: submit
+          e.preventDefault();
+          if (!isSaving && !disabled) {
+            onSaveClick();
+          }
+        }
+      } else {
+        if (!isSaving && !disabled) {
+          e.preventDefault();
+          onSaveClick();
+        }
+      }
     }
   };
 
   return (
     <div className={`${styles.configContainer} ${disabled ? styles.disabledContainer : ''}`}>
       <div className={styles.inputGroup}>
-        <div className={styles.inputWrapper}>
-          {Icon && tooltipText ? (
-            <ModalTooltip text={tooltipText} position="top">
-              <Icon size={18} className={styles.inputIcon} />
-            </ModalTooltip>
-          ) : Icon ? (
-            <Icon size={18} className={styles.inputIcon} />
-          ) : null}
-
-          <input
-            type={inputType}
+        {multiline ? (
+          <TextField
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className={styles.daysInput}
-            min={min}
             disabled={disabled}
+            multiline
+            maxRows={4}
+            size="small"
+            style={{ flex: 1 }}
           />
-          {unitText && <span className={styles.unitText}>{unitText}</span>}
-        </div>
+        ) : (
+          <div className={styles.inputWrapper}>
+            {Icon && tooltipText ? (
+              <ModalTooltip text={tooltipText} position="top">
+                <Icon size={18} className={styles.inputIcon} />
+              </ModalTooltip>
+            ) : Icon ? (
+              <Icon size={18} className={styles.inputIcon} />
+            ) : null}
+
+            <input
+              type={inputType}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={placeholder}
+              className={styles.daysInput}
+              min={min}
+              disabled={disabled}
+            />
+            {unitText && <span className={styles.unitText}>{unitText}</span>}
+          </div>
+        )}
 
         <Button
           variant={Button.VARIANTS.PRIMARY}

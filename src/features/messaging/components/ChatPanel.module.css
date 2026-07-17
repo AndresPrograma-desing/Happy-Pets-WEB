@@ -260,6 +260,8 @@
   font-size: 0.95rem;
   line-height: 1.5;
   box-shadow: var(--shadow-sm);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .messageMe .messageBubble {

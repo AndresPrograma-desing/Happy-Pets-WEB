@@ -441,11 +441,20 @@ export async function getMedicalHistory(id) {
 export async function refrestMedicalHistory(id) {
   return request(`/MedicalHistory/mascota/${encodeURIComponent(id)}/refrescar`, { method: 'POST' });
 }
-export async function grop(pregunta) {
-  return request(`/Groq/consultar?pregunta=${encodeURIComponent(pregunta || '')}`, 
-  { method: 'POST',
-   body: { pregunta }
-   });
+export async function grop(pregunta, historial = []) {
+  return request('/Groq/consultar', { 
+    method: 'POST',
+    body: { pregunta, historial }
+  });
+}
+export async function getIaConocimiento(categoria) {
+  return request(`/IaConocimiento/categoria/${encodeURIComponent(categoria || '')}`);
+}
+export async function saveIaConocimiento(payload) {
+  return request('/IaConocimiento/guardar', {
+    method: 'POST',
+    body: payload
+  });
 }
 export default {
   request,
@@ -491,4 +500,6 @@ export default {
   getMedicalHistory,
   refrestMedicalHistory,
   grop,
+  getIaConocimiento,
+  saveIaConocimiento,
 };

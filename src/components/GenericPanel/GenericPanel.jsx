@@ -329,7 +329,6 @@ function GenericPanel({
           isOpen={showNotificationModal}
           title="Nuevo Ticket de Control"
           onClose={() => setShowNotificationModal(false)}
-          width="400px"
           showActions={true}
           formId="notification-form"
           confirmText="Crear Notificación"
