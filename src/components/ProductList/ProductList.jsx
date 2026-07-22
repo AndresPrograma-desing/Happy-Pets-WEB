@@ -5,7 +5,6 @@ import styles from './ProductList.module.css';
 import Filter from '../screens/components/Filter/Index';
 import TextField from '../screens/components/Material-UI/Components/TextField/Index';
 import Selector from '../screens/components/Material-UI/Components/Selector/Index';
-import usePolling from '../../hooks/UsePolling';
 import useCategories from '../../hooks/requestCategories';
 import AlertModal from '../AlertModal/AlertModal';
 import DrawPanel from '../screens/components/DrawPanel';
@@ -17,10 +16,8 @@ import { useCurrency } from '../../hooks/moneyType';
 import { useProductListLogic } from './utils';
 import TableB from '../screens/components/TableB';
 
-const pollingInterval = 20000;
-
 export default function ProductList() {
-    const { categories, categoryMap } = useCategories(pollingInterval);
+    const { categories, categoryMap } = useCategories();
     const editFormRef = useRef(null);
 
     const {
@@ -49,6 +46,14 @@ export default function ProductList() {
         setPage(1);
     }, [searchTerm, filterCategory, maxPrice]);
 
+    const activeFiltersCount = useMemo(() => {
+        let count = 0;
+        if (searchTerm && searchTerm.trim() !== '') count++;
+        if (filterCategory && String(filterCategory).trim() !== '') count++;
+        if (maxPrice && String(maxPrice).trim() !== '') count++;
+        return count;
+    }, [searchTerm, filterCategory, maxPrice]);
+
     const pageCount = Math.ceil(filteredProducts.length / itemsPerPage);
     const paginatedProducts = useMemo(() => {
         const start = (page - 1) * itemsPerPage;
@@ -57,10 +62,6 @@ export default function ProductList() {
 
     const { currency, convertAmount, isLoading: currencyLoading } = useCurrency();
     const esUSD = currency?.toUpperCase() === 'USD';
-
-    usePolling(() => {
-        fetchProducts(true);
-    }, pollingInterval);
 
     const formatCurrency = useCallback((v) => {
         const n = Number(v || 0);
@@ -75,8 +76,6 @@ export default function ProductList() {
             return (esUSD ? '$ ' : 'Bs. ') + n.toLocaleString();
         }
     }, [currency, esUSD]);
-
-
 
     const columns = [
         {
@@ -161,105 +160,106 @@ export default function ProductList() {
             <div className={styles.content}>
                 <Filter
                     onClear={handleClearFilters}
-                searchTerm={searchTerm}
-                title="Filtros de Productos"
-            >
-                <TextField 
-                    label="Nombre" 
-                    value={searchTerm} 
-                    onChange={(e) => setSearchTerm(e.target.value)} 
-                    placeholder="Buscar producto..."
-                />
-                
-                <Selector
-                    id="categoria-select"
-                    label="Categoría"
-                    value={filterCategory}
-                    onChange={(e) => setFilterCategory(e.target.value)}
-                    emptyOptionLabel="Todas las categorías"
-                    options={categories.map((cat) => {
-                        const val = typeof cat === 'string' ? cat : (cat.id ?? String(cat));
-                        const label = typeof cat === 'string' ? cat : (cat.name ?? val);
-                        return { value: val, label: label };
-                    })}
-                />
-
-                <TextField 
-                    label="Precio máximo" 
-                    type="number" 
-                    value={maxPrice} 
-                    onChange={(e) => setMaxPrice(e.target.value)} 
-                    placeholder="Ej. 150.00"
-                />
-            </Filter>
-
-            <div className={styles.tableWrapper}>
-                <TableB 
-                    columns={columns}
-                    data={filteredProducts}
-                    loading={loading || currencyLoading}
-                    error={error}
-                    onRetry={() => fetchProducts(false)}
-                    emptyIcon={PackageSearch}
-                    emptyMessage="No se encontraron productos en el inventario."
-                    rowKey={(row) => row.id || row.nombre}
-                    rowClassName={(row) => {
-                        const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
-                        return row.normalizedStock < stockMin ? styles.lowStockRow : '';
-                    }}
-                />
-            </div>
-
-            <div className={styles.footer}>
-                <span className={styles.iconText}>
-                    <img src={getIcon('fileCheck')} alt="Sinc" />
-                    Última sincronización: {new Date(lastUpdated).toLocaleTimeString()}
-                </span>
-                {refreshing && (
-                    <>
-                        <span className={styles.separator}></span>
-                        <span className={styles.iconText} style={{ color: '#0ea5a4' }}>
-                            <img src={getIcon('listRestart')} alt="Actualizando" className={styles.spin} />
-                            Actualizando...
-                        </span>
-                    </>
-                )}
-            </div>
-
-            <DrawPanel
-                isOpen={alertOpen && !!selectedProduct}
-                title={alertTitle}
-                confirmText="Actualizar"
-                cancelText="Cancelar"
-                onClose={() => { setAlertOpen(false); setSelectedProduct(null); }}
-                onConfirm={handleConfirmModal}
-                showActions={true}
-                width="600px"
-            >
-                {selectedProduct && (
-                    <EditProducts
-                        ref={editFormRef}
-                        productData={selectedProduct}
-                        onUpdateSuccess={() => {
-                            setAlertOpen(false);
-                            setSelectedProduct(null);
-                            fetchProducts();
-                        }}
-                        onError={(err) => setAlertMessage(getAlertPayload(err))}
+                    searchTerm={searchTerm}
+                    title="Filtros de Productos"
+                    activeFiltersCount={activeFiltersCount}
+                >
+                    <TextField 
+                        label="Nombre" 
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)} 
+                        placeholder="Buscar producto..."
                     />
-                )}
-            </DrawPanel>
+                    
+                    <Selector
+                        id="categoria-select"
+                        label="Categoría"
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        emptyOptionLabel="Todas las categorías"
+                        options={categories.map((cat) => {
+                            const val = typeof cat === 'string' ? cat : (cat.id ?? String(cat));
+                            const label = typeof cat === 'string' ? cat : (cat.name ?? val);
+                            return { value: val, label: label };
+                        })}
+                    />
 
-            <AlertModal
-                open={alertOpen && !selectedProduct}
-                title={alertTitle}
-                confirmText="Entendido"
-                onClose={() => { setAlertOpen(false); setSelectedProduct(null); }}
-                onConfirm={handleConfirmModal}
-            >
-                <p>{alertMessage}</p>
-            </AlertModal>
-        </div>
+                    <TextField 
+                        label="Precio máximo" 
+                        type="number" 
+                        value={maxPrice} 
+                        onChange={(e) => setMaxPrice(e.target.value)} 
+                        placeholder="Ej. 150.00"
+                    />
+                </Filter>
+
+                <div className={styles.tableWrapper}>
+                    <TableB 
+                        columns={columns}
+                        data={paginatedProducts}
+                        loading={loading || currencyLoading}
+                        error={error}
+                        onRetry={() => fetchProducts(false)}
+                        emptyIcon={PackageSearch}
+                        emptyMessage="No se encontraron productos en el inventario."
+                        rowKey={(row) => row.id || row.nombre}
+                        rowClassName={(row) => {
+                            const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
+                            return row.normalizedStock < stockMin ? styles.lowStockRow : '';
+                        }}
+                    />
+                </div>
+
+                <div className={styles.footer}>
+                    <span className={styles.iconText}>
+                        <img src={getIcon('fileCheck')} alt="Sinc" />
+                        Última sincronización: {new Date(lastUpdated).toLocaleTimeString()}
+                    </span>
+                    {refreshing && (
+                        <>
+                            <span className={styles.separator}></span>
+                            <span className={styles.iconText} style={{ color: '#0ea5a4' }}>
+                                <img src={getIcon('listRestart')} alt="Actualizando" className={styles.spin} />
+                                Actualizando...
+                            </span>
+                        </>
+                    )}
+                </div>
+
+                <DrawPanel
+                    isOpen={alertOpen && !!selectedProduct}
+                    title={alertTitle}
+                    confirmText="Actualizar"
+                    cancelText="Cancelar"
+                    onClose={() => { setAlertOpen(false); setSelectedProduct(null); }}
+                    onConfirm={handleConfirmModal}
+                    showActions={true}
+                    width="600px"
+                >
+                    {selectedProduct && (
+                        <EditProducts
+                            ref={editFormRef}
+                            productData={selectedProduct}
+                            onUpdateSuccess={() => {
+                                setAlertOpen(false);
+                                setSelectedProduct(null);
+                                fetchProducts();
+                            }}
+                            onError={(err) => setAlertMessage(getAlertPayload(err))}
+                        />
+                    )}
+                </DrawPanel>
+
+                <AlertModal
+                    open={alertOpen && !selectedProduct}
+                    title={alertTitle}
+                    confirmText="Entendido"
+                    onClose={() => { setAlertOpen(false); setSelectedProduct(null); }}
+                    onConfirm={handleConfirmModal}
+                >
+                    <p>{alertMessage}</p>
+                </AlertModal>
+            </div>
         </GenericPanel>
     );
 }

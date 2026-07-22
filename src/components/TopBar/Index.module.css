@@ -1,0 +1,57 @@
+.topBar {
+  height: 60px;
+  background: var(--gr-pink-green);
+  backdrop-filter: var(--glass-blur-pink-green);
+  -webkit-backdrop-filter: var(--glass-blur-pink-green);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 40px;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.userBadge {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  padding: 5px 0px;
+  background: transparent;
+}
+
+.iconButtonWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.iconCountBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .topBar {
+    height: 50px;
+    padding: 0 1rem;
+    justify-content: space-between;
+  }
+
+  .userBadge {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+}

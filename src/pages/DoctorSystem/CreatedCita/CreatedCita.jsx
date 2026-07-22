@@ -6,8 +6,8 @@ import styles from './CreatedCita.module.css';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import SelectModal from '../../../components/ClientSelect/SelectModal';
 import ModalTooltip from '../../../components/ModalTooltip/ModalTooltip';
-import CustomDatePicker from '../../../components/screens/components/CalendarComponent/CustomDatePicker';
-import CustomTimePicker from '../../../components/UI/HoursComponent/CustomTimePicker';
+import CalendarPicker from '../../../components/screens/components/CalendarPicker/Index';
+import HoursPicker from '../../../components/screens/components/HoursPicker/Index';
 import CustomSelect from '../../../components/UI/DesplegableSelector/CustomSelect';
 import { normalizeUserMascotaResults } from './utils';
 import GenericPanel from '../../../components/GenericPanel/GenericPanel';
@@ -15,6 +15,7 @@ import MultilinePlaceholder from '../../../components/screens/components/Materia
 import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
 import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
 import Button from '../../../components/screens/components/Button';
+import useCitaTypes from '../../../hooks/GetTypesCitas';
 
 export default function CreatedCita() {
     const navigate = useNavigate();
@@ -25,6 +26,8 @@ export default function CreatedCita() {
     const roleFromQuery = String(searchParams.get('role') || '').toLowerCase();
     const activeRole = roleFromState || roleFromQuery || 'doctor';
     const isSecretariaFlow = activeRole.includes('secret');
+
+    const { types: citaTypes } = useCitaTypes();
 
     const [showSelectModal, setShowSelectModal] = useState(false);
     const [clientes, setClientes] = useState([]);
@@ -39,7 +42,7 @@ export default function CreatedCita() {
         fecha_cita: '',
         hora_cita: '',
         motivo: '',
-        tipo_cita: 'consulta general',
+        tipo_cita: 'consulta',
         estado: 'programada',
         notas: '',
         metodo_pago: 'efectivo',
@@ -306,7 +309,7 @@ export default function CreatedCita() {
 
                     <div className={styles.row}>
                         <div className={styles.group}>
-                            <CustomDatePicker
+                            <CalendarPicker
                                 label="Fecha de cita"
                                 name="fecha_cita"
                                 value={form.fecha_cita}
@@ -315,7 +318,7 @@ export default function CreatedCita() {
                             />
                         </div>
                         <div className={styles.group}>
-                            <CustomTimePicker
+                            <HoursPicker
                                 label="Hora de cita"
                                 name="hora_cita"
                                 value={form.hora_cita}
@@ -327,11 +330,11 @@ export default function CreatedCita() {
 
                     <div className={styles.row}>
                         <div className={styles.group}>
-                            <TextField
-                                label="Tipo de cita"
-                                name="tipo_cita"
+                            <Selector
+                                label="Tipo de Cita"
+                                options={citaTypes}
                                 value={form.tipo_cita}
-                                onChange={handleChange}
+                                onChange={(e) => setForm(prev => ({ ...prev, tipo_cita: e.target.value }))}
                                 required
                             />
                         </div>

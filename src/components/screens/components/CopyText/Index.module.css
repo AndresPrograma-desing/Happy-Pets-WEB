@@ -1,0 +1,52 @@
+.copyableContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(226, 232, 240, 0.6); /* Fondo gris suave e interactivo */
+  border: 1px solid #cbd5e1;
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; /* Tipografía limpia para datos copiables */
+  font-weight: 600;
+  color: #334155;
+  transition: all 0.2s ease;
+  user-select: all;
+}
+
+.copyableContainer:hover {
+  background-color: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.copyableText {
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+
+.copyIcon {
+  color: #64748b;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.copyableContainer:hover .copyIcon {
+  color: #334155;
+}
+
+.copyIconSuccess {
+  color: #10b981; /* Verde esmeralda para el feedback visual */
+  flex-shrink: 0;
+  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { 
+    transform: scale(0.6); 
+    opacity: 0; 
+  }
+  100% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+}

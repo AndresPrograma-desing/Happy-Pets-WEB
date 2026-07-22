@@ -136,16 +136,7 @@ export default function Recetas() {
     if (!selectedReceta) return;
     setSavingReceta(true);
     try {
-      // Intentamos actualizar la receta. Asumimos el endpoint PUT /consultas/:id o similar
-      // Si existe api.updateConsulta se usa, sino hacemos un request directo
-      const updatePayload = { ...selectedReceta, receta: editRecetaText };
-      if (api.updateConsulta) {
-        await api.updateConsulta(selectedReceta.id, updatePayload);
-      } else {
-        await api.request(`/consultas/${selectedReceta.id}`, { method: 'PUT', body: updatePayload }).catch(() => 
-          api.request(`/consultas/update/${selectedReceta.id}`, { method: 'PUT', body: updatePayload })
-        );
-      }
+      await api.updateConsultaReceta(selectedReceta.id, { receta: editRecetaText });
       
       showAlert({ title: 'Éxito', message: 'Receta actualizada correctamente' });
       setEditPanelOpen(false);
@@ -324,7 +315,7 @@ export default function Recetas() {
                 value={editRecetaText}
                 onChange={(e) => setEditRecetaText(e.target.value)}
                 rows={10}
-                placeholder="Escribe la receta o indicaciones médicas..."
+                placeholder="Escribe la receta o indicaciones médicas"
               />
             </div>
             
@@ -332,7 +323,6 @@ export default function Recetas() {
               fullWidth
               onClick={handleSaveReceta}
               disabled={savingReceta}
-              loading={savingReceta}
               icon={Save}
               color="#3b82f6"
               style={{ marginTop: '1rem' }}

@@ -160,7 +160,7 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
       {/* Renderizado de Carga del Historial */}
       {loadingHistory ? (
         <div className={styles.loadingWrapper}>
-          <Loading phrases={TEXTS.LOADING_TEXT_PHASES} />
+          <Loading size='large' phrases={TEXTS.LOADING_TEXT_PHASES} />
         </div>
       ) : errorHistory ? (
         <div className={styles.errorContainer}>
@@ -220,7 +220,16 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
                   >
                     Ver Recomendaciones y Riesgos
                   </Button>
+                  
                 )}
+                 <Button 
+                    onClick={() => { console.log('click pdf'); }}
+                    variant="prymary" 
+                    color={Button.COLORS.GREEN}
+                    icon={FileText}
+                  >
+                Descargar Pdf
+                  </Button>
               </div>
 
               {/* Información General del Paciente */}

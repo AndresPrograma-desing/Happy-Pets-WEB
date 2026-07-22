@@ -12,7 +12,7 @@ export const TEXTS = {
   VACUNAS_DESC: "Control de inmunizaciones y próximas dosis sugeridas",
   LOADING_TEXT_PHASES:[
     "Obteniendo historial médico",
-    "El bot esta analizando",
+    "Groq esta analizando",
     "Ya casi",
   ],
   ERROR_TEXT: "Error al cargar la información",

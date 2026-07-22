@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useClientAndPets from '../../../hooks/ClientAndPets';
 import styles from './CustumerAndPets.module.css';
-import CustomDatePicker from '../../../components/screens/components/CalendarComponent/CustomDatePicker';
+import CalendarPicker from '../../../components/screens/components/CalendarPicker/Index';
 import AlertModal from '../../../components/AlertModal/AlertModal'; 
 import { User, Mail, Phone, MapPin, IdCard, PawPrint, Award, Palette, HeartHandshake, Weight, Activity, ShieldAlert, Notebook,Dna } from 'lucide-react';
 import GenericPanel from '../../../components/GenericPanel/GenericPanel';
@@ -220,7 +220,7 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
                         <input name="sexo" placeholder="Sexo" value={form.sexo} onChange={handleChange} />
                     </div>
                 </div>
-                <CustomDatePicker
+                <CalendarPicker
                     label="Fecha de nacimiento"
                     name="fecha_nacimiento"
                     value={form.fecha_nacimiento}

@@ -1,56 +1,97 @@
-import React from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import Popover from '@mui/material/Popover';
 
 import { users, enableUser, disableUser, deleteUser } from "../../services/api";
-import { UserCircle, Trash2, UserX, UserCheck, Users2, UserCheck2Icon } from "lucide-react";
+import { Trash2, UserX, UserCheck, MoreVertical, Pencil } from "lucide-react";
 import AlertModal from "../AlertModal/AlertModal";
-import ModalTooltip from "../ModalTooltip/ModalTooltip";
 import GenericPanel from "../GenericPanel/GenericPanel";
 import TableA from "../screens/components/TableA";
 import UserAvatar from "../screens/components/Profile/Avatar/Index";
 
+// Asegúrate de que estas rutas coincidan con tu estructura de archivos
+import Button from "../screens/components/Button/index";
+import EditProfileForm from "../EditProfile/EditProfile"; 
+import DrawPanel from "../screens/components/DrawPanel/index"; // Ruta a tu nuevo componente DrawPanel
+
 const Users = () => {
-  const [userList, setUserList] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [showAlert, setShowAlert] = React.useState(false);
-  const [alertMessage, setAlertMessage] = React.useState("");
-  const [alertType, setAlertType] = React.useState("success");
-  const [showConfirm, setShowConfirm] = React.useState(false);
-  const [userToDelete, setUserToDelete] = React.useState(null);
-  const [showStatusConfirm, setShowStatusConfirm] = React.useState(false);
-  const [userToToggle, setUserToToggle] = React.useState(null);
-  const [page, setPage] = React.useState(1);
+  const [userList, setUserList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success");
+  const [showConfirm, setShowConfirm] = useState(false);  
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [showStatusConfirm, setShowStatusConfirm] = useState(false);
+  const [userToToggle, setUserToToggle] = useState(null);
+  
+  // Estados para el Popover y menú de acciones
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeUser, setActiveUser] = useState(null);
+  
+  // Estados para el panel lateral de edición
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editLoading, setEditLoading] = useState(false); // Para deshabilitar botones al guardar
+
+  const [page, setPage] = useState(1);
   const itemsPerPage = 8;
 
   const pageCount = Math.ceil(userList.length / itemsPerPage);
-  const paginatedUsers = React.useMemo(() => {
+  
+  const paginatedUsers = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return userList.slice(start, start + itemsPerPage);
   }, [userList, page]);
 
   const navigate = useNavigate();
 
-
-
-  React.useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const data = await users();
-        setUserList(data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await users();
+      setUserList(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const handleToggleStatus = (id, currentStatus) => {
-    const user = userList.find((u) => u.id === id);
-    setUserToToggle({ ...user, nextStatus: !currentStatus });
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const handleOpenMenu = (event, user) => {
+    setAnchorEl(event.currentTarget);
+    setActiveUser(user);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleToggleStatusClick = () => {
+    setUserToToggle({ ...activeUser, nextStatus: !activeUser.activo });
     setShowStatusConfirm(true);
+    handleCloseMenu();
+  };
+
+  const handleDeleteClick = () => {
+    if (activeUser?.rol === "Admin") {
+      setAlertMessage("No se puede eliminar un usuario con rol de Admin");
+      setAlertType("error");
+      setShowAlert(true);
+      handleCloseMenu();
+      return;
+    }
+    setUserToDelete(activeUser);
+    setShowConfirm(true);
+    handleCloseMenu();
+  };
+
+  const handleEditClick = () => {
+    setShowEditModal(true);
+    handleCloseMenu();
   };
 
   const confirmToggleStatus = async () => {
@@ -81,18 +122,6 @@ const Users = () => {
     setUserToToggle(null);
   };
 
-  const handleDelete = async (id) => {
-    const user = userList.find((u) => u.id === id);
-    if (user?.rol === "Admin") {
-      setAlertMessage("No se puede eliminar un usuario con rol de Admin");
-      setAlertType("error");
-      setShowAlert(true);
-      return;
-    }
-    setUserToDelete(user);
-    setShowConfirm(true);
-  };
-
   const confirmDelete = async () => {
     if (!userToDelete) return;
     try {
@@ -110,6 +139,13 @@ const Users = () => {
     setUserToDelete(null);
   };
 
+  const handleEditSuccess = (finalName, finalAvatarUrl) => {
+    setShowEditModal(false);
+    setAlertMessage("Usuario actualizado correctamente");
+    setAlertType("success");
+    setShowAlert(true);
+    fetchUsers(); 
+  };
 
   const columns = [
     {
@@ -153,29 +189,15 @@ const Users = () => {
       header: 'Acciones',
       align: 'center',
       render: (user) => (
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-          <button
-            onClick={() => handleToggleStatus(user.id, user.activo)}
-            style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}
-          >
-            {user.activo ? (
-              <ModalTooltip text="Deshabilitar usuario" position="top">
-                <UserCheck size={18} color="#10b981" />
-              </ModalTooltip>
-            ) : (
-              <ModalTooltip text="Habilitar usuario" position="top">
-                <UserX size={18} color="#f59e0b" />
-              </ModalTooltip>
-            )}
-          </button>
-          <button
-            onClick={() => handleDelete(user.id)}
-            style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '6px', padding: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}
-          >
-            <ModalTooltip text="Eliminar usuario" position="top">
-              <Trash2 size={18} color="#ef4444" />
-            </ModalTooltip>
-          </button>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button
+            variant="ghost"
+            circle
+            size="small"
+            icon={MoreVertical}
+            onClick={(e) => handleOpenMenu(e, user)}
+            ToolTip="Opciones"
+          />
         </div>
       )
     }
@@ -193,22 +215,93 @@ const Users = () => {
       onPaginationChange={(e, v) => setPage(v)}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
-
-        </div>
-
+        
         <TableA
           columns={columns}
-          data={userList}
+          data={paginatedUsers}
           loading={loading}
           keyExtractor={(user) => user.id}
         />
+
+        {/* Popover de Opciones de Fila */}
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleCloseMenu}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          PaperProps={{
+            style: { padding: '8px', borderRadius: '12px', minWidth: '160px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <Button
+              variant="ghost"
+              icon={Pencil}
+              onClick={handleEditClick}
+              style={{ justifyContent: 'flex-start', fontWeight: 500 }}
+              fullWidth
+            >
+              Editar usuario
+            </Button>
+            
+            <Button
+              variant="ghost"
+              icon={activeUser?.activo ? UserX : UserCheck}
+              color={activeUser?.activo ? "var(--color-warning, #f59e0b)" : "var(--color-success, #10b981)"}
+              onClick={handleToggleStatusClick}
+              style={{ justifyContent: 'flex-start', fontWeight: 500 }}
+              fullWidth
+            >
+              {activeUser?.activo ? "Deshabilitar" : "Habilitar"}
+            </Button>
+            
+            <Button
+              variant="ghost"
+              color="red"
+              icon={Trash2}
+              onClick={handleDeleteClick}
+              style={{ justifyContent: 'flex-start', fontWeight: 500 }}
+              fullWidth
+            >
+              Eliminar usuario
+            </Button>
+          </div>
+        </Popover>
+
+        {/* DrawPanel para Editar Usuario */}
+        <DrawPanel
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          title="Editar Usuario"
+          width="400px"
+          showActions={true}
+          confirmText="Guardar Cambios"
+          cancelText="Cancelar"
+          formId="edit-user-form"
+          loading={editLoading}
+        >
+          {activeUser && (
+            <EditProfileForm
+              formId="edit-user-form"
+              userId={activeUser.id}
+              currentName={`${activeUser.nombre || ''} ${activeUser.apellido || ''}`.trim()}
+              currentAvatarUrl={activeUser.avatarUrl}
+              onSaveStart={() => setEditLoading(true)}
+              onSaveEnd={() => setEditLoading(false)}
+              onSuccess={handleEditSuccess}
+              onError={(err) => {
+                setAlertMessage(err || "Error al actualizar el usuario");
+                setAlertType("error");
+                setShowAlert(true);
+              }}
+            />
+          )}
+        </DrawPanel>
+
+        {/* Modales de Confirmación y Alertas */}
         {showAlert && (
-          <AlertModal
-            message={alertMessage}
-            type={alertType}
-            onClose={() => setShowAlert(false)}
-          />
+          <AlertModal message={alertMessage} type={alertType} onClose={() => setShowAlert(false)} />
         )}
         {showConfirm && userToDelete && (
           <AlertModal

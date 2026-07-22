@@ -53,6 +53,15 @@
   padding: 0.65rem 0.75rem;
 }
 
+.editActionBtn,
+button[aria-label*="Editar"],
+button[title*="Editar"] {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
 @media (max-width: 860px) {
   .metricsRow {
     grid-template-columns: 1fr;

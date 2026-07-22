@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Loader2 } from 'lucide-react';
-import ModalTooltip from '../../../../components/ModalTooltip/ModalTooltip';
 import styles from './index.module.css';
 import { handleAction } from './utils';
 
 import Button from '../Button/index';
-import TextField from '../Material-UI/Components/TextField/Index';
+import InputWithIcon from '../Material-UI/Components/InputWithIcon/Index'; 
 
 const PlaceholderButton = ({
   icon: Icon,
-  tooltipText,
+  tooltipText, 
   placeholder,
   unitText,
   buttonText,
@@ -58,7 +57,6 @@ const PlaceholderButton = ({
     if (e.key === 'Enter') {
       if (multiline) {
         if (e.ctrlKey) {
-          // Ctrl + Enter: insert newline manually
           e.preventDefault();
           const start = e.target.selectionStart;
           const end = e.target.selectionEnd;
@@ -68,7 +66,6 @@ const PlaceholderButton = ({
             e.target.selectionStart = e.target.selectionEnd = start + 1;
           }, 0);
         } else {
-          // Enter alone: submit
           e.preventDefault();
           if (!isSaving && !disabled) {
             onSaveClick();
@@ -87,7 +84,7 @@ const PlaceholderButton = ({
     <div className={`${styles.configContainer} ${disabled ? styles.disabledContainer : ''}`}>
       <div className={styles.inputGroup}>
         {multiline ? (
-          <TextField
+          <InputWithIcon
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -95,28 +92,33 @@ const PlaceholderButton = ({
             disabled={disabled}
             multiline
             maxRows={4}
-            size="small"
+            variant="outlined" 
             style={{ flex: 1 }}
           />
         ) : (
           <div className={styles.inputWrapper}>
-            {Icon && tooltipText ? (
-              <ModalTooltip text={tooltipText} position="top">
-                <Icon size={18} className={styles.inputIcon} />
-              </ModalTooltip>
-            ) : Icon ? (
-              <Icon size={18} className={styles.inputIcon} />
-            ) : null}
-
-            <input
+            <InputWithIcon
+              variant="standard" 
+              icon={Icon}
               type={inputType}
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className={styles.daysInput}
-              min={min}
               disabled={disabled}
+              disableUnderline  
+              fullWidth
+              inputProps={{ 
+                min: min, 
+                className: styles.daysInput 
+              }}
+              sx={{ 
+                '& .MuiInput-root': {
+                  height: '100%',
+                  marginTop: '0px !important',
+                },
+                flex: 1
+              }}
             />
             {unitText && <span className={styles.unitText}>{unitText}</span>}
           </div>

@@ -173,7 +173,8 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
         const m = normalizeMessage(raw);
         const otherId = m.from === currentUser.id ? m.to : m.from;
         if (!otherId || otherId === currentUser.id) return;
-        const entry = convMap.get(otherId) || { id: otherId, name: `Usuario ${otherId}`, avatarUrl: null, unread: 0 };
+        const entry = convMap.get(otherId);
+        if (!entry) return;
         if (!entry.lastAt || new Date(m.createdAt) > new Date(entry.lastAt)) {
           entry.lastAt = m.createdAt;
           entry.lastMessage = m.content;

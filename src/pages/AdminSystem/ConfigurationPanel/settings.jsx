@@ -163,7 +163,7 @@ const Settings = () => {
             />
 
             <DesplegablePanel
-              title="Configuración de GROQ IA"
+              title="Configuración de GROQ IA (En desarrollo, No funcional)"
               description="Personaliza el nombre, correo, foto de perfil, reglas de respuesta y base de conocimientos de tu IA."
               icon={Sparkles}
               iconColorVariant="blue"

@@ -14,6 +14,7 @@ import Button from '../screens/components/Button';
 import Selector from '../screens/components/Material-UI/Components/Selector/Index';
 import { TEXT_FACTURAS } from './constants';
 import SearchInput from '../UI/Search/Search';
+import useCitaStatuses from '../../hooks/GetCitasStatuses.js';
 
 export default function FacturaManager() {
   const {
@@ -56,6 +57,12 @@ export default function FacturaManager() {
     handlePollFound,
     handlePollRemoved
   } = useFacturaDownloader();
+
+  const { statuses } = useCitaStatuses();
+
+  const opcionesEstado = useMemo(() => {
+    return [{ value: '', label: TEXT_FACTURAS.allStatusLabel || 'Todas' }, ...(statuses || [])];
+  }, [statuses]);
 
   const stats = useMemo(() => ({
     total: (citas || []).length,
@@ -116,14 +123,14 @@ export default function FacturaManager() {
               value={searchTerm}
               onChange={setSearchTerm}
               placeholder={TEXT_FACTURAS.searchPlaceholder}
-              label="Buscar Factura"
+              label="Buscar Recibo"
             />
           </div>
           <Selector
             label={TEXT_FACTURAS.filterLabel}
             value={filterEstado}
             onChange={(e) => setFilterEstado(e.target.value)}
-            options={TEXT_FACTURAS.statusOptions}
+            options={opcionesEstado}
             fullWidth={false}
             style={{ minWidth: '200px' }}
           />

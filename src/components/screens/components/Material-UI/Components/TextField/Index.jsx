@@ -12,11 +12,20 @@ const TextField = forwardRef(({
   size = "small",
   fullWidth = true,
   placeholder,
+  required,
+  requiredColor = 'red',
   ...props 
 }, ref) => {
+  const displayLabel = label ? (
+    <span>
+      {label}
+      {required && <span style={{ color: requiredColor, marginLeft: '4px' }}>**</span>}
+    </span>
+  ) : undefined;
+
   return (
     <MuiTextField
-      label={label}
+      label={displayLabel}
       value={value}
       onChange={onChange}
       error={!!error}
@@ -32,5 +41,7 @@ const TextField = forwardRef(({
     />
   );
 });
+
+TextField.displayName = 'TextField';
 
 export default TextField;

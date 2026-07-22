@@ -1,14 +1,18 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getNotifications } from '../services/api';
 import { getUserId } from '../context/LocalStorage';
 import usePolling from './UsePolling';
 import PollingSeconds from './PollingSecons';
 
+// Module-level global cache to persist notifications across route transitions without reset/flicker
+const globalNotificationsCache = new Map();
+const globalKnownKeys = new Map();
+
 function getNotificationKey(item = {}) {
   const createdAt = String(item.created_at || item.createdAt || '');
-  const title = String(item.title || '');
-  const message = String(item.message || '');
-  const reference = String(item.reference || item.id || item._id || '');
+  const title = String(item.title || item.titulo || '');
+  const message = String(item.message || item.mensaje || '');
+  const reference = String(item.reference || item.referencia || item.id || item._id || '');
   return `${createdAt}|${title}|${message}|${reference}`;
 }
 
@@ -22,47 +26,54 @@ function sortByDateDesc(list = []) {
 
 export default function useNotifications() {
   const userId = getUserId();
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  // Initialize state directly from global cache if available to prevent flicker during SPA navigation
+  const initialData = userId ? (globalNotificationsCache.get(String(userId)) || []) : [];
+  const [notifications, setNotifications] = useState(initialData);
+  const [loading, setLoading] = useState(!userId ? false : !globalNotificationsCache.has(String(userId)));
   const [error, setError] = useState(null);
-  const firstLoadDoneRef = useRef(false);
-  const knownKeysRef = useRef(new Set());
 
   const loadNotifications = useCallback(async () => {
     if (!userId) {
       setNotifications([]);
       setLoading(false);
-      knownKeysRef.current = new Set();
-      firstLoadDoneRef.current = false;
       return;
     }
 
-    if (!firstLoadDoneRef.current) setLoading(true);
+    if (!globalNotificationsCache.has(String(userId))) {
+      setLoading(true);
+    }
 
     try {
       const data = await getNotifications(userId);
-      const rawList = Array.isArray(data) ? data : [];
+      const rawList = Array.isArray(data) ? data : (data?.data || data?.result || []);
+
       const ordered = sortByDateDesc(rawList);
+      const userKeys = globalKnownKeys.get(String(userId)) || new Set();
+      const firstLoadDone = globalNotificationsCache.has(String(userId));
 
       const next = ordered.map((n) => {
         const key = getNotificationKey(n);
-        const isNew = firstLoadDoneRef.current ? !knownKeysRef.current.has(key) : false;
+        const isNew = firstLoadDone ? !userKeys.has(key) : false;
         return { ...n, __key: key, isNew };
       });
 
-      knownKeysRef.current = new Set(next.map((n) => n.__key));
-      firstLoadDoneRef.current = true;
+      const updatedKeys = new Set(next.map((n) => n.__key));
+      globalKnownKeys.set(String(userId), updatedKeys);
+      globalNotificationsCache.set(String(userId), next);
+
       setNotifications(next);
       setError(null);
     } catch (err) {
       setError(err);
-      setNotifications([]);
+      if (!globalNotificationsCache.has(String(userId))) {
+        setNotifications([]);
+      }
     } finally {
       setLoading(false);
     }
   }, [userId]);
 
-  // Listen for reload-notifications event to force reload
   useEffect(() => {
     const handler = () => loadNotifications();
     window.addEventListener('reload-notifications', handler);

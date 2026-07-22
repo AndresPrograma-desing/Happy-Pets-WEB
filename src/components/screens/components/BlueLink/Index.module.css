@@ -1,0 +1,11 @@
+.blueLink {
+  color: #2563eb; 
+  text-decoration: underline;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.blueLink:hover {
+  color: #1d4ed8;
+}

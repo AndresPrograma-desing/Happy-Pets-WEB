@@ -1,0 +1,63 @@
+.likeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: #64748b;
+  font-family: sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  user-select: none;
+  outline: none;
+}
+
+.likeButton:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+/* Estado cuando tiene Like activo */
+.liked {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #e11d48 !important;
+}
+
+.heartIcon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+.likeButton:hover .heartIcon {
+  transform: scale(1.1);
+}
+
+.likeCount {
+  min-width: 12px;
+  text-align: center;
+}
+
+/* Animación de pulso explosivo al dar click */
+.pulse {
+  animation: pulseAnimation 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes pulseAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

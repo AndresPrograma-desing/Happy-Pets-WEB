@@ -5,6 +5,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import useHealthCheck from './hooks/useHealthCheck';
 import WaitingPage from './components/Waiting/witing';
 //---------------------------------------------------------
+
+//componente de prueba 
+import Playground from "../Tests/Playground/Playground.jsx";
+import VistaDesarrollo from "../Tests/Playground/Components/Visual.jsx";
+
 //Páginas
 import Home from './pages/Inicio/Home';
 import LoginForm from './components/auth/LoginForm';
@@ -37,6 +42,8 @@ import EmailsTemplates from './components/Emails/Templates';
 import Recetas from './components/Recetas/Components';
 import PortalClientes from '../PortalClientes/Index';
 import HistorialMedico from './components/HistorialMedico/Index';
+
+
 
 function AppContent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -89,8 +96,13 @@ function AppContent() {
           <Route path="/calendar" element={<CalendarTest />} />
           
           <Route path="/health" element={<Health />} />
+
           <Route path="/witing" element={<WaitingPage />} />
+
           <Route path="/portal-cliente" element={<PortalClientes />} />
+
+          <Route path="/test" element={<VistaDesarrollo />} />
+
           <Route path="*" element={<Navigate to="/inicio" replace />} />
         </Routes>
       {/* </div> */}

@@ -3,12 +3,7 @@ import { createPortal } from "react-dom";
 import styles from "./ModalTooltip.module.css";
 import { getIcon } from "../../assets/icons/ExportIcon/Index";
 
-/**
- * ModalTooltip: Muestra un pequeño modal encima del elemento hijo al hacer hover.
- * @param {string|React.ReactNode} text - Texto o contenido del modal.
- * @param {React.ReactNode} children - Elemento sobre el que se activa el modal.
- */
-const ModalTooltip = ({ text, children }) => {
+const ModalTooltip = ({ text, children, position = "top" }) => {
   const [visible, setVisible] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const triggerRef = useRef(null);
@@ -16,12 +11,15 @@ const ModalTooltip = ({ text, children }) => {
   useEffect(() => {
     if (visible && triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      // Calculamos el punto central superior del icono
-      const top = rect.top + window.scrollY - 12; // 12px de separación para dejar espacio a la flechita
       const left = rect.left + window.scrollX + rect.width / 2;
+      
+      const top = position === "bottom"
+        ? rect.bottom + window.scrollY + 12 
+        : rect.top + window.scrollY - 12;   
+
       setPos({ top, left });
     }
-  }, [visible]);
+  }, [visible, position]);
 
   return (
     <span
@@ -34,15 +32,15 @@ const ModalTooltip = ({ text, children }) => {
       {children}
       {visible && typeof document !== 'undefined' && createPortal(
         <div
-          className={styles.modalTooltip}
+          className={`${styles.modalTooltip} ${position === "bottom" ? styles.modalTooltipBottom : styles.modalTooltipTop}`}
           style={{
             position: 'absolute',
             top: pos.top,
             left: pos.left,
-            transform: 'translate(-50%, -100%)', // Centra horizontalmente y ajusta la altura automáticamente
+            transform: position === "bottom" ? 'translate(-50%, 0)' : 'translate(-50%, -100%)', 
             zIndex: 99999,
-            width: 'max-content', // Se adapta al texto
-            maxWidth: 400, // Permite que sea más ancho si el texto es largo, pero con un límite razonable
+            width: 'max-content',
+            maxWidth: 400,
             background: 'rgba(24, 24, 27, 0.95)',
             backdropFilter: 'blur(4px)',
             color: '#fafafa',

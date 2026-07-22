@@ -1,8 +1,10 @@
 import React from 'react';
 import { handleFormChange } from '../utils';
 import styles from './styles.module.css';
-import CustomDatePicker from '../../../screens/components/CalendarComponent/CustomDatePicker';
-import CustomSelect from '../../../UI/DesplegableSelector/CustomSelect';
+import CalendarPicker from '../../../screens/components/CalendarPicker/Index';
+import Selector from '../../../screens/components/Material-UI/Components/Selector/Index';
+import Input from '../../../screens/components/Input/Index';
+import Switch from '../../../screens/components/Swich/Index';
 import ErrorMessage from '../../../Notification/Error/ErrorMessage';
 
 export default function AddPetsForm({ petForm, setPetForm, petError }) {
@@ -13,46 +15,63 @@ export default function AddPetsForm({ petForm, setPetForm, petError }) {
 
             <div className={styles.gridTwoColumns}>
                 <div className={styles.inputGroup}>
-                    <label className={styles.label}>Nombre *</label>
-                    <input type="text" name="nombre" value={petForm.nombre} onChange={(e) => handleFormChange(e, setPetForm)} className={styles.inputField} required />
-                </div>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Especie *</label>
-                    <input type="text" name="especie" value={petForm.especie} onChange={(e) => handleFormChange(e, setPetForm)} placeholder="Ej: Perro, Gato" className={styles.inputField} required />
-                </div>
-            </div>
-
-            <div className={styles.gridTwoColumns}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Raza</label>
-                    <input type="text" name="raza" value={petForm.raza} onChange={(e) => handleFormChange(e, setPetForm)} className={styles.inputField} />
-                </div>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Color</label>
-                    <input type="text" name="color" value={petForm.color} onChange={(e) => handleFormChange(e, setPetForm)} className={styles.inputField} />
-                </div>
-            </div>
-
-            <div className={styles.gridTwoColumns}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Sexo *</label>
-                    <CustomSelect
-                        label={""}
-                        name="sexo"
-                        value={petForm.sexo}
-                        onChange={(value) => setPetForm(prev => ({ ...prev, sexo: value }))}
-                        placeholder="Seleccionar..."
-                        options={[
-                            { id: 'Macho', name: 'Macho' },
-                            { id: 'Hembra', name: 'Hembra' },
-                        ]}
-                        required
+                    <Input 
+                        label="Nombre" 
+                        name="nombre" 
+                        value={petForm.nombre} 
+                        onChange={(e) => handleFormChange(e, setPetForm)} 
+                        required 
                     />
                 </div>
                 <div className={styles.inputGroup}>
-                    <label className={styles.label}>Fecha de Nacimiento</label>
-                    <CustomDatePicker
-                        label={""}
+                    <Input 
+                        label="Especie" 
+                        name="especie" 
+                        value={petForm.especie} 
+                        onChange={(e) => handleFormChange(e, setPetForm)} 
+                        placeholder="Ej: Perro, Gato" 
+                        required 
+                    />
+                </div>
+            </div>
+
+            <div className={styles.gridTwoColumns}>
+                <div className={styles.inputGroup}>
+                    <Input 
+                        label="Raza" 
+                        name="raza" 
+                        value={petForm.raza} 
+                        onChange={(e) => handleFormChange(e, setPetForm)} 
+                    />
+                </div>
+                <div className={styles.inputGroup}>
+                    <Input 
+                        label="Color" 
+                        name="color" 
+                        value={petForm.color} 
+                        onChange={(e) => handleFormChange(e, setPetForm)} 
+                    />
+                </div>
+            </div>
+
+            <div className={styles.gridTwoColumns}>
+                <div className={styles.inputGroup}>
+                    <Selector
+                        label="Sexo"
+                        value={petForm.sexo}
+                        onChange={(e) => setPetForm(prev => ({ ...prev, sexo: e.target.value }))}
+                        required
+                        requiredColor='red'
+                        options={[
+                            { value: 'Macho', label: 'Macho' },
+                            { value: 'Hembra', label: 'Hembra' },
+                        ]}
+                        
+                    />
+                </div>
+                <div className={styles.inputGroup}>
+                    <CalendarPicker
+                        label="Fecha de Nacimiento"
                         name="fechaNacimiento"
                         value={petForm.fechaNacimiento}
                         onChange={(e) => handleFormChange(e, setPetForm)}
@@ -63,28 +82,54 @@ export default function AddPetsForm({ petForm, setPetForm, petError }) {
 
             <div className={styles.gridTwoColumns}>
                 <div className={styles.inputGroup}>
-                    <label className={styles.label}>Peso (kg)</label>
-                    <input type="number" step="0.01" name="peso" value={petForm.peso} onChange={(e) => handleFormChange(e, setPetForm)} className={styles.inputField} />
+                    <Input 
+                        type="number" 
+                        slotProps={{ htmlInput: { step: "0.01" } }}
+                        label="Peso (kg)" 
+                        name="peso" 
+                        value={petForm.peso} 
+                        onChange={(e) => handleFormChange(e, setPetForm)} 
+                        required
+                    />
                 </div>
                 <div className={styles.inputGroup}>
-                    <label className={styles.label}>Identificación Código (Nro. Chip)</label>
-                    <input type="text" name="identeficacionMascota" value={petForm.identeficacionMascota} onChange={(e) => handleFormChange(e, setPetForm)} className={styles.inputField} />
+                    <Input 
+                        label="Identificación Código (Nro. Chip)" 
+                        name="identeficacionMascota" 
+                        value={petForm.identeficacionMascota} 
+                        onChange={(e) => handleFormChange(e, setPetForm)} 
+                        required
+
+                    />
                 </div>
             </div>
 
             <div className={styles.inputGroup}>
-                <label className={styles.label}>Alergias</label>
-                <input type="text" name="alergias" value={petForm.alergias} onChange={(e) => handleFormChange(e, setPetForm)} placeholder="Ninguna" className={styles.inputField} />
+                <Input 
+                    label="Alergias" 
+                    name="alergias" 
+                    value={petForm.alergias} 
+                    onChange={(e) => handleFormChange(e, setPetForm)} 
+                    placeholder="Ninguna" 
+                />
             </div>
 
             <div className={styles.inputGroup}>
-                <label className={styles.label}>Condiciones Médicas</label>
-                <input type="text" name="condicionesMedicas" value={petForm.condicionesMedicas} onChange={(e) => handleFormChange(e, setPetForm)} placeholder="Sano" className={styles.inputField} />
+                <Input 
+                    label="Condiciones Médicas" 
+                    name="condicionesMedicas" 
+                    value={petForm.condicionesMedicas} 
+                    onChange={(e) => handleFormChange(e, setPetForm)} 
+                    placeholder="Sano" 
+                />
             </div>
 
-            <div className={styles.checkboxGroup}>
-                <input type="checkbox" id="esterilizado" name="esterilizado" checked={petForm.esterilizado} onChange={(e) => handleFormChange(e, setPetForm)} className={styles.checkboxInput} />
-                <label htmlFor="esterilizado" className={styles.checkboxLabel}>La mascota se encuentra esterilizada</label>
+            <div className={styles.checkboxGroup} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '0.75rem' }}>
+                <Switch 
+                    value={petForm.esterilizado} 
+                    onChange={(newVal) => setPetForm(prev => ({ ...prev, esterilizado: newVal }))} 
+                />
+                <label className={styles.checkboxLabel} style={{ cursor: 'pointer', userSelect: 'none' }}>La mascota se encuentra esterilizada</label>
             </div>
         </div>
     );

@@ -7,7 +7,7 @@
   pointer-events: none;
 }
 
-.modalTooltip::after {
+.modalTooltipTop::after {
   content: '';
   position: absolute;
   bottom: -5px;
@@ -19,11 +19,24 @@
   border-right: 6px solid transparent;
   border-top: 6px solid rgba(24, 24, 27, 0.95);
 }
+
+.modalTooltipBottom::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid rgba(24, 24, 27, 0.95);
+}
+
 .icon {
   width: 20px;
   height: 20px;
   filter: brightness(0) invert(1);
   opacity: 0.7;
   transition: opacity 0.6s ease;
-
 }

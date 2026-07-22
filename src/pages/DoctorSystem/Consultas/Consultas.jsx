@@ -20,6 +20,7 @@ import ModalTooltip from '../../../components/ModalTooltip/ModalTooltip';
 import { FormCard, FormInput, FormTextArea } from '../../../components/screens/components/FormControls';
 import Button from '../../../components/screens/components/Button';
 import MultilinePlaceholder from '../../../components/screens/components/Material-UI/Components/MultilinePlaceholder/index';
+import Input from '../../../components/screens/components/Input/Index';
 
 function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const { state } = useLocation();
@@ -277,49 +278,61 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
 
                     <div className={styles.qtyContainer}>
                       <label className={styles.miniLabel}>Cant.</label>
-                      <input
+                      <Input
                         className={styles.qtyInput}
                         type="number"
-                        min="1"
                         value={p.cantidad}
+                        label="Cantidad"
                         onChange={(e) => updateProducto(idx, 'cantidad', e.target.value)}
                       />
                     </div>
 
-                    <Button type="button" variant="ghost" color="error" circle onClick={() => removeProducto(idx)} icon={Trash2} title="Quitar" />
+                    <Button 
+                    type="button" 
+                    variant="ghost" 
+                    color="error" 
+                    circle 
+                    onClick={() => removeProducto(idx)} 
+                    icon={Trash2} 
+                    title="Quitar" 
+                    />
                   </div>
 
                   {p.producto_nombre !== NO_PRODUCT_LABEL && (
                     <div className={styles.productDetailsGrid}>
                       <div className={styles.group}>
-                        <input 
+                        <Input 
                           className={styles.subInput}
                           placeholder="Dosis (ej: 2ml)" 
                           value={p.dosis} 
+                          label="Dosis (ej: 2ml)" 
                           onChange={(e) => updateProducto(idx, 'dosis', e.target.value)} 
                         />
                       </div>
                       <div className={styles.group}>
-                        <input 
+                        <Input 
                           className={styles.subInput}
                           placeholder="Vía (ej: Oral, IM)" 
                           value={p.via_administracion} 
+                          label="Vía (ej: Oral, IM)" 
                           onChange={(e) => updateProducto(idx, 'via_administracion', e.target.value)} 
                         />
                       </div>
                       <div className={styles.group}>
-                        <input 
+                        <Input 
                           className={styles.subInput}
                           placeholder="Frecuencia (ej: c/8h)" 
                           value={p.frecuencia} 
+                          label="Frecuencia (ej: c/8h)" 
                           onChange={(e) => updateProducto(idx, 'frecuencia', e.target.value)} 
                         />
                       </div>
                       <div className={styles.group}>
-                        <input 
+                        <Input 
                           className={styles.subInput}
                           placeholder="Duración (ej: 5 días)" 
                           value={p.duracion} 
+                          label="Duración (ej: 5 días)" 
                           onChange={(e) => updateProducto(idx, 'duracion', e.target.value)} 
                         />
                       </div>
@@ -340,7 +353,6 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
           </FormCard>
 
           <div className={styles.actionCard}>
-            {error && <div className={styles.errorBox}><AlertCircle size={16} /> {error}</div>}
             <Button
               type="submit"
               disabled={submitting}
@@ -354,8 +366,18 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
         </div>
       </form>
 
-      <AlertModal open={showBadReqModal} title="Atención" message="Debe completar los datos obligatorios y productos." onClose={() => setShowBadReqModal(false)} />
-      <AlertModal open={showConfirmSaveModal} title="Confirmar" message="¿Desea cerrar esta consulta y actualizar el historial?" onConfirm={submitConfirmed} onClose={() => setShowConfirmSaveModal(false)} />
+      <AlertModal open={showBadReqModal} 
+        title="Atención" 
+        message="Debe completar los datos obligatorios y productos." 
+        onClose={() => setShowBadReqModal(false)}
+         />
+      <AlertModal 
+        open={showConfirmSaveModal} 
+        title="Confirmar" 
+        message="¿Desea cerrar esta consulta y actualizar el historial?" 
+        onConfirm={submitConfirmed} 
+        onClose={() => setShowConfirmSaveModal(false)} 
+        />
     </div>
   );
 }

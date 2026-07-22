@@ -12,12 +12,26 @@ export default function Selector({
     style = {},
     className = "",
     fullWidth = true,
-    placeholder
+    placeholder,
+    required,
+    requiredColor = "red"
 }) {
-    // Autocomplete expects the entire object as value, so we find it in options
-    const selectedOption = value !== "" && value !== undefined && value !== null 
-        ? options.find(opt => String(opt.value) === String(value)) || null 
+    const normalizeVal = (val) => String(val || '').toLowerCase().replace(/[_\s\/-]+/g, '');
+
+    const selectedOption = (value !== "" && value !== undefined && value !== null) 
+        ? options.find(opt => 
+            String(opt.value) === String(value) || 
+            normalizeVal(opt.value) === normalizeVal(value) ||
+            normalizeVal(opt.label) === normalizeVal(value)
+          ) || null 
         : null;
+
+    const displayLabel = label ? (
+        <span>
+            {label}
+            {required && <span style={{ color: requiredColor, marginLeft: '4px' }}>**</span>}
+        </span>
+    ) : undefined;
 
     return (
         <Autocomplete
@@ -30,12 +44,19 @@ export default function Selector({
             getOptionLabel={(option) => option.label || ""}
             value={selectedOption}
             onChange={(event, newValue) => {
-                // Mock standard event structure for drop-in replacement compatibility
                 onChange({ target: { value: newValue ? newValue.value : "" } });
             }}
-            isOptionEqualToValue={(option, val) => String(option.value) === String(val?.value)}
+            isOptionEqualToValue={(option, val) => 
+                String(option.value) === String(val?.value) ||
+                normalizeVal(option.value) === normalizeVal(val?.value) ||
+                normalizeVal(option.label) === normalizeVal(val?.label)
+            }
+            slotProps={{
+                popper: {
+                    sx: { zIndex: 100000 }
+                }
+            }}
             renderOption={(props, option) => {
-                // Extract key to avoid React warnings in MUI Autocomplete
                 const { key, ...optionProps } = props;
                 return (
                     <Box
@@ -52,14 +73,22 @@ export default function Selector({
             renderInput={(params) => (
                 <TextField
                     {...params}
-                    label={label}
+                    label={displayLabel}
                     placeholder={placeholder}
                     size="small"
+                    inputProps={{
+                        ...params.inputProps,
+                        autoComplete: 'off',
+                        form: {
+                            autocomplete: 'off',
+                        },
+                    }}
                     slotProps={{
                         ...params.slotProps,
                         htmlInput: {
-                            ...params.slotProps.htmlInput,
-                            autoComplete: 'new-password', // disable autocomplete and autofill
+                            ...params.slotProps?.htmlInput,
+                            autoComplete: 'off',
+                            name: 'no-autofill-' + Math.random(),
                         },
                     }}
                 />

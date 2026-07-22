@@ -23,11 +23,34 @@ function ProductFormContent({ form, onChange, onSelectChange, categoryOptions, l
   return (
     <div className={styles.formContent} style={{ display: 'flex', flexDirection: 'column', gap: '15px', padding: '10px 5px' }}>
       <div className={styles.formRow} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-        <TextField label="Código" name="codigo" value={form.codigo} onChange={onChange} placeholder="Ej: PROD-001" />
-        <TextField label="Nombre" name="nombre" value={form.nombre} onChange={onChange} placeholder="Nombre del producto" />
+        <TextField 
+        label="Código" 
+        name="codigo" 
+        value={form.codigo} 
+        onChange={onChange} 
+        placeholder="Ej: PROD-001" 
+        required
+        />
+        <TextField 
+        label="Nombre" 
+        name="nombre" 
+        value={form.nombre} 
+        onChange={onChange} 
+        placeholder="Nombre del producto" 
+        required
+        />
       </div>
 
-      <TextField label="Descripción" name="descripcion" value={form.descripcion} onChange={onChange} placeholder="Breve descripción del producto..." multiline rows={2} />
+      <TextField 
+      label="Descripción" 
+      name="descripcion" 
+      value={form.descripcion} 
+      onChange={onChange} 
+      placeholder="Breve descripción del producto..." 
+      multiline 
+      rows={2} 
+      required
+      />
 
       <div className={styles.formRow} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
           <Selector 
@@ -35,23 +58,77 @@ function ProductFormContent({ form, onChange, onSelectChange, categoryOptions, l
             options={categoryOptions}
             value={form.categoria_id}
             onChange={(e) => onSelectChange(e.target.value)}
+            required
             placeholder={loadingCats ? "Cargando..." : "Selecciona una categoría"}
           />
-        <TextField label="Tipo / Clase" name="tipo" value={form.tipo} onChange={onChange} placeholder="Ej: Insumo, Venta" />
+        <TextField 
+        label="Tipo / Clase" 
+        name="tipo" 
+        value={form.tipo} 
+        onChange={onChange} 
+        placeholder="Ej: Insumo, Venta" 
+        required
+        />
       </div>
 
       <div className={styles.formRow} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-        <TextField label="Precio Compra" name="precio" type="number" value={form.precio} onChange={onChange} placeholder="0.00" inputProps={{ step: "0.01" }} />
-        <TextField label="Precio Venta" name="precio_venta" type="number" value={form.precio_venta} onChange={onChange} placeholder="0.00" inputProps={{ step: "0.01" }} />
+        <TextField label="Precio Compra" 
+        name="precio" 
+        type="number" 
+        value={form.precio} 
+        onChange={onChange} 
+        placeholder="0.00" 
+        required
+        inputProps={{ step: "0.01" }} 
+        />
+        <TextField 
+        label="Precio Venta" 
+        name="precio_venta" 
+        type="number" 
+        value={form.precio_venta} 
+        onChange={onChange} 
+        placeholder="0.00" 
+        required
+        inputProps={{ step: "0.01" }} 
+        />
       </div>
 
       <div className={styles.formRow} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
-        <TextField label="Stock Inicial" name="stock" type="number" value={form.stock} onChange={onChange} placeholder="0" />
-        <TextField label="Stock Mínimo" name="stock_minimo" type="number" value={form.stock_minimo} onChange={onChange} placeholder="Alerta en..." />
-        <TextField label="Unidad Medida" name="unidad_medida" value={form.unidad_medida} onChange={onChange} placeholder="Ej: Und, Kg" />
+        <TextField 
+        label="Stock Inicial" 
+        name="stock" 
+        type="number" 
+        value={form.stock} 
+        onChange={onChange} 
+        placeholder="0" 
+        required
+        />
+        <TextField 
+        label="Stock Mínimo" 
+        name="stock_minimo" 
+        type="number" 
+        value={form.stock_minimo} 
+        onChange={onChange} 
+        placeholder="Alerta en..." 
+        required
+        />
+        <TextField 
+        label="Unidad Medida" 
+        name="unidad_medida" 
+        value={form.unidad_medida} 
+        onChange={onChange} 
+        placeholder="Ej: Und, Kg" 
+        required
+        />
       </div>
 
-      <TextField label="Proveedor" name="proveedor" value={form.proveedor} onChange={onChange} placeholder="Nombre del proveedor" />
+      <TextField label="Proveedor" 
+      name="proveedor" 
+      value={form.proveedor} 
+      onChange={onChange} 
+      placeholder="Nombre del proveedor" 
+      required
+      />
     </div>
   );
 }
@@ -90,7 +167,10 @@ export default function ProductCreate({ hideHeader }) {
     }
   };
 
-  useEffect(() => { loadData(); }, []);
+  // Se ejecuta una única vez al montar el componente (Sin polling)
+  useEffect(() => { 
+    loadData(); 
+  }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const handleSelectChange = (val) => setForm({ ...form, categoria_id: val });
@@ -117,6 +197,8 @@ export default function ProductCreate({ hideHeader }) {
 
       setShowForm(false);
       setForm({ codigo: '', nombre: '', descripcion: '', categoria_id: '', tipo: '', precio: '', precio_venta: '', stock: '', stock_minimo: '', unidad_medida: '', proveedor: '' });
+      
+      // Actualizamos la tabla solo como respuesta a una mutación exitosa
       loadData();
 
       setAlertConfig({ 
@@ -153,6 +235,8 @@ export default function ProductCreate({ hideHeader }) {
       
       setDeleteConfirmOpen(false);
       setProductToDelete(null);
+
+      // Actualizamos la tabla solo como respuesta a una eliminación exitosa
       loadData();
       
       setAlertConfig({ 

@@ -21,6 +21,7 @@ const Button = React.forwardRef(({
   borderColor,
   style = {},
   loading = false,
+  success = undefined,
   circle = false,
   ToolTip = false,
   title,
@@ -87,6 +88,16 @@ const Button = React.forwardRef(({
   // Handle icon size
   const iconSize = size === 'small' ? 16 : size === 'large' ? 22 : 18;
 
+  const isButtonDisabled = disabled || loading || (success === false);
+
+  const handleClick = (e) => {
+    if (isButtonDisabled) {
+      e.preventDefault();
+      return;
+    }
+    if (onClick) onClick(e);
+  };
+
   const buttonElement = (
     <MuiButton
       ref={ref}
@@ -95,15 +106,15 @@ const Button = React.forwardRef(({
       size={muiSize}
       color={isCustomColor ? undefined : (standardMuiColors.includes(color) ? color : muiColor)}
       fullWidth={fullWidth}
-      disabled={disabled || loading}
-      onClick={onClick}
+      disabled={isButtonDisabled}
+      onClick={handleClick}
       className={className}
       startIcon={!circle && Icon ? <span className={loading ? styles.spinning : ''} style={{ display: 'inline-flex' }}><Icon size={iconSize} /></span> : (!circle && loading ? <CircularProgress size={iconSize} color="inherit" /> : undefined)}
       sx={{
         textTransform: 'none',
         borderRadius: '8px',
         fontWeight: 600,
-        boxShadow: (variant === 'primary' && color !== 'transparent' && !disabled) ? '0 4px 6px -1px rgba(14, 165, 233, 0.2)' : 'none',
+        boxShadow: (variant === 'primary' && color !== 'transparent' && !isButtonDisabled) ? '0 4px 6px -1px rgba(14, 165, 233, 0.2)' : 'none',
         ...circleStyle,
         ...activeStyle,
         ...customColors,

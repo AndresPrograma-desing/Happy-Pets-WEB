@@ -175,6 +175,8 @@ function LoginForm() {
                     type="text"
                     placeholder="tu@email"
                     autoComplete="off"
+                    required
+                    requiredColor="red"
                     {...register("email", { required: true })}
                 />
                 
@@ -184,6 +186,8 @@ function LoginForm() {
                     type="password"
                     placeholder=""
                     autoComplete="new-password"
+                    required
+                    requiredColor="red"
                     {...register("password", { required: true })}
                 />
 
@@ -196,6 +200,7 @@ function LoginForm() {
                             onChange={(e) => setRol(e.target.value)}
                             placeholder="Seleccione un rol"
                             showSearch={false}
+                            required
                             searchPlaceholder="Busca un rol"
                         />
                     </div>

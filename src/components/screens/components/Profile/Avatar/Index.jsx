@@ -81,7 +81,7 @@ export default function UserAvatar({
         }}
       >
         {editable ? (
-          <ModalTooltip text='Cambiar Foto de Perfil'>
+          <ModalTooltip text='Cambiar Foto de Perfil' position="top">
             {avatarElement}
             <div className={styles.overlay}>
               <Camera size={size * 0.45} />

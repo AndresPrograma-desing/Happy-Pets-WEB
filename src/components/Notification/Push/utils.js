@@ -43,6 +43,7 @@ export const usePushNotifications = (userId) => {
       };
 
       setNotifications((prev) => [...prev, newNotif]);
+      window.dispatchEvent(new CustomEvent('reload-notifications'));
 
       setTimeout(() => {
         removeNotification(newNotif.id);
@@ -56,8 +57,8 @@ export const usePushNotifications = (userId) => {
     }
 
     return () => {
-      notificationSignalRService.offReceiveNotification();
-      notificationSignalRService.stopConnection();
+      // Remueve la suscripción del listener específico sin cerrar la conexión WebSocket global del usuario
+      notificationSignalRService.offReceiveNotification(handleReceiveNotification);
     };
   }, [removeNotification, userId]);
 

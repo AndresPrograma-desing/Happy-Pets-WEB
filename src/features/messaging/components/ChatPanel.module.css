@@ -1,5 +1,6 @@
-/* ChatPanel.module.css - Estilo Email Moderno */
-
+/* ==========================================================================
+   CONTENEDOR GLOBAL DEL PANEL
+   ========================================================================== */
 .emailContainer {
   display: flex;
   height: 75vh;
@@ -12,7 +13,9 @@
   font-family: var(--font-sans);
 }
 
-/* SIDEBAR (INBOX) */
+/* ==========================================================================
+   SIDEBAR (CONTACTOS Y CONVERSACIONES)
+   ========================================================================== */
 .inboxSidebar {
   width: 350px;
   background: var(--bg-page);
@@ -26,35 +29,6 @@
   padding: 1.25rem;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-card-bg);
-}
-
-.searchWrap {
-  display: flex;
-  align-items: center;
-  background: var(--secondary-color);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 0.75rem;
-  border: 1px solid transparent;
-  transition: var(--transition);
-}
-
-.searchWrap:focus-within {
-  border-color: var(--color-border);
-  background: var(--color-card-bg);
-}
-
-.searchIcon {
-  color: var(--color-text-muted);
-  margin-right: 8px;
-}
-
-.searchInput {
-  flex: 1;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-size: 0.9rem;
-  color: var(--color-text);
 }
 
 .conversationList {
@@ -83,10 +57,6 @@
   background: var(--secondary-color);
   border-left: 4px solid var(--color-primary);
   padding-left: calc(1.25rem - 4px);
-}
-
-.activeConv:hover {
-  background: var(--secondary-color);
 }
 
 .convAvatar {
@@ -160,7 +130,9 @@
   margin-left: 8px;
 }
 
-/* THREAD AREA (READING PANE) */
+/* ==========================================================================
+   ÁREA INTERNA DEL CHAT (THREAD)
+   ========================================================================== */
 .messageThread {
   flex: 1;
   display: flex;
@@ -207,14 +179,30 @@
   color: var(--color-text-muted);
 }
 
+/* MEJORA: Hilo de mensajes optimizado con scrollbar moderno */
 .threadMessages {
   flex: 1;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   overflow-y: auto;
   background: var(--bg-page);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-text-muted2) transparent;
+}
+
+.threadMessages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.threadMessages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.threadMessages::-webkit-scrollbar-thumb {
+  background-color: var(--color-text-muted2);
+  border-radius: 20px;
 }
 
 .messageBlock {
@@ -251,6 +239,7 @@
   font-weight: normal;
 }
 
+/* MEJORA: Burbuja con separación controlada y preservación de formato de texto de la IA */
 .messageBubble {
   background: var(--color-card-bg);
   border: 1px solid var(--color-border);
@@ -258,10 +247,10 @@
   border-radius: var(--radius-lg);
   color: var(--color-text);
   font-size: 0.95rem;
-  line-height: 1.5;
+  line-height: 1.6;
   box-shadow: var(--shadow-sm);
   word-break: break-word;
-  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .messageMe .messageBubble {
@@ -280,70 +269,6 @@
   border-top: 1px solid var(--color-border);
 }
 
-.composerInput {
-  width: 100%;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  font-family: inherit;
-  font-size: 0.95rem;
-  resize: none;
-  outline: none;
-  transition: var(--transition);
-  background: var(--bg-page);
-}
-
-.composerInput:focus {
-  border-color: var(--color-primary);
-  background: var(--color-card-bg);
-}
-
-.composerSend {
-  margin-top: 1rem;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  padding: 0.6rem 1.5rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: var(--transition);
-}
-
-.composerSend:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-}
-
-.composerSend:disabled {
-  background: var(--color-text-muted2);
-  cursor: not-allowed;
-}
-
-/* Empty states & loaders */
-.loadingState {
-  padding: 2rem;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-}
-
-.emptyState {
-  padding: 4rem 2rem;
-  text-align: center;
-  color: var(--color-text-muted);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.emptyIcon {
-  color: var(--color-text-muted2);
-}
-
 .noSelection {
   height: 100%;
   display: flex;
@@ -354,23 +279,80 @@
   background: var(--bg-page);
 }
 
-.noSelectionIcon {
-  color: var(--color-text-muted2);
-  margin-bottom: 1.5rem;
+/* ==========================================================================
+   FORMATOS COMPONENTE & POPOVER (SOLUCIÓN DEFINITIVA)
+   ========================================================================== */
+.formatsHelperContainer {
+  display: flex;
+  margin-bottom: 6px;
 }
 
-.noSelection h3 {
-  margin: 0 0 0.5rem 0;
-  color: var(--color-text);
-  font-size: 1.25rem;
+.formatsActive {
+  color: #2563eb !important;
+  background-color: #f1f5f9 !important;
+  border-radius: 6px;
 }
 
-.noSelection p {
+/* Sin absoluto ni interferencias visuales con Material-UI */
+.formatsDropdownMenu {
+  padding: 12px 14px;
+  width: 290px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Burbuja flotante nativa inyectada mediante slotProps */
+.popoverPaper {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #e2e8f0 !important;
+  background-color: #ffffff !important;
+  overflow: hidden !important;
+}
+
+.formatMenuTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.03em;
+}
+
+.formatList {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Mobile responsive */
+.formatList li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #334155;
+}
+
+.formatMenuIcon {
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.formatList code {
+  background-color: #f1f5f9;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUT (MOBILE)
+   ========================================================================== */
 @media (max-width: 768px) {
   .emailContainer {
     height: calc(100vh - 120px);
@@ -394,7 +376,3 @@
   }
 }
 
-.greenHighlight {
-  color: #10b981;
-  font-weight: 700;
-}

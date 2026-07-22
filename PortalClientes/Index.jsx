@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Index.module.css';
 
 // Reusing existing components per your instructions
@@ -11,9 +12,10 @@ import Loading from '../src/components/screens/components/Loading/Index';
 import ContactsPanel from './Components/ContactsPanel/Index.jsx';
 import Frame from '../src/components/screens/components/Frame/Index';
 import Input from '../src/components/screens/components/Input/Index';
+import AsistentChat from './Components/AsistentChat/Index.jsx';
 
 // Icons
-import { Search, PawPrint, Calendar, FileText, User, BookUser, ShieldCheck } from 'lucide-react';
+import { Search, PawPrint, Calendar, FileText, BookUser, ShieldCheck } from 'lucide-react';
 
 // Texts
 import { TEXT_PORTAL } from './Constants';
@@ -21,12 +23,12 @@ import { TEXT_PORTAL } from './Constants';
 // Mock Data
 const mockMascotas = [
   { id: 1, nombre: 'Max', especie: 'Perro', raza: 'Golden Retriever', edad: '3 años' },
-  { id: 2, nombre: 'Luna', especie: 'Gato', raza: 'Siamés', edad: '1 año' }
+  { id: 2, nombre: 'Luna', especie: 'Gato', raza: 'Siamés', edad: '2 años' }
 ];
 
 const mockCitas = [
-  { id: 1, mascota: 'Max', fecha: '2024-05-15', hora: '10:00 AM', motivo: 'Vacunación', estado: 'Completada' },
-  { id: 2, mascota: 'Luna', fecha: '2024-06-20', hora: '03:30 PM', motivo: 'Chequeo General', estado: 'Pendiente' }
+  { id: 1, mascota: 'Max', fecha: '2024-06-20', hora: '10:00 AM', motivo: 'Vacunación Anual', estado: 'Pendiente' },
+  { id: 2, mascota: 'Luna', fecha: '2024-05-10', hora: '03:30 PM', motivo: 'Control de Peso', estado: 'Completada' }
 ];
 
 const mockRecetas = [
@@ -39,14 +41,13 @@ export default function PortalClientes() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
-  
+
   // Security check state
   const [showSecurityCheck, setShowSecurityCheck] = useState(false);
   const [petColor, setPetColor] = useState('');
   const [securityError, setSecurityError] = useState('');
 
   useEffect(() => {
-    // Simulate initial page load
     const timer = setTimeout(() => {
       setInitialLoading(false);
     }, 4500);
@@ -58,8 +59,6 @@ export default function PortalClientes() {
     setSearched(false);
     setSecurityError('');
     setPetColor('');
-    
-    // Simulate finding the user, but we ask for security first
     setShowSecurityCheck(true);
   };
 
@@ -69,13 +68,10 @@ export default function PortalClientes() {
       setSecurityError(TEXT_PORTAL.security.errorMessage);
       return;
     }
-    
-    // Mock successful verification
     setSecurityError('');
     setShowSecurityCheck(false);
     setLoading(true);
 
-    // Simulate API fetch latency after passing security
     setTimeout(() => {
       setLoading(false);
       setSearched(true);
@@ -120,7 +116,6 @@ export default function PortalClientes() {
       )}
 
       <Container className={styles.portalContainer} showPagination={false}>
-        
         <div className={styles.topBar}>
           <Button 
             variant="ghost"
@@ -180,15 +175,12 @@ export default function PortalClientes() {
                 value={petColor}
                 onChange={(e) => setPetColor(e.target.value)}
               />
-              <Button 
+              <button 
                 type="submit"
-                variant={Button.VARIANTS.PRIMARY}
-                color={Button.COLORS.BLUE}
-                fullWidth
-                style={{ justifyContent: 'center' }}
+                className={styles.verifySubmitBtn}
               >
                 {TEXT_PORTAL.security.verifyButton}
-              </Button>
+              </button>
             </form>
           </Frame>
         )}
@@ -244,6 +236,8 @@ export default function PortalClientes() {
         isOpen={showContacts} 
         onClose={() => setShowContacts(false)} 
       />
+
+      <AsistentChat />
     </div>
   );
 }

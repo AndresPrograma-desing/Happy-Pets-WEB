@@ -3,6 +3,7 @@ import { Filter as FilterIcon, Trash2, Search } from 'lucide-react';
 import DrawPanel from '../DrawPanel/index';
 import Button from '../Button/index';
 import styles from './Index.module.css';
+import ModalTooltip from '../../../ModalTooltip/ModalTooltip';
 
 const Filter = ({
     children,
@@ -10,7 +11,8 @@ const Filter = ({
     onApply,
     searchTerm = '',
     width = '350px',
-    title = 'Filtros'
+    title = 'Filtros',
+    activeFiltersCount = 0
 }) => {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -27,12 +29,23 @@ const Filter = ({
         <div className={styles.filterWrapper}>
             <div className={styles.filterBar}>
                 <div className={styles.actions}>
-                    <Button
-                        onClick={() => setIsOpen(true)}
-                        variant={Button.VARIANTS.PRIMARY}
-                    >
-                        <FilterIcon size={18} /> Filtrar
-                    </Button>
+                    <div className={styles.filterButtonWrapper}>
+                        <Button
+                            onClick={() => setIsOpen(true)}
+                            variant={Button.VARIANTS.PRIMARY}
+                        >
+                            <FilterIcon size={18} /> Filtrar
+                        </Button>
+                        {activeFiltersCount > 0 && (
+                            <div className={styles.badgeWrapper}>
+                                <ModalTooltip text="Filtros aplicados" position="top">
+                                    <span className={styles.filterBadge}>
+                                        {activeFiltersCount}
+                                    </span>
+                                </ModalTooltip>
+                            </div>
+                        )}
+                    </div>
                     {onClear && (
                         <Button
                             onClick={handleClear}

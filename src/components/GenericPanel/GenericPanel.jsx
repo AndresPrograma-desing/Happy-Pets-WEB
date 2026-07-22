@@ -6,7 +6,7 @@ import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import styles from './GenericPanel.module.css';
 import AlertModal from '../AlertModal/AlertModal';
 import Footer from '../Footer/Footer';
-import { BellPlus, Link2, Users, BotIcon, Mail, Pencil, Check, X, CircleUser, AlertCircle, LogOut } from 'lucide-react';
+import { Link2, Users, BotIcon, Check, X, CircleUser, AlertCircle, LogOut } from 'lucide-react';
 import { logout, getUserNameFromLoginSession } from '../../services/api';
 import { getText } from '../../constants';
 import NotificationForm from '../NotificationForm/NotificationForm';
@@ -25,6 +25,7 @@ import EditProfileForm from '../EditProfile/EditProfile';
 import Loading from '../screens/components/Loading/Index';
 import UserAvatar from '../screens/components/Profile/Avatar/Index';
 import Container from '../screens/components/Container';
+import TopBar from '../TopBar/TopBar';  
 
 let hasLoadedOnce = false;
 
@@ -103,7 +104,7 @@ function GenericPanel({
     return () => { mounted = false; };
   }, []);
 
-    const overlayRef = useRef(null);
+  const overlayRef = useRef(null);
   const [expandedMenus, setExpandedMenus] = useState(() => {
     try {
       const saved = sessionStorage.getItem('expandedMenus');
@@ -134,8 +135,6 @@ function GenericPanel({
   };
 
   const items = menuItems || defaultMenus[actualRole] || defaultMenus.user;
-
-
 
   const handleAvatarUpdateSuccess = (newName, newAvatarUrl) => {
     if (newName) {
@@ -169,11 +168,10 @@ function GenericPanel({
   if (loggedOut) return <Navigate to="/login" replace />;
 
   const userId = getUserId();
+  
   return (
     <>
       <StatusModal userId={userId} />
-
-
 
       {showWelcome && (
         <ToggleCard
@@ -260,27 +258,14 @@ function GenericPanel({
         </aside>
 
         <div className={styles.mainWrapper}>
-          <header className={styles.topBar}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <UserAvatar 
-                  src={currentAvatar} 
-                  name={currentUserName} 
-                  size={32} 
-                  viewable={true}
-                />
-                <div className={styles.userBadge}>
-                  {currentUserName || getDisplayRoleName(actualRole)}
-                </div>
-                 <Button 
-                   variant={Button.VARIANTS.GHOST}
-                   onClick={() => setShowEditProfileModal(true)}
-                   style={{ minWidth: 0, padding: '4px', color: '#ffffff' }}
-                   aria-label="Editar perfil"
-                 >
-                   <Pencil size={14} />
-                 </Button>
-              </div>
-          </header>
+          
+          <TopBar 
+            styles={styles}
+            currentAvatar={currentAvatar}
+            currentUserName={currentUserName}
+            displayRoleName={getDisplayRoleName(actualRole)}
+            onEditProfileClick={() => setShowEditProfileModal(true)}
+          />
 
           <main className={styles.contentArea}>
             <Container

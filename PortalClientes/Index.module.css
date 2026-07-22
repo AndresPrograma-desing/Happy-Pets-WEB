@@ -210,3 +210,103 @@
     min-height: 100px;
     resize: vertical;
 }
+.floatingBotBtn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  z-index: 99999; /* Forzamos que esté por encima de tablas y modales */
+}
+
+.floatingBotBtn:hover {
+  transform: scale(1.08);
+  background-color: #1d4ed8;
+}
+
+.floatingBotBtn:active {
+  transform: scale(0.95);
+}
+
+
+.botChatModalFrame {
+  max-width: 500px !important;
+  width: 95% !important;
+  padding: 0 !important; 
+  overflow: hidden !important;
+}
+
+.botThreadWrapper {
+  width: 100%;
+  height: 520px;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+/* Forzamos estilos globales simulados para que herede el diseño sin fallar */
+.botThreadWrapper :global(.messageThread) {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.botThreadWrapper :global(.threadHeader) {
+  padding: 1rem !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.botThreadWrapper :global(.threadMessages) {
+  flex: 1 !important;
+  padding: 1.25rem !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  background-color: #f8fafc !important;
+}
+
+.botThreadWrapper :global(.messageBlock) {
+  display: flex !important;
+  flex-direction: column !important;
+  max-width: 85% !important;
+}
+
+.botThreadWrapper :global(.messageMe) { align-self: flex-end !important; }
+.botThreadWrapper :global(.messageThem) { align-self: flex-start !important; }
+
+.botThreadWrapper :global(.messageBubble) {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 0.85rem 1.15rem !important;
+  border-radius: 12px !important;
+  color: #1e293b !important;
+  font-size: 0.95rem !important;
+  line-height: 1.5 !important;
+  white-space: pre-wrap !important;
+}
+
+.botThreadWrapper :global(.messageMe .messageBubble) {
+  background: #eff6ff !important; /* Azul tenue para tus mensajes en el bot */
+}
+
+.botThreadWrapper :global(.threadComposer) {
+  padding: 1rem !important;
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+}

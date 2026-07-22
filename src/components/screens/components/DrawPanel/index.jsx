@@ -10,13 +10,15 @@ const DrawPanel = ({
   onClose, 
   title, 
   children,
-  width = '450px',
+  width = '400px',
   showActions = false,
   onConfirm,
   confirmText = 'Confirmar',
   cancelText = 'Cancelar',
   formId,
-  loading = false
+  loading = false,
+  success = undefined,
+  className = ''
 }) => {
   const [render, setRender] = useState(isOpen);
 
@@ -37,7 +39,7 @@ const DrawPanel = ({
       onAnimationEnd={onAnimationEnd}
     >
       <div 
-        className={`${styles.panel} ${isOpen ? styles.slideIn : styles.slideOut}`}
+        className={`${styles.panel} ${isOpen ? styles.slideIn : styles.slideOut} ${className}`}
         style={{ maxWidth: width }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -68,7 +70,8 @@ const DrawPanel = ({
               variant="primary" 
               color={Button.COLORS.PRIMARY} 
               onClick={onConfirm} 
-              disabled={loading} 
+              loading={loading}
+              success={success}
               fullWidth
             >
               {confirmText}

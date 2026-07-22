@@ -170,6 +170,9 @@ export async function createClienteMascota(payload) {
 export async function getClients() {
   return request('/Clients', { method: 'GET' });
 }
+export async function deleteClient(id) {
+  return request(`/Clients/delete/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
 
 export async function getUsers() {
   return request('/users', { method: 'GET' });
@@ -222,13 +225,44 @@ export async function createCita(payload) {
 
   return request('/Citas/create', { method: 'POST', body });
 }
+export async function getCitasDetalle(params = {}) {
+  const query = new URLSearchParams();
+  
+  if (params.status) query.append('status', params.status);
+  if (params.date) query.append('date', params.date);
+  if (params.allDates !== undefined) query.append('allDates', params.allDates);
+  
+  const queryString = query.toString();
+  const url = queryString ? `/Citas/requests?${queryString}` : '/Citas/requests';
+  
+  return request(url, { method: 'GET' });
+}
 
-export async function getCitasDetalle() {
-  return request('/Citas/requests', { method: 'GET' });
+export async function getCitas(params = {}) {
+  const query = new URLSearchParams();
+  
+  if (params.status) query.append('status', params.status);
+  if (params.date) query.append('date', params.date);
+  if (params.allDates !== undefined) query.append('allDates', params.allDates);
+  
+  const queryString = query.toString();
+  const url = queryString ? `/Citas/requests?${queryString}` : '/Citas/requests';
+  
+  return request(url, { method: 'GET' });
 }
-export async function getCitas() {
-  return request('/Citas/requests', { method: 'GET' });
+
+export async function getCitaStatuses() {
+  return request('/Citas/statuses', { method: 'GET' });
 }
+
+export async function getCitaTypes() {
+  return request('/Citas/types', { method: 'GET' });
+}
+
+export async function updateCita(id, payload) {
+  return request(`/Citas/update/${encodeURIComponent(id)}`, { method: 'PUT', body: payload });
+}
+
 export async function getMascotasByUserName(nombre) {
   const safeName = encodeURIComponent(String(nombre || '').trim());
   return request(`/users/${safeName}/pets`, { method: 'GET' });
@@ -385,9 +419,23 @@ export async function createPetForExistingClient(body) {
     method: 'POST',
     body
   });
-
-
-//Notificacion PUSH
+}
+export async function updateClient(id, payload) {
+  return request(`/Clients/update/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: payload
+  });
+}
+export async function updatePet(id, payload) {
+  return request(`/Pets/update/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: payload
+  });
+}
+export async function deletePet(id) {
+  return request(`/Pets/delete/${encodeURIComponent(id)}`, {
+    method: 'DELETE'
+  });
 }
 
 export async function requestPasswordReset(email) {
@@ -425,6 +473,10 @@ export async function createConsulta(payload) {
 
 export async function getConsultaById(id) {
   return request(`/Consultas/${id}`, { method: 'GET' });
+}
+
+export async function updateConsultaReceta(id, payload) {
+  return request(`/Consultas/${id}/receta`, { method: 'PATCH', body: payload });
 }
 
 export async function updateUserName(payload) {
@@ -502,4 +554,5 @@ export default {
   grop,
   getIaConocimiento,
   saveIaConocimiento,
+  updateConsultaReceta,
 };

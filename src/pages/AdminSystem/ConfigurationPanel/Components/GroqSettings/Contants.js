@@ -7,8 +7,8 @@ export const TEXTS ={
     GROQ_MODEL_PLACEHOLDER: "Ingresa el modelo",
     RULES_LABEL: "Reglas de Respuesta",
     RULES_PLACEHOLDER: "Aqui le indicas las reglas que debe seguir la IA al responder.",
-    KNOWLEDGE_BASE_LABEL: "Base de Conocimientos",
-    KNOWLEDGE_BASE_PLACEHOLDER: "Las Bases de Conocimiento es información que el puedes proporcionar a la IA para que te de mas información precisa relacionada a tu veterinaria. ",
+    KNOWLEDGE_BASE_LABEL: "Bases de Aprendizaje",
+    KNOWLEDGE_BASE_PLACEHOLDER: "Las Bases de Aprendizaje es información que el puedes proporcionar a la IA para respuestas con información precisa relacionada a tu veterinaria. ",
     ERROR_MESSAGES: {
         GENERIC_ERROR: "Ocurrio un error al guardar la configuración.",
         ERROR_SAVE_TITLE: "Error al guardar",

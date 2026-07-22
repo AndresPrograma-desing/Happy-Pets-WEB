@@ -3,9 +3,18 @@ import UserAvatar from '../screens/components/Profile/Avatar/Index';
 import styles from './Index.module.css';
 import InputWithIcon from '../screens/components/Material-UI/Components/InputWithIcon/Index';
 import Selector from '../screens/components/Material-UI/Components/Selector/Index';
-import { Pencil, Mail } from 'lucide-react';
+import { Pencil, Mail, Phone } from 'lucide-react'; // Agregado el icono Phone
 import Loading from '../screens/components/Loading/Index';
-import { ChangeProfileAvatar, updateUserName, getUserFirstNameFromLoginSession, getUserLastNameFromLoginSession, syncStorageNameAndLastName, getProfile, getUserEmailFromLoginSession, syncStorageProfileData, getUsers } from '../../services/api';
+import { 
+  ChangeProfileAvatar, 
+  updateUserName, 
+  getUserFirstNameFromLoginSession, 
+  getUserLastNameFromLoginSession, 
+  getProfile, 
+  getUserEmailFromLoginSession, 
+  syncStorageProfileData, 
+  getUsers 
+} from '../../services/api';
 import { getUserId } from '../../context/LocalStorage';
 
 const extractList = (res) => {
@@ -48,6 +57,10 @@ export default function EditProfileForm({
     if (isGroq) return 'ia@groq.com';
     return getUserEmailFromLoginSession() || '';
   });
+  
+  // Nuevo estado para el teléfono
+  const [phone, setPhone] = useState('');
+  
   const [avatarPreview, setAvatarPreview] = useState(currentAvatarUrl || null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -81,6 +94,7 @@ export default function EditProfileForm({
           let firstName = data.nombre || data.firstName || data.first_name || '';
           let lastNameVal = data.apellido || data.lastName || data.last_name || '';
           let emailVal = data.email || data.correo || '';
+          let phoneVal = data.telefono || data.phone || data.numero || ''; // Obtener el teléfono
           
           if (!firstName && data.name) {
             const parts = data.name.trim().split(/\s+/);
@@ -92,6 +106,8 @@ export default function EditProfileForm({
           if (firstName) setName(firstName);
           if (lastNameVal) setLastName(lastNameVal);
           if (emailVal) setEmail(emailVal);
+          if (phoneVal) setPhone(phoneVal); // Setear el teléfono
+          
           if (data.avatarUrl || data.avatar_url || data.avatar) {
             setAvatarPreview(data.avatarUrl || data.avatar_url || data.avatar);
           }
@@ -142,18 +158,21 @@ export default function EditProfileForm({
       const initialEmail = getUserEmailFromLoginSession() || '';
 
       const activeUserId = targetUserId || userId || getUserId();
-
-      // 1. Update Name and Email DTO
       const isSelf = !isGroq && !userId;
-      if (!isSelf || name !== initialFirstName || lastName !== initialLastName || email !== initialEmail) {
+      
+      // Siempre ejecutamos la actualización si no es IA, para asegurar que el teléfono se guarde
+      // incluso si nombre/apellido/correo no cambiaron pero el teléfono sí.
+      if (!isGroq) {
         await updateUserName({ 
           idUser: Number(activeUserId),
           newUserName: name,
           newLastName: lastName,
-          email: email
+          email: email,
+          newPhone: phone // Enviamos el nuevo teléfono según tu DTO
         }); 
         
         if (isSelf) {
+          // Si tienes una función para sincronizar el teléfono en localStorage, deberías agregarla aquí.
           syncStorageProfileData(name, lastName, email);
         }
         finalName = name;
@@ -172,6 +191,11 @@ export default function EditProfileForm({
         if (avatarResponse && avatarResponse.success) {
           finalAvatarUrl = avatarResponse.data?.avatar_url || avatarResponse.data?.avatarUrl;
         }
+      }
+
+      if (isGroq) {
+        if (finalAvatarUrl) localStorage.setItem('hp_assistant_avatar_url', finalAvatarUrl);
+        localStorage.setItem('hp_assistant_name', finalName);
       }
 
       if (onSuccess) onSuccess(finalName, finalAvatarUrl);
@@ -261,13 +285,28 @@ export default function EditProfileForm({
         <InputWithIcon 
           icon={Mail} 
           placeholder="Correo Electrónico" 
-          type="text"
+          type="email"
           value={email} 
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading} 
           fullWidth 
         />
       </div>
+
+      {/* Nuevo campo de teléfono (oculto para Groq) */}
+      {!isGroq && (
+        <div className={styles.inputWrapper}>
+          <InputWithIcon 
+            icon={Phone} 
+            placeholder="Teléfono" 
+            type="tel"
+            value={phone} 
+            onChange={(e) => setPhone(e.target.value)}
+            disabled={loading} 
+            fullWidth 
+          />
+        </div>
+      )}
 
       {additionalFields}
 

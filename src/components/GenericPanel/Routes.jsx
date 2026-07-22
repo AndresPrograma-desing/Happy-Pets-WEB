@@ -61,6 +61,7 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck' },
     { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus' },
     { label: 'Crear Alerta', icon: <BellPlus />, onClick: () => setShowNotificationModal(true) },
+    { label: getText("generalPanelTexts.optionsNavegations.clientList"), path: '/clients', icon: <Users /> },
   ],
   doctor: [
     { label: 'Panel Médico', path: '/doctor', icon: 'userCita' },
@@ -69,7 +70,7 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus' },
     { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },
     { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck' },
-    { label: 'Asistente Virtual', path: '/asistente-virtual', icon: <BotIcon />, newTab: true },
+    // { label: 'Asistente Virtual', path: '/asistente-virtual', icon: <BotIcon />, newTab: true },
     { label: 'Crear Alerta', icon: <BellPlus />, onClick: () => setShowNotificationModal(true) },
   ],
 });

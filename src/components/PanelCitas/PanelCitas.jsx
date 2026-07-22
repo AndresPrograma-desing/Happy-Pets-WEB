@@ -12,6 +12,7 @@ function PanelCitas({
     formatTime,
     getCitaId,
     onDelete,
+    onEdit,
     // Props opcionales para personalizar la acción primaria (por defecto "Empezar consulta")
     primaryActionLabel,
     onPrimaryAction,
@@ -47,6 +48,7 @@ function PanelCitas({
             formatTime={formatTime}
             getCitaId={getCitaId}
             onDelete={onDelete}
+            onEdit={onEdit}
             primaryActionLabel={primaryActionLabel}
             onPrimaryAction={handlePrimaryActionFallback}
             onViewHistory={onViewHistory}

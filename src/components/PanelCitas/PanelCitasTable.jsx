@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import TableB from '../screens/components/TableB';
 import tableStyles from '../screens/components/TableB/index.module.css';
 import styles from './PanelCitas.module.css';
-import { Phone, PawPrint, Calendar, Clock, Stethoscope, FileText, Trash2, XCircle, PlayCircle } from 'lucide-react';
+import { Phone, PawPrint, Calendar, Clock, Stethoscope, FileText, Trash2, XCircle, PlayCircle, Pencil, Settings } from 'lucide-react';
 
 import Button from '../screens/components/Button/index';
 import Container from '../screens/components/Container/index';
+import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover/index';
 
 function PanelCitasTable({
   listaCitas = [],
@@ -18,6 +19,7 @@ function PanelCitasTable({
   getCitaId,
   onDelete,
   onCancel, // Nuevo prop para cancelar
+  onEdit, // Nuevo prop para editar
   primaryActionLabel,
   onPrimaryAction,
   onViewHistory,
@@ -126,24 +128,47 @@ function PanelCitasTable({
             </Button>
             {(() => {
               const mascotaId = row.mascota_id || row.Mascotum?.id || row.mascota?.id;
-              if (!mascotaId) return null;
-              return (
-                <Button 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
+              const subItems = [];
+
+              if (mascotaId) {
+                subItems.push({
+                  label: 'Ver Historial Clínico',
+                  onClick: () => {
                     if (typeof onViewHistory === 'function') {
                       onViewHistory(row);
                     } else {
-                      navigate('/doctor/pacientes', { state: { mascotaId } }); 
+                      navigate('/doctor/pacientes', { state: { mascotaId } });
                     }
-                  }}
-                  disabled={isDeleting}
-                  icon={FileText}
-                  variant="outline"
-                  color={Button.COLORS.BLUE}
-                >
-                  Ver Historial
-                </Button>
+                  }
+                });
+              }
+
+              if (onEdit) {
+                subItems.push({
+                  label: 'Editar Cita',
+                  onClick: () => onEdit(row)
+                });
+              }
+
+              if (subItems.length === 0) return null;
+
+              const actionsItem = {
+                label: 'Acciones',
+                icon: Settings,
+                subItems
+              };
+
+              return (
+                <div onClick={(e) => e.stopPropagation()} style={{ display: 'inline-block' }}>
+                  <MenuPopover
+                    item={actionsItem}
+                    styles={{}}
+                    renderIcon={(icon, css) => <Settings size={16} className={css} />}
+                    onNavigate={(subItem) => {
+                      if (subItem.onClick) subItem.onClick();
+                    }}
+                  />
+                </div>
               );
             })()}
             {onCancel && (
