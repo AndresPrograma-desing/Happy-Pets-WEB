@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import MuiTextField from '@mui/material/TextField';
+import { formatHighlightedText } from '../../../GreenHighlight/utils.jsx';
 
 const MultilinePlaceholder = forwardRef(({ 
   label, 
@@ -15,13 +16,16 @@ const MultilinePlaceholder = forwardRef(({
   placeholder,
   ...props 
 }, ref) => {
+  const formattedLabel = typeof label === 'string' ? formatHighlightedText(label) : label;
+  const displayHelperText = typeof helperText === 'string' ? formatHighlightedText(helperText) : helperText;
+
   return (
     <MuiTextField
-      label={label}
+      label={formattedLabel}
       value={value}
       onChange={onChange}
       error={!!error}
-      helperText={error || helperText}
+      helperText={error || displayHelperText}
       variant={variant}
       size={size}
       fullWidth={fullWidth}

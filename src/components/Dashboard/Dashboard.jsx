@@ -43,7 +43,10 @@ export default function Dashboard() {
   }, []);
 
   if (loading) {
-    return <Loading size="large" phrases={["Cargando Dashboard", "Calculando Datos"]} />;
+    return <Loading 
+    size="large" 
+    variant="bars"  // O box o default
+    phrases={["Cargando Dashboard", "Calculando Datos"]} />;
   }
 
   if (error) {

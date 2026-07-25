@@ -34,3 +34,7 @@ export async function sendEmails( EntityId, emailTypeCode ) {
 export async function resendData() {
   return request ('Emails/data-resend', {method: 'GET'});
 }
+
+export async function updateResendData(data) {
+  return request ('Emails/update-resend', {method: 'POST', body: data});
+}

@@ -36,7 +36,7 @@ export default function AsistentChat() {
       {
         id: 'init-msg',
         from: 'groq-ia',
-        content: '¡Hola! Soy el **Asistente Groq IA** de Happy Pets. ¿En qué puedo ayudarte hoy con tus mascotas?',
+        content: '¡Hola! Soy el **Asistente NowGrod.ia** de Happy Pets. ¿En qué puedo ayudarte hoy con tus mascotas?',
         createdAt: new Date().toISOString()
       }
     ];

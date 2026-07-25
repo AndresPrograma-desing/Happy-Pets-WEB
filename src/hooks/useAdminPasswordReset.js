@@ -9,6 +9,7 @@ export default function useAdminPasswordReset() {
   const [status, setStatus] = useState('Idle'); // Idle, Pending, Accepted, Completed
   const [pendingList, setPendingList] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
+  const [activeTicket, setActiveTicket] = useState(null);
   
   const pollingInterval = useRef(null);
 
@@ -46,35 +47,42 @@ export default function useAdminPasswordReset() {
     }
   };
 
-  // Paso 2: Polling
-  const checkStatus = async (email) => {
-    try {
-      const res = await api.getResetStatus(email);
-      // The API returns { email: "...", status: "Pending" | "Accepted" | "Completed" }
-      const currentStatus = res?.status || res?.data?.status;
-      if (currentStatus === 'Accepted') {
-        setStatus('Accepted');
-        stopPolling();
-      }
-    } catch (err) {
-      console.error("Error al consultar el estado del ticket:", err);
-    }
-  };
-
-  const startPolling = (email) => {
-    stopPolling();
-    // Iniciar polling cada 5 segundos
-    pollingInterval.current = setInterval(() => {
-      checkStatus(email);
-    }, 5000);
-  };
-
-  const stopPolling = () => {
+  const stopPolling = useCallback(() => {
     if (pollingInterval.current) {
       clearInterval(pollingInterval.current);
       pollingInterval.current = null;
     }
-  };
+  }, []);
+
+  // Paso 2: Polling
+  const checkStatus = useCallback(async (email) => {
+    try {
+      const res = await api.getResetStatus(email);
+      const data = res?.data ?? res;
+      if (data) {
+        setActiveTicket(data);
+        const currentStatus = data.status;
+        if (currentStatus === 'Accepted') {
+          setStatus('Accepted');
+          stopPolling();
+        } else if (currentStatus === 'None') {
+          setStatus('Idle');
+          stopPolling();
+        }
+      }
+    } catch (err) {
+      console.error("Error al consultar el estado del ticket:", err);
+    }
+  }, [stopPolling]);
+
+  const startPolling = useCallback((email) => {
+    stopPolling();
+    checkStatus(email);
+    // Iniciar polling cada 5 segundos
+    pollingInterval.current = setInterval(() => {
+      checkStatus(email);
+    }, 5000);
+  }, [stopPolling, checkStatus]);
 
   // Paso 3: Asignar nueva clave
   const assignNewPassword = async (email, newPassword) => {
@@ -98,6 +106,13 @@ export default function useAdminPasswordReset() {
     return () => stopPolling();
   }, []);
 
+  const resetResetState = useCallback(() => {
+    setSuccess(false);
+    setStatus('Idle');
+    setError(null);
+    setActiveTicket(null);
+  }, []);
+
   return {
     requestPasswordReset,
     assignNewPassword,
@@ -112,6 +127,9 @@ export default function useAdminPasswordReset() {
     setStatus,
     stopPolling,
     fetchPendingList,
-    startPolling
+    startPolling,
+    activeTicket,
+    setActiveTicket,
+    resetResetState
   };
 }

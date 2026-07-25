@@ -7,6 +7,8 @@ import AlertModal from '../../../components/AlertModal/AlertModal';
 import { User, Mail, Phone, MapPin, IdCard, PawPrint, Award, Palette, HeartHandshake, Weight, Activity, ShieldAlert, Notebook,Dna } from 'lucide-react';
 import GenericPanel from '../../../components/GenericPanel/GenericPanel';
 import Button, { COLORS } from '../../../components/screens/components/Button';
+import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
+import CountdownBar from '../../../components/screens/components/CountdownBar';
 
 const initialForm = {
     nombre: '',
@@ -71,13 +73,11 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             return;
         }
 
-        // 2. Envío al backend
         try {
             const created = await createClientAndPet(form);
             if (typeof onCreated === 'function') onCreated(created);
             setForm(initialForm);
         } catch (err) {
-             
             const isConflict = err?.status === 409 || /conflict/i.test(String(err?.body?.message || err?.message || ''));
             const fallbackMessage = isConflict
                 ? 'Ya existe un usuario con los mismos datos.'
@@ -98,10 +98,17 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
         }
     }, [serverError]);
 
+    const filledFieldsCount = REQUIRED_FIELDS.filter((field) => {
+        const val = form[field];
+        return val !== undefined && val !== null && String(val).trim() !== '';
+    }).length;
+
+    const totalFields = REQUIRED_FIELDS.length;
+    const progressValue = (filledFieldsCount / totalFields) * 100;
+
     return (
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
             
-            {/* TU COMPONENTE ALERT MODAL INTEGRADO */}
             <AlertModal
                 open={isModalOpen}
                 title="Atención"
@@ -113,113 +120,131 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
                 }}
             />
 
+            <div style={{ gridColumn: '1 / -1', marginBottom: '10px' }}>
+                <CountdownBar 
+                active={true} 
+                value={progressValue} />
+            </div>
+
             <h3 className={styles.sectionTitle}>Datos del cliente</h3>
             
             <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Nombre <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <User size={16} className={styles.inputIcon} />
-                        <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleChange} />
-                    </div>
-                </div>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Apellido <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <User size={16} className={styles.inputIcon} />
-                        <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleChange} />
-                    </div>
-                </div>
+                <TextField
+                    label="Nombre"
+                    name="nombre"
+                    placeholder="Nombre"
+                    value={form.nombre}
+                    onChange={handleChange}
+                    required
+                />
+                <TextField
+                    label="Apellido"
+                    name="apellido"
+                    placeholder="Apellido"
+                    value={form.apellido}
+                    onChange={handleChange}
+                    required
+                />
             </div>
 
             <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Email <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <Mail size={16} className={styles.inputIcon} />
-                        <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
-                    </div>
-                </div>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Teléfono <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <Phone size={16} className={styles.inputIcon} />
-                        <input name="telefono" placeholder="Teléfono" value={form.telefono} onChange={handleChange} />
-                    </div>
-                </div>
+                <TextField
+                    label="Email"
+                    name="email"
+                    type="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                />
+                <TextField
+                    label="Teléfono"
+                    name="telefono"
+                    placeholder="Teléfono"
+                    value={form.telefono}
+                    onChange={handleChange}
+                    required
+                />
             </div>
 
             <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Dirección <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <MapPin size={16} className={styles.inputIcon} />
-                        <input name="direccion" placeholder="Dirección" value={form.direccion} onChange={handleChange} />
-                    </div>
-                </div>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Identificación <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <IdCard size={16} className={styles.inputIcon} />
-                        <input name="identificacion" placeholder="Identificación" value={form.identificacion} onChange={handleChange} />
-                    </div>
-                </div>
+                <TextField
+                    label="Dirección"
+                    name="direccion"
+                    placeholder="Dirección"
+                    value={form.direccion}
+                    onChange={handleChange}
+                    required
+                />
+                <TextField
+                    label="Identificación"
+                    name="identificacion"
+                    placeholder="Identificación"
+                    value={form.identificacion}
+                    onChange={handleChange}
+                    required
+                />
             </div>
 
             <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Nota</label>
-                    <div className={styles.inputWrapper}>
-                        <Notebook size={16} className={styles.inputIcon} />
-                        <input name="nota" placeholder="Nota del cliente" value={form.nota} onChange={handleChange} />
-                    </div>
-                </div>
+                <TextField
+                    label="Nota"
+                    name="nota"
+                    placeholder="Nota del cliente"
+                    value={form.nota}
+                    onChange={handleChange}
+                />
             </div>
 
             <h3 className={styles.sectionTitle}>Datos de la mascota</h3>
             
             <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Nombre de mascota <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <PawPrint size={16} className={styles.inputIcon} />
-                        <input name="mascota_nombre" placeholder="Nombre de mascota" value={form.mascota_nombre} onChange={handleChange} />
-                    </div>
-                </div>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Especie <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <Dna size={16} className={styles.inputIcon} />
-                        <input name="especie" placeholder="Especie" value={form.especie} onChange={handleChange} />
-                    </div>
-                </div>
+                <TextField
+                    label="Nombre de mascota"
+                    name="mascota_nombre"
+                    placeholder="Nombre de mascota"
+                    value={form.mascota_nombre}
+                    onChange={handleChange}
+                    required
+                />
+                <TextField
+                    label="Especie"
+                    name="especie"
+                    placeholder="Especie"
+                    value={form.especie}
+                    onChange={handleChange}
+                    required
+                />
             </div>
 
             <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Raza <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <Award size={16} className={styles.inputIcon} />
-                        <input name="raza" placeholder="Raza" value={form.raza} onChange={handleChange} />
-                    </div>
-                </div>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Color <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <Palette size={16} className={styles.inputIcon} />
-                        <input name="color" placeholder="Color" value={form.color} onChange={handleChange} />
-                    </div>
-                </div>
+                <TextField
+                    label="Raza"
+                    name="raza"
+                    placeholder="Raza"
+                    value={form.raza}
+                    onChange={handleChange}
+                    required
+                />
+                <TextField
+                    label="Color"
+                    name="color"
+                    placeholder="Color"
+                    value={form.color}
+                    onChange={handleChange}
+                    required
+                />
             </div>
 
             <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Sexo <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <HeartHandshake size={16} className={styles.inputIcon} />
-                        <input name="sexo" placeholder="Sexo" value={form.sexo} onChange={handleChange} />
-                    </div>
-                </div>
+                <TextField
+                    label="Sexo"
+                    name="sexo"
+                    placeholder="Sexo"
+                    value={form.sexo}
+                    onChange={handleChange}
+                    required
+                />
                 <CalendarPicker
                     label="Fecha de nacimiento"
                     name="fecha_nacimiento"
@@ -230,37 +255,41 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             </div>
 
             <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Peso (kg) <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <Weight size={16} className={styles.inputIcon} />
-                        <input name="peso" type="number" step="0.1" placeholder="Peso" value={form.peso} onChange={handleChange} />
-                    </div>
-                </div>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Identificación mascota <span className={styles.reqStar}>*</span></label>
-                    <div className={styles.inputWrapper}>
-                        <IdCard size={16} className={styles.inputIcon} />
-                        <input name="identeficacion_mascota" placeholder="Identificación mascota" value={form.identeficacion_mascota} onChange={handleChange} />
-                    </div>
-                </div>
+                <TextField
+                    label="Peso (kg)"
+                    name="peso"
+                    type="number"
+                    step="0.1"
+                    placeholder="Peso"
+                    value={form.peso}
+                    onChange={handleChange}
+                    required
+                />
+                <TextField
+                    label="Identificación mascota"
+                    name="identeficacion_mascota"
+                    placeholder="Identificación mascota"
+                    value={form.identeficacion_mascota}
+                    onChange={handleChange}
+                    required
+                />
             </div>
 
             <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Alergias</label>
-                    <div className={styles.inputWrapper}>
-                        <ShieldAlert size={16} className={styles.inputIcon} />
-                        <input name="alergias" placeholder="Alergias" value={form.alergias} onChange={handleChange} />
-                    </div>
-                </div>
-                <div className={styles.inputGroup}>
-                    <label className={styles.label}>Condiciones médicas</label>
-                    <div className={styles.inputWrapper}>
-                        <Activity size={16} className={styles.inputIcon} />
-                        <input name="condiciones_medicas" placeholder="Condiciones médicas" value={form.condiciones_medicas} onChange={handleChange} />
-                    </div>
-                </div>
+                <TextField
+                    label="Alergias"
+                    name="alergias"
+                    placeholder="Alergias"
+                    value={form.alergias}
+                    onChange={handleChange}
+                />
+                <TextField
+                    label="Condiciones médicas"
+                    name="condiciones_medicas"
+                    placeholder="Condiciones médicas"
+                    value={form.condiciones_medicas}
+                    onChange={handleChange}
+                />
             </div>
 
             <div className={styles.row}>

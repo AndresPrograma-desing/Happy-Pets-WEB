@@ -8,7 +8,6 @@ import styles from './facturas.module.css';
 import { getFacturas, updateFacturaEstadoPago } from '../../../services/api';
 import usePolling from '../../../hooks/UsePolling';
 import PollingSeconds from '../../../hooks/PollingSecons';
-import filterCitasByEstado from '../../filter/FilterCitas/FilterStatus';
 import { getText } from '../../../constants';
 
 export function formatDate(iso) {
@@ -65,7 +64,15 @@ export function useFacturas() {
 
 export function useFacturasCalculadas(facturas, filterEstado, pdfOnly, searchTerm) {
   const visibleFacturas = useMemo(() => {
-    let filtered = filterCitasByEstado(facturas, filterEstado);
+    let filtered = Array.isArray(facturas) ? facturas : [];
+
+    const target = String(filterEstado || '').toLowerCase().trim();
+    if (target && target !== 'todos') {
+      filtered = filtered.filter((f) => {
+        const s = String(f?.estado_pago || 'pendiente').toLowerCase().trim();
+        return s === target;
+      });
+    }
     
     if (pdfOnly) {
       filtered = filtered.filter((f) => f?.url_docx && typeof f.url_docx === 'string' && f.url_docx.startsWith('http'));

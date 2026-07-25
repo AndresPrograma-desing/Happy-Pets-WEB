@@ -7,6 +7,7 @@ import { getIcon } from '../../assets/icons/ExportIcon/Index';
 import DrawPanel from '../../components/screens/components/DrawPanel/index';
 import TextField from '../../components/screens/components/Material-UI/Components/TextField/Index';
 import Selector from '../../components/screens/components/Material-UI/Components/Selector/Index';
+import CountdownBar from '../../components/screens/components/CountdownBar';
 const EyeIcon = ({ visible }) => (
   visible ? (
     <img
@@ -31,9 +32,20 @@ function CreatedUser() {
   const overlayRef = useRef(null);
   const firstInputRef = useRef(null);
 
-  const { register, handleSubmit, formState: { errors }, reset, setError, clearErrors, control } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset, setError, clearErrors, control, watch } = useForm({
     defaultValues: { rol: 'doctor' }
   });
+
+  const watchedValues = watch(['nombre', 'apellido', 'email', 'password']);
+  const filledFieldsCount = [
+    watchedValues[0]?.trim(),
+    watchedValues[1]?.trim(),
+    watchedValues[2]?.trim(),
+    watchedValues[3]
+  ].filter(val => !!val).length;
+
+  const totalFields = 4;
+  const progressValue = (filledFieldsCount / totalFields) * 100;
 
   useEffect(() => {
     if (open && firstInputRef.current) firstInputRef.current.focus();
@@ -101,6 +113,10 @@ function CreatedUser() {
         formId="createUserForm"
       >
         <form id="createUserForm" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+          <div style={{ marginBottom: '20px' }}>
+            <CountdownBar active={open} value={progressValue} />
+          </div>
+
           <div className={styles.field}>
             <TextField
               label="Nombre"
@@ -140,12 +156,14 @@ function CreatedUser() {
                 {...register('password', { required: 'Requerida', minLength: { value: 6, message: 'Mínimo 6' } })}
                 error={errors.password?.message}
                 autoComplete="new-password"
-                InputProps={{
-                  endAdornment: (
-                    <button type="button" className={styles.eyeBtn} onClick={() => setShowPassword(!showPassword)} tabIndex={-1} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                      <EyeIcon visible={showPassword} />
-                    </button>
-                  )
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <button type="button" className={styles.eyeBtn} onClick={() => setShowPassword(!showPassword)} tabIndex={-1} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                        <EyeIcon visible={showPassword} />
+                      </button>
+                    )
+                  }
                 }}
               />
             </div>

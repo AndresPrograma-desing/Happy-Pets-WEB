@@ -22,7 +22,7 @@ export const getDisplayRoleName = (role) => {
   return 'Usuario';
 };
 
-export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal }) => ({
+export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal, setShowCreateClientModal }) => ({
   user: [
     { label: getText("userInterface.menuItemDashboard"), path: '/', icon: 'house' },
     { label: 'Proyectos', path: '/projects', icon: 'service' },
@@ -53,7 +53,7 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
       subItems: [
         { label: 'Lista de Citas', path: '/citas', state: { role: 'secretaria' } },
         { label: 'Nueva Cita', path: '/citas/crear', state: { role: 'secretaria' } },
-        { label: 'Nuevo Usuario', path: '/clientes/crear' }
+        { label: 'Nuevo Cliente', onClick: () => setShowCreateClientModal && setShowCreateClientModal(true) }
       ]
     },
     { label: 'Gestion de Recibos', path: '/factura-manager', icon: 'fileText' },

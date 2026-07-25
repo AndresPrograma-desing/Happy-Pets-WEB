@@ -5,6 +5,7 @@ import useGetCitas from '../../../hooks/GetCitas';
 import { deleteCita, deleteCitaAlt, updateCitaEstado } from '../../../services/api';
 import PanelCitas from '../../../components/PanelCitas/PanelCitas';
 import AlertModal from '../../../components/AlertModal/AlertModal';
+import DrawPanel from '../../../components/screens/components/DrawPanel/index';
 import { CustomerAndPetsForm } from '../CreateCustomerAndPets/CustomerAndPets';
 import { openNewTab } from '../../../utils/navegation';
 
@@ -232,15 +233,15 @@ function CitasDoctor() {
 				cancelText="Cancelar"
 			/>
 
-			<AlertModal
-				open={showCreateClientModal}
-				title="Crear cliente"
-				message={createClientError || 'Crea un nuevo usuario rapidamente'}
+			<DrawPanel
+				isOpen={showCreateClientModal}
+				title="Crear cliente y mascota"
 				onClose={closeCreateClientModal}
-				hideActions={true}
+				width="600px"
+				showActions={false}
 			>
 				<CustomerAndPetsForm onCreated={handleCreateClientSuccess} onCancel={closeCreateClientModal} onError={handleCreateClientError} />
-			</AlertModal>
+			</DrawPanel>
 
 			<AlertModal
 				open={showCreateClientBadReqModal}

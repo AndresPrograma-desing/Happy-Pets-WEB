@@ -494,7 +494,7 @@ export async function refrestMedicalHistory(id) {
   return request(`/MedicalHistory/mascota/${encodeURIComponent(id)}/refrescar`, { method: 'POST' });
 }
 export async function grop(pregunta, historial = []) {
-  return request('/Groq/consultar', { 
+  return request('/NowGrod/consultar', { 
     method: 'POST',
     body: { pregunta, historial }
   });

@@ -4,6 +4,8 @@ import ToggleCard from '../../screens/components/ToggleCard';
 import { Bell, AlertCircle, RefreshCw } from 'lucide-react';
 import { usePushNotifications } from './utils';
 import { useLocation } from 'react-router-dom';
+import GreenHighlight from '../../screens/components/GreenHighlight/Index.jsx';
+import { formatHighlightedText } from '../../screens/components/GreenHighlight/utils.jsx';
 
 const getIconByType = (type) => {
   switch (type) {
@@ -38,8 +40,8 @@ const GlobalPushNotification = ({ userId }) => {
             className={`${styles.toastWrapper} ${notif.isExiting ? styles.fadeOut : ''}`}
           >
             <ToggleCard
-              title={notif.title}
-              description={notif.message}
+              title={formatHighlightedText(notif.title, GreenHighlight)}
+              description={formatHighlightedText(notif.message, GreenHighlight)}
               icon={IconComponent}
               onClose={() => removeNotification(notif.id)}
               closeText="Cerrar"

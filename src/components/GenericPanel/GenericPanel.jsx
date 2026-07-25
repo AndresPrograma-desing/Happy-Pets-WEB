@@ -20,6 +20,7 @@ import Button from '../screens/components/Button';
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
 import { getUserRole, getDisplayRoleName, getDefaultMenus } from './Routes';
 import { syncStorageName, fetchProfileName } from './utils';
+import { CustomerAndPetsForm } from '../../pages/DoctorSystem/CreateCustomerAndPets/CustomerAndPets';
 import InputWithIcon from '../screens/components/Material-UI/Components/InputWithIcon/Index';
 import EditProfileForm from '../EditProfile/EditProfile';
 import Loading from '../screens/components/Loading/Index';
@@ -49,6 +50,7 @@ function GenericPanel({
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+  const [showCreateClientModal, setShowCreateClientModal] = useState(false);
   const [loggedOut, setLoggedOut] = useState(false);
   const [currentUserName, setCurrentUserName] = useState(() => getUserNameFromLoginSession());
   const [globalApiError, setGlobalApiError] = useState(null);
@@ -124,7 +126,7 @@ function GenericPanel({
   };
 
   const actualRole = getUserRole() || role;
-  const defaultMenus = getDefaultMenus({ setShowNotificationModal, setShowWhatsAppModal });
+  const defaultMenus = getDefaultMenus({ setShowNotificationModal, setShowWhatsAppModal, setShowCreateClientModal });
 
   const toggleMenu = (label) => {
     setExpandedMenus(prev => {
@@ -351,6 +353,21 @@ function GenericPanel({
             currentName={currentUserName || getDisplayRoleName(actualRole)}
             currentAvatarUrl={currentAvatar}
             onSuccess={handleAvatarUpdateSuccess}
+          />
+        </DrawPanel>
+
+        <DrawPanel
+          isOpen={showCreateClientModal}
+          onClose={() => setShowCreateClientModal(false)}
+          title="Crear cliente y mascota"
+          width="500px"
+          showActions={false}
+        >
+          <CustomerAndPetsForm
+            onCreated={() => {
+              setShowCreateClientModal(false);
+            }}
+            onCancel={() => setShowCreateClientModal(false)}
           />
         </DrawPanel>
       </div>

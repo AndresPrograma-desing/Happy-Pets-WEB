@@ -198,7 +198,9 @@ export default function EditProfileForm({
         localStorage.setItem('hp_assistant_name', finalName);
       }
 
-      if (onSuccess) onSuccess(finalName, finalAvatarUrl);
+      if (onSuccess) {
+        await onSuccess(finalName, finalAvatarUrl);
+      }
 
     } catch (error) {
       console.error("Error al actualizar el perfil:", error);
@@ -212,7 +214,10 @@ export default function EditProfileForm({
   if (dataLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '220px', width: '100%' }}>
-        <Loading size="large" text="Cargando perfil..." />
+        <Loading 
+          size="large" 
+          variant=''
+          text="Cargando perfil..." />
       </div>
     );
   }
@@ -236,7 +241,8 @@ export default function EditProfileForm({
       <div className={styles.avatarGroup}>
         {loading ? (
           <div style={{ height: 85, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Loading size="large" />
+            <Loading 
+            size="large" />
           </div>
         ) : (
           <UserAvatar 

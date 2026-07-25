@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './index.module.css';
+import { formatHighlightedText } from '../GreenHighlight/utils.jsx';
 
 const ToggleCard = ({
   title,
@@ -13,15 +14,18 @@ const ToggleCard = ({
 }) => {
   const containerClass = `${styles.toggleContainer} ${variant === 'floating' ? styles.floatingVariant : ''}`;
 
+  const formattedTitle = typeof title === 'string' ? formatHighlightedText(title) : title;
+  const formattedDescription = typeof description === 'string' ? formatHighlightedText(description) : description;
+
   return (
     <div className={containerClass}>
       <div className={styles.content}>
         <div className={styles.textBlock}>
           <div className={styles.headerLine}>
             {Icon && <Icon size={18} className={styles.icon} />}
-            <span className={styles.label}>{title}</span>
+            <span className={styles.label}>{formattedTitle}</span>
           </div>
-          {description && <p className={styles.description}>{description}</p>}
+          {description && <p className={styles.description}>{formattedDescription}</p>}
         </div>
         <div className={styles.actionSection}>
           {action}

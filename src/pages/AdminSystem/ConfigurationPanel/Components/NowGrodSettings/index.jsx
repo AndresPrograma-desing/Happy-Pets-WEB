@@ -1,18 +1,38 @@
 import React, { useState, useEffect } from "react";
 import EditProfileForm from "../../../../../components/EditProfile/EditProfile";
 import MultilinePlaceholder from "../../../../../components/screens/components/Material-UI/Components/MultilinePlaceholder/index";
-import Button from "../../../../../components/screens/components/Button/index";
 import ErrorMessage from "../../../../../components/Notification/Error/ErrorMessage";
 import { TEXTS } from './Contants.js'
-import { saveIaConocimiento } from "../../../../../services/api";
+import { saveIaConocimiento, getIaConocimiento } from "../../../../../services/api";
 
-const GroqSettings = ({ onClose }) => {
+const GroqSettings = ({ onClose, onSaveStart, onSaveEnd }) => {
   const [rules, setRules] = useState("");
   const [knowledgeBase, setKnowledgeBase] = useState("");
   const [category, setCategory] = useState("general");
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const fetchConfig = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getIaConocimiento(category);
+        if (active && data) {
+          setRules(data.reglas_respuesta || "");
+          setKnowledgeBase(data.base_conocimiento || "");
+        }
+      } catch (err) {
+        console.error("Error al cargar la configuración de la IA:", err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    fetchConfig();
+    return () => { active = false; };
+  }, [category]);
 
   const categories = [
     { value: "general", label: "General" },
@@ -60,8 +80,12 @@ const GroqSettings = ({ onClose }) => {
         onSaveStart={() => {
           setLoading(true);
           setError(null);
+          if (onSaveStart) onSaveStart();
         }}
-        onSaveEnd={() => setLoading(false)}
+        onSaveEnd={() => {
+          setLoading(false);
+          if (onSaveEnd) onSaveEnd();
+        }}
         selectorProps={selectorProps}
         additionalFields={
           <>
@@ -101,27 +125,7 @@ const GroqSettings = ({ onClose }) => {
             )}
           </>
         }
-        actionButtons={
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', width: '100%' }}>
-            <Button
-              fullWidth
-              variant="outline"
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              fullWidth
-              loading={loading}
-              disabled={loading}
-              color={Button.COLORS.PRIMARY}
-            >
-              Guardar Cambios
-            </Button>
-          </div>
-        }
+
       />
     </div>
   );

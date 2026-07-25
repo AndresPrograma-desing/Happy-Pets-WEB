@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import styles from "./ModalTooltip.module.css";
 import { getIcon } from "../../assets/icons/ExportIcon/Index";
 
-const ModalTooltip = ({ text, children, position = "top" }) => {
+const ModalTooltip = ({ text, children, position = "top", style, ...props }) => {
   const [visible, setVisible] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const triggerRef = useRef(null);
@@ -27,7 +27,14 @@ const ModalTooltip = ({ text, children, position = "top" }) => {
       className={styles.container}
       onMouseEnter={() => setVisible(true)}
       onMouseLeave={() => setVisible(false)}
-      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', height: 'fit-content' }}
+      style={{ 
+        position: 'relative', 
+        display: 'inline-flex', 
+        alignItems: 'center', 
+        height: 'fit-content',
+        ...style
+      }}
+      {...props}
     >
       {children}
       {visible && typeof document !== 'undefined' && createPortal(

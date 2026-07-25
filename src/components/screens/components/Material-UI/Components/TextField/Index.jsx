@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import MuiTextField from '@mui/material/TextField';
+import { formatHighlightedText } from '../../../GreenHighlight/utils.jsx';
 
 const TextField = forwardRef(({ 
   label, 
@@ -16,12 +17,15 @@ const TextField = forwardRef(({
   requiredColor = 'red',
   ...props 
 }, ref) => {
-  const displayLabel = label ? (
+  const formattedLabel = typeof label === 'string' ? formatHighlightedText(label) : label;
+  const displayLabel = formattedLabel ? (
     <span>
-      {label}
+      {formattedLabel}
       {required && <span style={{ color: requiredColor, marginLeft: '4px' }}>**</span>}
     </span>
   ) : undefined;
+
+  const displayHelperText = typeof helperText === 'string' ? formatHighlightedText(helperText) : helperText;
 
   return (
     <MuiTextField
@@ -29,7 +33,7 @@ const TextField = forwardRef(({
       value={value}
       onChange={onChange}
       error={!!error}
-      helperText={error || helperText}
+      helperText={error || displayHelperText}
       type={type}
       variant={variant}
       size={size}

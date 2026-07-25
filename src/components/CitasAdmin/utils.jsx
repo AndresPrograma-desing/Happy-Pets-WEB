@@ -4,6 +4,7 @@ import useGetCitas from '../../hooks/GetCitas';
 import usePolling from '../../hooks/UsePolling';
 import { useSearchCitas } from '../../hooks/searchCitas';
 import { deleteCita, deleteCitaAlt, updateCitaEstado } from '../../services/api';
+import DrawPanel from '../screens/components/DrawPanel/index';
 
 export const renderField = (cita, keys) => {
     for (const k of keys) {
@@ -285,12 +286,12 @@ export function CitasModals({
                 cancelText="Mantener"
             />
 
-            <AlertModal
-                open={showCreateClientModal}
-                title="Crear cliente"
-                message={createClientError || 'Crea un nuevo cliente'}
+            <DrawPanel
+                isOpen={showCreateClientModal}
+                title="Crear cliente y mascota"
                 onClose={() => setShowCreateClientModal(false)}
-                hideActions={true}
+                width="600px"
+                showActions={false}
             >
                 <CustomerAndPetsForm
                     onCreated={() => {
@@ -303,14 +304,13 @@ export function CitasModals({
                     onError={(err) => {
                         const isBadRequest = err?.status === 400 || err?.response?.status === 400 || /bad request/i.test(err?.message || '');
                         setCreateClientError(err || null);
+                        setShowCreateClientModal(false);
                         if (isBadRequest) {
-                            setShowCreateClientModal(false);
                             setShowCreateClientBadReqModal(true);
-                            return;
                         }
                     }}
                 />
-            </AlertModal>
+            </DrawPanel>
 
             <AlertModal
                 open={showCreateClientBadReqModal}

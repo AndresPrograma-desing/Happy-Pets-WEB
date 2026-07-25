@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Index.module.css';
 
-const Loading = ({ text = "", phrases = [], size = 'medium', className = '' }) => {
+const Loading = ({ text = "", phrases = [], size = 'medium', variant = 'default', className = '' }) => {
   const [currentText, setCurrentText] = useState(text);
   const [index, setIndex] = useState(0);
   const [fade, setFade] = useState(true);
@@ -24,16 +24,34 @@ const Loading = ({ text = "", phrases = [], size = 'medium', className = '' }) =
           return nextIndex;
         });
         setFade(true);
-      }, 200);
+      }, 250);
 
-    }, 3000);
+    }, 3500);
 
     return () => clearInterval(interval);
   }, [phrases, text]);
 
+  const renderLoader = () => {
+    switch (variant) {
+      case 'bars':
+        return <div className={styles.loaderBars}></div>;
+      case 'bounce':
+        return <div className={styles.loaderBounce}></div>;
+      case 'box':
+        return <div className={styles.loaderBox}></div>;
+      case 'default':
+      default:
+        return (
+          <div className={styles.spinnerWrapper}>
+            <div className={styles.spinner}></div>
+          </div>
+        );
+    }
+  };
+
   return (
     <div className={`${styles.loadingContainer} ${styles[size]} ${className}`}>
-      <div className={styles.spinner}></div>
+      {renderLoader()}
       {currentText && (
         <span className={`${styles.text} ${fade ? styles.fadeIn : styles.fadeOut}`}>
           {currentText}
