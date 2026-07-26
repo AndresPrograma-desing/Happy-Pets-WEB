@@ -106,3 +106,18 @@
 .tableWrapper {
   width: 100%;
 }
+/* Forzar que el botón de acción sea rojo en este componente */
+.tableWrapper button, 
+.tableWrapper .editActionBtn, 
+.tableWrapper [class*="action"] {
+    background-color: #ef4444 !important;
+    border-color: #ef4444 !important;
+    color: #ffffff !important;
+    border-radius: 5px;
+}
+
+.tableWrapper button:hover, 
+.tableWrapper [class*="action"]:hover {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+}

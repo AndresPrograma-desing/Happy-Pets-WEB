@@ -77,12 +77,21 @@ export async function deleteUser(id) {
   return request(`/Users/${id}`, { method: 'DELETE' });
 }
 
-export async function getProducts() {
+export async function getProducts(params = {}) {
+  const queryParams = new URLSearchParams();
+  if (params.categoriaId) queryParams.append('categoriaId', params.categoriaId);
+  if (params.searchTerm) queryParams.append('searchTerm', params.searchTerm);
+  if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice);
+  if (params.pageNumber) queryParams.append('pageNumber', params.pageNumber);
+  if (params.pageSize) queryParams.append('pageSize', params.pageSize);
+
+  const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+  
   const candidates = ['/products', '/Products', '/productos', '/Productos', '/admin/Products'];
   let lastError = null;
   for (const path of candidates) {
     try {
-      return await request(path, { method: 'GET' });
+      return await request(`${path}${queryString}`, { method: 'GET' });
     } catch (err) {
       lastError = err;
       if (!(err && err.status === 404)) {

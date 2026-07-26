@@ -12,11 +12,15 @@ export default function CountdownBar({
   colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6'], // Del rojo (acabándose) al azul (inicio)
   expiresAt,
   totalDuration = 900000,
-  value
+  value,
+  increment = false
 }) {
   const timerState = useCountdown(active && value === undefined, duration, onComplete, expiresAt, totalDuration);
   
-  const progress = value !== undefined ? value : timerState.progress;
+  let progress = value !== undefined ? value : timerState.progress;
+  if (increment && value === undefined) {
+    progress = 100 - progress;
+  }
   const remainingSeconds = timerState.remainingSeconds;
   const remainingTime = remainingSeconds ? remainingSeconds.toFixed(1) : '0.0';
 

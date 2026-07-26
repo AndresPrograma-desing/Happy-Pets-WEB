@@ -34,7 +34,7 @@ export const DEV_URL_API = {
 // Flag to use dummy data without a backend API (dynamic via localStorage)
 export const isDummyModeActive = () => {
     if (typeof window !== 'undefined') {
-        return localStorage.getItem('USE_DUMMY_DATA') === 'true';
+        return localStorage.getItem('USE_DUMMY_DATA') === 'false';
     }
     return false;
 };

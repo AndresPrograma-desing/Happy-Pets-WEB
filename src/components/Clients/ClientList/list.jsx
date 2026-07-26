@@ -38,14 +38,12 @@ export default function ClientList() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 5;
 
-  // State for Add Pet
   const [showPetModal, setShowPetModal] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [petForm, setPetForm] = useState(INITIAL_PET_FORM);
   const [petSubmitting, setPetSubmitting] = useState(false);
   const [petError, setPetError] = useState('');
 
-  // State for Edit Client
   const [showEditClientModal, setShowEditClientModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [clientForm, setClientForm] = useState({
@@ -61,7 +59,6 @@ export default function ClientList() {
   const [clientEditError, setClientEditError] = useState('');
   const [clientEditSuccess, setClientEditSuccess] = useState(undefined);
 
-  // State for Edit Pet
   const [showEditPetModal, setShowEditPetModal] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [editPetForm, setEditPetForm] = useState(INITIAL_PET_FORM);
@@ -69,12 +66,10 @@ export default function ClientList() {
   const [editPetError, setEditPetError] = useState('');
   const [editPetSuccess, setEditPetSuccess] = useState(undefined);
 
-  // State for Delete Client
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [clientToDelete, setClientToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // State for Delete Pet
   const [showDeletePetModal, setShowDeletePetModal] = useState(false);
   const [petToDelete, setPetToDelete] = useState(null);
   const [deletePetLoading, setDeletePetLoading] = useState(false);
@@ -97,7 +92,6 @@ export default function ClientList() {
     fetchClients();
   }, []);
 
-  // --- Add Pet ---
   const handleOpenAddPet = (clientId) => {
     setSelectedClientId(clientId);
     setPetForm(INITIAL_PET_FORM);
@@ -125,7 +119,6 @@ export default function ClientList() {
     }
   };
 
-  // --- Edit Client ---
   const handleOpenEditClient = (client) => {
     setSelectedClient(client);
     setClientForm({
@@ -175,7 +168,6 @@ export default function ClientList() {
     }
   };
 
-  // --- Edit Pet ---
   const handleOpenEditPet = (pet) => {
     setSelectedPet(pet);
     setEditPetForm({
@@ -233,7 +225,6 @@ export default function ClientList() {
     }
   };
 
-  // --- Delete Client ---
   const handleOpenDeleteClient = (client) => {
     setClientToDelete(client);
     setShowDeleteModal(true);
@@ -276,7 +267,6 @@ export default function ClientList() {
     }
   };
 
-  // --- Menu Popover Builder ---
   const getMenuActionsItem = (client) => {
     const subItems = [
       {
@@ -502,7 +492,6 @@ export default function ClientList() {
         }}
       />
 
-      {/* DrawPanel: Agregar Mascota */}
       <DrawPanel
         isOpen={showPetModal}
         title="Registrar Nueva Mascota"
@@ -512,6 +501,9 @@ export default function ClientList() {
         confirmText={petSubmitting ? "Guardando..." : "Guardar Mascota"}
         cancelText="Cancelar"
         loading={petSubmitting}
+        showCountdown={true}
+        formData={petForm}
+        requiredFields={['nombre', 'especie', 'raza', 'color', 'sexo', 'fechaNacimiento', 'peso', 'identeficacionMascota']}
       >
         <PetForm 
           petForm={petForm} 
@@ -520,7 +512,6 @@ export default function ClientList() {
         />
       </DrawPanel>
 
-      {/* DrawPanel: Editar Cliente */}
       <DrawPanel
         isOpen={showEditClientModal}
         title="Editar Datos del Cliente"
@@ -531,6 +522,9 @@ export default function ClientList() {
         cancelText="Cancelar"
         loading={clientSubmitting}
         success={clientEditSuccess}
+        showCountdown={true}
+        formData={clientForm}
+        requiredFields={['nombre', 'apellido', 'email']}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem 0' }}>
           {clientEditError && (
@@ -581,7 +575,6 @@ export default function ClientList() {
         </div>
       </DrawPanel>
 
-      {/* DrawPanel: Editar Mascota */}
       <DrawPanel
         isOpen={showEditPetModal}
         title={`Editar Mascota - ${selectedPet?.nombre || ''}`}
@@ -592,6 +585,9 @@ export default function ClientList() {
         cancelText="Cancelar"
         loading={editPetSubmitting}
         success={editPetSuccess}
+        showCountdown={true}
+        formData={editPetForm}
+        requiredFields={['nombre', 'especie', 'raza', 'color', 'sexo', 'fechaNacimiento', 'peso', 'identeficacionMascota']}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem 0' }}>
           {editPetError && (

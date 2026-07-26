@@ -225,7 +225,7 @@ export default function PasswordResetPanel({ isOpen, onClose }) {
                                 Continuar
                               </Button>
                             </li>
-                          );
+                        );
                         })}
                       </ul>
                     </DesplegablePanel>

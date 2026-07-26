@@ -10,6 +10,10 @@ export const useProductListLogic = ({
     const [filterCategory, setFilterCategory] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     
+    const [page, setPage] = useState(1);
+    const pageSize = 10;
+    const [totalPages, setTotalPages] = useState(1);
+
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -23,11 +27,11 @@ export const useProductListLogic = ({
 
     const normalizeProduct = useCallback((p) => {
         const stock = p.stock ?? p.cantidad ?? ((p.existencia_inicial || 0) + (p.entradas || 0) - (p.salidas || 0));
-        const price = Number(p.precio_venta ?? p.price ?? 0);
-        const stockMin = p.stock_minimo ?? p.stockMin ?? p.min_stock ?? 0;
+        const price = Number(p.precioVenta ?? p.precio_venta ?? p.price ?? 0);
+        const stockMin = p.stockMinimo ?? p.stock_minimo ?? p.stockMin ?? p.min_stock ?? 0;
 
         let catId = '';
-        const rawCat = p.categoria_id ?? p.categoriaId ?? p.categoryId ?? p.categoria ?? '';
+        const rawCat = p.categoriaId ?? p.categoria_id ?? p.categoryId ?? p.categoria ?? '';
 
         if (/^\d+$/.test(String(rawCat))) {
             catId = String(rawCat);
@@ -56,22 +60,32 @@ export const useProductListLogic = ({
         
         setError(null);
         try {
-            const res = await getProducts();
+            const res = await getProducts({
+                categoriaId: filterCategory || undefined,
+                searchTerm: searchTerm || undefined,
+                maxPrice: maxPrice || undefined,
+                pageNumber: page,
+                pageSize: pageSize
+            });
             
-            // Resolve array
             let list = [];
             if (Array.isArray(res)) list = res;
             else if (res?.products) list = res.products;
             else if (res?.data) list = res.data;
             else if (res?.items) list = res.items;
             else if (typeof res === 'object') {
-                 // Try to find first array recursively or simply look at values
                  for (const key in res) {
                      if (Array.isArray(res[key])) {
                          list = res[key];
                          break;
                      }
                  }
+            }
+
+            if (res?.totalPages) {
+                setTotalPages(res.totalPages);
+            } else {
+                setTotalPages(list.length < pageSize && page === 1 ? 1 : page + (list.length === pageSize ? 1 : 0));
             }
 
             const normalizedList = list.map(p => normalizeProduct(p));
@@ -84,12 +98,16 @@ export const useProductListLogic = ({
             setLoading(false);
             setRefreshing(false);
         }
-    }, [normalizeProduct]);
+    }, [filterCategory, searchTerm, maxPrice, page, pageSize, normalizeProduct]);
 
-    // Initial fetch
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
+
+    // Reiniciar a la página 1 al cambiar cualquier filtro de búsqueda
+    useEffect(() => {
+        setPage(1);
+    }, [filterCategory, searchTerm, maxPrice]);
 
     const handleEditClick = (product) => {
         setSelectedProduct(product);
@@ -105,25 +123,24 @@ export const useProductListLogic = ({
         }
     };
 
+    // Como el filtrado ya lo realiza el backend, devolvemos la lista directamente
     const filteredProducts = useMemo(() => {
-        return products.filter(p => {
-            if (searchTerm && !p.displayName.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-            if (filterCategory && String(p.normalizedCatId) !== String(filterCategory)) return false;
-            if (maxPrice && p.normalizedPrice > Number(maxPrice)) return false;
-            return true;
-        });
-    }, [products, searchTerm, filterCategory, maxPrice]);
+        return products;
+    }, [products]);
 
     const handleClearFilters = () => {
         setSearchTerm('');
         setFilterCategory('');
         setMaxPrice('');
+        setPage(1);
     };
 
     return {
         searchTerm, setSearchTerm,
         filterCategory, setFilterCategory,
         maxPrice, setMaxPrice,
+        page, setPage,
+        totalPages,
         loading, error, refreshing, lastUpdated,
         selectedProduct, setSelectedProduct,
         alertOpen, setAlertOpen,

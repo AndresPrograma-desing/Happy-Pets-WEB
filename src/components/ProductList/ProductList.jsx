@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useRef, useState, useMemo } from 'react';
 import GenericPanel from '../GenericPanel/GenericPanel';
 import { PackageSearch } from 'lucide-react';
 import styles from './ProductList.module.css';
@@ -24,6 +24,8 @@ export default function ProductList() {
         searchTerm, setSearchTerm,
         filterCategory, setFilterCategory,
         maxPrice, setMaxPrice,
+        page, setPage,
+        totalPages,
         loading, error, refreshing, lastUpdated,
         selectedProduct, setSelectedProduct,
         alertOpen, setAlertOpen,
@@ -39,13 +41,6 @@ export default function ProductList() {
         editFormRef
     });
 
-    const [page, setPage] = useState(1);
-    const itemsPerPage = 8;
-
-    useEffect(() => {
-        setPage(1);
-    }, [searchTerm, filterCategory, maxPrice]);
-
     const activeFiltersCount = useMemo(() => {
         let count = 0;
         if (searchTerm && searchTerm.trim() !== '') count++;
@@ -53,12 +48,6 @@ export default function ProductList() {
         if (maxPrice && String(maxPrice).trim() !== '') count++;
         return count;
     }, [searchTerm, filterCategory, maxPrice]);
-
-    const pageCount = Math.ceil(filteredProducts.length / itemsPerPage);
-    const paginatedProducts = useMemo(() => {
-        const start = (page - 1) * itemsPerPage;
-        return filteredProducts.slice(start, start + itemsPerPage);
-    }, [filteredProducts, page]);
 
     const { currency, convertAmount, isLoading: currencyLoading } = useCurrency();
     const esUSD = currency?.toUpperCase() === 'USD';
@@ -153,7 +142,7 @@ export default function ProductList() {
             role="admin"
             menuTitle="Panel de Administración"
             showPagination={true}
-            paginationCount={pageCount}
+            paginationCount={totalPages}
             paginationPage={page}
             onPaginationChange={(e, p) => setPage(p)}
         >
@@ -196,7 +185,7 @@ export default function ProductList() {
                 <div className={styles.tableWrapper}>
                     <TableB 
                         columns={columns}
-                        data={paginatedProducts}
+                        data={filteredProducts}
                         loading={loading || currencyLoading}
                         error={error}
                         onRetry={() => fetchProducts(false)}
