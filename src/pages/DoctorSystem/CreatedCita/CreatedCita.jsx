@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import AlertModal from '../../../components/AlertModal/AlertModal';
-import { createCita, searchClients, getUsers, getSecretarias } from '../../../services/api';
+import { createCita, searchClients, getUsers, getSecretarias, checkDoctorAvailability } from '../../../services/api';
 import styles from './CreatedCita.module.css';
-import { Calendar, ArrowLeft } from 'lucide-react';
+import { Calendar, ArrowLeft, Check, AlertTriangle } from 'lucide-react';
 import SelectModal from '../../../components/ClientSelect/SelectModal';
 import ModalTooltip from '../../../components/ModalTooltip/ModalTooltip';
 import CalendarPicker from '../../../components/screens/components/CalendarPicker/Index';
@@ -16,6 +16,7 @@ import TextField from '../../../components/screens/components/Material-UI/Compon
 import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
 import Button from '../../../components/screens/components/Button';
 import useCitaTypes from '../../../hooks/GetTypesCitas';
+import Barnner from '../../../components/screens/components/Barnner';
 
 export default function CreatedCita() {
     const navigate = useNavigate();
@@ -37,16 +38,28 @@ export default function CreatedCita() {
 
     const [form, setForm] = useState({
         mascota_id: '',
-        doctor_id: '',
-        secretaria_id: '',
-        fecha_cita: '',
-        hora_cita: '',
+        doctor_id: location.state?.doctor_id || '',
+        secretaria_id: location.state?.secretaria_id || '',
+        fecha_cita: location.state?.fecha_cita || '',
+        hora_cita: location.state?.hora_cita || '',
         motivo: '',
         tipo_cita: 'consulta',
         estado: 'programada',
         notas: '',
         metodo_pago: 'efectivo',
+        autoagendar: false,
     });
+
+    // Cargar doctor_id de la sesión si es rol doctor y no viene de location.state
+    useEffect(() => {
+        if (!isSecretariaFlow && !form.doctor_id) {
+            const sessionDoctorId = sessionStorage.getItem('doctor_id') || localStorage.getItem('doctor_id') || '';
+            if (sessionDoctorId) {
+                setForm(prev => ({ ...prev, doctor_id: String(sessionDoctorId) }));
+            }
+        }
+    }, [isSecretariaFlow]);
+
 
     const [submitting, setSubmitting] = useState(false);
     const [loadingDoctor, setLoadingDoctor] = useState(true);
@@ -57,6 +70,66 @@ export default function CreatedCita() {
     const [doctorName, setDoctorName] = useState('');
     const [secretariaName, setSecretariaName] = useState('');
     const [mascotaDisplayName, setMascotaDisplayName] = useState('');
+
+    const [availabilityMessage, setAvailabilityMessage] = useState('');
+    const [availabilityStatus, setAvailabilityStatus] = useState(null); // 'free' | 'busy' | null
+    const [suggestedTime, setSuggestedTime] = useState('');
+
+    useEffect(() => {
+        const { doctor_id, fecha_cita, hora_cita } = form;
+        if (!doctor_id || !fecha_cita || !hora_cita) {
+            setAvailabilityMessage('');
+            setAvailabilityStatus(null);
+            setSuggestedTime('');
+            return;
+        }
+
+        let cancelled = false;
+
+        const check = async () => {
+            try {
+                const res = await checkDoctorAvailability({
+                    doctorId: Number(doctor_id),
+                    date: fecha_cita,
+                    time: hora_cita
+                });
+
+                if (cancelled) return;
+
+                if (res?.isOccupied || res?.IsOccupied) {
+                    setAvailabilityStatus('busy');
+                    setAvailabilityMessage(res?.message || res?.Message || 'El horario está ocupado.');
+                    setSuggestedTime(res?.suggestedNextAvailableTime || res?.SuggestedNextAvailableTime || '');
+                } else {
+                    setAvailabilityStatus('free');
+                    setAvailabilityMessage(res?.message || res?.Message || 'Horario disponible.');
+                    setSuggestedTime('');
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    console.error('Error checking availability:', err);
+                    setAvailabilityStatus(null);
+                    setAvailabilityMessage('');
+                    setSuggestedTime('');
+                }
+            }
+        };
+
+        const t = setTimeout(check, 300); // Debounce de 300ms
+        return () => {
+            cancelled = true;
+            clearTimeout(t);
+        };
+    }, [form.doctor_id, form.fecha_cita, form.hora_cita]);
+
+    const handleAutoagendarClick = () => {
+        if (suggestedTime) {
+            setForm((prev) => ({
+                ...prev,
+                hora_cita: suggestedTime
+            }));
+        }
+    };
 
     useEffect(() => {
         if (!showSelectModal) return;
@@ -229,6 +302,7 @@ export default function CreatedCita() {
                 estado: 'programada',
                 notas: form.notas,
                 metodo_pago: String(form.metodo_pago || 'efectivo'),
+                autoagendar: form.autoagendar
             };
             await createCita(payload);
             setError('');
@@ -374,6 +448,33 @@ export default function CreatedCita() {
                             />
                         </ModalTooltip>
                     </div>
+
+                    {availabilityMessage && (
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <Barnner
+                                type={availabilityStatus === 'free' ? 'success' : 'danger'}
+                                icon={availabilityStatus === 'free' ? Check : AlertTriangle}
+                                className={styles.fullWidthBanner}
+                            >
+                                {availabilityMessage}
+                            </Barnner>
+                        </div>
+                    )}
+
+                    {availabilityStatus === 'busy' && suggestedTime && (
+                        <div className={styles.group} style={{ marginBottom: '1.5rem' }}>
+                            <Button
+                                type="button"
+                                onClick={handleAutoagendarClick}
+                                variant={Button.VARIANTS.PRIMARY}
+                                color="green"
+                                ToolTip="Haz clic para reasignar automáticamente la cita al siguiente horario sugerido que está libre."
+                                style={{ width: 'fit-content' }}
+                            >
+                                Autoagendar a las {suggestedTime}
+                            </Button>
+                        </div>
+                    )}
 
                     <div className={styles.actions}>
                         <Button

@@ -1,0 +1,28 @@
+export const TEXTS = {
+  TITLE: 'Calendario de Disponibilidad y Citas',
+  SUBTITLE: 'Visualiza la cuadrícula de citas médicas y los horarios disponibles para consulta.',
+  WEEKDAYS: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+  MONTHS: [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ],
+  BUTTON_TODAY: 'Hoy',
+  BUTTON_CLOSE: 'Cerrar',
+  BUTTON_BOOK: 'Agendar',
+  LABEL_DOCTOR: 'Doctor Responsable',
+  LABEL_DAY_DETAILS: 'Detalle de Agenda y Disponibilidad',
+  LABEL_TIME: 'Hora',
+  LABEL_PATIENT: 'Paciente',
+  LABEL_OWNER: 'Cliente',
+  LABEL_REASON: 'Motivo',
+  LABEL_TYPE: 'Tipo',
+  LABEL_STATUS: 'Estado',
+  STATUS_AVAILABLE: 'Disponible',
+  STATUS_OCCUPIED: 'Ocupado',
+  NO_APPOINTMENTS_FOR_DAY: 'No hay citas registradas para este día.',
+  LOADING_CITAS: 'Cargando citas del doctor...',
+  LOADING_DOCTORS: 'Cargando doctores...',
+  ERROR_CITAS: 'Error al cargar las citas.',
+  ERROR_DOCTORS: 'Error al cargar la lista de doctores.',
+  ALL_DOCTORS: 'Todos los Doctores',
+};

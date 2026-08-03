@@ -173,16 +173,28 @@ export default function Recetas() {
     {
       header: 'Fecha',
       accessor: 'fecha_consulta',
-      render: (row) => formatDate(row.fecha_consulta || row.createdAt)
+      render: (row) => (
+        <div style={{ whiteSpace: 'nowrap', minWidth: '120px' }}>
+          {formatDate(row.fecha_consulta || row.createdAt)}
+        </div>
+      )
     },
     {
       header: 'Receta / Indicaciones',
       accessor: 'receta',
-      render: (row) => (
-        <div style={{ minWidth: '250px', whiteSpace: 'normal', wordBreak: 'break-word', color: '#64748b' }}>
-          {row.receta}
-        </div>
-      )
+      render: (row) => {
+        const text = row.receta || '—';
+        const maxLen = 45;
+        const truncated = text.length > maxLen ? text.substring(0, maxLen) + '...' : text;
+        return (
+          <div 
+            style={{ color: '#64748b', fontSize: '0.9rem', cursor: 'help' }} 
+            title={text}
+          >
+            {truncated}
+          </div>
+        );
+      }
     },
     {
       header: 'Acciones',

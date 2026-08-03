@@ -82,6 +82,15 @@ const Settings = () => {
               isOpen={false}
             />
 
+            <DesplegablePanel
+              title={getText("setting.logs")}
+              description={getText("setting.logsDesc")}
+              icon={ClipboardIcon}
+              iconColorVariant="purple"
+              onToggle={() => window.open('/AdminSystem/logs', '_blank')}
+              isOpen={false}
+            />
+
           </div>
         </section>
 

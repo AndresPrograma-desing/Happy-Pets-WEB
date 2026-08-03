@@ -1,0 +1,179 @@
+.agendaCard {
+  background: var(--color-card-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-lg, 0.75rem);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.agendaCard::-webkit-scrollbar {
+  display: none;
+}
+
+.agendaTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  padding-bottom: 0.75rem;
+}
+
+.selectedDateText {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #64748b);
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.doctorBadge {
+  font-size: 0.8rem;
+  color: var(--button-green, #16a34a);
+  font-weight: 700;
+  margin-top: 0.2rem;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.timeCol {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted, #64748b);
+  width: 3.8rem;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 0.5rem;
+  border-right: 2px dashed var(--color-border, #e2e8f0);
+}
+
+.slotCard {
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--radius-md, 0.5rem);
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.availableCard {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.availableCard:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.occupiedCard {
+  background: #ffffff;
+  border: 1px solid var(--color-border, #e2e8f0);
+}
+
+.slotInfoWrapper {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.slotInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  overflow: hidden;
+  flex: 1;
+}
+
+.statusLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.statusAvailableText {
+  color: #15803d;
+}
+
+.statusOccupiedText {
+  color: #475569;
+}
+
+.slotDetails {
+  font-size: 0.85rem;
+  color: var(--color-text, #1e293b);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slotSubDetails {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btnBook {
+  flex-shrink: 0;
+  padding: 0.35rem 0.65rem !important;
+}
+
+.btnViewDetails {
+  background: #f1f5f9;
+  color: #0284c7;
+  border: none;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.btnViewDetails:hover {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.btnViewText {
+  font-size: 0.75rem;
+}
+
+@media (max-width: 1200px) {
+  .btnText {
+    display: none;
+  }
+}

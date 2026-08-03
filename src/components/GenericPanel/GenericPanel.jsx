@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import Input from '../screens/components/Input/Index';
 import StatusModal from '../common/statusWarning';
 import { getUserId } from '../../context/LocalStorage';
 import { useNavigate, Navigate, useLocation } from 'react-router-dom';
@@ -16,6 +17,7 @@ import { renderIcon } from '../hook/RenderIcon';
 import ToggleCard from '../screens/components/ToggleCard';
 import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
 import Button from '../screens/components/Button';
+import ModalTooltip from '../ModalTooltip/ModalTooltip';
 
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
 import { getUserRole, getDisplayRoleName, getDefaultMenus } from './Routes';
@@ -47,6 +49,10 @@ function GenericPanel({
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem('sidebar_collapsed') === 'true';
+  });
+  const [searchValue, setSearchValue] = useState('');
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
@@ -137,6 +143,10 @@ function GenericPanel({
   };
 
   const items = menuItems || defaultMenus[actualRole] || defaultMenus.user;
+  const filteredItems = items.filter(it => 
+    it.label?.toLowerCase().includes(searchValue.toLowerCase()) ||
+    (it.subItems && it.subItems.some(sub => sub.label?.toLowerCase().includes(searchValue.toLowerCase())))
+  );
 
   const handleAvatarUpdateSuccess = (newName, newAvatarUrl) => {
     if (newName) {
@@ -197,27 +207,37 @@ function GenericPanel({
       )}
 
       <div className={styles.layoutContainer}>
-        <aside className={styles.sidebar}>
+        <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
           <div className={styles.sidebarHeader}>
-            <div className={styles.brandText}>{menuTitle}</div>
+            {!isCollapsed && <div className={styles.brandText}>{menuTitle}</div>}
+            <Button
+              circle
+              size="small"
+              variant={Button.VARIANTS.GHOST}
+              className={styles.toggleBtn}
+              onClick={() => {
+                setIsCollapsed(prev => {
+                  const next = !prev;
+                  localStorage.setItem('sidebar_collapsed', String(next));
+                  return next;
+                });
+              }}
+              color="transparent"
+              style={{ minWidth: '0 !important' }}
+            >
+              <ModalTooltip 
+                key={isCollapsed}
+                text={isCollapsed ? 'Abrir' : 'Cerrar'} 
+                position="bottom"
+              >
+                {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+              </ModalTooltip>
+            </Button>
           </div>
-          <nav
-            className={styles.sidebarNav}
-            style={{
-              overflowY: 'auto',
-              flex: 1,
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            }}
-          >
-            <style>{`
-              nav::-webkit-scrollbar {
-                display: none;
-              }
-            `}</style>
-            {items.map((it) => {
+
+          <nav className={styles.sidebarNav}>
+            {filteredItems.map((it) => {
               const hasSubItems = it.subItems && it.subItems.length > 0;
-              const isExpanded = expandedMenus[it.label];
 
               return (
                 <div key={it.label} style={{ width: '100%' }}>
@@ -227,17 +247,19 @@ function GenericPanel({
                       styles={styles} 
                       renderIcon={renderIcon} 
                       onNavigate={handleNavigate} 
+                      isCollapsed={isCollapsed}
                     />
                   ) : (
                     <Button
                       variant={Button.VARIANTS.GHOST}
                       color="inherit"
-                      className={styles.navItem}
+                      className={`${styles.navItem} ${location.pathname === it.path ? styles.activeNavItem : ''}`}
                       onClick={() => handleNavigate(it)}
-                      style={{ justifyContent: 'flex-start', textTransform: 'none' }}
+                      style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', textTransform: 'none' }}
+                      title={isCollapsed ? it.label : undefined}
                     >
                       {renderIcon(it.icon, styles.icon)}
-                      <span style={{ flex: 1, textAlign: 'left' }}>{it.label}</span>
+                      {!isCollapsed && <span style={{ flex: 1, textAlign: 'left' }}>{it.label}</span>}
                     </Button>
                   )}
                 </div>
@@ -252,9 +274,12 @@ function GenericPanel({
               variant={Button.VARIANTS.OUTLINE}
               onClick={() => setShowLogoutModal(true)}
               icon={LogOut}
-              fullWidth
+              fullWidth={!isCollapsed}
+              circle={isCollapsed}
+              title={isCollapsed ? "Cerrar sesión" : undefined}
+              style={isCollapsed ? { margin: '0 auto', display: 'flex' } : {}}
             >
-              Cerrar sesión
+              {!isCollapsed && "Cerrar sesión"}
             </Button>
           </div>
         </aside>

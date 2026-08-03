@@ -1,27 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
-import { expirePastCitas } from './ExpireCitas';
-
-function getServerNow(response) {
-  const candidate =
-    response?.server_time ??
-    response?.serverTime ??
-    response?.current_time ??
-    response?.currentTime ??
-    response?.now ??
-    null;
-
-  if (!candidate) return new Date();
-  const parsed = new Date(candidate);
-  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
-}
 
 // Hook para obtener las citas desde el backend
-export default function useGetCitas() {
+export default function useGetCitas(autoFetch = true) {
   const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const syncingExpiredRef = useRef(new Set());
 
   const fetchCitas = useCallback(async () => {
     setLoading(true);
@@ -64,30 +48,7 @@ export default function useGetCitas() {
         };
       });
 
-      const nowFromServer = getServerNow(res);
-      const { updatedCitas, expiredIds } = expirePastCitas(normalized, nowFromServer);
-      setCitas(updatedCitas);
-
-      // Persistir en DB los expiredIds. Si falla, permitimos reintento en futuros polls.
-      expiredIds.forEach((id) => {
-        const key = String(id);
-        if (syncingExpiredRef.current.has(key)) return;
-        syncingExpiredRef.current.add(key);
-
-        (async function syncExpired() {
-          try {
-            // Intentar persistir el cambio en la API
-            const res = await api.updateCitaEstado(id, 'no_asistida');
-            // Log opcional en modo dev
-            if (import.meta.env.DEV) console.debug('[expire] updated cita', id, res);
-            // deja el id marcado como sincronizado
-          } catch (err) {
-            // Si falla, removemos el flag para permitir reintento en el siguiente poll
-            syncingExpiredRef.current.delete(key);
-            if (import.meta.env.DEV) console.error('[expire] failed to update cita', id, err);
-          }
-        })();
-      });
+      setCitas(normalized);
     } catch (err) {
       setError(err);
     } finally {
@@ -96,8 +57,10 @@ export default function useGetCitas() {
   }, []);
 
   useEffect(() => {
-    fetchCitas();
-  }, [fetchCitas]);
+    if (autoFetch) {
+      fetchCitas();
+    }
+  }, [fetchCitas, autoFetch]);
 
   return { citas, loading, error, refetch: fetchCitas };
 }

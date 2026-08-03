@@ -74,8 +74,8 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
     async function fetchClientsData() {
       try {
         setLoadingClients(true);
-        const res = await getClients();
-        const data = Array.isArray(res) ? res : res?.data ?? res?.result ?? [];
+        const res = await getClients(1, 1000);
+        const data = Array.isArray(res) ? res : (res?.items ?? res?.Items ?? res?.data ?? res?.result ?? []);
         setClients(data);
       } catch (err) {
         console.error('Error loading clients/pets:', err);

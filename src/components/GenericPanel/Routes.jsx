@@ -56,6 +56,7 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
         { label: 'Nuevo Cliente', onClick: () => setShowCreateClientModal && setShowCreateClientModal(true) }
       ]
     },
+    { label: 'Calendario', path: '/calendar', state: { role: 'secretaria' }, icon: 'calendario' },
     { label: 'Gestion de Recibos', path: '/factura-manager', icon: 'fileText' },
     { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },
     { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck' },
@@ -66,6 +67,7 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
   doctor: [
     { label: 'Panel Médico', path: '/doctor', icon: 'userCita' },
     { label: 'Mis Citas', path: '/citas', icon: 'calendario' },
+    { label: 'Calendario', path: '/calendar', icon: 'calendario' },
     { label: 'Historias Clínicas', path: '/doctor/pacientes', icon: 'fileText' },
     { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus' },
     { label: 'Mensajes', path: '/panel-menssage', icon: 'message' },

@@ -1,0 +1,23 @@
+export const TEXTS = {
+  title: "Auditoría de Logs del Sistema",
+  description: "Registro de auditoría detallado de todas las acciones y modificaciones realizadas en el sistema por los usuarios.",
+  passwordPromptTitle: "Acceso Restringido",
+  passwordPromptDesc: "Esta sección contiene información de auditoría del sistema sensible. Por favor, ingrese la clave de seguridad para continuar.",
+  passwordPlaceholder: "Clave de acceso",
+  submitButton: "Acceder",
+  incorrectPassword: "La clave ingresada es incorrecta. Intente de nuevo.",
+  loading: "Cargando registros del sistema...",
+  noLogs: "No se encontraron logs de auditoría.",
+  actionLabel: "Acción:",
+  userLabel: "Usuario:",
+  tableLabel: "Tabla afectada:",
+  recordIdLabel: "ID Registro:",
+  ipLabel: "Dirección IP:",
+  dateLabel: "Fecha:",
+  userAgentLabel: "User Agent:",
+  previousDataLabel: "Datos Previos (Estado Anterior)",
+  newDataLabel: "Datos Nuevos (Estado Siguiente)",
+  detailsTitle: "Detalles completos de auditoría",
+  closeButton: "Cerrar",
+  dummyPassword: "admin123" // Clave dummy solicitada
+};

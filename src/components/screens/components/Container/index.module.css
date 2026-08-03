@@ -1,7 +1,7 @@
 .containerCard {
   position: relative;
   width: 100%;
-  max-width: 1000px;
+  max-width: 1300px;
   background: var(--letter-white, #ffffff);
   backdrop-filter: var(--blur, blur(10px));
   -webkit-backdrop-filter: var(--blur, blur(10px));

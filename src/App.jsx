@@ -32,10 +32,11 @@ import FacturaLocal from "./components/FacturaLocalComponets/FacturaLocal";
 import InDevelopment from "./components/InDevelopment/InDevelopment";
 import FacturasList from './components/FacturaDownloader/FacturaList/facturas';
 import Settings from './pages/AdminSystem/ConfigurationPanel/settings';
+import SystemLogs from './pages/AdminSystem/ConfigurationPanel/Components/Logs/Index';
 import Users from "./components/Users/users";
 import StatusModal from "./components/common/statusWarning";
 import { getUserId } from "./context/LocalStorage";
-import CalendarTest from "./components/test/CalendarTest/CalendarCitas";
+import Calendar from "./components/Calendar/Calendar";
 import ClientList from './components/Clients/ClientList/list';
 import GlobalPushNotification from './components/Notification/Push';
 import EmailsTemplates from './components/Emails/Templates';
@@ -88,12 +89,13 @@ function AppContent() {
           <Route path="/factura-local" element={<FacturaLocal />} />
           <Route path="/facturas" element={<FacturasList />} />
           <Route path="/AdminSystem/settings" element={<Settings />} />
+          <Route path="/AdminSystem/logs" element={<SystemLogs />} />
           <Route path="/AdminSystem/users" element={<Users />} />
           <Route path="/AdminSystem/emails" element={<EmailsTemplates />} />
           <Route path="/doctor/recetas" element={<Recetas />} />
           <Route path="/doctor/pacientes" element={<HistorialMedico />} />
           <Route path="/clients" element={<ClientList />} />
-          <Route path="/calendar" element={<CalendarTest />} />
+          <Route path="/calendar" element={<Calendar />} />
           
           <Route path="/health" element={<Health />} />
 

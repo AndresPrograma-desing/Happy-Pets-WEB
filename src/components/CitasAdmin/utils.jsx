@@ -59,7 +59,8 @@ export function useCitasLogic({
     const location = useLocation();
     const role = propRole || location.state?.role || 'doctor';
 
-    const { citas: hookCitas, loading: hookLoading, error: hookError, refetch: hookRefetch } = useGetCitas();
+    const autoFetch = propCitas === undefined;
+    const { citas: hookCitas, loading: hookLoading, error: hookError, refetch: hookRefetch } = useGetCitas(autoFetch);
 
     const citas = useMemo(() => (propCitas ?? hookCitas ?? []), [propCitas, hookCitas]);
     const loading = propLoading ?? hookLoading;

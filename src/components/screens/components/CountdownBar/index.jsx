@@ -13,7 +13,9 @@ export default function CountdownBar({
   expiresAt,
   totalDuration = 900000,
   value,
-  increment = false
+  increment = false,
+  isOverlay = false,
+  overlayMessage
 }) {
   const timerState = useCountdown(active && value === undefined, duration, onComplete, expiresAt, totalDuration);
   
@@ -32,27 +34,48 @@ export default function CountdownBar({
     ? `${Math.round(progress)}% completado` 
     : `${remainingTime}s restantes`;
 
-  return (
-    <ModalTooltip text={tooltipText} style={{ width, display: 'block' }}>
-      <div className={styles.wrapper} style={{ width }}>
+  const barContent = (
+    <div className={styles.wrapper} style={{ width }}>
+      <div 
+        className={styles.container} 
+        style={{ height }}
+        aria-valuemin="0" 
+        aria-valuemax="100" 
+        aria-valuenow={progress} 
+        role="progressbar"
+      >
         <div 
-          className={styles.container} 
-          style={{ height }}
-          aria-valuemin="0" 
-          aria-valuemax="100" 
-          aria-valuenow={progress} 
-          role="progressbar"
-        >
-          <div 
-            className={styles.bar} 
-            style={{ 
-              width: `${progress}%`,
-              // Crea un sutil gradiente interno que se mezcla de forma suave
-              backgroundImage: `linear-gradient(90deg, ${currentColor}, ${currentColor}dd)`
-            }} 
-          />
+          className={styles.bar} 
+          style={{ 
+            width: `${progress}%`,
+            // Crea un sutil gradiente interno que se mezcla de forma suave
+            backgroundImage: `linear-gradient(90deg, ${currentColor}, ${currentColor}dd)`
+          }} 
+        />
+      </div>
+    </div>
+  );
+
+  if (isOverlay) {
+    return (
+      <div className={styles.overlayContainer}>
+        {overlayMessage && (
+          <p className={styles.overlayMessage}>
+            {overlayMessage}
+          </p>
+        )}
+        <div style={{ width: '80%' }}>
+          <ModalTooltip text={tooltipText} style={{ width: '100%', display: 'block' }}>
+            {barContent}
+          </ModalTooltip>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <ModalTooltip text={tooltipText} style={{ width, display: 'block' }}>
+      {barContent}
     </ModalTooltip>
   );
 }

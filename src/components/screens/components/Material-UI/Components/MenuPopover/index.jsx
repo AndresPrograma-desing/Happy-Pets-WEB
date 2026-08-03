@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { ChevronRight } from 'lucide-react';
 import Button from '../../../Button';
 
-export default function MenuPopover({ item, styles, renderIcon, onNavigate }) {
+export default function MenuPopover({ item, styles, renderIcon, onNavigate, isCollapsed }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -34,13 +34,16 @@ export default function MenuPopover({ item, styles, renderIcon, onNavigate }) {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        style={{ justifyContent: 'flex-start', textTransform: 'none' }}
+        style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', textTransform: 'none' }}
+        title={isCollapsed ? item.label : undefined}
       >
         {renderIcon(item.icon, styles.icon)}
-        <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>
-        <span style={{ display: 'flex', alignItems: 'center' }}>
-          <ChevronRight size={16} />
-        </span>
+        {!isCollapsed && <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>}
+        {!isCollapsed && (
+          <span style={{ display: 'flex', alignItems: 'center' }}>
+            <ChevronRight size={16} />
+          </span>
+        )}
       </Button>
 
       <Menu

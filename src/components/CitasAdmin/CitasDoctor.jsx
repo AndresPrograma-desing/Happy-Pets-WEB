@@ -44,6 +44,26 @@ function CitasLayout(props) {
     const [citasList, setCitasList] = useState([]);
     const [isFetchingCitas, setIsFetchingCitas] = useState(false);
 
+    const fetchCitasData = useCallback(() => {
+        setIsFetchingCitas(true);
+        
+        getCitasDetalle({
+            status: estadoCita,
+            date: citasDelDia ? todayISO : undefined,
+            allDates: !citasDelDia
+        })
+        .then(res => {
+            const data = Array.isArray(res) ? res : (res?.data || res?.result || []);
+            setCitasList(data);
+        })
+        .catch(console.error)
+        .finally(() => setIsFetchingCitas(false));
+    }, [estadoCita, citasDelDia, todayISO]);
+
+    useEffect(() => {
+        fetchCitasData();
+    }, [fetchCitasData]);
+
     const [editDrawerOpen, setEditDrawerOpen] = useState(false);
     const [selectedCitaForEdit, setSelectedCitaForEdit] = useState(null);
     const [clientPetsOptions, setClientPetsOptions] = useState([]);
@@ -93,7 +113,12 @@ function CitasLayout(props) {
         setCreateClientError,
         primaryActionLabelProp,
         primaryActionHandlerProp
-    } = useCitasLogic(props);
+    } = useCitasLogic({
+        ...props,
+        propCitas: citasList,
+        propLoading: isFetchingCitas,
+        propRefetch: fetchCitasData
+    });
 
     const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
     const [selectedMascotaIdForHistory, setSelectedMascotaIdForHistory] = useState(null);
@@ -118,26 +143,6 @@ function CitasLayout(props) {
         }
         return base;
     }, [statusOptions, citasDelDia, todayISO, todayDisplay]);
-
-    const fetchCitasData = useCallback(() => {
-        setIsFetchingCitas(true);
-        
-        getCitasDetalle({
-            status: estadoCita,
-            date: citasDelDia ? todayISO : undefined,
-            allDates: !citasDelDia
-        })
-        .then(res => {
-            const data = Array.isArray(res) ? res : (res?.data || res?.result || []);
-            setCitasList(data);
-        })
-        .catch(console.error)
-        .finally(() => setIsFetchingCitas(false));
-    }, [estadoCita, citasDelDia, todayISO]);
-
-    useEffect(() => {
-        fetchCitasData();
-    }, [fetchCitasData]);
 
     const localFilteredCitas = useMemo(() => {
         if (!searchTerm || !searchTerm.trim()) return citasList;

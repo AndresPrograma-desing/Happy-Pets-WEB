@@ -35,7 +35,9 @@ export default function ClientList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 5;
 
   const [showPetModal, setShowPetModal] = useState(false);
@@ -73,14 +75,34 @@ export default function ClientList() {
   const [showDeletePetModal, setShowDeletePetModal] = useState(false);
   const [petToDelete, setPetToDelete] = useState(null);
   const [deletePetLoading, setDeletePetLoading] = useState(false);
+  // Debounce para el input de búsqueda
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Al cambiar la búsqueda debounced, volvemos a la página 1
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
   const fetchClients = async () => {
     setLoading(true);
     setError('');
     try {
-      const res = await getClients();
-      const items = Array.isArray(res) ? res : res?.data ?? res?.result ?? [];
+      const res = await getClients(page, itemsPerPage, debouncedSearch);
+      const items = res?.items ?? res?.Items ?? [];
+      const total = res?.total_count ?? res?.TotalCount ?? 0;
+      
+      if (items.length === 0 && page > 1) {
+        setPage(prev => prev - 1);
+        return;
+      }
+
       setClients(items);
+      setTotalCount(total);
     } catch (err) {
       setError(err?.message || 'Error al cargar los clientes');
     } finally {
@@ -90,8 +112,7 @@ export default function ClientList() {
 
   useEffect(() => {
     fetchClients();
-  }, []);
-
+  }, [page, debouncedSearch]);
   const handleOpenAddPet = (clientId) => {
     setSelectedClientId(clientId);
     setPetForm(INITIAL_PET_FORM);
@@ -304,28 +325,7 @@ export default function ClientList() {
     };
   };
 
-  const filteredClients = useMemo(() => {
-    const query = search.toLowerCase().trim();
-    if (!query) return clients;
-    return clients.filter((c) => {
-      const nombreCompleto = `${c.nombre || ''} ${c.apellido || ''}`.toLowerCase();
-      const identificacion = (c.identificacion || '').toLowerCase();
-      const telefono = (c.telefono || '').toLowerCase();
-      const mascotaMatch = (c.mascotas || []).some(m => (m.nombre || '').toLowerCase().includes(query));
-      
-      return nombreCompleto.includes(query) || identificacion.includes(query) || telefono.includes(query) || mascotaMatch;
-    });
-  }, [clients, search]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
-
-  const pageCount = Math.ceil(filteredClients.length / itemsPerPage);
-  const paginatedClients = useMemo(() => {
-    const startIndex = (page - 1) * itemsPerPage;
-    return filteredClients.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredClients, page]);
+  const pageCount = Math.ceil(totalCount / itemsPerPage);
 
   const columns = [
     {
@@ -480,7 +480,7 @@ export default function ClientList() {
 
       <TableB
         columns={columns}
-        data={paginatedClients}
+        data={clients}
         loading={loading}
         error={error}
         emptyIcon={User}

@@ -76,6 +76,10 @@ export async function disableUser(id) {
 export async function deleteUser(id) {
   return request(`/Users/${id}`, { method: 'DELETE' });
 }
+export async function getRoles() {
+  return request('/Users/roles', { method: 'GET' });
+}
+
 
 export async function getProducts(params = {}) {
   const queryParams = new URLSearchParams();
@@ -176,8 +180,13 @@ export async function createClienteMascota(payload) {
   return request('/ClientPets/create-with-pet', { method: 'POST', body: payload });
 }
 
-export async function getClients() {
-  return request('/Clients', { method: 'GET' });
+export async function getClients(pageNumber, pageSize, query) {
+  const params = [];
+  if (pageNumber !== undefined && pageNumber !== null) params.push(`pageNumber=${pageNumber}`);
+  if (pageSize !== undefined && pageSize !== null) params.push(`pageSize=${pageSize}`);
+  if (query) params.push(`query=${encodeURIComponent(query)}`);
+  const queryString = params.length > 0 ? `?${params.join('&')}` : '';
+  return request(`/Clients${queryString}`, { method: 'GET' });
 }
 export async function deleteClient(id) {
   return request(`/Clients/delete/${encodeURIComponent(id)}`, { method: 'DELETE' });
@@ -302,11 +311,11 @@ export async function sendMessage(payload) {
 export async function getConversation(userId, otherId) {
   const u = encodeURIComponent(String(userId || ''));
   const o = encodeURIComponent(String(otherId || ''));
-  return request(`/mensajes/conversation/${u}/${o}`, { method: 'GET' });
+  return request(`/mensajes/${u}/${o}/conversations`, { method: 'GET' });
 }
 
 export async function getUserMessages(userId) {
-  return request(`/mensajes/user/${encodeURIComponent(String(userId || ''))}`, { method: 'GET' });
+  return request(`/mensajes/${encodeURIComponent(String(userId || ''))}/message-user`, { method: 'GET' });
 }
 
 export async function markMessageAsRead(messageId) {
@@ -410,7 +419,7 @@ export async function createdNotification(payload) {
   });
 }
 export async function getNotifications(userId) {
-  return request(`/Notification/user/${encodeURIComponent(String(userId || ''))}`, { method: 'GET' });
+  return request(`/Notification/user/${encodeURIComponent(String(userId || ''))}/notifications`, { method: 'GET' });
 }
 export async function markNotificationAsRead(notificationId) {
   return request(`/Notification/${encodeURIComponent(String(notificationId || ''))}/mark-as-read`, { method: 'POST' });
@@ -517,6 +526,35 @@ export async function saveIaConocimiento(payload) {
     body: payload
   });
 }
+export async function getCalendar({ year, month, doctorId } = {}) {
+  const queryParams = new URLSearchParams();
+  if (year) queryParams.append('year', year);
+  if (month) queryParams.append('month', month);
+  if (doctorId) queryParams.append('doctorId', doctorId);
+
+  const queryString = queryParams.toString();
+  const url = `/Calendar/get-calendar${queryString ? `?${queryString}` : ''}`;
+
+  return request(url, { method: 'GET' });
+}
+
+export async function checkDoctorAvailability({ doctorId, date, time, durationMinutes = 30 } = {}) {
+  const queryParams = new URLSearchParams();
+  if (doctorId) queryParams.append('doctorId', doctorId);
+  if (date) queryParams.append('date', date);
+  if (time) queryParams.append('time', time);
+  if (durationMinutes) queryParams.append('durationMinutes', durationMinutes);
+
+  const queryString = queryParams.toString();
+  const url = `/Calendar/check-availability${queryString ? `?${queryString}` : ''}`;
+
+  return request(url, { method: 'GET' });
+}
+
+export async function getLogs(pageNumber = 1, pageSize = 10) {
+  return request(`/Logs/get-logs?pageNumber=${pageNumber}&pageSize=${pageSize}`, { method: 'GET' });
+}
+
 export default {
   request,
   login,
@@ -564,4 +602,8 @@ export default {
   getIaConocimiento,
   saveIaConocimiento,
   updateConsultaReceta,
+  getCalendar,
+  checkDoctorAvailability,
+  getLogs,
+  getRoles
 };

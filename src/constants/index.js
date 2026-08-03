@@ -49,7 +49,8 @@ const TEXT = {
         description: "Gestiona la configuración de recibos, incluyendo métodos de pago, impuestos y formatos de recibos.",
         tittleMoneySettings: "Configuración de Moneda",
         moneySettingsDesc: "Selecciona la moneda que se utilizará para las transacciones y reportes financieros.",
-
+        logs: "Logs del Sistema",
+        logsDesc: "Visualizar el registro detallado de auditoría de las acciones realizadas en el sistema.",
     },
 
     configReport: {

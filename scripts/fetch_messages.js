@@ -31,7 +31,7 @@ async function main() {
   const envUsers = process.env.USER_IDS;
   const userCandidates = envUsers ? envUsers.split(',').map(s=>s.trim()).filter(Boolean) : ['1', '2', '3', 'me'];
   for (const u of userCandidates) {
-    await tryGet(`/mensajes/user/${encodeURIComponent(u)}`);
+    await tryGet(`/mensajes/${encodeURIComponent(u)}/message-user`);
   }
 
   // Pares de conversación; puede pasarse vía PAIRS env como 'a-b,a-c'
@@ -40,7 +40,7 @@ async function main() {
   const pairs = envPairs ? envPairs.split(',').map(p=> { const [a,b]=p.split('-'); return [a?.trim(), b?.trim()]; }) : defaultPairs;
   for (const [a,b] of pairs) {
     if (!a || !b) continue;
-    await tryGet(`/mensajes/conversation/${encodeURIComponent(a)}/${encodeURIComponent(b)}`);
+    await tryGet(`/mensajes/${encodeURIComponent(a)}/${encodeURIComponent(b)}/conversations`);
   }
 
   console.log('\nHecho. Si obtienes 401, proporciona un token válido o el ID de usuario que quieras probar.');

@@ -7,7 +7,9 @@ export const handleLoginSubmit = async ({
     rol,
     setApiError,
     setLoading,
-    navigate
+    navigate,
+    setCountdownActive,
+    setCountdownDuration
 }) => {
     setApiError(null);
     setLoading(true);
@@ -33,8 +35,39 @@ export const handleLoginSubmit = async ({
             navigate('/inicio');
         }
     } catch (err) {
-        setApiError(err?.message || 'Error de conexión con el servidor');
+        if (err?.body && typeof err.body === 'object' && 'tryAgainTime' in err.body) {
+            setApiError({
+                message: err.message || 'Demasiados intentos fallidos, intenta en: ',
+                tryAgainTime: err.body.tryAgainTime
+            });
+            if (setCountdownActive && setCountdownDuration) {
+                setCountdownDuration(err.body.tryAgainTime * 1000);
+                setCountdownActive(true);
+            }
+        } else {
+            setApiError(err?.message || 'Error de conexión con el servidor');
+        }
     } finally {
         setLoading(false);
     }
+};
+
+export const mapRolesToOptions = (roles, getIcon, TEXTS) => {
+    return roles.map(role => {
+        let label = role.charAt(0).toUpperCase() + role.slice(1);
+        let icon = null;
+
+        if (role === 'admin') {
+            label = TEXTS.roleAdmin;
+            icon = getIcon('adminRole');
+        } else if (role === 'doctor') {
+            label = TEXTS.roleDoctor;
+            icon = getIcon('doctorRole');
+        } else if (role === 'secretaria') {
+            label = TEXTS.roleSecretaria;
+            icon = getIcon('secretariaRole');
+        }
+
+        return { value: role, label, icon };
+    });
 };

@@ -1,8 +1,9 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import styles from './Index.module.css';
+import Loading from '../Loading/Index';
 
-function Frame({ title, icon, content, error, children, className = '', isModal = false, onClose }) {
+function Frame({ title, icon, content, error, children, className = '', isModal = false, onClose, isLoading = false }) {
     const frameContent = (
         <div className={`${styles.frameCard} ${className}`} onClick={(e) => e.stopPropagation()}>
             {(title || icon) && (
@@ -13,7 +14,18 @@ function Frame({ title, icon, content, error, children, className = '', isModal 
             )}
             {content && <p className={styles.description}>{content}</p>}
             {error && <p className={styles.errorMessage}>{error}</p>}
-            {children}
+            <div className={styles.bodyContainer}>
+                {isLoading && (
+                    <div className={styles.loadingOverlay}>
+                        <Loading 
+                            size="giant" 
+                        />
+                    </div>
+                )}
+                <div className={isLoading ? styles.hiddenContent : ''}>
+                    {children}
+                </div>
+            </div>
         </div>
     );
 

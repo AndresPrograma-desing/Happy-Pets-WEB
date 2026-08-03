@@ -20,11 +20,91 @@ export async function request(path, { method = 'GET', body, headers = {}, auth =
       return dummyDB.auth.login; // default admin
     }
     if (lowerPath.includes('/auth/me')) return dummyDB.auth.me;
+    if (lowerPath.includes('/users/roles')) {
+      return {
+        roles: ["admin", "doctor", "secretaria"]
+      };
+    }
     if (lowerPath.includes('/products/categories')) return dummyDB.categories;
     if (lowerPath.includes('/products')) return dummyDB.products;
     if (lowerPath.includes('/citas/requests') || lowerPath.includes('/citas/today')) return dummyDB.citas;
     if (lowerPath.includes('/clients')) return dummyDB.clients;
     if (lowerPath.includes('/money/tasa-dollar-bcv')) return dummyDB.money.tasa_dollar_bcv;
+    if (lowerPath.includes('/logs/get-logs')) {
+      const logs = [
+        {
+          "id": 1,
+          "usuario_id": 1,
+          "usuario_nombre": "Admin User",
+          "accion": "CREAR_PRODUCTO",
+          "tabla_afectada": "Products",
+          "registro_id": 12,
+          "datos_previos": null,
+          "datos_nuevos": "{\"nombre\": \"Antibiótico Felino\", \"precio\": 15.0}",
+          "ip_address": "192.168.1.50",
+          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+          "created_at": "2026-07-30T10:15:30.000Z"
+        },
+        {
+          "id": 2,
+          "usuario_id": 2,
+          "usuario_nombre": "Dr. Juan",
+          "accion": "ACTUALIZAR_CITA",
+          "tabla_afectada": "Citas",
+          "registro_id": 101,
+          "datos_previos": "{\"estado\": \"pendiente\"}",
+          "datos_nuevos": "{\"estado\": \"completada\"}",
+          "ip_address": "192.168.1.55",
+          "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1",
+          "created_at": "2026-07-30T11:20:00.000Z"
+        },
+        {
+          "id": 3,
+          "usuario_id": 1,
+          "usuario_nombre": "Admin User",
+          "accion": "ELIMINAR_USUARIO",
+          "tabla_afectada": "Users",
+          "registro_id": 99,
+          "datos_previos": "{\"id\": 99, \"nombre\": \"Test User\", \"rol\": \"secretaria\"}",
+          "datos_nuevos": null,
+          "ip_address": "192.168.1.50",
+          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+          "created_at": "2026-07-30T12:05:15.000Z"
+        },
+        {
+          "id": 4,
+          "usuario_id": 3,
+          "usuario_nombre": "Ana Secretaria",
+          "accion": "CREAR_CLIENTE",
+          "tabla_afectada": "Clients",
+          "registro_id": 54,
+          "datos_previos": null,
+          "datos_nuevos": "{\"nombre\": \"Maria Gomez\", \"telefono\": \"0412-5555555\"}",
+          "ip_address": "192.168.1.60",
+          "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+          "created_at": "2026-07-30T13:40:00.000Z"
+        },
+        {
+          "id": 5,
+          "usuario_id": 1,
+          "usuario_nombre": "Admin User",
+          "accion": "ACTUALIZAR_MONEDA",
+          "tabla_afectada": "Money",
+          "registro_id": 1,
+          "datos_previos": "{\"tasa_dollar_bcv\": 36.20}",
+          "datos_nuevos": "{\"tasa_dollar_bcv\": 36.50}",
+          "ip_address": "127.0.0.1",
+          "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+          "created_at": "2026-07-30T14:10:00.000Z"
+        }
+      ];
+      const params = new URLSearchParams(path.split('?')[1] || '');
+      const pageNumber = parseInt(params.get('pageNumber') || '1', 10);
+      const pageSize = parseInt(params.get('pageSize') || '10', 10);
+      const start = (pageNumber - 1) * pageSize;
+      const end = start + pageSize;
+      return logs.slice(start, end);
+    }
     
     // Default mock response for unhandled endpoints
     console.warn(`[Mock] Unhandled dummy endpoint: ${path}`);

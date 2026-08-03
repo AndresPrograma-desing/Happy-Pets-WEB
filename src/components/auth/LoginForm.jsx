@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styles from "./LoginForm.module.css";
 import { HelpCircle } from 'lucide-react';
 import CustomSelect from '../UI/DesplegableSelector/CustomSelect';
 import { getIcon } from '../../assets/icons/ExportIcon/Index';
-import { handleLoginSubmit } from './utils';
+import { handleLoginSubmit, mapRolesToOptions } from './utils';
 import Frame from '../screens/components/Frame/Index';
 import TextField from '../screens/components/Material-UI/Components/TextField/Index';
 import Button from '../screens/components/Button/index';
-import ModalTooltip from '../ModalTooltip/ModalTooltip'
+import ModalTooltip from '../ModalTooltip/ModalTooltip';
 import Selector from '../screens/components/Material-UI/Components/Selector/Index';
-import { getCodeRecovery, sendCodeRecovery } from '../../services/api';
+import { getCodeRecovery, sendCodeRecovery, getRoles } from '../../services/api';
+import CountdownBar from '../screens/components/CountdownBar';
+import { useCountdown } from '../screens/components/CountdownBar/utils';
+import { TEXTS } from './constants';
+
+let rolesPromise = null;
 
 function LoginForm() {
     const { register, handleSubmit, getValues, watch, setValue } = useForm();
@@ -21,13 +26,55 @@ function LoginForm() {
     const [rol, setRol] = useState('admin');
     const [mode, setMode] = useState('login'); // 'login' | 'request_email' | 'code_entry' | 'password_sent'
 
-    const roleOptions = [
-        { value: 'admin', label: 'Administrador', icon: getIcon('adminRole') },
-        { value: 'doctor', label: 'Doctor', icon: getIcon('doctorRole') },
-        { value: 'secretaria', label: 'Secretaria', icon: getIcon('secretariaRole') },
-    ];
+    const [countdownActive, setCountdownActive] = useState(false);
+    const [countdownDuration, setCountdownDuration] = useState(0);
 
+    const [roles, setRoles] = useState([]);
+    const [initialLoading, setInitialLoading] = useState(true);
 
+    useEffect(() => {
+        let isMounted = true;
+        const fetchRoles = async () => {
+            try {
+                if (!rolesPromise) {
+                    rolesPromise = getRoles();
+                }
+                const resp = await rolesPromise;
+                const rolesList = resp?.roles || [];
+                if (isMounted) {
+                    setRoles(rolesList);
+                    if (rolesList.length > 0) {
+                        setRol(rolesList[0]);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching roles:", err);
+                if (isMounted) {
+                    setApiError(err?.message || "Error al cargar roles del servidor");
+                }
+                rolesPromise = null; // Clear promise on error so it can retry
+            } finally {
+                if (isMounted) {
+                    setInitialLoading(false);
+                }
+            }
+        };
+        fetchRoles();
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const timerState = useCountdown(
+        countdownActive,
+        countdownDuration,
+        () => {
+            setCountdownActive(false);
+            setApiError(null);
+        }
+    );
+
+    const roleOptions = mapRolesToOptions(roles, getIcon, TEXTS);
 
     const onSubmit = async (data) => {
         if (mode === 'request_email') {
@@ -38,7 +85,7 @@ function LoginForm() {
                 setValue('code', '');
                 setMode('code_entry');
             } catch (error) {
-                setApiError(error.message || 'Error al solicitar el código.');
+                setApiError(error.message || TEXTS.defaultRequestEmailError);
             } finally {
                 setLoading(false);
             }
@@ -52,7 +99,7 @@ function LoginForm() {
                 await sendCodeRecovery(data.code);
                 setMode('password_sent');
             } catch (error) {
-                setApiError(error.message || 'Código inválido o error al verificar.');
+                setApiError(error.message || TEXTS.defaultVerifyCodeError);
             } finally {
                 setLoading(false);
             }
@@ -64,16 +111,25 @@ function LoginForm() {
             rol,
             setApiError,
             setLoading,
-            navigate
+            navigate,
+            setCountdownActive,
+            setCountdownDuration
         });
     };
+
+    const remainingTime = timerState.remainingSeconds > 0 ? ` ${Math.ceil(timerState.remainingSeconds)}s` : '';
+    const errorText = apiError
+        ? (typeof apiError === 'object'
+            ? `${apiError.message}${remainingTime}`
+            : apiError)
+        : null;
 
     if (mode === 'password_sent') {
         return (
             <Frame 
-                title="Contraseña Enviada" 
-                content="Se ha enviado una nueva contraseña a tu correo electrónico."
-                error={apiError}
+                title={TEXTS.sentTitle} 
+                content={TEXTS.sentContent}
+                error={errorText}
             >
                 <div className={styles.actionGroup}>
                     <Button 
@@ -84,7 +140,7 @@ function LoginForm() {
                         borderColor={"var(--border-gray-low)"}
                         fullWidth
                     >
-                        Volver al Login
+                        {TEXTS.sentBack}
                     </Button>
                 </div>
             </Frame>
@@ -93,26 +149,26 @@ function LoginForm() {
 
     if (mode === 'request_email') {
         return (
-            <Frame title="Recuperar Contraseña" 
+            <Frame title={TEXTS.recoveryTitle} 
             icon={
-                <ModalTooltip text="El código será enviado a esta dirección para que puedas recuperar el acceso a tu cuenta.">
+                <ModalTooltip text={TEXTS.recoveryTooltip}>
                     <HelpCircle size={20} style={{ cursor: 'help' }} />
                 </ModalTooltip>
             }   
-            content="Ingresa tu correo para recibir un código de recuperación."
-            error={apiError}>
+            content={TEXTS.recoveryContent}
+            error={errorText}>
                 <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
                     <TextField
                         key="recoveryEmail"
                         id="recoveryEmail"
-                        label="Correo electrónico"
+                        label={TEXTS.recoveryEmailLabel}
                         type="text"
-                        placeholder="Ingresa tu correo electrónico"
+                        placeholder={TEXTS.recoveryEmailPlaceholder}
                         {...register("recoveryEmail", { required: true })}
                     />
                     <div className={styles.actionGroup} style={{ flexDirection: 'column', gap: '0.5rem' }}>
                         <Button type="submit" variant="primary" disabled={loading} fullWidth>
-                            Solicitar código
+                            {TEXTS.recoverySubmit}
                         </Button>
                         <Button 
                             onClick={() => {
@@ -122,7 +178,7 @@ function LoginForm() {
                             borderColor={"var(--border-gray-low)"}
                             fullWidth
                         >
-                            Volver
+                            {TEXTS.backButton}
                         </Button>
                     </div>
                 </form>
@@ -133,22 +189,22 @@ function LoginForm() {
     if (mode === 'code_entry') {
         return (
             <Frame 
-                title="Verificar Código" 
-                content="Ingresa el código que hemos enviado a tu correo."
-                error={apiError}
+                title={TEXTS.verifyTitle} 
+                content={TEXTS.verifyContent}
+                error={errorText}
             >
                 <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
                     <TextField
                         key="code"
                         id="code"
-                        label="Código de verificación"
+                        label={TEXTS.verifyCodeLabel}
                         type="text"
-                        placeholder="Ingresa el código"
+                        placeholder={TEXTS.verifyCodePlaceholder}
                         {...register("code", { required: true })}
                     />
                     <div className={styles.actionGroup} style={{ flexDirection: 'column', gap: '0.5rem' }}>
                         <Button type="submit" variant="primary" disabled={loading} fullWidth>
-                            Verificar y enviar clave
+                            {TEXTS.verifySubmit}
                         </Button>
                         <Button 
                             onClick={() => {
@@ -158,7 +214,7 @@ function LoginForm() {
                             borderColor={"var(--border-gray-low)"}
                             fullWidth
                         >
-                            Volver
+                            {TEXTS.backButton}
                         </Button>
                     </div>
                 </form>
@@ -166,14 +222,32 @@ function LoginForm() {
         );
     }
 
+    const frameError = countdownActive ? null : errorText;
+
     return (
-        <Frame title="Iniciar Session" error={apiError}>
+        <Frame 
+            title={TEXTS.title} 
+            error={frameError} 
+            isLoading={initialLoading}
+        >
             <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+                {countdownActive && (
+                    <CountdownBar 
+                        active={countdownActive} 
+                        duration={countdownDuration}
+                        isOverlay={true}
+                        overlayMessage={errorText}
+                        onComplete={() => {
+                            setCountdownActive(false);
+                            setApiError(null);
+                        }}
+                    />
+                )}
                 <TextField
                     id="email"
-                    label="Correo"
+                    label={TEXTS.emailLabel}
                     type="text"
-                    placeholder="tu@email"
+                    placeholder={TEXTS.emailPlaceholder}
                     autoComplete="off"
                     required
                     requiredColor="red"
@@ -182,7 +256,7 @@ function LoginForm() {
                 
                 <TextField
                     id="password"
-                    label="Contraseña"
+                    label={TEXTS.passwordLabel}
                     type="password"
                     placeholder=""
                     autoComplete="new-password"
@@ -192,16 +266,16 @@ function LoginForm() {
                 />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: '700', color: '#000000' }}>Rol</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: '700', color: '#000000' }}>{TEXTS.roleLabel}</label>
                     <div className={styles.customSelectWrapper}>
                         <Selector 
                             options={roleOptions}
                             value={rol}
                             onChange={(e) => setRol(e.target.value)}
-                            placeholder="Seleccione un rol"
+                            placeholder={TEXTS.rolePlaceholder}
                             showSearch={false}
                             required
-                            searchPlaceholder="Busca un rol"
+                            searchPlaceholder={TEXTS.searchPlaceholder}
                         />
                     </div>
                 </div>
@@ -210,8 +284,8 @@ function LoginForm() {
                     <Button 
                     type="submit" 
                     variant="primary" 
-                    disabled={loading} fullWidth>
-                        Ingresar
+                    disabled={loading || countdownActive} fullWidth>
+                        {TEXTS.submitButton}
 
                     </Button>
                     <Button 
@@ -219,11 +293,11 @@ function LoginForm() {
                             setMode('request_email');
                             setApiError(null);
                         }}
-                        disabled={loading}
+                        disabled={loading || countdownActive}
                         borderColor={"var(--border-gray-low)"}
                         fullWidth
                     >
-                        Recuperar contraseña 
+                        {TEXTS.recoverPasswordButton} 
                     </Button>
                 </div>
             </form>
