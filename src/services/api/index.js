@@ -364,6 +364,14 @@ export async function getProfile() {
   return request('/auth/me');
 }
 
+export async function getUserPermissions(userId) {
+  return request(`/UserPermissions/${userId}`, { method: 'GET' });
+}
+
+export async function updateUserPermissions(userId, permissions) {
+  return request(`/UserPermissions/${userId}`, { method: 'PUT', body: { permissions } });
+}
+
 export async function decreaseProductStock(productId, cantidad = 1) {
   try {
     return await request(`/Products/${productId}/quantity`, { method: 'PATCH', body: { quantity: String(cantidad) } });
@@ -555,6 +563,34 @@ export async function getLogs(pageNumber = 1, pageSize = 10) {
   return request(`/Logs/get-logs?pageNumber=${pageNumber}&pageSize=${pageSize}`, { method: 'GET' });
 }
 
+export async function getClientPortalData(identifier) {
+  return request(`/Clients/validate?identifier=${encodeURIComponent(identifier)}`, {
+    method: 'GET',
+    auth: false
+  });
+}
+
+export async function getClientById(id) {
+  return request(`/Clients/${encodeURIComponent(id)}`, {
+    method: 'GET',
+    auth: false
+  });
+}
+
+export async function getClientMascotas(clienteId) {
+  return request(`/Clients/${encodeURIComponent(clienteId)}/mascotas`, {
+    method: 'GET',
+    auth: false
+  });
+}
+
+export async function getCitasByCliente(clienteId) {
+  return request(`/Citas/portal/cliente/${encodeURIComponent(clienteId)}`, {
+    method: 'GET',
+    auth: false
+  });
+}
+
 export default {
   request,
   login,
@@ -605,5 +641,11 @@ export default {
   getCalendar,
   checkDoctorAvailability,
   getLogs,
-  getRoles
+  getRoles,
+  getClientPortalData,
+  getClientById,
+  getClientMascotas,
+  getCitasByCliente,
+  getUserPermissions,
+  updateUserPermissions
 };

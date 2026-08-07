@@ -32,9 +32,11 @@ export function logout() {
   sessionStorage.removeItem(TOKEN_KEY);
   sessionStorage.removeItem(LOGIN_DATA_KEY);
   sessionStorage.removeItem(DOCTOR_ID_KEY);
+  sessionStorage.removeItem('user_permissions');
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(LOGIN_DATA_KEY);
   localStorage.removeItem(DOCTOR_ID_KEY);
+  localStorage.removeItem('user_permissions');
   localStorage.removeItem('USE_DUMMY_DATA');
 }
 

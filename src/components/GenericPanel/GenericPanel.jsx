@@ -20,7 +20,7 @@ import Button from '../screens/components/Button';
 import ModalTooltip from '../ModalTooltip/ModalTooltip';
 
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
-import { getUserRole, getDisplayRoleName, getDefaultMenus } from './Routes';
+import { getUserRole, getDisplayRoleName, getDefaultMenus, getUserPermissions, filterMenuByPermissions } from './Routes';
 import { syncStorageName, fetchProfileName } from './utils';
 import { CustomerAndPetsForm } from '../../pages/DoctorSystem/CreateCustomerAndPets/CustomerAndPets';
 import InputWithIcon from '../screens/components/Material-UI/Components/InputWithIcon/Index';
@@ -28,7 +28,7 @@ import EditProfileForm from '../EditProfile/EditProfile';
 import Loading from '../screens/components/Loading/Index';
 import UserAvatar from '../screens/components/Profile/Avatar/Index';
 import Container from '../screens/components/Container';
-import TopBar from '../TopBar/TopBar';  
+import TopBar from '../TopBar/TopBar';
 
 let hasLoadedOnce = false;
 
@@ -44,7 +44,10 @@ function GenericPanel({
   paginationCount = 10,
   paginationPage = 1,
   onPaginationChange,
-  paginationProps = {}
+  paginationProps = {},
+  pageSize,
+  pageSizeOptions,
+  onPageSizeChange
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -80,6 +83,12 @@ function GenericPanel({
 
   React.useEffect(() => {
     let mounted = true;
+    if (role === 'client') {
+      hasLoadedOnce = true;
+      setFadeOverlay(true);
+      setShowOverlay(false);
+      return;
+    }
     (async () => {
       try {
         const profile = await fetchProfileName();
@@ -95,6 +104,11 @@ function GenericPanel({
           } else {
             setCurrentAvatar('');
             localStorage.removeItem('user_avatar_url');
+          }
+          if (profile.permissions) {
+            sessionStorage.setItem('user_permissions', JSON.stringify(profile.permissions));
+          } else {
+            sessionStorage.removeItem('user_permissions');
           }
         }
       } catch (err) {
@@ -123,6 +137,7 @@ function GenericPanel({
   });
 
   const [showWelcome, setShowWelcome] = useState(() => {
+    if (role === 'client') return false;
     return !sessionStorage.getItem('welcomeShown');
   });
 
@@ -142,8 +157,9 @@ function GenericPanel({
     });
   };
 
-  const items = menuItems || defaultMenus[actualRole] || defaultMenus.user;
-  const filteredItems = items.filter(it => 
+  const rawItems = menuItems || defaultMenus[actualRole] || defaultMenus.user;
+  const items = filterMenuByPermissions(rawItems, getUserPermissions());
+  const filteredItems = items.filter(it =>
     it.label?.toLowerCase().includes(searchValue.toLowerCase()) ||
     (it.subItems && it.subItems.some(sub => sub.label?.toLowerCase().includes(searchValue.toLowerCase())))
   );
@@ -195,7 +211,7 @@ function GenericPanel({
         />
       )}
 
-      {globalApiError && (
+      {globalApiError && role !== 'client' && (
         <ToggleCard
           title="Atención"
           description={globalApiError}
@@ -267,21 +283,23 @@ function GenericPanel({
             })}
           </nav>
 
-          <div className={styles.sidebarFooter}>
-            <Button
-              color={Button.COLORS.RED}
-              size={Button.SIZES.MEDIUM}
-              variant={Button.VARIANTS.OUTLINE}
-              onClick={() => setShowLogoutModal(true)}
-              icon={LogOut}
-              fullWidth={!isCollapsed}
-              circle={isCollapsed}
-              title={isCollapsed ? "Cerrar sesión" : undefined}
-              style={isCollapsed ? { margin: '0 auto', display: 'flex' } : {}}
-            >
-              {!isCollapsed && "Cerrar sesión"}
-            </Button>
-          </div>
+          {role !== 'client' && (
+            <div className={styles.sidebarFooter}>
+              <Button
+                color={Button.COLORS.RED}
+                size={Button.SIZES.MEDIUM}
+                variant={Button.VARIANTS.OUTLINE}
+                onClick={() => setShowLogoutModal(true)}
+                icon={LogOut}
+                fullWidth={!isCollapsed}
+                circle={isCollapsed}
+                title={isCollapsed ? "Cerrar sesión" : undefined}
+                style={isCollapsed ? { margin: '0 auto', display: 'flex' } : {}}
+              >
+                {!isCollapsed && "Cerrar sesión"}
+              </Button>
+            </div>
+          )}
         </aside>
 
         <div className={styles.mainWrapper}>
@@ -292,6 +310,7 @@ function GenericPanel({
             currentUserName={currentUserName}
             displayRoleName={getDisplayRoleName(actualRole)}
             onEditProfileClick={() => setShowEditProfileModal(true)}
+            role={role}
           />
 
           <main className={styles.contentArea}>
@@ -301,6 +320,9 @@ function GenericPanel({
               paginationPage={paginationPage}
               onPaginationChange={onPaginationChange}
               paginationProps={paginationProps}
+              pageSize={pageSize}
+              pageSizeOptions={pageSizeOptions}
+              onPageSizeChange={onPageSizeChange}
             >
               {showOverlay && (
                 <div className={`${styles.globalLoaderOverlay} ${fadeOverlay ? styles.fadeOut : ''}`}>

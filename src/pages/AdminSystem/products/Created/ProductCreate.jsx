@@ -7,7 +7,7 @@ import {
   adminDeleteProduct
 } from '../../../../services/api';
 
-import GenericPanel from '../../../../components/GenericPanel/GenericPanel';
+import usePanelHeader from '../../../../components/GenericPanel/usePanelHeader';
 import TableB from '../../../../components/screens/components/TableB';
 import AlertModal from '../../../../components/AlertModal/AlertModal';
 import DrawPanel from '../../../../components/screens/components/DrawPanel';
@@ -28,110 +28,112 @@ function ProductFormContent({ form, onChange, onSelectChange, categoryOptions, l
     <div className={styles.formContent} style={{ display: 'flex', flexDirection: 'column', gap: '15px', padding: '10px 5px' }}>
       <div className={styles.formRow} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
         <TextField 
-        label="Código" 
-        name="codigo" 
-        value={form.codigo} 
-        onChange={onChange} 
-        placeholder="Ej: PROD-001" 
-        required
+          label="Código" 
+          name="codigo" 
+          value={form.codigo} 
+          onChange={onChange} 
+          placeholder="Ej: PROD-001" 
+          required
         />
         <TextField 
-        label="Nombre" 
-        name="nombre" 
-        value={form.nombre} 
-        onChange={onChange} 
-        placeholder="Nombre del producto" 
-        required
+          label="Nombre" 
+          name="nombre" 
+          value={form.nombre} 
+          onChange={onChange} 
+          placeholder="Nombre del producto" 
+          required
         />
       </div>
 
       <TextField 
-      label="Descripción" 
-      name="descripcion" 
-      value={form.descripcion} 
-      onChange={onChange} 
-      placeholder="Breve descripción del producto..." 
-      multiline 
-      rows={2} 
-      required
+        label="Descripción" 
+        name="descripcion" 
+        value={form.descripcion} 
+        onChange={onChange} 
+        placeholder="Breve descripción del producto..." 
+        multiline 
+        rows={2} 
+        required
       />
 
       <div className={styles.formRow} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-          <Selector 
-            label="Categoría"
-            options={categoryOptions}
-            value={form.categoria_id}
-            onChange={(e) => onSelectChange(e.target.value)}
-            required
-            placeholder={loadingCats ? "Cargando..." : "Selecciona una categoría"}
-          />
+        <Selector 
+          label="Categoría"
+          options={categoryOptions}
+          value={form.categoria_id}
+          onChange={(e) => onSelectChange(e.target.value)}
+          required
+          placeholder={loadingCats ? "Cargando..." : "Selecciona una categoría"}
+        />
         <TextField 
-        label="Tipo / Clase" 
-        name="tipo" 
-        value={form.tipo} 
-        onChange={onChange} 
-        placeholder="Ej: Insumo, Venta" 
-        required
+          label="Tipo / Clase" 
+          name="tipo" 
+          value={form.tipo} 
+          onChange={onChange} 
+          placeholder="Ej: Insumo, Venta" 
+          required
         />
       </div>
 
       <div className={styles.formRow} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-        <TextField label="Precio Compra" 
-        name="precio" 
-        type="number" 
-        value={form.precio} 
-        onChange={onChange} 
-        placeholder="0.00" 
-        required
-        inputProps={{ step: "0.01" }} 
+        <TextField 
+          label="Precio Compra" 
+          name="precio" 
+          type="number" 
+          value={form.precio} 
+          onChange={onChange} 
+          placeholder="0.00" 
+          required
+          inputProps={{ step: "0.01" }} 
         />
         <TextField 
-        label="Precio Venta" 
-        name="precio_venta" 
-        type="number" 
-        value={form.precio_venta} 
-        onChange={onChange} 
-        placeholder="0.00" 
-        required
-        inputProps={{ step: "0.01" }} 
+          label="Precio Venta" 
+          name="precio_venta" 
+          type="number" 
+          value={form.precio_venta} 
+          onChange={onChange} 
+          placeholder="0.00" 
+          required
+          inputProps={{ step: "0.01" }} 
         />
       </div>
 
       <div className={styles.formRow} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
         <TextField 
-        label="Stock Inicial" 
-        name="stock" 
-        type="number" 
-        value={form.stock} 
-        onChange={onChange} 
-        placeholder="0" 
-        required
+          label="Stock Inicial" 
+          name="stock" 
+          type="number" 
+          value={form.stock} 
+          onChange={onChange} 
+          placeholder="0" 
+          required
         />
         <TextField 
-        label="Stock Mínimo" 
-        name="stock_minimo" 
-        type="number" 
-        value={form.stock_minimo} 
-        onChange={onChange} 
-        placeholder="Alerta en..." 
-        required
+          label="Stock Mínimo" 
+          name="stock_minimo" 
+          type="number" 
+          value={form.stock_minimo} 
+          onChange={onChange} 
+          placeholder="Alerta en..." 
+          required
         />
         <TextField 
-        label="Unidad Medida" 
-        name="unidad_medida" 
-        value={form.unidad_medida} 
-        onChange={onChange} 
-        placeholder="Ej: Und, Kg" 
-        required
+          label="Unidad Medida" 
+          name="unidad_medida" 
+          value={form.unidad_medida} 
+          onChange={onChange} 
+          placeholder="Ej: Und, Kg" 
+          required
         />
       </div>
 
-      <TextField label="Proveedor" 
-      name="proveedor" 
-      value={form.proveedor} 
-      onChange={onChange} 
-      placeholder="Nombre del proveedor" 
-      required
+      <TextField 
+        label="Proveedor" 
+        name="proveedor" 
+        value={form.proveedor} 
+        onChange={onChange} 
+        placeholder="Nombre del proveedor" 
+        required
       />
     </div>
   );
@@ -146,6 +148,8 @@ export default function ProductCreate({ hideHeader }) {
     filterCategory, setFilterCategory,
     maxPrice, setMaxPrice,
     page, setPage,
+    pageSize,
+    handlePageSizeChange,
     totalPages,
     loading,
     error,
@@ -184,14 +188,14 @@ export default function ProductCreate({ hideHeader }) {
   const formatCurrency = useCallback((v) => {
     const n = Number(v || 0);
     try {
-        return new Intl.NumberFormat(esUSD ? 'en-US' : 'es-VE', {
-            style: 'currency',
-            currency: currency || 'VES',
-            maximumFractionDigits: 2
-        }).format(n);
+      return new Intl.NumberFormat(esUSD ? 'en-US' : 'es-VE', {
+        style: 'currency',
+        currency: currency || 'VES',
+        maximumFractionDigits: 2
+      }).format(n);
     } catch (err) {
-        console.error('Error en formato de moneda:', err);
-        return (esUSD ? '$ ' : 'Bs. ') + n.toLocaleString();
+      console.error('Error en formato de moneda:', err);
+      return (esUSD ? '$ ' : 'Bs. ') + n.toLocaleString();
     }
   }, [currency, esUSD]);
 
@@ -276,71 +280,71 @@ export default function ProductCreate({ hideHeader }) {
 
   const columns = [
     {
-        label: 'NOMBRE',
-        key: 'displayName',
-        width: '25%'
+      label: 'NOMBRE',
+      key: 'displayName',
+      width: '25%'
     },
     {
-        label: 'DESCRIPCIÓN',
-        key: 'displayDesc',
-        width: '30%'
+      label: 'DESCRIPCIÓN',
+      key: 'displayDesc',
+      width: '30%'
     },
     {
-        label: 'PRECIO',
-        key: 'price',
-        width: '15%',
-        render: (row) => {
-            const montoBase = row.normalizedPrice;
-            const montoConvertido = convertAmount(montoBase, esUSD ? 'VES' : 'USD');
-            const fmtPrice = formatCurrency(montoBase);
-            const textoTooltip = esUSD
-                ? `Equivalente: ${montoConvertido.toFixed(2)} Bs`
-                : `Equivalente: $${montoConvertido.toFixed(2)} USD`;
-            return (
-                <ModalTooltip text={textoTooltip}>
-                    <span className={styles.priceText}>{fmtPrice}</span>
-                </ModalTooltip>
-            );
+      label: 'PRECIO',
+      key: 'price',
+      width: '15%',
+      render: (row) => {
+        const montoBase = row.normalizedPrice;
+        const montoConvertido = convertAmount(montoBase, esUSD ? 'VES' : 'USD');
+        const fmtPrice = formatCurrency(montoBase);
+        const textoTooltip = esUSD
+          ? `Equivalente: ${montoConvertido.toFixed(2)} Bs`
+          : `Equivalente: $${montoConvertido.toFixed(2)} USD`;
+        return (
+          <ModalTooltip text={textoTooltip}>
+            <span className={styles.priceText}>{fmtPrice}</span>
+          </ModalTooltip>
+        );
+      }
+    },
+    {
+      label: 'STOCK',
+      key: 'stock',
+      width: '15%',
+      type: 'badge',
+      badgeClass: (row) => {
+        const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
+        return row.normalizedStock < stockMin ? styles.lowStockBadge : styles.normalStockBadge;
+      },
+      render: (row) => {
+        const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
+        const isLowStock = row.normalizedStock < stockMin;
+        return (
+          <div className={styles.stockStatus}>
+            {row.normalizedStock}
+            {isLowStock && (
+              <ModalTooltip text={`Stock bajo. Mínimo: ${stockMin}`} position="top">
+                <img src={getIcon('warning')} alt="Alerta" className={styles.warningIcon} style={{ width: '16px', marginLeft: '6px' }} />
+              </ModalTooltip>
+            )}
+          </div>
+        );
+      }
+    },
+    {
+      label: 'ACCIONES',
+      key: 'actions',
+      type: 'actions',
+      align: 'center',
+      width: '15%',
+      actions: [
+        {
+          label: 'Eliminar',
+          icon: getIcon('trash') || Trash2,
+          onClick: (row) => handleDeleteClick(row),
+          className: styles.deleteActionBtn || 'danger'
         }
-    },
-    {
-        label: 'STOCK',
-        key: 'stock',
-        width: '15%',
-        type: 'badge',
-        badgeClass: (row) => {
-            const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
-            return row.normalizedStock < stockMin ? styles.lowStockBadge : styles.normalStockBadge;
-        },
-        render: (row) => {
-            const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
-            const isLowStock = row.normalizedStock < stockMin;
-            return (
-                <div className={styles.stockStatus}>
-                    {row.normalizedStock}
-                    {isLowStock && (
-                        <ModalTooltip text={`Stock bajo. Mínimo: ${stockMin}`} position="top">
-                            <img src={getIcon('warning')} alt="Alerta" className={styles.warningIcon} style={{ width: '16px', marginLeft: '6px' }} />
-                        </ModalTooltip>
-                    )}
-                </div>
-            );
-        }
-    },
-    {
-        label: 'ACCIONES',
-        key: 'actions',
-        type: 'actions',
-        align: 'center',
-        width: '15%',
-        actions: [
-            {
-                label: 'Eliminar',
-                icon: getIcon('trash') || Trash2,
-                onClick: (row) => handleDeleteClick(row),
-                className: styles.deleteActionBtn || 'danger'
-            }
-        ]
+      ]
     }
   ];
 
@@ -350,73 +354,77 @@ export default function ProductCreate({ hideHeader }) {
     return { value: val, label: label };
   });
 
+  usePanelHeader({
+    title: "Gestión y Creación de Productos",
+    menuTitle: "Panel de Administración",
+    showPagination: true,
+    paginationCount: totalPages,
+    paginationPage: page,
+    onPaginationChange: (e, p) => setPage(p),
+    pageSize,
+    pageSizeOptions: [5, 10, 20, 50],
+    onPageSizeChange: handlePageSizeChange
+  });
+
   return (
-    <GenericPanel
-      title="Gestión y Creación de Productos"
-      role="admin"
-      menuTitle="Panel de Administración"
-      showPagination={true}
-      paginationCount={totalPages}
-      paginationPage={page}
-      onPaginationChange={(e, p) => setPage(p)}
-    >
+    <>
       <div className={styles.page}>
         <div className={styles.topActions} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-            <Button onClick={() => setShowForm(true)} 
-              icon={PlusCircle}
-              variant="primary" 
-              color={Button.COLORS.PURPLE}
-              title="Agregar Producto">
-              Agregar Producto
-            </Button> 
+          <Button onClick={() => setShowForm(true)} 
+            icon={PlusCircle}
+            variant="primary" 
+            color={Button.COLORS.PURPLE}
+            title="Agregar Producto">
+            Agregar Producto
+          </Button> 
         </div>
 
         <div className={styles.content}>
           <Filter
-              onClear={handleClearFilters}
-              searchTerm={searchTerm}
-              title="Filtros de Productos"
-              activeFiltersCount={activeFiltersCount}
+            onClear={handleClearFilters}
+            searchTerm={searchTerm}
+            title="Filtros de Productos"
+            activeFiltersCount={activeFiltersCount}
           >
-              <TextField 
-                  label="Nombre" 
-                  value={searchTerm} 
-                  onChange={(e) => setSearchTerm(e.target.value)} 
-                  placeholder="Buscar producto..."
-              />
-              
-              <Selector
-                  id="categoria-create-select"
-                  label="Categoría"
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  emptyOptionLabel="Todas las categorías"
-                  options={categoryOptionsFormatted}
-              />
+            <TextField 
+              label="Nombre" 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              placeholder="Buscar producto..."
+            />
+            
+            <Selector
+              id="categoria-create-select"
+              label="Categoría"
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              emptyOptionLabel="Todas las categorías"
+              options={categoryOptionsFormatted}
+            />
 
-              <TextField 
-                  label="Precio máximo" 
-                  type="number" 
-                  value={maxPrice} 
-                  onChange={(e) => setMaxPrice(e.target.value)} 
-                  placeholder="Ej. 150.00"
-              />
+            <TextField 
+              label="Precio máximo" 
+              type="number" 
+              value={maxPrice} 
+              onChange={(e) => setMaxPrice(e.target.value)} 
+              placeholder="Ej. 150.00"
+            />
           </Filter>
 
           <div className={styles.tableWrapper}>
             <TableB 
-                columns={columns}
-                data={filteredProducts}
-                loading={loading || currencyLoading}
-                error={error}
-                onRetry={() => fetchProducts(false)}
-                emptyIcon={PackageSearch}
-                emptyMessage="No se encontraron productos en el inventario."
-                rowKey={(row) => row.id || row.nombre}
-                rowClassName={(row) => {
-                    const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
-                    return row.normalizedStock < stockMin ? styles.lowStockRow : '';
-                }}
+              columns={columns}
+              data={filteredProducts}
+              loading={loading || currencyLoading}
+              error={error}
+              onRetry={() => fetchProducts(false)}
+              emptyIcon={PackageSearch}
+              emptyMessage="No se encontraron productos en el inventario."
+              rowKey={(row) => row.id || row.nombre}
+              rowClassName={(row) => {
+                const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
+                return row.normalizedStock < stockMin ? styles.lowStockRow : '';
+              }}
             />
           </div>
         </div>
@@ -460,6 +468,6 @@ export default function ProductCreate({ hideHeader }) {
           confirmText="Entendido"
         />
       </div>
-    </GenericPanel>
+    </>
   );
 }

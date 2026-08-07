@@ -43,6 +43,7 @@ import EmailsTemplates from './components/Emails/Templates';
 import Recetas from './components/Recetas/Components';
 import PortalClientes from '../PortalClientes/Index';
 import HistorialMedico from './components/HistorialMedico/Index';
+import PanelLayout from './components/GenericPanel/PanelLayout';
 
 
 
@@ -73,30 +74,36 @@ function AppContent() {
           <Route path="/" element={<Navigate to="/inicio" replace />} />
           <Route path="/inicio" element={<Home />} />
           <Route path="/login" element={<Navigate to="/inicio" replace />} />
-          <Route path="/AdminSystem" element={<AdminSystem />} />
-          <Route path="/AdminSystem/dashboard" element={<DashboardPage />} />
-          <Route path="/SecretariaSystem" element={<SecretariaSystem />} />
-          <Route path="/doctor" element={<DoctorSystem />} />
-          <Route path="/citas" element={<CitasDoctor />} />
-          <Route path="/panel-menssage" element={<PanelMenssage />} />
-          <Route path="/citas/crear" element={<CreatedCita />} />
+
+          {/* Rutas autenticadas: comparten un único GenericPanel/TopBar persistente
+              (no se remonta en cada navegación) via PanelLayout + <Outlet>. */}
+          <Route element={<PanelLayout />}>
+            <Route path="/AdminSystem" element={<AdminSystem />} />
+            <Route path="/AdminSystem/dashboard" element={<DashboardPage />} />
+            <Route path="/SecretariaSystem" element={<SecretariaSystem />} />
+            <Route path="/doctor" element={<DoctorSystem />} />
+            <Route path="/citas" element={<CitasDoctor />} />
+            <Route path="/panel-menssage" element={<PanelMenssage />} />
+            <Route path="/citas/crear" element={<CreatedCita />} />
+            <Route path="/clientes/crear" element={<CustomerAndPets />} />
+            <Route path="/AdminSystem/products" element={<Products />} />
+            <Route path="/AdminSystem/products/manage" element={<ProductCreate />} />
+            <Route path="/factura-manager" element={<FacturaManager />} />
+            <Route path="/facturas" element={<FacturasList />} />
+            <Route path="/AdminSystem/settings" element={<Settings />} />
+            <Route path="/AdminSystem/users" element={<Users />} />
+            <Route path="/AdminSystem/emails" element={<EmailsTemplates />} />
+            <Route path="/doctor/recetas" element={<Recetas />} />
+            <Route path="/doctor/pacientes" element={<HistorialMedico />} />
+            <Route path="/clients" element={<ClientList />} />
+            <Route path="/calendar" element={<Calendar />} />
+          </Route>
+
           <Route path="/consultas/crear" element={<Consultas />} />
           <Route path="/facturas/crear" element={<CreateFactura />} />
-          <Route path="/clientes/crear" element={<CustomerAndPets />} />
-          <Route path="/AdminSystem/products" element={<Products />} />
-          <Route path="/AdminSystem/products/manage" element={<ProductCreate />} />
-          <Route path="/factura-manager" element={<FacturaManager />} />
           <Route path="/factura-local" element={<FacturaLocal />} />
-          <Route path="/facturas" element={<FacturasList />} />
-          <Route path="/AdminSystem/settings" element={<Settings />} />
           <Route path="/AdminSystem/logs" element={<SystemLogs />} />
-          <Route path="/AdminSystem/users" element={<Users />} />
-          <Route path="/AdminSystem/emails" element={<EmailsTemplates />} />
-          <Route path="/doctor/recetas" element={<Recetas />} />
-          <Route path="/doctor/pacientes" element={<HistorialMedico />} />
-          <Route path="/clients" element={<ClientList />} />
-          <Route path="/calendar" element={<Calendar />} />
-          
+
           <Route path="/health" element={<Health />} />
 
           <Route path="/witing" element={<WaitingPage />} />

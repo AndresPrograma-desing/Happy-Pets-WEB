@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { getClients, createPetForExistingClient, deleteClient, updateClient, updatePet, deletePet } from '../../../services/api';
 import SearchInput from '../../UI/Search/Search';
 import AlertModal from '../../../components/AlertModal/AlertModal';
@@ -6,7 +6,7 @@ import PetForm from './form/addpetsForm';
 import DrawPanel from '../../screens/components/DrawPanel';
 import styles from './List.module.css';
 import { INITIAL_PET_FORM, preparePetPayload } from './utils';
-import GenericPanel from '../../GenericPanel/GenericPanel';
+import usePanelHeader from '../../GenericPanel/usePanelHeader';
 import TableB from '../../screens/components/TableB';
 import Button from '../../screens/components/Button/index.jsx';
 import Barnner from '../../screens/components/Barnner';
@@ -37,8 +37,8 @@ export default function ClientList() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
   const [totalCount, setTotalCount] = useState(0);
-  const itemsPerPage = 5;
 
   const [showPetModal, setShowPetModal] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState(null);
@@ -75,6 +75,7 @@ export default function ClientList() {
   const [showDeletePetModal, setShowDeletePetModal] = useState(false);
   const [petToDelete, setPetToDelete] = useState(null);
   const [deletePetLoading, setDeletePetLoading] = useState(false);
+
   // Debounce para el input de búsqueda
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -88,11 +89,16 @@ export default function ClientList() {
     setPage(1);
   }, [debouncedSearch]);
 
+  const handlePageSizeChange = useCallback((newSize) => {
+    setPageSize(newSize);
+    setPage(1);
+  }, []);
+
   const fetchClients = async () => {
     setLoading(true);
     setError('');
     try {
-      const res = await getClients(page, itemsPerPage, debouncedSearch);
+      const res = await getClients(page, pageSize, debouncedSearch);
       const items = res?.items ?? res?.Items ?? [];
       const total = res?.total_count ?? res?.TotalCount ?? 0;
       
@@ -112,7 +118,8 @@ export default function ClientList() {
 
   useEffect(() => {
     fetchClients();
-  }, [page, debouncedSearch]);
+  }, [page, pageSize, debouncedSearch]);
+
   const handleOpenAddPet = (clientId) => {
     setSelectedClientId(clientId);
     setPetForm(INITIAL_PET_FORM);
@@ -325,7 +332,7 @@ export default function ClientList() {
     };
   };
 
-  const pageCount = Math.ceil(totalCount / itemsPerPage);
+  const pageCount = Math.ceil(totalCount / pageSize);
 
   const columns = [
     {
@@ -447,16 +454,20 @@ export default function ClientList() {
     );
   };
 
+  usePanelHeader({
+    title: "Gestión de Clientes",
+    message: "Administra la información de los propietarios y el historial clínico de sus mascotas",
+    showPagination: true,
+    paginationCount: pageCount,
+    paginationPage: page,
+    onPaginationChange: (e, v) => setPage(v),
+    pageSize,
+    pageSizeOptions: [5, 10, 20, 50],
+    onPageSizeChange: handlePageSizeChange
+  });
+
   return (
-    <GenericPanel 
-      title="Gestión de Clientes" 
-      message="Administra la información de los propietarios y el historial clínico de sus mascotas" 
-      role="admin"
-      showPagination={true}
-      paginationCount={pageCount}
-      paginationPage={page}
-      onPaginationChange={(e, v) => setPage(v)}
-    >
+    <>
       <div className={styles.actionHeader}>
         <div className={styles.searchCenterer}>
           <SearchInput 
@@ -624,6 +635,6 @@ export default function ClientList() {
         confirmText={deletePetLoading ? "Eliminando..." : "Eliminar"}
         cancelText="Cancelar"
       />
-    </GenericPanel>
+    </>
   );
 }

@@ -3,6 +3,7 @@ import { Mail, Eye, EyeOff } from "lucide-react";
 import DrawPanel from "../../../../../components/screens/components/DrawPanel/index";
 import TextField from "../../../../../components/screens/components/Material-UI/Components/TextField/Index";
 import ToggleCard from "../../../../../components/screens/components/ToggleCard";
+import Selector from '../../../../../components/screens/components/Material-UI/Components/Selector/Index'
 import Loading from "../../../../../components/screens/components/Loading/Index";
 import ErrorMessage from "../../../../../components/Notification/Error/ErrorMessage";
 import Button from "../../../../../components/screens/components/Button/index";
@@ -10,6 +11,9 @@ import CountdownBar from "../../../../../components/screens/components/Countdown
 import DateTag from "../../../../../components/screens/components/DateTag";
 import useAdminPasswordReset from "../../../../../hooks/useAdminPasswordReset";
 import DesplegablePanel from "../../../../../components/screens/components/DesplegablePanel";
+import useUsers from "../../../../../hooks/useUsers";
+
+
 
 export default function PasswordResetPanel({ isOpen, onClose }) {
   const { 
@@ -35,6 +39,9 @@ export default function PasswordResetPanel({ isOpen, onClose }) {
   const [pwdData, setPwdData] = useState({ email: '', newPassword: '', confirmPassword: '' });
   const [showPass, setShowPass] = useState(false);
   const [localPwdError, setLocalPwdError] = useState(null);
+  const { usersList, loading: usersLoading, fetchUsers } = useUsers(false);
+
+
 
   // Map API status to UI Steps
   const pwdStep = pwdStatus === 'Idle' ? 1 : pwdStatus === 'Pending' ? 2 : 3;
@@ -52,6 +59,7 @@ export default function PasswordResetPanel({ isOpen, onClose }) {
 
   useEffect(() => {
     if (isOpen) {
+      fetchUsers();
       fetchPendingList();
     } else {
       setPwdData({ email: '', newPassword: '', confirmPassword: '' });
@@ -59,7 +67,7 @@ export default function PasswordResetPanel({ isOpen, onClose }) {
       resetResetState();
       stopPolling();
     }
-  }, [isOpen, fetchPendingList, resetResetState, stopPolling]);
+  }, [isOpen, fetchPendingList, resetResetState, stopPolling, fetchUsers]);
 
   const handleContinuePending = (pendingUser) => {
     setPwdData({ ...pwdData, email: pendingUser.email });
@@ -240,15 +248,23 @@ export default function PasswordResetPanel({ isOpen, onClose }) {
                   iconColorVariant="blue"
                   isOpen={false}
                 />
-                <TextField
+                <Selector
                   label="Correo Electrónico"
                   name="email"
                   value={pwdData.email}
-                  onChange={handlePwdChange}
-                  placeholder="usuario@correo.com"
-                  disabled={pwdLoading || requestLoading}
+                  onChange={(e) => {
+                    setPwdData(prev => ({ ...prev, email: e.target.value }));
+                  }}
+                  options={usersList.map(u => ({
+                    value: u.email,
+                    label: `${u.nombre} ${u.apellido} (${u.email})`,
+                    icon: u.avatarUrl
+                  }))}
+                  placeholder="Seleccione un usuario"
+                  disabled={pwdLoading || requestLoading || usersLoading}
                   autoComplete="off"
                 />
+
               </>
             )}
 

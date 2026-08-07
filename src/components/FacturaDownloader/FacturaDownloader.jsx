@@ -6,7 +6,7 @@ import FacturaLocal from '../FacturaLocal/FacturaLocal';
 import useFacturaDownloader, { PollFactura } from '../../hooks/FacturaDownloader';
 import PollingSeconds from '../../hooks/PollingSecons';
 import { DatabaseSearch, View, Search, RotateCw } from 'lucide-react';
-import GenericPanel from '../GenericPanel/GenericPanel';
+import usePanelHeader from '../GenericPanel/usePanelHeader';
 import TableA from '../screens/components/TableA';
 import { getFacturaColumns } from './utils.jsx';
 import Badge from '../screens/components/Badge';
@@ -94,16 +94,16 @@ export default function FacturaManager() {
     setPreviewOpen
   }), [generatingId, invoiceUrls, handleFileDownload, handleGenerate, setPreviewIframeUrl, setPreviewInvoice, setPreviewCitaId, setPreviewOpen]);
 
+  usePanelHeader({
+    title: TEXT_FACTURAS.title,
+    menuTitle: TEXT_FACTURAS.menuTitle,
+    showPagination: true,
+    paginationCount: pageCount,
+    paginationPage: page,
+    onPaginationChange: (e, v) => setPage(v)
+  });
+
   return (
-    <GenericPanel 
-      title={TEXT_FACTURAS.title} 
-      menuTitle={TEXT_FACTURAS.menuTitle} 
-      role="secretaria"
-      showPagination={true}
-      paginationCount={pageCount}
-      paginationPage={page}
-      onPaginationChange={(e, v) => setPage(v)}
-    >
     <div className={styles.container}>
       {Object.keys(invoiceUrls || {}).map((id) => (
         <PollFactura
@@ -178,6 +178,5 @@ export default function FacturaManager() {
         />
       </div>
     </div>
-    </GenericPanel>
   );
 }

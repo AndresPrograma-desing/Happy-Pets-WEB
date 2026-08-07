@@ -8,7 +8,7 @@ import LoginInfo from '../../LoginInfo/LoginInfo';
 import ModalTooltip from '../../ModalTooltip/ModalTooltip';
 import AlertModal from '../../AlertModal/AlertModal';
 import TableA from '../../screens/components/TableA';
-import GenericPanel from '../../GenericPanel/GenericPanel';
+import usePanelHeader from '../../GenericPanel/usePanelHeader';
 
 import {
   FileText,
@@ -261,17 +261,18 @@ export default function Recetas() {
     }
   } catch (e) {}
 
+  usePanelHeader({
+    title: TEXT_RECETAS_GESTION.title,
+    message: TEXT_RECETAS_GESTION.subtitle,
+    menuTitle: userRole === 'secretaria' ? 'Panel de la Secretaria' : 'Panel Médico',
+    showPagination: true,
+    paginationCount: pageCount,
+    paginationPage: page,
+    onPaginationChange: (e, v) => setPage(v)
+  });
+
   return (
-    <GenericPanel 
-      title={TEXT_RECETAS_GESTION.title}
-      message={TEXT_RECETAS_GESTION.subtitle}
-      role={userRole}
-      menuTitle={userRole === 'secretaria' ? 'Panel de la Secretaria' : 'Panel Médico'}
-      showPagination={true}
-      paginationCount={pageCount}
-      paginationPage={page}
-      onPaginationChange={(e, v) => setPage(v)}
-    >
+    <>
       <div className={styles.mainContainer}>
         
         <div className={styles.headerControlsContainer}>
@@ -344,6 +345,6 @@ export default function Recetas() {
           </div>
         </DrawPanel>
       </div>
-    </GenericPanel>
+    </>
   );
 }

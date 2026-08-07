@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import styles from './Index.module.css';
 
-import GenericPanel from '../GenericPanel/GenericPanel';
+import usePanelHeader from '../GenericPanel/usePanelHeader';
 import DrawPanel from '../screens/components/DrawPanel/index';
 import SummaryCard from '../screens/components/SummaryCard/index';
 import TableA from '../screens/components/TableA/index';
@@ -318,20 +318,13 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
     </div>
   );
 
-  if (isDrawer) {
-    return mainContent;
-  }
+  usePanelHeader(isDrawer ? null : {
+    menuTitle: TEXTS.MENU_TITLE,
+    title: TEXTS.TITLE,
+    message: TEXTS.MESSAGE
+  });
 
-  return (
-    <GenericPanel
-      menuTitle={TEXTS.MENU_TITLE}
-      title={TEXTS.TITLE}
-      message={TEXTS.MESSAGE}
-      role="doctor"
-    >
-      {mainContent}
-    </GenericPanel>
-  );
+  return mainContent;
 }
 
 export default HistorialMedico;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { ChevronRight } from 'lucide-react'; // <-- Cambiado de X a ChevronRight
 import styles from './index.module.css';
 
 import Button from '../Button/index';
@@ -10,6 +10,7 @@ const DrawPanel = ({
   isOpen, 
   onClose, 
   title, 
+  description,
   children,
   width = '400px',
   showActions = false,
@@ -30,10 +31,13 @@ const DrawPanel = ({
   countdownHeight,
   countdownColors,
   countdownIncrement = true,
+  progressMode = 'count',
   totalFields = 0,
   filledFields = 0,
+  totalItems = [],
+  selectedItems = [],
   formData,
-  requiredFields
+  requiredFields = []
 }) => {
   const [render, setRender] = useState(isOpen);
 
@@ -47,15 +51,20 @@ const DrawPanel = ({
 
   if (!render) return null;
 
-  // Calcula el porcentaje incremental basado en los campos llenados respecto al total
-  let calculatedProgress = countdownValue;
-  if (formData && Array.isArray(requiredFields) && requiredFields.length > 0) {
+  // Lógica Genérica de Cálculo de Progreso
+  let calculatedProgress = countdownValue ?? 0;
+
+  if (progressMode === 'selection') {
+    const total = Array.isArray(totalItems) ? totalItems.length : Number(totalItems) || 0;
+    const selected = Array.isArray(selectedItems) ? selectedItems.length : Number(selectedItems) || 0;
+    calculatedProgress = total > 0 ? (selected / total) * 100 : 0;
+  } else if (progressMode === 'form' && formData && Array.isArray(requiredFields) && requiredFields.length > 0) {
     const filledCount = requiredFields.filter(field => {
       const val = formData[field];
       return val !== undefined && val !== null && String(val).trim() !== '';
     }).length;
     calculatedProgress = (filledCount / requiredFields.length) * 100;
-  } else if (totalFields > 0) {
+  } else if (progressMode === 'count' && totalFields > 0) {
     calculatedProgress = Math.min(100, Math.max(0, (filledFields / totalFields) * 100));
   }
 
@@ -71,14 +80,23 @@ const DrawPanel = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.header}>
-          <h3 className={styles.title}>{title}</h3>
-          <Button variant={Button.VARIANTS.DANGER} 
-            color={Button.COLORS.TRANSPARENT} 
-            onClick={onClose} 
-            circle
-            aria-label="Cerrar panel">
-            <X size={20} color={Button.COLORS.BLACK} />
-          </Button>
+          <div className={styles.headerTitleContainer}>
+            <h3 className={styles.title}>{title}</h3>
+            {description && (
+              <p className={styles.description}>{description}</p>
+            )}
+          </div>
+          <div className={styles.closeButtonWrapper}>
+            <Button 
+              variant={Button.VARIANTS.DANGER} 
+              color={Button.COLORS.TRANSPARENT} 
+              onClick={onClose} 
+              circle
+              aria-label="Cerrar panel"
+            >
+              <ChevronRight size={24} color="#374151" />
+            </Button>
+          </div>
         </div>
 
         {showCountdown && (
@@ -101,12 +119,16 @@ const DrawPanel = ({
         <div className={styles.content}>
           {children}
         </div>
+
         {showActions && (
           <div className={styles.footer}>
-            <Button variant="" 
-            onClick={onClose} 
-            border={Button.COLORS.RED}
-            disabled={loading} fullWidth>
+            <Button 
+              variant="" 
+              onClick={onClose} 
+              border={Button.COLORS.RED}
+              disabled={loading} 
+              fullWidth
+            >
               {cancelText}
             </Button>
             <Button 

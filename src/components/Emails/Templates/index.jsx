@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import GenericPanel from '../../GenericPanel/GenericPanel';
+import usePanelHeader from '../../GenericPanel/usePanelHeader';
 import { getEmailsTemplates } from '../../../services/api/emails';
 import { parseEmailTemplate, sampleData } from './utils';
 import { Mail, Edit2, Eye } from 'lucide-react';
@@ -80,17 +80,18 @@ const EmailsTemplates = () => {
         }
     ];
 
+    usePanelHeader({
+        title: "Plantillas de Correo",
+        message: "Gestiona y visualiza las plantillas de correo electrónico enviadas por el sistema.",
+        menuTitle: "Panel de Administración",
+        showPagination: true,
+        paginationCount: pageCount,
+        paginationPage: page,
+        onPaginationChange: (e, v) => setPage(v)
+    });
+
     return (
-        <GenericPanel 
-            title="Plantillas de Correo" 
-            message="Gestiona y visualiza las plantillas de correo electrónico enviadas por el sistema."
-            role="admin"
-            menuTitle="Panel de Administración"
-            showPagination={true}
-            paginationCount={pageCount}
-            paginationPage={page}
-            onPaginationChange={(e, v) => setPage(v)}
-        >
+        <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <TableA 
                     columns={columns}
@@ -128,7 +129,7 @@ const EmailsTemplates = () => {
                 onClose={() => setIsDrawerOpen(false)} 
                 onSaveSuccess={() => setIsDrawerOpen(false)}
             />
-        </GenericPanel>
+        </>
     );
 };
 

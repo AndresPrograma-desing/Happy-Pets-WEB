@@ -51,36 +51,7 @@ export default function AsistentChat() {
     }
   }, [botMessages]);
 
-  // Load Assistant User Profile (name and avatarUrl) from database
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const res = await getUsers();
-        const userList = Array.isArray(res) ? res : (res?.data ?? res?.result ?? []);
-        const groqUser = userList.find(u => 
-          u.rol?.toLowerCase() === 'assistant' || 
-          u.email === 'groq@happy-pets.dev' || 
-          u.correo === 'groq@happy-pets.dev'
-        );
-        if (mounted && groqUser) {
-          const avatar = groqUser.avatarUrl || groqUser.avatar_url || groqUser.avatar;
-          const name = groqUser.nombre || groqUser.name;
-          if (avatar) {
-            setBotAvatarUrl(avatar);
-            localStorage.setItem('hp_assistant_avatar_url', avatar);
-          }
-          if (name) {
-            setBotName(name);
-            localStorage.setItem('hp_assistant_name', name);
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching Groq user profile:', err);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
+
 
   // Show "Pregúntame algo" invite bubble periodically when closed
   useEffect(() => {

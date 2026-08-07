@@ -25,10 +25,12 @@ export const fetchProfileName = async () => {
     const data = profile?.data || profile?.user || profile;
     const fullName = data?.name || data?.nombre || null;
     const avatarUrl = data?.avatarUrl || data?.avatar_url || data?.avatar || null;
-    
+    const permissions = data?.permissions ?? null;
+
     return {
       name: fullName ? fullName.split(' ')[0] : null,
-      avatarUrl: avatarUrl
+      avatarUrl: avatarUrl,
+      permissions
     };
   } catch (err) {
     console.error('Error al obtener el perfil en GenericPanel:', err);

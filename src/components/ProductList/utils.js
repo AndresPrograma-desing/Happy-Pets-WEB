@@ -11,7 +11,7 @@ export const useProductListLogic = ({
     const [maxPrice, setMaxPrice] = useState('');
     
     const [page, setPage] = useState(1);
-    const pageSize = 10;
+    const [pageSize, setPageSize] = useState(10); // Estado dinámico de tamaño de página
     const [totalPages, setTotalPages] = useState(1);
 
     const [products, setProducts] = useState([]);
@@ -25,6 +25,12 @@ export const useProductListLogic = ({
     const [alertMessage, setAlertMessage] = useState('');
     const [alertTitle, setAlertTitle] = useState('');
 
+    // Cambiar el tamaño de página y regresar siempre a la primera página
+    const handlePageSizeChange = useCallback((newSize) => {
+        setPageSize(newSize);
+        setPage(1);
+    }, []);
+
     const normalizeProduct = useCallback((p) => {
         const stock = p.stock ?? p.cantidad ?? ((p.existencia_inicial || 0) + (p.entradas || 0) - (p.salidas || 0));
         const price = Number(p.precioVenta ?? p.precio_venta ?? p.price ?? 0);
@@ -36,7 +42,7 @@ export const useProductListLogic = ({
         if (/^\d+$/.test(String(rawCat))) {
             catId = String(rawCat);
         } else if (rawCat) {
-            const found = Object.entries(categoryMap).find(([, name]) =>
+            const found = Object.entries(categoryMap || {}).find(([, name]) =>
                 name.toLowerCase() === String(rawCat).toLowerCase()
             );
             catId = found ? found[0] : '';
@@ -123,7 +129,6 @@ export const useProductListLogic = ({
         }
     };
 
-    // Como el filtrado ya lo realiza el backend, devolvemos la lista directamente
     const filteredProducts = useMemo(() => {
         return products;
     }, [products]);
@@ -140,6 +145,8 @@ export const useProductListLogic = ({
         filterCategory, setFilterCategory,
         maxPrice, setMaxPrice,
         page, setPage,
+        pageSize, setPageSize,
+        handlePageSizeChange,
         totalPages,
         loading, error, refreshing, lastUpdated,
         selectedProduct, setSelectedProduct,

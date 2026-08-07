@@ -1,21 +1,17 @@
 import React from 'react';
-import GenericPanel from '../../components/GenericPanel/GenericPanel';
+import usePanelHeader from '../../components/GenericPanel/usePanelHeader';
 import Dashboard from '../../components/Dashboard/Dashboard';
-import { getText } from '../../constants';
 
 export default function DashboardPage() {
-
+  usePanelHeader({
+    menuTitle: "Panel de Administración",
+    title: "Dashboard",
+    message: "Resumen de ventas"
+  });
 
   return (
-    <GenericPanel
-      menuTitle="Panel de Administración"
-      title="Dashboard"
-      message="Resumen de ventas"
-      role="admin"
-    >
-      <div style={{ marginBottom: 24 }}>
-        <Dashboard />
-      </div>
-    </GenericPanel>
+    <div style={{ marginBottom: 24 }}>
+      <Dashboard />
+    </div>
   );
 }

@@ -17,7 +17,7 @@ import {
   getDayAgendaFromApiSlots
 } from './utils';
 
-import GenericPanel from '../GenericPanel/GenericPanel';
+import usePanelHeader from '../GenericPanel/usePanelHeader';
 import Loading from '../screens/components/Loading/Index.jsx';
 import DrawPanel from '../screens/components/DrawPanel/index.jsx';
 import Badge from '../screens/components/Badge/index.jsx';
@@ -290,12 +290,13 @@ export default function Calendar() {
     return `${weekday}, ${day} de ${monthName} de ${year}`;
   }, [calendarData, selectedDate]);
 
+  usePanelHeader({
+    title: TEXTS.TITLE,
+    message: TEXTS.SUBTITLE
+  });
+
   return (
-    <GenericPanel
-      title={TEXTS.TITLE}
-      message={TEXTS.SUBTITLE}
-      role={userRole}
-    >
+    <>
       <div className={styles.mainContainer}>
         {/* Selector de Doctor (Para Admin/Secretaria) */}
         {!isDoctor && !loadingDoctors && doctorOptions.length > 0 && (
@@ -553,6 +554,6 @@ export default function Calendar() {
           </div>
         )}
       </DrawPanel>
-    </GenericPanel>
+    </>
   );
 }

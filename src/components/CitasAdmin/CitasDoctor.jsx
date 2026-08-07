@@ -6,7 +6,7 @@ import { CustomerAndPetsForm } from '../../pages/DoctorSystem/CreateCustomerAndP
 import ToggleCard from '../screens/components/ToggleCard';
 import { Calendar, ListCheck, Clock } from 'lucide-react';
 import { renderField, formatDate, formatTime, getCitaId, useCitasLogic, CitasModals } from './utils.jsx';
-import GenericPanel from '../GenericPanel/GenericPanel';
+import usePanelHeader from '../GenericPanel/usePanelHeader';
 import DrawPanel from '../screens/components/DrawPanel';
 import Consultas from '../../pages/DoctorSystem/Consultas/Consultas';
 import SearchInput from '../UI/Search/Search';
@@ -86,7 +86,6 @@ function CitasLayout(props) {
     const [isSaveSuccess, setIsSaveSuccess] = useState(undefined);
 
     const {
-        role,
         searchTerm,
         setSearchTerm,
         now,
@@ -323,12 +322,13 @@ const formatFechaToISO = (str) => {
         deletingId
     } = props;
 
+    usePanelHeader({
+        title: titulo || "Panel de Citas",
+        message: descripcion || "Administra las citas y pacientes."
+    });
+
     return (
-        <GenericPanel 
-            title={titulo || "Panel de Citas"} 
-            message={descripcion || "Administra las citas y pacientes."}
-            role={role}
-        >
+        <>
             <div className={styles.metricsRow}>
               <ToggleCard
                 title="Total Citas"
@@ -537,7 +537,7 @@ const formatFechaToISO = (str) => {
                     />
                 )}
             </DrawPanel>
-        </GenericPanel>
+        </>
     );
 }
 

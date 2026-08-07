@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './ChatPanel.module.css';
-import GenericPanel from '../../../components/GenericPanel/GenericPanel';
+import usePanelHeader from '../../../components/GenericPanel/usePanelHeader';
 import { useMessaging } from '../logic/index.js';
 import { Mail } from 'lucide-react';
 import ToggleCard from '../../../components/screens/components/ToggleCard';
@@ -14,19 +14,20 @@ import { renderFormattedText } from '../../../components/screens/components/Gree
 export default function ChatPanel({ currentUserId, pollInterval = 3000 }) {
   const navigate = useNavigate();
   const messagingProps = useMessaging({ currentUserId, pollInterval });
-  const { currentUser, selectedUser, status } = messagingProps;
+  const { selectedUser, status } = messagingProps;
 
   const renderMessageContent = (content) => {
     return renderFormattedText(content, navigate);
   };
 
+  usePanelHeader({
+    title: "Mensajes",
+    message: "Revisa tu bandeja de entrada y comunícate con otros usuarios.",
+    menuTitle: "Bandeja de Entrada"
+  });
+
   return (
-    <GenericPanel
-      title="Mensajes"
-      message="Revisa tu bandeja de entrada y comunícate con otros usuarios."
-      role={currentUser?.rol?.toLowerCase() || 'user'}
-      menuTitle="Bandeja de Entrada"
-    >
+    <>
       <div className={styles.emailContainer}>
         {status.convs || status.users ? (
           <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', height: '100%' }}>
@@ -53,6 +54,6 @@ export default function ChatPanel({ currentUserId, pollInterval = 3000 }) {
           </>
         )}
       </div>
-    </GenericPanel>
+    </>
   );
 }

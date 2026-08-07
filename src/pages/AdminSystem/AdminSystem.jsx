@@ -1,24 +1,25 @@
 import React from 'react';
-import GenericPanel from '../../components/GenericPanel/GenericPanel';
+import usePanelHeader from '../../components/GenericPanel/usePanelHeader';
 import CreatedUser from './CreatedUser';
 import { getText } from '../../constants';
 import DollarCard from '../../components/GenericPanel/Components/Cards/DollarBcv';
 import BillingStatusCard from '../../components/GenericPanel/Components/Cards/BillingStatusCard';
 import Notification from '../../components/GenericPanel/Components/NortificationCard/Notification';
 import styles from '../../styles/card.module.css';
-import useNotifications from '../../hooks/useNotifications';
+import useNotificationsContext from '../../hooks/useNotificationsContext';
 
 function AdminSystem() {
-  const { notifications, loading: notificationsLoading, error: notificationsError } = useNotifications();
+  const { notifications, loading: notificationsLoading, error: notificationsError } = useNotificationsContext();
+
+  usePanelHeader({
+    menuTitle: getText("adminInterface.genericPanelMenuTitle"),
+    title: getText("adminInterface.genericPanelTitle"),
+    message: getText("adminInterface.genericPanelMessage"),
+    showDashboardAvatar: true
+  });
 
   return (
-    <GenericPanel
-      menuTitle={getText("adminInterface.genericPanelMenuTitle")}
-      title={getText("adminInterface.genericPanelTitle")}
-      message={getText("adminInterface.genericPanelMessage")}
-      role="admin"
-      showDashboardAvatar={true}
-    >
+    <>
       <div style={{ marginBottom: 24 }}>
         <CreatedUser />
         <hr style={{ border: '0', borderTop: '1px solid #131414', margin: '1.5rem 0' }} />
@@ -41,7 +42,7 @@ function AdminSystem() {
         </div>
 
       </div>
-    </GenericPanel>
+    </>
   );
 }
 

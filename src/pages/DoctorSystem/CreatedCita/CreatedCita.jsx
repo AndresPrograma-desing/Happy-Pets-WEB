@@ -10,7 +10,7 @@ import CalendarPicker from '../../../components/screens/components/CalendarPicke
 import HoursPicker from '../../../components/screens/components/HoursPicker/Index';
 import CustomSelect from '../../../components/UI/DesplegableSelector/CustomSelect';
 import { normalizeUserMascotaResults } from './utils';
-import GenericPanel from '../../../components/GenericPanel/GenericPanel';
+import usePanelHeader from '../../../components/GenericPanel/usePanelHeader';
 import MultilinePlaceholder from '../../../components/screens/components/Material-UI/Components/MultilinePlaceholder/index';
 import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
 import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
@@ -317,12 +317,13 @@ export default function CreatedCita() {
         }
     };
 
+    usePanelHeader({
+        title: "Agendar nueva cita",
+        message: "Registra los detalles de la consulta, paciente y doctor responsable."
+    });
+
     return (
-        <GenericPanel
-            title="Agendar nueva cita"
-            message="Registra los detalles de la consulta, paciente y doctor responsable."
-            role={activeRole}
-        >
+        <>
             <div className={styles.formWrapper}>
 
                 <form className={styles.modernCard} onSubmit={handleSubmit}>
@@ -512,6 +513,6 @@ export default function CreatedCita() {
                 onClose={() => setShowErrorModal(false)}
                 cancelText="Cerrar"
             />
-        </GenericPanel>
+        </>
     );
 }

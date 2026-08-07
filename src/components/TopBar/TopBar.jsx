@@ -1,10 +1,12 @@
 import React from 'react';
 import { BellPlus, Mail, Pencil, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../screens/components/Button';
 import ModalTooltip from '../ModalTooltip/ModalTooltip';
 import UserAvatar from '../screens/components/Profile/Avatar/Index';
-import useNotifications from '../../hooks/useNotifications';
+import useNotificationsContext from '../../hooks/useNotificationsContext';
 import useUnreadMessagesCount from '../../hooks/useUnreadMessagesCount';
+import { getUserRole } from '../GenericPanel/Routes';
 import styles from './Index.module.css';
 
 const TopBar = ({
@@ -12,12 +14,30 @@ const TopBar = ({
   currentUserName,
   displayRoleName,
   onEditProfileClick,
-  extraActions = [] 
+  extraActions = [],
+  role
 }) => {
-  const { notifications } = useNotifications();
+  const navigate = useNavigate();
+  const { notifications } = useNotificationsContext();
   const unreadNotifications = notifications?.filter(n => !(n.is_read || n.leida || n.read || n.isRead || n.completada || n.completed)) || [];
   const notificationsCount = unreadNotifications.length > 0 ? unreadNotifications.length : (notifications?.length || 0);
   const unreadMessagesCount = useUnreadMessagesCount();
+  
+  const userRole = role || getUserRole();
+  const isAdmin = userRole === 'admin';
+  const isClient = userRole === 'client';
+
+  if (isClient) {
+    return (
+      <header className={styles.topBar}>
+        <div className={styles.topBarContent}>
+          <div className={styles.userBadge} style={{ fontWeight: '600', color: '#0ea5e9', fontSize: '0.95rem' }}>
+            Portal de Clientes
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   // Aquí puedes agregar fácilmente más iconos al TopBar
   const actionIcons = [
@@ -35,28 +55,20 @@ const TopBar = ({
       count: unreadMessagesCount,
       onClick: () => console.log('Abrir mensajes')
     },
-    // Ejemplo de cómo agregar uno nuevo fácilmente:
-    {
-      id: 'settings',
-      icon: <Settings size={18} />,
-      tooltip: 'Configuración',
-      count: 0,
-      onClick: () => console.log('Abrir ajustes')
-    },
     ...extraActions 
   ];
 
   return (
     <header className={styles.topBar}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div className={styles.topBarContent}>
         
         {/* Renderizado automático de los iconos */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <div className={styles.actionsContainer}>
           {actionIcons.map((action) => (
             <div key={action.id} className={styles.iconButtonWrap}>
               <Button
                 variant={Button.VARIANTS.GHOST}
-                style={{ minWidth: 0, padding: '8px', color: '#ffffff' }}
+                className={styles.actionIconButton}
                 aria-label={action.tooltip}
                 onClick={action.onClick}
               >
@@ -71,12 +83,30 @@ const TopBar = ({
               )}
             </div>
           ))}
+
+          {isAdmin && (
+            <>
+              <div className={styles.separator} />
+              <div className={styles.iconButtonWrap}>
+                <Button
+                  variant={Button.VARIANTS.GHOST}
+                  className={styles.actionIconButton}
+                  aria-label="Ajustes."
+                  onClick={() => navigate('/AdminSystem/settings')}
+                >
+                  <ModalTooltip text="Ajustes del Sistema" position="bottom">
+                    <Settings size={18} />
+                  </ModalTooltip>
+                </Button>
+              </div>
+            </>
+          )}
         </div>
 
-        <div style={{ width: '1px', height: '24px', backgroundColor: 'rgba(255,255,255,0.3)' }} />
+        <div className={styles.mainSeparator} />
 
         {/* Info del Usuario */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className={styles.userInfoContainer}>
           <UserAvatar
             src={currentAvatar}
             name={currentUserName}
@@ -89,7 +119,7 @@ const TopBar = ({
           <Button
             variant={Button.VARIANTS.GHOST}
             onClick={onEditProfileClick}
-            style={{ minWidth: 0, padding: '4px', color: '#ffffff' }}
+            className={styles.profileButton}
             aria-label="Editar perfil"
           >
              <ModalTooltip text="Editar Perfil" position="bottom">
@@ -101,6 +131,7 @@ const TopBar = ({
       </div>
     </header>
   );
+
 };
 
 export default TopBar;

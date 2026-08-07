@@ -10,18 +10,26 @@ export default function Container({
   paginationPage = 1,
   onPaginationChange,
   paginationProps = {},
+  pageSize = 10,
+  pageSizeOptions = [5, 10, 20, 50],
+  onPageSizeChange,
   ...props 
 }) {
   return (
     <div className={`${styles.containerCard} ${className}`} {...props}>
       {children}
       {showPagination && (
-        <Paginador 
-          count={paginationCount} 
-          page={paginationPage} 
-          onChange={onPaginationChange} 
-          {...paginationProps}
-        />
+        <div className={styles.paginationContainer}>
+          <Paginador 
+            count={paginationCount} 
+            page={paginationPage} 
+            onChange={onPaginationChange} 
+            pageSize={pageSize}
+            pageSizeOptions={pageSizeOptions}
+            onPageSizeChange={onPageSizeChange}
+            {...paginationProps}
+          />
+        </div>
       )}
     </div>
   );

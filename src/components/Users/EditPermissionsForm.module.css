@@ -1,0 +1,24 @@
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 160px;
+  width: 100%;
+}
+
+.descriptionText {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+.noOptionsText {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.permissionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}

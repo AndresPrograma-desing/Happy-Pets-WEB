@@ -44,11 +44,6 @@ export const TEXT_PORTAL = {
         }
     },
     security: {
-        title: "Verificación de Seguridad",
-        content: "Por motivos de seguridad, por favor indícanos de qué color es tu mascota registrada.",
-        inputLabel: "Color de tu mascota",
-        inputPlaceholder: "Ej: Blanco con manchas negras",
-        verifyButton: "Verificar Identidad",
-        errorMessage: "El color no coincide o es inválido. Intenta nuevamente."
+        errorMessage: "El propietario no fue encontrado o la mascota no está asociada a esta cuenta. Intenta de nuevo."
     }
 };

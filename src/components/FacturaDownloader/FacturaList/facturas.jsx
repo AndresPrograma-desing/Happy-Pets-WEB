@@ -4,7 +4,7 @@ import { sendEmails } from '../../../services/api/emails';
 import AlertModal from '../../AlertModal/AlertModal';
 import { QRCodeCanvas } from 'qrcode.react';
 import { RotateCw, FileText, FileClock, Ban, Inbox, Search, X } from 'lucide-react';
-import GenericPanel from '../../GenericPanel/GenericPanel';
+import usePanelHeader from '../../GenericPanel/usePanelHeader';
 import Button from '../../screens/components/Button';
 import TableB from '../../screens/components/TableB/index';
 import SwitchComponent from '../../screens/components/Swich/Index';
@@ -108,16 +108,17 @@ export default function Facturas() {
   const itemsPerPage = 8;
   const pageCount = Math.ceil(visibleFacturas.length / itemsPerPage) || 1;
 
+  usePanelHeader({
+    title: TEXT_FACTURAS_LIST.title,
+    menuTitle: TEXT_FACTURAS_LIST.menuTitle,
+    showPagination: true,
+    paginationCount: pageCount,
+    paginationPage: page,
+    onPaginationChange: (e, v) => setPage(v)
+  });
+
   return (
-    <GenericPanel 
-      title={TEXT_FACTURAS_LIST.title} 
-      menuTitle={TEXT_FACTURAS_LIST.menuTitle} 
-      role="secretaria"
-      showPagination={true}
-      paginationCount={pageCount}
-      paginationPage={page}
-      onPaginationChange={(e, v) => setPage(v)}
-    >
+    <>
       <div className={styles.container}>
         <div className={styles.headerControlsContainer}>
           <div className={styles.leftControls} style={{ flex: 1, maxWidth: '750px', flexWrap: 'nowrap' }}>
@@ -223,6 +224,6 @@ export default function Facturas() {
           </AlertModal>
         )}
       </div>
-    </GenericPanel>
+    </>
   );
 }

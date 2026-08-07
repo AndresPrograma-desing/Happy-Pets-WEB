@@ -1,0 +1,27 @@
+.itemContainer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: left !important;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.itemContainer:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.checked {
+  background-color: rgba(25, 118, 210, 0.08);
+}
+
+.label {
+  font-size: 0.95rem;
+  color: #333;
+  margin-left: 8px;
+}

@@ -5,7 +5,7 @@ import styles from './CustumerAndPets.module.css';
 import CalendarPicker from '../../../components/screens/components/CalendarPicker/Index';
 import AlertModal from '../../../components/AlertModal/AlertModal'; 
 import { User, Mail, Phone, MapPin, IdCard, PawPrint, Award, Palette, HeartHandshake, Weight, Activity, ShieldAlert, Notebook,Dna } from 'lucide-react';
-import GenericPanel from '../../../components/GenericPanel/GenericPanel';
+import usePanelHeader from '../../../components/GenericPanel/usePanelHeader';
 import Button, { COLORS } from '../../../components/screens/components/Button';
 import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
 import CountdownBar from '../../../components/screens/components/CountdownBar';
@@ -319,11 +319,14 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
 export default function CustomerAndPets() {
     const navigate = useNavigate();
 
+    usePanelHeader({
+        title: "Crear Cliente y Mascota",
+        message: "Registra un nuevo usuario con los detalles de su mascota"
+    });
+
     return (
-        <GenericPanel title="Crear Cliente y Mascota" message="Registra un nuevo usuario con los detalles de su mascota" role="secretaria">
-            <div className={styles.container}>
-                <CustomerAndPetsForm onCreated={() => navigate(-1)} onCancel={() => navigate(-1)} />
-            </div>
-        </GenericPanel>
+        <div className={styles.container}>
+            <CustomerAndPetsForm onCreated={() => navigate(-1)} onCancel={() => navigate(-1)} />
+        </div>
     );
 }

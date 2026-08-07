@@ -1,5 +1,5 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react';
-import GenericPanel from '../GenericPanel/GenericPanel';
+import React, { useCallback, useRef, useMemo } from 'react';
+import usePanelHeader from '../GenericPanel/usePanelHeader';
 import { PackageSearch } from 'lucide-react';
 import styles from './ProductList.module.css';
 import Filter from '../screens/components/Filter/Index';
@@ -25,6 +25,8 @@ export default function ProductList() {
         filterCategory, setFilterCategory,
         maxPrice, setMaxPrice,
         page, setPage,
+        pageSize,
+        handlePageSizeChange,
         totalPages,
         loading, error, refreshing, lastUpdated,
         selectedProduct, setSelectedProduct,
@@ -136,16 +138,20 @@ export default function ProductList() {
         }
     ];
 
+    usePanelHeader({
+        title: "Inventario de Productos",
+        menuTitle: "Panel de Administración",
+        showPagination: true,
+        paginationCount: totalPages,
+        paginationPage: page,
+        onPaginationChange: (e, p) => setPage(p),
+        pageSize,
+        pageSizeOptions: [5, 10, 20, 50],
+        onPageSizeChange: handlePageSizeChange
+    });
+
     return (
-        <GenericPanel
-            title="Inventario de Productos"
-            role="admin"
-            menuTitle="Panel de Administración"
-            showPagination={true}
-            paginationCount={totalPages}
-            paginationPage={page}
-            onPaginationChange={(e, p) => setPage(p)}
-        >
+        <>
             <div className={styles.content}>
                 <Filter
                     onClear={handleClearFilters}
@@ -198,7 +204,7 @@ export default function ProductList() {
                         }}
                     />
                 </div>
-
+{/* 
                 <div className={styles.footer}>
                     <span className={styles.iconText}>
                         <img src={getIcon('fileCheck')} alt="Sinc" />
@@ -213,9 +219,9 @@ export default function ProductList() {
                             </span>
                         </>
                     )}
-                </div>
+                </div> */}
 
-                <DrawPanel
+            <DrawPanel
                     isOpen={alertOpen && !!selectedProduct}
                     title={alertTitle}
                     confirmText="Actualizar"
@@ -223,7 +229,7 @@ export default function ProductList() {
                     onClose={() => { setAlertOpen(false); setSelectedProduct(null); }}
                     onConfirm={handleConfirmModal}
                     showActions={true}
-                    width="600px"
+                    
                 >
                     {selectedProduct && (
                         <EditProducts
@@ -249,6 +255,6 @@ export default function ProductList() {
                     <p>{alertMessage}</p>
                 </AlertModal>
             </div>
-        </GenericPanel>
+        </>
     );
 }

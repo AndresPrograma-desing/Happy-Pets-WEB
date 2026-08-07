@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import style from "./settings.module.css";
 import AlertModal from "../../../components/AlertModal/AlertModal";
-import GenericPanel from "../../../components/GenericPanel/GenericPanel";
+import usePanelHeader from "../../../components/GenericPanel/usePanelHeader";
 import { KeyRound, FileText, Settings2, ClipboardIcon, CircleDollarSign, Mail, Eye, EyeOff, Sparkles } from "lucide-react";
 import Report from "./Components/Report/index";
 import { getText } from "../../../constants";
@@ -33,13 +33,14 @@ const Settings = () => {
     setActiveMenu(activeMenu === menuName ? null : menuName);
   };
 
+  usePanelHeader({
+    title: getText("setting.tittle"),
+    message: getText("setting.subTittle"),
+    menuTitle: "Ajustes"
+  });
+
   return (
-    <GenericPanel
-      title={getText("setting.tittle")}
-      message={getText("setting.subTittle")}
-      role="admin"
-      menuTitle="Ajustes"
-    >
+    <>
       <div className={style.container}>
 
         <section className={style.section}>
@@ -192,7 +193,7 @@ const Settings = () => {
           onSaveEnd={() => setGroqLoading(false)}
         />
       </DrawPanel>
-    </GenericPanel>
+    </>
   );
 };
 

@@ -105,7 +105,49 @@ export async function request(path, { method = 'GET', body, headers = {}, auth =
       const end = start + pageSize;
       return logs.slice(start, end);
     }
-    
+    if (lowerPath.includes('/clients/validate')) {
+      return {
+        id: 1,
+        nombre: "Ignacio",
+        apellido: "Andres",
+        email: "ignacioangel671@gmail.com",
+        identificacion: "V-12345678",
+        mascotas: [
+          {
+            id: 1,
+            nombre: "Firulais"
+          },
+          {
+            id: 11,
+            nombre: "doki"
+          }
+        ]
+      };
+    }
+    if (lowerPath.includes('/medicalhistory/mascota/')) {
+      const petId = path.split('/').pop() || '1';
+      const petName = petId === '1' ? 'Firulais' : 'doki';
+      const petColor = petId === '1' ? 'Marrón' : 'Gris';
+      return {
+        mascota: {
+          id: Number(petId),
+          nombre: petName,
+          especie: petId === '1' ? 'Perro' : 'Gato',
+          raza: petId === '1' ? 'Golden Retriever' : 'Siamés',
+          fechaNacimiento: petId === '1' ? '2021-08-01' : '2022-05-15',
+          color: petColor
+        },
+        consultas: [
+          {
+            id: 1,
+            fecha_consulta: '2026-07-15T10:00:00.000Z',
+            doctor_nombre: 'Dr. Ramírez',
+            receta: 'Vitamina C, 1 pastilla diaria por 30 días.'
+          }
+        ]
+      };
+    }
+
     // Default mock response for unhandled endpoints
     console.warn(`[Mock] Unhandled dummy endpoint: ${path}`);
     return { success: true, dummyFallback: true };

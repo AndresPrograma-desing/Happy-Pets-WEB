@@ -3,16 +3,19 @@ import { useNavigate } from "react-router-dom";
 import Popover from '@mui/material/Popover';
 
 import { users, enableUser, disableUser, deleteUser } from "../../services/api";
-import { Trash2, UserX, UserCheck, MoreVertical, Pencil } from "lucide-react";
+import { Trash2, UserX, UserCheck, MoreVertical, Pencil, ShieldCheck } from "lucide-react";
 import AlertModal from "../AlertModal/AlertModal";
-import GenericPanel from "../GenericPanel/GenericPanel";
+import usePanelHeader from "../GenericPanel/usePanelHeader";
 import TableA from "../screens/components/TableA";
 import UserAvatar from "../screens/components/Profile/Avatar/Index";
 
+import { EDIT_PERMISSIONS_TEXT } from "./constants";
+
 // Asegúrate de que estas rutas coincidan con tu estructura de archivos
 import Button from "../screens/components/Button/index";
-import EditProfileForm from "../EditProfile/EditProfile"; 
-import DrawPanel from "../screens/components/DrawPanel/index"; // Ruta a tu nuevo componente DrawPanel
+import EditProfileForm from "../EditProfile/EditProfile";
+import EditPermissionsForm from "./EditPermissionsForm";
+import DrawPanel from "../screens/components/DrawPanel/index";  
 
 const Users = () => {
   const [userList, setUserList] = useState([]);
@@ -32,6 +35,13 @@ const Users = () => {
   // Estados para el panel lateral de edición
   const [showEditModal, setShowEditModal] = useState(false);
   const [editLoading, setEditLoading] = useState(false); // Para deshabilitar botones al guardar
+
+  // Estados para el panel lateral de permisos
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [permissionsLoading, setPermissionsLoading] = useState(false);
+
+  // Estado para capturar la selección genérica del formulario de permisos
+  const [permissionsState, setPermissionsState] = useState({ total: [], selected: [] });
 
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
@@ -92,6 +102,20 @@ const Users = () => {
   const handleEditClick = () => {
     setShowEditModal(true);
     handleCloseMenu();
+  };
+
+  const handleEditPermissionsClick = () => {
+    // Reseteamos el estado de selección al abrir
+    setPermissionsState({ total: [], selected: [] });
+    setShowPermissionsModal(true);
+    handleCloseMenu();
+  };
+
+  const handlePermissionsSuccess = () => {
+    setShowPermissionsModal(false);
+    setAlertMessage("Permisos actualizados correctamente");
+    setAlertType("success");
+    setShowAlert(true);
   };
 
   const confirmToggleStatus = async () => {
@@ -203,18 +227,18 @@ const Users = () => {
     }
   ];
 
+  usePanelHeader({
+    title: "Gestión de Usuarios",
+    message: "Administra los usuarios del sistema, sus roles y estados.",
+    menuTitle: "Panel de Administración",
+    showPagination: true,
+    paginationCount: pageCount,
+    paginationPage: page,
+    onPaginationChange: (e, v) => setPage(v)
+  });
+
   return (
-    <GenericPanel
-      title="Gestión de Usuarios"
-      message="Administra los usuarios del sistema, sus roles y estados."
-      role="admin"
-      menuTitle="Panel de Administración"
-      showPagination={true}
-      paginationCount={pageCount}
-      paginationPage={page}
-      onPaginationChange={(e, v) => setPage(v)}
-    >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
         
         <TableA
           columns={columns}
@@ -245,6 +269,16 @@ const Users = () => {
               Editar usuario
             </Button>
             
+            <Button
+              variant="ghost"
+              icon={ShieldCheck}
+              onClick={handleEditPermissionsClick}
+              style={{ justifyContent: 'flex-start', fontWeight: 500 }}
+              fullWidth
+            >
+              Editar permisos
+            </Button>
+
             <Button
               variant="ghost"
               icon={activeUser?.activo ? UserX : UserCheck}
@@ -299,6 +333,41 @@ const Users = () => {
           )}
         </DrawPanel>
 
+        {/* DrawPanel para Editar Permisos */}
+        <DrawPanel
+          isOpen={showPermissionsModal}
+          onClose={() => setShowPermissionsModal(false)}
+          title="Editar Permisos"
+          description={EDIT_PERMISSIONS_TEXT.description}
+          width="420px"
+          showActions={true}
+          confirmText="Guardar Permisos"
+          cancelText="Cancelar"
+          formId="edit-permissions-form"
+          loading={permissionsLoading}
+          showCountdown={true}
+          progressMode="selection"
+          totalItems={permissionsState.total}
+          selectedItems={permissionsState.selected}
+        >
+          {activeUser && (
+            <EditPermissionsForm
+              formId="edit-permissions-form"
+              userId={activeUser.id}
+              role={activeUser.rol}
+              onSelectionChange={setPermissionsState}
+              onSaveStart={() => setPermissionsLoading(true)}
+              onSaveEnd={() => setPermissionsLoading(false)}
+              onSuccess={handlePermissionsSuccess}
+              onError={(err) => {
+                setAlertMessage(err || "Error al actualizar los permisos");
+                setAlertType("error");
+                setShowAlert(true);
+              }}
+            />
+          )}
+        </DrawPanel>
+
         {/* Modales de Confirmación y Alertas */}
         {showAlert && (
           <AlertModal message={alertMessage} type={alertType} onClose={() => setShowAlert(false)} />
@@ -328,7 +397,6 @@ const Users = () => {
           />
         )}
       </div>
-    </GenericPanel>
   );
 };
 
