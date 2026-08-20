@@ -31,7 +31,8 @@ export default function ScrollBar({
         style={{
           overflowY: vertical ? 'auto' : 'hidden',
           overflowX: horizontal ? 'auto' : 'hidden',
-          maxHeight
+          maxHeight,
+          height: vertical ? undefined : 'auto'
         }}
         onScroll={handleScroll}
       >
