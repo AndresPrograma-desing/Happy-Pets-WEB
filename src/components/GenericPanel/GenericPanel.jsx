@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Award, Download , IdCard} from 'lucide-react';
 import Input from '../screens/components/Input/Index';
 import StatusModal from '../common/statusWarning';
 import { getUserId } from '../../context/LocalStorage';
@@ -7,8 +7,9 @@ import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import styles from './GenericPanel.module.css';
 import AlertModal from '../AlertModal/AlertModal';
 import Footer from '../Footer/Footer';
-import { Link2, Users, BotIcon, Check, X, CircleUser, AlertCircle, LogOut } from 'lucide-react';
+import { Link2, Users, BotIcon, Check, X, CircleUser, AlertCircle, LogOut, ShieldAlert } from 'lucide-react';
 import { logout, getUserNameFromLoginSession } from '../../services/api';
+import { getCredencialPdf } from '../../services/api/pdf';
 import { getText } from '../../constants';
 import NotificationForm from '../NotificationForm/NotificationForm';
 import WhatsAppStatusModal from '../WSMessage/components/WhatsAppStatusModal';
@@ -47,7 +48,8 @@ function GenericPanel({
   paginationProps = {},
   pageSize,
   pageSizeOptions,
-  onPageSizeChange
+  onPageSizeChange,
+  sidebarLoading = false
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,6 +65,12 @@ function GenericPanel({
   const [loggedOut, setLoggedOut] = useState(false);
   const [currentUserName, setCurrentUserName] = useState(() => getUserNameFromLoginSession());
   const [globalApiError, setGlobalApiError] = useState(null);
+
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [pdfFilename, setPdfFilename] = useState('');
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState(null);
 
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [currentAvatar, setCurrentAvatar] = useState(() => {
@@ -193,6 +201,65 @@ function GenericPanel({
     setLoggedOut(true);
   };
 
+  const generateCertificate = () => {
+    setGeneratingPdf(true);
+    setPdfError(null);
+    
+    const id = getUserId();
+    if (!id) {
+      setPdfError('ID de usuario no encontrado en la sesión.');
+      setGeneratingPdf(false);
+      return;
+    }
+    
+    getCredencialPdf(id)
+      .then((res) => {
+        const { blob, filename } = res || {};
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          setPdfUrl(url);
+          setPdfFilename(filename || '');
+        } else {
+          throw new Error('No se pudo obtener el archivo de certificado.');
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setPdfError(err?.message || 'Error al generar el certificado.');
+      })
+      .finally(() => {
+        setGeneratingPdf(false);
+      });
+  };
+
+  const handleDownloadPdf = () => {
+    setIsPdfModalOpen(true);
+    setPdfUrl(null);
+    setPdfFilename('');
+    setGeneratingPdf(true);
+    setPdfError(null);
+    generateCertificate();
+  };
+
+  const downloadPdfFile = () => {
+    if (!pdfUrl) return;
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.download = pdfFilename || `certificado_${getUserId() || 'usuario'}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleClosePdfModal = () => {
+    setIsPdfModalOpen(false);
+    if (pdfUrl) {
+      URL.revokeObjectURL(pdfUrl);
+      setPdfUrl(null);
+    }
+    setPdfFilename('');
+  };
+
   if (loggedOut) return <Navigate to="/login" replace />;
 
   const userId = getUserId();
@@ -251,37 +318,54 @@ function GenericPanel({
             </Button>
           </div>
 
-          <nav className={styles.sidebarNav}>
-            {filteredItems.map((it) => {
-              const hasSubItems = it.subItems && it.subItems.length > 0;
-
-              return (
-                <div key={it.label} style={{ width: '100%' }}>
-                  {hasSubItems ? (
-                    <MenuPopover 
-                      item={it} 
-                      styles={styles} 
-                      renderIcon={renderIcon} 
-                      onNavigate={handleNavigate} 
-                      isCollapsed={isCollapsed}
-                    />
-                  ) : (
-                    <Button
-                      variant={Button.VARIANTS.GHOST}
-                      color="inherit"
-                      className={`${styles.navItem} ${location.pathname === it.path ? styles.activeNavItem : ''}`}
-                      onClick={() => handleNavigate(it)}
-                      style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', textTransform: 'none' }}
-                      title={isCollapsed ? it.label : undefined}
-                    >
-                      {renderIcon(it.icon, styles.icon)}
-                      {!isCollapsed && <span style={{ flex: 1, textAlign: 'left' }}>{it.label}</span>}
-                    </Button>
-                  )}
+          {sidebarLoading || showOverlay ? (
+            <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', padding: '2rem 0' }}>
+              <Loading size="medium" text={isCollapsed ? "" : "Cargando"} />
+            </div>
+          ) : (
+            <nav className={styles.sidebarNav}>
+              {items.length === 0 ? (
+                <div className={styles.noPermissionsMessage}>
+                  <ShieldAlert size={24} className={styles.noPermissionsIcon} />
+                  <span>{isCollapsed ? "Sin permisos" : "Sin permisos asignados"}</span>
                 </div>
-              );
-            })}
-          </nav>
+              ) : filteredItems.length === 0 ? (
+                <div className={styles.noResultsMessage}>
+                  {isCollapsed ? "No hay" : "No se encontraron resultados"}
+                </div>
+              ) : (
+                filteredItems.map((it) => {
+                  const hasSubItems = it.subItems && it.subItems.length > 0;
+
+                  return (
+                    <div key={it.label} style={{ width: '100%' }}>
+                      {hasSubItems ? (
+                        <MenuPopover 
+                          item={it} 
+                          styles={styles} 
+                          renderIcon={renderIcon} 
+                          onNavigate={handleNavigate} 
+                          isCollapsed={isCollapsed}
+                        />
+                      ) : (
+                        <Button
+                          variant={Button.VARIANTS.GHOST}
+                          color="inherit"
+                          className={`${styles.navItem} ${location.pathname === it.path ? styles.activeNavItem : ''}`}
+                          onClick={() => handleNavigate(it)}
+                          style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', textTransform: 'none' }}
+                          title={isCollapsed ? it.label : undefined}
+                        >
+                          {renderIcon(it.icon, styles.icon)}
+                          {!isCollapsed && <span style={{ flex: 1, textAlign: 'left' }}>{it.label}</span>}
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </nav>
+          )}
 
           {role !== 'client' && (
             <div className={styles.sidebarFooter}>
@@ -335,12 +419,21 @@ function GenericPanel({
                   {message && <p className={styles.mainMessage}>{message}</p>}
                 </div>
                 {showDashboardAvatar && (
-                  <div className={styles.dashboardAvatarWrap}>
+                  <div className={styles.dashboardAvatarWrap} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                     <UserAvatar 
                       src={currentAvatar} 
                       name={currentUserName} 
                       size={140} 
                     />
+                    <Button
+                      size={Button.SIZES.SMALL}
+                      variant={Button.VARIANTS.OUTLINE}
+                      onClick={handleDownloadPdf}
+                      icon={IdCard}
+                      style={{ marginTop: '4px' }}
+                    >
+                      Descargar Certificado
+                    </Button>
                   </div>
                 )}
               </div>
@@ -383,6 +476,37 @@ function GenericPanel({
           hideActions={true}
         >
           <WhatsAppStatusModal />
+        </AlertModal>
+
+        <AlertModal
+          open={isPdfModalOpen}
+          title="Certificado Profesional"
+          onClose={handleClosePdfModal}
+          onConfirm={pdfUrl ? downloadPdfFile : generateCertificate}
+          confirmText={pdfUrl ? "Descargar" : "Reintentar"}
+          cancelText={pdfUrl ? "Cerrar" : "Cancelar"}
+          hideActions={generatingPdf}
+          showWarningIcon={false}
+        >
+          {generatingPdf && (
+            <div style={{ padding: '20px 0' }}>
+              <Loading text="Generando certificado, por favor espere..." />
+            </div>
+          )}
+          {pdfError && (
+            <p style={{ color: 'var(--red-primary, #dc2626)', textAlign: 'center', margin: '20px 0' }}>
+              {pdfError}
+            </p>
+          )}
+          {pdfUrl && (
+            <iframe 
+              src={pdfUrl} 
+              title="Certificado" 
+              width="100%" 
+              height="450px" 
+              style={{ border: 'none', borderRadius: '4px', marginTop: '10px' }} 
+            />
+          )}
         </AlertModal>
 
         <DrawPanel

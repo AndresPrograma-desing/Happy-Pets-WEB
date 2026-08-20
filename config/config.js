@@ -31,6 +31,18 @@ export const DEV_URL_API = {
     baseURL: getBaseURL()
 };
 
+// Selecciona la URL del Portal de Clientes
+const getClientPortalURL = () => {
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+        if (import.meta.env.VITE_CLIENT_PORTAL_URL) {
+            return import.meta.env.VITE_CLIENT_PORTAL_URL;
+        }
+    }
+    return "http://localhost:5174/client";
+};
+
+export const CLIENT_PORTAL_URL = getClientPortalURL();
+
 // Flag to use dummy data without a backend API (dynamic via localStorage)
 export const isDummyModeActive = () => {
     if (typeof window !== 'undefined') {

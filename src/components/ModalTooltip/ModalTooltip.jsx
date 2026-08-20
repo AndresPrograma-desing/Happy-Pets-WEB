@@ -1,68 +1,116 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import styles from "./ModalTooltip.module.css";
-import { getIcon } from "../../assets/icons/ExportIcon/Index";
 
-const ModalTooltip = ({ text, children, position = "top", style, ...props }) => {
+const ModalTooltip = ({ 
+  text, 
+  children, 
+  position = "top", 
+  delay = 150, 
+  style, 
+  ...props 
+}) => {
   const [visible, setVisible] = useState(false);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const [activePos, setActivePos] = useState(position);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  
   const triggerRef = useRef(null);
+  const tooltipRef = useRef(null);
+  const timeoutRef = useRef(null);
 
-  useEffect(() => {
-    if (visible && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      const left = rect.left + window.scrollX + rect.width / 2;
-      
-      const top = position === "bottom"
-        ? rect.bottom + window.scrollY + 12 
-        : rect.top + window.scrollY - 12;   
+  // Cálculo preciso de posición con prevención de colisiones con los bordes del viewport
+  const updatePosition = useCallback(() => {
+    if (!triggerRef.current) return;
 
-      setPos({ top, left });
+    const triggerRect = triggerRef.current.getBoundingClientRect();
+    const gap = 8; // Distancia entre el trigger y el tooltip
+    let currentPos = position;
+
+    // Dimensiones reales del tooltip
+    const tooltipWidth = tooltipRef.current ? tooltipRef.current.offsetWidth : 200;
+    const tooltipHeight = tooltipRef.current ? tooltipRef.current.offsetHeight : 36;
+
+    // Inversión automática si colisiona arriba/abajo
+    if (position === "top" && triggerRect.top - tooltipHeight - gap < 0) {
+      currentPos = "bottom";
+    } else if (position === "bottom" && triggerRect.bottom + tooltipHeight + gap > window.innerHeight) {
+      currentPos = "top";
     }
-  }, [visible, position]);
+
+    setActivePos(currentPos);
+
+    // Calcular Top
+    let top = currentPos === "bottom" 
+      ? triggerRect.bottom + window.scrollY + gap 
+      : triggerRect.top + window.scrollY - gap;
+
+    // Calcular Left con clamp para que nunca se salga horizontalmente
+    let left = triggerRect.left + window.scrollX + triggerRect.width / 2;
+    const minLeft = tooltipWidth / 2 + 10;
+    const maxLeft = window.innerWidth - tooltipWidth / 2 - 10;
+    left = Math.max(minLeft, Math.min(left, maxLeft));
+
+    setCoords({ top, left });
+  }, [position]);
+
+  // Listener global de scroll y resize cuando está visible
+  useEffect(() => {
+    if (!visible) return;
+
+    updatePosition();
+
+    const handleScrollOrResize = () => updatePosition();
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
+
+    return () => {
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [visible, updatePosition]);
+
+  const handleMouseEnter = () => {
+    timeoutRef.current = setTimeout(() => {
+      setVisible(true);
+    }, delay);
+  };
+
+  const handleMouseLeave = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setVisible(false);
+  };
 
   return (
     <span
       ref={triggerRef}
       className={styles.container}
-      onMouseEnter={() => setVisible(true)}
-      onMouseLeave={() => setVisible(false)}
-      style={{ 
-        position: 'relative', 
-        display: 'inline-flex', 
-        alignItems: 'center', 
-        height: 'fit-content',
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        position: "relative",
         ...style
       }}
       {...props}
     >
       {children}
-      {visible && typeof document !== 'undefined' && createPortal(
-        <div
-          className={`${styles.modalTooltip} ${position === "bottom" ? styles.modalTooltipBottom : styles.modalTooltipTop}`}
-          style={{
-            position: 'absolute',
-            top: pos.top,
-            left: pos.left,
-            transform: position === "bottom" ? 'translate(-50%, 0)' : 'translate(-50%, -100%)', 
-            zIndex: 99999,
-            width: 'max-content',
-            maxWidth: 400,
-            background: 'rgba(24, 24, 27, 0.95)',
-            backdropFilter: 'blur(4px)',
-            color: '#fafafa',
-            padding: '8px 12px',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontWeight: 500,
-            boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
-            pointerEvents: 'none',
-          }}
-        >
-          {text}
-        </div>,
-        document.body
-      )}
+      {visible &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={tooltipRef}
+            className={`${styles.tooltip} ${styles[activePos]}`}
+            style={{
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+            }}
+          >
+            {text}
+            <span className={styles.arrow} />
+          </div>,
+          document.body
+        )}
     </span>
   );
 };

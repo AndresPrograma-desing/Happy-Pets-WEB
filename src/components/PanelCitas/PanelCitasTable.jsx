@@ -18,11 +18,17 @@ function PanelCitasTable({
   formatTime,
   getCitaId,
   onDelete,
-  onCancel, // Nuevo prop para cancelar
-  onEdit, // Nuevo prop para editar
+  onCancel,
+  onEdit,
   primaryActionLabel,
   onPrimaryAction,
   onViewHistory,
+  paginationPage,
+  paginationCount,
+  onPaginationChange,
+  pageSize,
+  onPageSizeChange,
+  pageSizeOptions,
 }) {
   const navigate = useNavigate();
   const columns = [
@@ -195,21 +201,32 @@ function PanelCitasTable({
     );
   };
 
-  const [page, setPage] = useState(1);
+  const [localPage, setLocalPage] = useState(1);
   const itemsPerPage = 8;
-  const pageCount = Math.ceil((listaCitas || []).length / itemsPerPage) || 1;
+  const localPageCount = Math.ceil((listaCitas || []).length / itemsPerPage) || 1;
+
+  const page = paginationPage !== undefined ? paginationPage : localPage;
+  const pageCount = paginationCount !== undefined ? paginationCount : localPageCount;
+  const handlePageChange = onPaginationChange !== undefined ? onPaginationChange : (e, v) => setLocalPage(v);
+
+  const paginatedData = paginationPage !== undefined
+    ? listaCitas
+    : (listaCitas || []).slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
     <Container 
       showPagination={true}
       paginationCount={pageCount}
       paginationPage={page}
-      onPaginationChange={(e, v) => setPage(v)}
+      onPaginationChange={handlePageChange}
+      pageSize={pageSize}
+      onPageSizeChange={onPageSizeChange}
+      pageSizeOptions={pageSizeOptions}
       style={{ padding: 0, boxShadow: 'none', background: 'transparent' }}
     >
       <TableB
         columns={columns}
-        data={listaCitas}
+        data={paginatedData}
         loading={loading}
         rowKey={(row) => getCitaId(row)}
         emptyMessage="No hay citas registradas."

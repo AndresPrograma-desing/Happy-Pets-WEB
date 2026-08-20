@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link2, BellPlus, Users, BotIcon, Mail } from 'lucide-react';
+import { Link2, BellPlus, Users, BotIcon, Mail, Activity } from 'lucide-react';
 import { getText } from '../../constants';
 
 export const getUserRole = () => {
@@ -38,7 +38,7 @@ export const getUserPermissions = () => {
 // Filtra los items (y sub-items) del sidebar según las claves de permiso otorgadas.
 // Si permissions es null/undefined, devuelve los items sin cambios (fallback al menú del rol).
 export const filterMenuByPermissions = (items, permissions) => {
-  if (!permissions) return items;
+  if (!permissions) return [];
 
   return items.reduce((acc, item) => {
     if (item.subItems && item.subItems.length > 0) {
@@ -97,6 +97,15 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     { label: getText("generalPanelTexts.optionsNavegations.notificationCreated"), icon: <BellPlus />, onClick: () => setShowNotificationModal(true), permissionKey: 'admin.notifications.create' },
     { label: getText("generalPanelTexts.optionsNavegations.clientList"), path: '/clients', icon: <Users />, permissionKey: 'admin.clients' },
     { label: 'Plantillas Emails', path: '/AdminSystem/emails', icon: <Mail />, permissionKey: 'admin.emails' },
+    {
+      label: 'Vacunas', icon: <Activity />,
+      subItems: [
+        { label: 'Ver vacunas', path: '/AdminSystem/vaccines', state: { view: 'list' }, permissionKey: 'admin.vaccines.view' },
+        { label: 'Crear vacuna', path: '/AdminSystem/vaccines', state: { view: 'manage', openCreate: true }, permissionKey: 'admin.vaccines.manage' },
+        { label: 'Vacunas pendientes', path: '/AdminSystem/vaccines', state: { view: 'pending' }, permissionKey: 'admin.vaccines.pending' },
+        { label: 'Lotes de vacunas', path: '/AdminSystem/vaccines', state: { view: 'batches' }, permissionKey: 'admin.vaccines.batches' }
+      ]
+    },
     { label: getText("adminInterface.menuItemSettings"), path: '/AdminSystem/settings', icon: 'engranaje', permissionKey: 'admin.settings' },
   ],
   secretaria: [
@@ -113,6 +122,15 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     { label: 'Gestion de Recibos', path: '/factura-manager', icon: 'fileText', permissionKey: 'secretaria.invoices.manage' },
     { label: 'Mensajes', path: '/panel-menssage', icon: 'message', permissionKey: 'secretaria.messages' },
     { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck', permissionKey: 'secretaria.invoices.view' },
+    {
+      label: 'Vacunas', icon: <Activity />,
+      subItems: [
+        { label: 'Ver vacunas', path: '/AdminSystem/vaccines', state: { view: 'list' }, permissionKey: 'secretaria.vaccines.view' },
+        { label: 'Crear vacuna', path: '/AdminSystem/vaccines', state: { view: 'manage', openCreate: true }, permissionKey: 'secretaria.vaccines.manage' },
+        { label: 'Vacunas pendientes', path: '/AdminSystem/vaccines', state: { view: 'pending' }, permissionKey: 'secretaria.vaccines.pending' },
+        { label: 'Lotes de vacunas', path: '/AdminSystem/vaccines', state: { view: 'batches' }, permissionKey: 'secretaria.vaccines.batches' }
+      ]
+    },
     { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus', permissionKey: 'secretaria.recipes' },
     { label: 'Crear Alerta', icon: <BellPlus />, onClick: () => setShowNotificationModal(true), permissionKey: 'secretaria.notifications.create' },
     { label: getText("generalPanelTexts.optionsNavegations.clientList"), path: '/clients', icon: <Users />, permissionKey: 'secretaria.clients' },
@@ -123,6 +141,15 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     { label: 'Calendario', path: '/calendar', icon: 'calendario', permissionKey: 'doctor.calendar' },
     { label: 'Historias Clínicas', path: '/doctor/pacientes', icon: 'fileText', permissionKey: 'doctor.records' },
     { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus', permissionKey: 'doctor.recipes' },
+    {
+      label: 'Vacunas', icon: <Activity />,
+      subItems: [
+        { label: 'Ver vacunas', path: '/AdminSystem/vaccines', state: { view: 'list' }, permissionKey: 'doctor.vaccines.view' },
+        { label: 'Crear vacuna', path: '/AdminSystem/vaccines', state: { view: 'manage', openCreate: true }, permissionKey: 'doctor.vaccines.manage' },
+        { label: 'Vacunas pendientes', path: '/AdminSystem/vaccines', state: { view: 'pending' }, permissionKey: 'doctor.vaccines.pending' },
+        { label: 'Lotes de vacunas', path: '/AdminSystem/vaccines', state: { view: 'batches' }, permissionKey: 'doctor.vaccines.batches' }
+      ]
+    },
     { label: 'Mensajes', path: '/panel-menssage', icon: 'message', permissionKey: 'doctor.messages' },
     { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck', permissionKey: 'doctor.invoices.view' },
     // { label: 'Asistente Virtual', path: '/asistente-virtual', icon: <BotIcon />, newTab: true },

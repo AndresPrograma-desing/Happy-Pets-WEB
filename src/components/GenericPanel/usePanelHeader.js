@@ -23,9 +23,10 @@ export const DEFAULT_HEADER = {
 // dentro de un drawer) hace que no toque el header del layout.
 export default function usePanelHeader(config) {
   const { setHeader } = useOutletContext();
+  const serializedConfig = config ? JSON.stringify(config) : '';
 
   useEffect(() => {
     if (!config) return;
     setHeader({ ...DEFAULT_HEADER, ...config });
-  });
+  }, [serializedConfig]);
 }

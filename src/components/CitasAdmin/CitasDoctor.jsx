@@ -44,21 +44,47 @@ function CitasLayout(props) {
     const [citasList, setCitasList] = useState([]);
     const [isFetchingCitas, setIsFetchingCitas] = useState(false);
 
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+
+    const handlePageSizeChange = useCallback((newSize) => {
+        setPageSize(newSize);
+        setPage(1);
+    }, []);
+
+    useEffect(() => {
+        setPage(1);
+    }, [estadoCita, citasDelDia]);
+
     const fetchCitasData = useCallback(() => {
         setIsFetchingCitas(true);
         
         getCitasDetalle({
             status: estadoCita,
             date: citasDelDia ? todayISO : undefined,
-            allDates: !citasDelDia
+            allDates: !citasDelDia,
+            pageNumber: page,
+            pageSize: pageSize
         })
         .then(res => {
-            const data = Array.isArray(res) ? res : (res?.data || res?.result || []);
+            const data = Array.isArray(res) ? res : (res?.items || res?.citas || res?.data || res?.result || []);
             setCitasList(data);
+
+            const totalCount = res?.total_count ?? res?.totalCount;
+            if (res?.totalPages) {
+                setTotalPages(res.totalPages);
+            } else if (res?.totalPagesCount) {
+                setTotalPages(res.totalPagesCount);
+            } else if (totalCount !== undefined) {
+                setTotalPages(Math.ceil(totalCount / pageSize) || 1);
+            } else {
+                setTotalPages(data.length < pageSize && page === 1 ? 1 : page + (data.length === pageSize ? 1 : 0));
+            }
         })
         .catch(console.error)
         .finally(() => setIsFetchingCitas(false));
-    }, [estadoCita, citasDelDia, todayISO]);
+    }, [estadoCita, citasDelDia, todayISO, page, pageSize]);
 
     useEffect(() => {
         fetchCitasData();
@@ -389,6 +415,12 @@ const formatFechaToISO = (str) => {
                     onDelete={handleDelete}
                     onViewHistory={handleViewHistory}
                     onEdit={handleOpenEdit}
+                    paginationPage={page}
+                    paginationCount={totalPages}
+                    onPaginationChange={(e, v) => setPage(v)}
+                    pageSize={pageSize}
+                    onPageSizeChange={handlePageSizeChange}
+                    pageSizeOptions={[5, 10, 20, 50]}
                 />
             </div>
 

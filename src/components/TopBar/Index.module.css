@@ -98,4 +98,39 @@
   height: 24px;
   background-color: rgba(255, 255, 255, 0.3);
 }
+
+.popoverContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 260px;
+}
+
+.popoverTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.popoverBody {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.popoverButton {
+  width: 100%;
+  justify-content: center;
+}
+
+.redirectProgressContainer {
+  width: 280px;
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 

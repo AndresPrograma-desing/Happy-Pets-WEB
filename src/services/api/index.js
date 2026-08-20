@@ -249,6 +249,8 @@ export async function getCitasDetalle(params = {}) {
   if (params.status) query.append('status', params.status);
   if (params.date) query.append('date', params.date);
   if (params.allDates !== undefined) query.append('allDates', params.allDates);
+  if (params.pageNumber) query.append('pageNumber', params.pageNumber);
+  if (params.pageSize) query.append('pageSize', params.pageSize);
   
   const queryString = query.toString();
   const url = queryString ? `/Citas/requests?${queryString}` : '/Citas/requests';
@@ -262,6 +264,8 @@ export async function getCitas(params = {}) {
   if (params.status) query.append('status', params.status);
   if (params.date) query.append('date', params.date);
   if (params.allDates !== undefined) query.append('allDates', params.allDates);
+  if (params.pageNumber) query.append('pageNumber', params.pageNumber);
+  if (params.pageSize) query.append('pageSize', params.pageSize);
   
   const queryString = query.toString();
   const url = queryString ? `/Citas/requests?${queryString}` : '/Citas/requests';
@@ -525,6 +529,11 @@ export async function grop(pregunta, historial = []) {
     body: { pregunta, historial }
   });
 }
+
+export async function externalNowGrodWeb() {
+  return request('/NowGrod/session-token', {method: 'GET' });
+}
+
 export async function getIaConocimiento(categoria) {
   return request(`/IaConocimiento/categoria/${encodeURIComponent(categoria || '')}`);
 }
@@ -591,7 +600,94 @@ export async function getCitasByCliente(clienteId) {
   });
 }
 
+export async function getVaccines(params = {}) {
+  const query = new URLSearchParams();
+  if (params.species) query.append('species', params.species);
+  if (params.active !== undefined) query.append('active', params.active);
+  if (params.searchTerm) query.append('searchTerm', params.searchTerm);
+  if (params.pageNumber) query.append('pageNumber', params.pageNumber);
+  if (params.pageSize) query.append('pageSize', params.pageSize);
+
+  const queryString = query.toString() ? `?${query.toString()}` : '';
+  return request(`/Vaccine${queryString}`, { method: 'GET' });
+}
+
+export async function createVaccine(payload) {
+  return request('/Vaccine/create', { method: 'POST', body: payload });
+}
+
+export async function getVaccineById(id) {
+  return request(`/Vaccine/${encodeURIComponent(id)}`, { method: 'GET' });
+}
+
+export async function updateVaccine(id, payload) {
+  return request(`/Vaccine/${encodeURIComponent(id)}`, { method: 'PUT', body: payload });
+}
+
+export async function deleteVaccine(id) {
+  return request(`/Vaccine/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export async function getVaccineBatches(vaccineId, params = {}) {
+  const query = new URLSearchParams();
+  if (params.active !== undefined) query.append('active', params.active);
+  if (params.searchTerm) query.append('searchTerm', params.searchTerm);
+  if (params.pageNumber) query.append('pageNumber', params.pageNumber);
+  if (params.pageSize) query.append('pageSize', params.pageSize);
+
+  const queryString = query.toString() ? `?${query.toString()}` : '';
+  return request(`/Vaccine/${encodeURIComponent(vaccineId)}/batches${queryString}`, { method: 'GET' });
+}
+
+export async function createVaccineBatch(vaccineId, payload) {
+  return request(`/Vaccine/${encodeURIComponent(vaccineId)}/batches`, { method: 'POST', body: payload });
+}
+
+export async function getPetVaccinationStatus(mascotaId) {
+  return request(`/PetVaccination/mascota/${encodeURIComponent(mascotaId)}/status`, { method: 'GET' });
+}
+
+export async function getPetVaccinationHistory(mascotaId, status) {
+  const queryString = status ? `?status=${encodeURIComponent(status)}` : '';
+  return request(`/PetVaccination/mascota/${encodeURIComponent(mascotaId)}/history${queryString}`, { method: 'GET' });
+}
+
+export async function registerPetVaccination(payload) {
+  return request('/PetVaccination/register', { method: 'POST', body: payload });
+}
+
+export async function postponePetVaccination(id, payload) {
+  return request(`/PetVaccination/${encodeURIComponent(id)}/postpone`, { method: 'PATCH', body: payload });
+}
+
+export async function sendPetVaccinationToInvoice(id) {
+  return request(`/PetVaccination/${encodeURIComponent(id)}/send-to-invoice`, { method: 'POST' });
+}
+
+export async function getPendingVaccinationsThisWeek(params = {}) {
+  const query = new URLSearchParams();
+  if (params.searchTerm) query.append('searchTerm', params.searchTerm);
+  if (params.pageNumber) query.append('pageNumber', params.pageNumber);
+  if (params.pageSize) query.append('pageSize', params.pageSize);
+
+  const queryString = query.toString() ? `?${query.toString()}` : '';
+  return request(`/PetVaccination/pending-this-week${queryString}`, { method: 'GET' });
+}
+
+export async function getWorkerConfigs() {
+  return request('/WorkerConfig', { method: 'GET' });
+}
+
+export async function updateWorkerConfig(name, config) {
+  return request(`/WorkerConfig/${name}`, {
+    method: 'PUT',
+    body: config
+  });
+}
+
 export default {
+  getWorkerConfigs,
+  updateWorkerConfig,
   request,
   login,
   logout,
@@ -646,6 +742,20 @@ export default {
   getClientById,
   getClientMascotas,
   getCitasByCliente,
+  getVaccines,
+  createVaccine,
+  getVaccineById,
+  updateVaccine,
+  deleteVaccine,
+  getVaccineBatches,
+  createVaccineBatch,
+  getPetVaccinationStatus,
+  getPetVaccinationHistory,
+  registerPetVaccination,
+  postponePetVaccination,
+  sendPetVaccinationToInvoice,
+  getPendingVaccinationsThisWeek,
   getUserPermissions,
-  updateUserPermissions
+  updateUserPermissions,
+  externalNowGrosWeb: externalNowGrodWeb
 };

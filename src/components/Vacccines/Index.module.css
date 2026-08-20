@@ -1,0 +1,58 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.tableWrapper {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 80px;
+    overflow-x: auto;
+}
+
+.priceText {
+    font-weight: 600;
+    color: #10b981;
+}
+
+.activeBadge {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.inactiveBadge {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.topActions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.formContent {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px 5px;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.selectorRow {
+    max-width: 320px;
+}
+
+.emptyText {
+    color: #64748b;
+    font-size: 14px;
+}
+

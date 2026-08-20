@@ -13,18 +13,21 @@ function PanelCitas({
     getCitaId,
     onDelete,
     onEdit,
-    // Props opcionales para personalizar la acción primaria (por defecto "Empezar consulta")
     primaryActionLabel,
     onPrimaryAction,
-    // Opciones para reutilización: inyectar función de fetch y controlar polling
     fetchCitasFn,
     polling = true,
     pollingInterval = 10000,
     onViewHistory,
+    paginationPage,
+    paginationCount,
+    onPaginationChange,
+    pageSize,
+    onPageSizeChange,
+    pageSizeOptions,
 }) {
     const navigate = useNavigate();
 
-    // Hook que encapsula la lógica: normalización, estado local y polling
     const { listaCitas, setListaCitas: _setListaCitas, refetch: _refetch, updateCitaLocally: _updateCitaLocally } = usePanelCitas({
         initialCitas,
         getCitaId,
@@ -52,6 +55,12 @@ function PanelCitas({
             primaryActionLabel={primaryActionLabel}
             onPrimaryAction={handlePrimaryActionFallback}
             onViewHistory={onViewHistory}
+            paginationPage={paginationPage}
+            paginationCount={paginationCount}
+            onPaginationChange={onPaginationChange}
+            pageSize={pageSize}
+            onPageSizeChange={onPageSizeChange}
+            pageSizeOptions={pageSizeOptions}
         />
     );
 }

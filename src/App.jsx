@@ -44,6 +44,7 @@ import Recetas from './components/Recetas/Components';
 import PortalClientes from '../PortalClientes/Index';
 import HistorialMedico from './components/HistorialMedico/Index';
 import PanelLayout from './components/GenericPanel/PanelLayout';
+import Vaccines from './components/Vacccines/Vaccines';
 
 
 
@@ -97,6 +98,7 @@ function AppContent() {
             <Route path="/doctor/pacientes" element={<HistorialMedico />} />
             <Route path="/clients" element={<ClientList />} />
             <Route path="/calendar" element={<Calendar />} />
+            <Route path="/AdminSystem/vaccines" element={<Vaccines />} />
           </Route>
 
           <Route path="/consultas/crear" element={<Consultas />} />

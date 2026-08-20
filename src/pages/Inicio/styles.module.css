@@ -4,6 +4,11 @@
   width: 100vw;
   height: 100vh;
   background-color: #ffffff;
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, rgba(34, 197, 94, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(14, 165, 233, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 90%, rgba(74, 222, 128, 0.08) 0px, transparent 50%);
   overflow: hidden;
   font-family: 'Roboto', Arial, sans-serif;
   display: flex;
@@ -74,7 +79,9 @@
   .leftSection {
     width: 100vw;
     z-index: 3;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
   .rightSection {
     width: 100vw;

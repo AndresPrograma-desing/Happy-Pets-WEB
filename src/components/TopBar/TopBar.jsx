@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BellPlus, Mail, Pencil, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../screens/components/Button';
@@ -8,6 +8,8 @@ import useNotificationsContext from '../../hooks/useNotificationsContext';
 import useUnreadMessagesCount from '../../hooks/useUnreadMessagesCount';
 import { getUserRole } from '../GenericPanel/Routes';
 import styles from './Index.module.css';
+import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover/index';
+import NowGrod from '../External/Components/NowGrodKIT/NowGrod';
 
 const TopBar = ({
   currentAvatar,
@@ -26,6 +28,8 @@ const TopBar = ({
   const userRole = role || getUserRole();
   const isAdmin = userRole === 'admin';
   const isClient = userRole === 'client';
+
+  // NowGrod holds its redirection states locally
 
   if (isClient) {
     return (
@@ -59,8 +63,9 @@ const TopBar = ({
   ];
 
   return (
-    <header className={styles.topBar}>
-      <div className={styles.topBarContent}>
+    <>
+      <header className={styles.topBar}>
+        <div className={styles.topBarContent}>
         
         {/* Renderizado automático de los iconos */}
         <div className={styles.actionsContainer}>
@@ -83,6 +88,11 @@ const TopBar = ({
               )}
             </div>
           ))}
+
+          {/* Chatbot Popover */}
+          <div className={styles.iconButtonWrap}>
+            <NowGrod />
+          </div>
 
           {isAdmin && (
             <>
@@ -129,7 +139,10 @@ const TopBar = ({
         </div>
         
       </div>
-    </header>
+      </header>
+
+      {/* Redirection modal is managed inside NowGrod component */}
+    </>
   );
 
 };

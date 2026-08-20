@@ -3,20 +3,22 @@ import styles from './index.module.css';
 import Loading from '../Loading/Index';
 import { AlertCircle, Inbox } from 'lucide-react';
 import Button from '../Button';
+import ScrollBar from '../ScrollBar';
 
-const TableA = ({ 
-  columns = [], 
-  data = [], 
-  keyExtractor, 
-  rowClassName, 
-  loading = false, 
-  error = null, 
-  onRetry,
-  emptyIcon: EmptyIcon = Inbox,
-  emptyMessage = "No hay datos disponibles" 
-}) => {
+const TableA = (props) => {
+  const {
+    columns = [],
+    data = [],
+    keyExtractor,
+    rowClassName,
+    loading = false,
+    error = null,
+    onRetry,
+    emptyIcon: EmptyIcon = Inbox,
+    emptyMessage = "No hay datos disponibles"
+  } = props;
   return (
-    <div className={styles.tableWrapper}>
+    <ScrollBar horizontal vertical={false} className={styles.tableWrapper}>
       <table className={styles.table}>
         <thead>
           <tr>
@@ -80,7 +82,7 @@ const TableA = ({
           )}
         </tbody>
       </table>
-    </div>
+    </ScrollBar>
   );
 };
 

@@ -269,15 +269,17 @@ const Users = () => {
               Editar usuario
             </Button>
             
-            <Button
-              variant="ghost"
-              icon={ShieldCheck}
-              onClick={handleEditPermissionsClick}
-              style={{ justifyContent: 'flex-start', fontWeight: 500 }}
-              fullWidth
-            >
-              Editar permisos
-            </Button>
+            {activeUser?.rol?.toLowerCase() !== 'admin' && (
+              <Button
+                variant="ghost"
+                icon={ShieldCheck}
+                onClick={handleEditPermissionsClick}
+                style={{ justifyContent: 'flex-start', fontWeight: 500 }}
+                fullWidth
+              >
+                Editar permisos
+              </Button>
+            )}
 
             <Button
               variant="ghost"

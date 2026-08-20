@@ -18,21 +18,20 @@ import styles from './Index.module.css';
 import usePanelHeader from '../GenericPanel/usePanelHeader';
 import DrawPanel from '../screens/components/DrawPanel/index';
 import SummaryCard from '../screens/components/SummaryCard/index';
-import TableA from '../screens/components/TableA/index';
 import Loading from '../screens/components/Loading/Index';
 import Selector from '../screens/components/Material-UI/Components/Selector/Index';
 import Button from '../screens/components/Button/index';
+import PetVaccinationPanel from '../PetVaccination/Index';
 
 // API
 import { getMedicalHistory, refrestMedicalHistory, getClients } from '../../services/api';
 
 // Config & Utils
 import { TEXTS } from './Constants';
-import { 
-  parseSuggestions, 
-  formatWeight, 
-  formatDateTime,
-  getVacunaColumns 
+import {
+  parseSuggestions,
+  formatWeight,
+  formatDateTime
 } from './utils';
 
 function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
@@ -136,7 +135,6 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
   const alertasRiesgo = historyData?.alertas_riesgo;
   const sugerencias = historyData?.sugerencias;
   const consultas = historyData?.consultas || [];
-  const vacunas = historyData?.vacunas || [];
   const ultimoAnalisis = historyData?.ultimo_analisis;
 
   const suggestionsList = useMemo(() => parseSuggestions(sugerencias), [sugerencias]);
@@ -191,12 +189,7 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
               </div>
               <h2 className={styles.mainTitle} style={{ marginBottom: '0.5rem' }}>{TEXTS.VACUNAS_TITLE}</h2>
               <p style={{ marginBottom: '1.5rem', color: '#64748b' }}>{TEXTS.VACUNAS_DESC}</p>
-              <TableA
-                columns={getVacunaColumns()}
-                data={vacunas}
-                keyExtractor={(row) => row.id.toString()}
-                emptyMessage={TEXTS.NO_DATA}
-              />
+              <PetVaccinationPanel mascotaId={selectedPetId} />
             </div>
           ) : (
             <div className={styles.infoView}>

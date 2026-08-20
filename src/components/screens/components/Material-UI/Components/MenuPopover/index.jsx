@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { ChevronRight } from 'lucide-react';
 import Button from '../../../Button';
 
-export default function MenuPopover({ item, styles, renderIcon, onNavigate, isCollapsed }) {
+export default function MenuPopover({ item, styles = {}, renderIcon, onNavigate, isCollapsed, children }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -74,27 +74,31 @@ export default function MenuPopover({ item, styles, renderIcon, onNavigate, isCo
           }
         }}
       >
-        {item.subItems && item.subItems.map((subIt) => {
-          const isDanger = subIt.isDanger || subIt.label?.toLowerCase().includes('eliminar') || subIt.label?.toLowerCase().includes('cancelar');
-          return (
-            <MenuItem
-              key={subIt.label}
-              onClick={() => handleItemClick(subIt)}
-              sx={{
-                fontSize: '0.9rem',
-                py: 1.25,
-                px: 2,
-                color: isDanger ? '#ef4444 !important' : '#000000ff',
-                fontWeight: isDanger ? 500 : 400,
-                '&:hover': {
-                  backgroundColor: isDanger ? 'rgba(239, 68, 68, 0.08)' : '#b3b3b44b'
-                }
-              }}
-            >
-              {subIt.label}
-            </MenuItem>
-          );
-        })}
+        {children ? (
+          typeof children === 'function' ? children({ handleClose }) : children
+        ) : (
+          item.subItems && item.subItems.map((subIt) => {
+            const isDanger = subIt.isDanger || subIt.label?.toLowerCase().includes('eliminar') || subIt.label?.toLowerCase().includes('cancelar');
+            return (
+              <MenuItem
+                key={subIt.label}
+                onClick={() => handleItemClick(subIt)}
+                sx={{
+                  fontSize: '0.9rem',
+                  py: 1.25,
+                  px: 2,
+                  color: isDanger ? '#ef4444 !important' : '#000000ff',
+                  fontWeight: isDanger ? 500 : 400,
+                  '&:hover': {
+                    backgroundColor: isDanger ? 'rgba(239, 68, 68, 0.08)' : '#b3b3b44b'
+                  }
+                }}
+              >
+                {subIt.label}
+              </MenuItem>
+            );
+          })
+        )}
       </Menu>
     </div>
   );

@@ -13,9 +13,16 @@ import Button from '../../../components/screens/components/Button';
 
 function CitasDoctor() {
 	const navigate = useNavigate();
-	const { citas, loading, error, refetch } = useGetCitas();
+	const [page, setPage] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
+	const { citas, loading, error, totalPages, refetch } = useGetCitas(true, page, pageSize);
 	const [deletingId, setDeletingId] = useState(null);
 	const [localError, setLocalError] = useState('');
+
+	const handlePageSizeChange = (newSize) => {
+		setPageSize(newSize);
+		setPage(1);
+	};
 		const totalCitas = Array.isArray(citas) ? citas.length : 0;
 		const [showCreateClientModal, setShowCreateClientModal] = useState(false);
 		const [showCreateClientBadReqModal, setShowCreateClientBadReqModal] = useState(false);
@@ -220,6 +227,12 @@ function CitasDoctor() {
 						formatTime={formatTime}
 						getCitaId={getCitaId}
 						onDelete={handleDelete}
+						paginationPage={page}
+						paginationCount={totalPages}
+						onPaginationChange={(e, v) => setPage(v)}
+						pageSize={pageSize}
+						onPageSizeChange={handlePageSizeChange}
+						pageSizeOptions={[5, 10, 20, 50]}
 					/>
 			</div>
 

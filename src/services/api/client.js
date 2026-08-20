@@ -4,7 +4,7 @@ import dummyDB from '../../dummy/db.json';
 
 export const API_BASE = `${DEV_URL_API.baseURL}/api`;
 
-export async function request(path, { method = 'GET', body, headers = {}, auth = true } = {}) {
+export async function request(path, { method = 'GET', body, headers = {}, auth = true, responseType } = {}) {
   if (isDummyModeActive()) {
     const lowerPath = path.toLowerCase();
     
@@ -220,6 +220,29 @@ export async function request(path, { method = 'GET', body, headers = {}, auth =
   }
 
   if (res.status === 204) return null;
+
+  if (res.ok && responseType === 'blob') {
+    const blob = await res.blob();
+    const contentDisposition = res.headers.get('content-disposition') || '';
+    let filename = '';
+    
+    // Check filename*=UTF-8''filename.pdf
+    const utf8Matches = /filename\*=UTF-8''([^;\n]+)/i.exec(contentDisposition);
+    if (utf8Matches && utf8Matches[1]) {
+      try {
+        filename = decodeURIComponent(utf8Matches[1]);
+      } catch (e) {
+        filename = utf8Matches[1];
+      }
+    } else {
+      // Fallback to filename="filename.pdf"
+      const matches = /filename="?([^";\n]+)"?/i.exec(contentDisposition);
+      if (matches && matches[1]) {
+        filename = matches[1];
+      }
+    }
+    return { blob, filename };
+  }
 
   const contentType = (res.headers.get('content-type') || '').toLowerCase();
   let data = null;

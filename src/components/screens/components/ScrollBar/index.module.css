@@ -1,0 +1,78 @@
+.root {
+  position: relative;
+  width: 100%;
+}
+
+.scrollArea {
+  width: 100%;
+  height: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollArea::-webkit-scrollbar {
+  display: none;
+}
+
+.trackVertical {
+  position: absolute;
+  top: 4px;
+  right: 3px;
+  bottom: 4px;
+  width: 8px;
+  border-radius: 999px;
+  background-color: rgba(148, 163, 184, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 5;
+}
+
+.trackHorizontal {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 3px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: rgba(148, 163, 184, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 5;
+}
+
+.trackVisible {
+  opacity: 1;
+}
+
+.thumbVertical {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  border-radius: 999px;
+  background-color: rgba(100, 116, 139, 0.45);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 0.15s ease;
+}
+
+.thumbHorizontal {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 999px;
+  background-color: rgba(100, 116, 139, 0.45);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 0.15s ease;
+}
+
+.thumbVertical:hover,
+.thumbVertical:active,
+.thumbHorizontal:hover,
+.thumbHorizontal:active {
+  background-color: rgba(71, 85, 105, 0.75);
+}

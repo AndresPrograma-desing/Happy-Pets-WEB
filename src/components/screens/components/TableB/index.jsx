@@ -4,19 +4,21 @@ import { AlertCircle, Inbox, ChevronDown, ChevronUp } from 'lucide-react';
 import Barnner from '../Barnner';
 import Button from '../Button';
 import Loading from '../Loading/Index';
+import ScrollBar from '../ScrollBar';
 
-const TableB = ({
-  columns = [],
-  data = [],
-  loading = false,
-  error = null,
-  emptyIcon: EmptyIcon = Inbox,
-  emptyMessage = "No hay datos disponibles.",
-  onRetry,
-  expandable,
-  rowKey = 'id',
-  rowClassName
-}) => {
+const TableB = (props) => {
+  const {
+    columns = [],
+    data = [],
+    loading = false,
+    error = null,
+    emptyIcon: EmptyIcon = Inbox,
+    emptyMessage = "No hay datos disponibles.",
+    onRetry,
+    expandable,
+    rowKey = 'id',
+    rowClassName
+  } = props;
   const [expandedKeys, setExpandedKeys] = useState({});
 
   const toggleExpand = (key) => {
@@ -27,7 +29,7 @@ const TableB = ({
   };
 
   return (
-    <div className={styles.tableContainer}>
+    <ScrollBar horizontal vertical={false} className={styles.tableContainer}>
       <table className={styles.modernTable}>
         <thead>
           <tr>
@@ -150,7 +152,7 @@ const TableB = ({
           }))}
         </tbody>
       </table>
-    </div>
+    </ScrollBar>
   );
 };
 

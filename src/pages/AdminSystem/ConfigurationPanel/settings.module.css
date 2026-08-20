@@ -17,6 +17,9 @@
   margin-bottom: 1rem;
   font-weight: 700;
   padding-left: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .card {

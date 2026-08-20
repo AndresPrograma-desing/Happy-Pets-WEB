@@ -73,31 +73,3 @@ export const getConsultaColumns = () => [
   }
 ];
 
-export const getVacunaColumns = () => [
-  {
-    header: 'Vacuna',
-    accessor: 'nombre_vacuna'
-  },
-  {
-    header: 'Fecha Aplicación',
-    accessor: 'fecha_vacunacion',
-    render: (row) => formatDate(row.fecha_vacunacion)
-  },
-  {
-    header: 'Próxima Dosis',
-    accessor: 'proxima_dosis',
-    render: (row) => formatDate(row.proxima_dosis)
-  },
-  {
-    header: 'Lote',
-    accessor: 'lote'
-  },
-  {
-    header: 'Doctor',
-    accessor: 'doctor_nombre'
-  },
-  {
-    header: 'Notas',
-    accessor: 'nota'
-  }
-];

@@ -2,20 +2,36 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 
 // Hook para obtener las citas desde el backend
-export default function useGetCitas(autoFetch = true) {
+export default function useGetCitas(autoFetch = true, pageNumber = 1, pageSize = 10) {
   const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchCitas = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.request('/Citas/requests', { method: 'GET' });
+      const res = await api.getCitas({
+        allDates: true,
+        pageNumber,
+        pageSize
+      });
 
       const list = Array.isArray(res)
         ? res
         : (res?.citas || res?.items || res?.data || (res ? [res] : []));
+
+      const totalCount = res?.total_count ?? res?.totalCount;
+      if (res?.totalPages) {
+        setTotalPages(res.totalPages);
+      } else if (res?.totalPagesCount) {
+        setTotalPages(res.totalPagesCount);
+      } else if (totalCount !== undefined) {
+        setTotalPages(Math.ceil(totalCount / pageSize) || 1);
+      } else {
+        setTotalPages(list.length < pageSize && pageNumber === 1 ? 1 : pageNumber + (list.length === pageSize ? 1 : 0));
+      }
 
       const normalized = list.map((cita) => {
         const cliente = cita?.Mascotum?.Cliente || {};
@@ -54,7 +70,7 @@ export default function useGetCitas(autoFetch = true) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pageNumber, pageSize]);
 
   useEffect(() => {
     if (autoFetch) {
@@ -62,5 +78,5 @@ export default function useGetCitas(autoFetch = true) {
     }
   }, [fetchCitas, autoFetch]);
 
-  return { citas, loading, error, refetch: fetchCitas };
+  return { citas, loading, error, totalPages, refetch: fetchCitas };
 }

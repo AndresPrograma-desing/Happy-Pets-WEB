@@ -11,6 +11,7 @@ const DrawPanel = ({
   onClose, 
   title, 
   description,
+  descriptionPosition = 'top',
   children,
   width = '400px',
   showActions = false,
@@ -82,7 +83,7 @@ const DrawPanel = ({
         <div className={styles.header}>
           <div className={styles.headerTitleContainer}>
             <h3 className={styles.title}>{title}</h3>
-            {description && (
+            {description && descriptionPosition === 'top' && (
               <p className={styles.description}>{description}</p>
             )}
           </div>
@@ -118,6 +119,12 @@ const DrawPanel = ({
 
         <div className={styles.content}>
           {children}
+          {description && descriptionPosition === 'bottom' && (
+            <div className={styles.descriptionBottom}>
+              <h4 className={styles.descriptionBottomTitle}>Descripción de Tarea</h4>
+              <p className={styles.descriptionBottomText}>{description}</p>
+            </div>
+          )}
         </div>
 
         {showActions && (
