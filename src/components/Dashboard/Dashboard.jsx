@@ -1,59 +1,115 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Alert,
-  Chip,
-  Button,
-  Divider,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody
-} from '@mui/material';
-import { BoxIcon, UserCircle, FileText, CircleDollarSign, Download, Filter, Calendar } from 'lucide-react';
+  CircleDollarSign,
+  Calendar,
+  UserCircle,
+  PawPrint,
+  Download,
+  Filter,
+  DollarSign,
+  Banknote,
+  TrendingDown,
+  Receipt,
+} from 'lucide-react';
 import { getDashboardStats } from '../../services/api/Dashboard';
+import { downloadDashboardExcel } from '../../services/api/Excel';
+import { DASHBOARD_TEXT } from '../../constants/TEXT';
 import Loading from '../screens/components/Loading/Index';
+import CardV1 from '../screens/components/CardV1';
+import TableB from '../screens/components/TableB';
+import Button from '../screens/components/Button';
+import BarChart from '../screens/components/BarChart';
+import DrawPanel from '../screens/components/DrawPanel';
+import Filters from './components/Filters';
+import StatusBreakdown from './components/StatusBreakdown';
+import Alerts from './components/Alerts';
+import {
+  formatCurrency,
+  buildRevenueChartData,
+  getAppointmentStatusBadgeType,
+  formatAppointmentStatusLabel,
+  getStatusBreakdown,
+  buildFilterParams,
+  getCurrencyCode,
+} from './utils';
+import styles from './Dashboard.module.css';
+
+const CURRENCY_META = {
+  USD: { icon: DollarSign, label: DASHBOARD_TEXT.currencyLabelUsd },
+  VES: { icon: Banknote, label: DASHBOARD_TEXT.currencyLabelVes },
+};
+
+const DEFAULT_FILTERS = { period: null, status: 'all' };
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS);
+  const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const result = await getDashboardStats();
+        const result = await getDashboardStats(
+          buildFilterParams({ period: appliedFilters.period, status: appliedFilters.status })
+        );
         setData(result);
         setError(null);
-      } catch (err) {
-        setError("Error al cargar los datos del panel.");
+      } catch {
+        setError(DASHBOARD_TEXT.errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, []);
+  }, [appliedFilters.period, appliedFilters.status]);
+
+  const handleOpenFilters = () => {
+    setDraftFilters(appliedFilters);
+    setIsFilterOpen(true);
+  };
+
+  const handleApplyFilters = () => {
+    setAppliedFilters(draftFilters);
+    setIsFilterOpen(false);
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const { blob, filename } = await downloadDashboardExcel(buildFilterParams(appliedFilters));
+      if (!blob) throw new Error(DASHBOARD_TEXT.exportErrorMessage);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename || 'dashboard.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      setExportError(DASHBOARD_TEXT.exportErrorMessage);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   if (loading) {
-    return <Loading 
-    size="large" 
-    variant="bars"  // O box o default
-    phrases={["Cargando Dashboard", "Calculando Datos"]} />;
+    return <Loading size="large" variant="bars" phrases={DASHBOARD_TEXT.loadingPhrases} />;
   }
 
   if (error) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity="error" sx={{ borderRadius: 1 }}>{error}</Alert>
-      </Box>
+      <div className={styles.page}>
+        <div className={styles.errorBox}>{error}</div>
+      </div>
     );
   }
 
@@ -61,339 +117,265 @@ export default function Dashboard() {
 
   const kpis = {
     totalRevenue: data.total_ganancias || 0,
+    totalLosses: data.total_perdidas || 0,
+    totalFacturas: data.total_facturas || 0,
     totalCitas: data.total_citas || 0,
     totalClients: data.total_clientes || 0,
     totalMascotas: data.total_mascotas || 0,
   };
 
-  const chartData = (data.ganancias_mensuales && data.ganancias_mensuales.length > 0)
-    ? data.ganancias_mensuales
-    : [
-        { month: 'Ene', revenue: 0 }, { month: 'Feb', revenue: 0 }, { month: 'Mar', revenue: 0 },
-        { month: 'Abr', revenue: 0 }, { month: 'May', revenue: 0 }, { month: 'Jun', revenue: 0 },
-        { month: 'Jul', revenue: 0 }, { month: 'Ago', revenue: 0 }, { month: 'Sep', revenue: 0 },
-        { month: 'Oct', revenue: 0 }, { month: 'Nov', revenue: 0 }, { month: 'Dic', revenue: 0 }
-      ];
+  const currencyCode = getCurrencyCode(data.money_type);
+  const currencyMeta = CURRENCY_META[currencyCode];
+
+  const chartData = buildRevenueChartData(data.ganancias_mensuales);
+  const latestPeriodIndex = chartData.length - 1;
 
   const ultimasCitas = data.ultimas_citas || [];
+  const statusBreakdown = getStatusBreakdown(data.citas_por_estado);
+  const lowStockProducts = data.productos_bajo_stock || [];
+  const recentAlerts = data.alertas_recientes || [];
 
-  const formatCurrency = (val) => new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'USD' }).format(val);
-
-  // Estilos compartidos para las tarjetas (haciendo match con TableB)
-  const cardStyle = { 
-    borderRadius: 3, // 12px
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)', 
-    border: '1px solid #e5e7eb',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column'
-  };
+  const kpiCards = [
+    {
+      icon: CircleDollarSign,
+      badgeText: DASHBOARD_TEXT.kpiRevenue,
+      badgeBgColor: '#f0fdf4',
+      badgeTextColor: '#16a34a',
+      value: formatCurrency(kpis.totalRevenue, currencyCode),
+      footer: currencyMeta.label,
+      footerIcon: currencyMeta.icon,
+    },
+    {
+      icon: TrendingDown,
+      badgeText: DASHBOARD_TEXT.kpiLosses,
+      badgeBgColor: '#fef2f2',
+      badgeTextColor: '#dc2626',
+      value: formatCurrency(kpis.totalLosses, currencyCode),
+      footer: DASHBOARD_TEXT.kpiLossesFooter,
+    },
+    {
+      icon: Receipt,
+      badgeText: DASHBOARD_TEXT.kpiInvoices,
+      badgeBgColor: '#f5f3ff',
+      badgeTextColor: '#7c3aed',
+      value: kpis.totalFacturas,
+      footer: DASHBOARD_TEXT.kpiInvoicesFooter,
+    },
+    {
+      icon: Calendar,
+      badgeText: DASHBOARD_TEXT.kpiAppointments,
+      badgeBgColor: '#eff6ff',
+      badgeTextColor: '#3b82f6',
+      value: kpis.totalCitas,
+      footer: DASHBOARD_TEXT.kpiAppointmentsFooter,
+    },
+    {
+      icon: UserCircle,
+      badgeText: DASHBOARD_TEXT.kpiClients,
+      badgeBgColor: '#fdf4ff',
+      badgeTextColor: '#a21caf',
+      value: kpis.totalClients,
+      footer: DASHBOARD_TEXT.kpiClientsFooter,
+    },
+    {
+      icon: PawPrint,
+      badgeText: DASHBOARD_TEXT.kpiPets,
+      badgeBgColor: '#fff7ed',
+      badgeTextColor: '#c2410c',
+      value: kpis.totalMascotas,
+      footer: DASHBOARD_TEXT.kpiPetsFooter,
+    },
+  ];
 
   const tableColumns = [
     {
       key: 'detail',
-      label: 'Detalle de Cita',
+      label: DASHBOARD_TEXT.columnDetail,
       width: '35%',
       render: (row) => (
-        <Box>
-          <Typography variant="body1" fontWeight="600" color="#111827">
-            {row.cliente_nombre} - {row.mascota_nombre}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            {row.motivo}
-          </Typography>
-        </Box>
-      )
+        <div className={styles.appointmentDetail}>
+          <span className={styles.appointmentName}>{row.cliente_nombre} - {row.mascota_nombre}</span>
+          <span className={styles.appointmentReason}>{row.motivo}</span>
+        </div>
+      ),
     },
     {
       key: 'type',
-      label: 'Tipo',
-      width: '20%',
+      label: DASHBOARD_TEXT.columnType,
       align: 'center',
-      render: (row) => (
-        <Typography variant="body1" fontWeight="500" color="#111827" sx={{ textTransform: 'capitalize' }}>
-          {row.tipo_cita}
-        </Typography>
-      )
+      render: (row) => <span className={styles.appointmentType}>{row.tipo_cita}</span>,
     },
     {
       key: 'date',
-      label: 'Fecha y Hora',
-      width: '25%',
+      label: DASHBOARD_TEXT.columnDate,
       align: 'center',
-      render: (row) => {
-        return (
-          <Typography variant="body2" color="text.secondary">
-            {row.fecha_cita} a las {row.hora_cita}
-          </Typography>
-        );
-      }
+      render: (row) => (
+        <span className={styles.appointmentDate}>{row.fecha_cita} a las {row.hora_cita}</span>
+      ),
     },
     {
       key: 'status',
-      label: 'Estado',
-      width: '20%',
+      label: DASHBOARD_TEXT.columnStatus,
       align: 'center',
-      render: (row) => {
-        const est = (row.estado || '').toLowerCase();
-        let bg = '#e5e7eb';
-        let col = '#374151';
-        if (est === 'completada') { bg = '#d1fae5'; col = '#065f46'; }
-        else if (est === 'programada' || est === 'en_curso') { bg = '#fef3c7'; col = '#92400e'; }
-        else if (est === 'cancelada' || est === 'no_asistida') { bg = '#fee2e2'; col = '#991b1b'; }
-        
-        return (
-          <Chip
-            label={(row.estado || '').replace('_', ' ').toUpperCase()}
-            size="small"
-            sx={{
-              fontWeight: '600',
-              borderRadius: '4px',
-              fontSize: '0.8rem',
-              py: 1.5,
-              backgroundColor: bg,
-              color: col,
-            }}
-          />
-        )
-      }
-    }
+      type: 'badge',
+      badgeType: (row) => getAppointmentStatusBadgeType(row.estado),
+      render: (row) => formatAppointmentStatusLabel(row.estado),
+    },
+  ];
+
+  const lowStockColumns = [
+    {
+      key: 'codigo',
+      label: DASHBOARD_TEXT.lowStockColumnCode,
+      width: '15%',
+      render: (row) => <span className={styles.appointmentReason}>{row.codigo}</span>,
+    },
+    {
+      key: 'nombre',
+      label: DASHBOARD_TEXT.lowStockColumnProduct,
+      width: '40%',
+      render: (row) => <span className={styles.appointmentName}>{row.nombre}</span>,
+    },
+    {
+      key: 'stock',
+      label: DASHBOARD_TEXT.lowStockColumnStock,
+      align: 'center',
+      type: 'badge',
+      badgeType: (row) => (row.stock === 0 ? 'danger' : 'warning'),
+      render: (row) => `${row.stock} / ${row.stock_minimo}`,
+    },
+    {
+      key: 'precio_venta',
+      label: DASHBOARD_TEXT.lowStockColumnPrice,
+      align: 'right',
+      render: (row) => formatCurrency(row.precio_venta, currencyCode),
+    },
   ];
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: '#fafafa', minHeight: '100vh' }}>
-      {/* Header del Dashboard */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 5, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 600, color: '#111827', mb: 0.5 }}>
-            Resumen General
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Monitorea tus métricas clave y el estado de los pedidos recientes.
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            variant="outlined"
-            startIcon={<Filter size={18} />}
-            sx={{ borderRadius: 1, textTransform: 'none', borderColor: '#d1d5db', color: '#374151', '&:hover': { backgroundColor: '#f3f4f6', borderColor: '#d1d5db' }, py: 1, px: 2 }}
-          >
-            Filtrar
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<Download size={18} />}
-            sx={{ borderRadius: 1, textTransform: 'none', backgroundColor: '#111827', '&:hover': { backgroundColor: '#374151' }, py: 1, px: 2 }}
-          >
-            Exportar
-          </Button>
-        </Box>
-      </Box>
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.headerTitle}>{DASHBOARD_TEXT.title}</h1>
+          <p className={styles.headerSubtitle}>{DASHBOARD_TEXT.subtitle}</p>
+        </div>
+        <div className={styles.headerActions}>
+          <div className={styles.headerActionsGroup}>
+            <Button variant={Button.VARIANTS.OUTLINE} icon={Filter} onClick={handleOpenFilters}>
+              {DASHBOARD_TEXT.filterButton}
+            </Button>
+            <Button
+              variant={Button.VARIANTS.PRIMARY}
+              color={Button.COLORS.BLACK}
+              icon={Download}
+              disabled={exporting}
+              onClick={handleExport}
+            >
+              {exporting ? DASHBOARD_TEXT.exportingLabel : DASHBOARD_TEXT.exportButton}
+            </Button>
+          </div>
+          {exportError && <span className={styles.exportError}>{exportError}</span>}
+        </div>
+      </div>
 
-      {/* KPIs Grid */}
-      <Grid container spacing={3} sx={{ mb: 5 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={cardStyle}>
-            <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Ingresos Totales
-                  </Typography>
-                  <CircleDollarSign size={20} color="#6b7280" />
-                </Box>
-                <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
-                  {formatCurrency(kpis.totalRevenue)}
-                </Typography>
-              </Box>
-              <Typography variant="caption" sx={{ color: '#6b7280', fontWeight: '500', mt: 2, display: 'inline-block' }}>
-                Total acumulado
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+      <div className={styles.kpiGrid}>
+        {kpiCards.map((kpi) => (
+          <CardV1
+            key={kpi.badgeText}
+            badgeIcon={kpi.icon}
+            badgeText={kpi.badgeText}
+            badgeBgColor={kpi.badgeBgColor}
+            badgeTextColor={kpi.badgeTextColor}
+            secondaryText={kpi.value}
+            footerIcon={kpi.footerIcon}
+            footerContent={<span>{kpi.footer}</span>}
+          />
+        ))}
+      </div>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={cardStyle}>
-            <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Total Citas
-                  </Typography>
-                  <Calendar size={20} color="#6b7280" />
-                </Box>
-                <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
-                  {kpis.totalCitas}
-                </Typography>
-              </Box>
-              <Typography variant="caption" sx={{ color: '#6b7280', fontWeight: '500', mt: 2, display: 'inline-block' }}>
-                Citas registradas
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <h2 className={styles.panelTitle}>{DASHBOARD_TEXT.statusBreakdownTitle}</h2>
+          <p className={styles.panelSubtitle}>{DASHBOARD_TEXT.statusBreakdownSubtitle}</p>
+        </div>
+        <div className={styles.chartBody}>
+          <StatusBreakdown
+            breakdown={statusBreakdown}
+            emptyMessage={DASHBOARD_TEXT.statusBreakdownEmptyMessage}
+          />
+        </div>
+      </div>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={cardStyle}>
-            <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Clientes
-                  </Typography>
-                  <UserCircle size={20} color="#6b7280" />
-                </Box>
-                <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
-                  {kpis.totalClients}
-                </Typography>
-              </Box>
-              <Typography variant="caption" sx={{ color: '#6b7280', fontWeight: '500', mt: 2, display: 'inline-block' }}>
-                Clientes registrados
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <h2 className={styles.panelTitle}>{DASHBOARD_TEXT.chartTitle}</h2>
+          <p className={styles.panelSubtitle}>{DASHBOARD_TEXT.chartSubtitle}</p>
+        </div>
+        <div className={styles.chartBody}>
+          <BarChart
+            data={chartData}
+            valueFormatter={(value) => formatCurrency(value, currencyCode)}
+            highlightIndex={latestPeriodIndex}
+            emptyMessage={DASHBOARD_TEXT.chartEmptyMessage}
+          />
+        </div>
+      </div>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={cardStyle}>
-            <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary" fontWeight="600" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Total Mascotas
-                  </Typography>
-                  <BoxIcon size={20} color="#6b7280" />
-                </Box>
-                <Typography variant="h4" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
-                  {kpis.totalMascotas}
-                </Typography>
-              </Box>
-              <Typography variant="caption" sx={{ color: '#6b7280', fontWeight: '500', mt: 2, display: 'inline-block' }}>
-                Mascotas registradas
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <h2 className={styles.panelTitle}>{DASHBOARD_TEXT.lowStockTitle}</h2>
+          <p className={styles.panelSubtitle}>{DASHBOARD_TEXT.lowStockSubtitle}</p>
+        </div>
+        <TableB
+          columns={lowStockColumns}
+          data={lowStockProducts}
+          rowKey="id"
+          emptyMessage={DASHBOARD_TEXT.lowStockEmptyMessage}
+        />
+      </div>
 
-      <Grid container spacing={4}>
-        {/* Gráfico Simulado */}
-        <Grid item xs={12}>
-          <Card sx={cardStyle}>
-            <CardContent sx={{ p: 0 }}>
-              <Box sx={{ p: 4, pb: 3 }}>
-                <Typography variant="h5" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
-                  Ingresos Mensuales
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Resumen detallado de las ventas del año en curso
-                </Typography>
-              </Box>
-              <Divider />
-              <Box sx={{ px: 0, py: 4 }}>
-                <Box sx={{ height: 350, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', pb: 0, borderBottom: '2px solid #f3f4f6' }}>
-                  {chartData.map((d, i) => {
-                    const maxVal = Math.max(...chartData.map(c => c.revenue));
-                    const heightPct = (d.revenue / maxVal) * 100;
-                    const isCurrentMonth = i === new Date().getMonth();
-                    return (
-                      <Box key={i} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, height: '100%', px: { xs: 0.5, sm: 1, md: 2 } }}>
-                        <Box sx={{
-                          flexGrow: 1,
-                          display: 'flex',
-                          alignItems: 'flex-end',
-                          justifyContent: 'center',
-                          width: '100%',
-                          pb: 2,
-                          position: 'relative'
-                        }}>
-                          <Box sx={{
-                            width: '100%',
-                            maxWidth: '60px',
-                            height: `${heightPct}%`,
-                            backgroundColor: isCurrentMonth ? '#111827' : '#e5e7eb',
-                            borderRadius: '2px 2px 0 0',
-                            transition: 'height 0.4s ease',
-                            '&:hover': { backgroundColor: isCurrentMonth ? '#1f2937' : '#d1d5db' }
-                          }} />
-                        </Box>
-                        <Typography variant="body2" sx={{ color: isCurrentMonth ? '#111827' : '#6b7280', fontWeight: isCurrentMonth ? '600' : '500', mt: 1 }}>
-                          {d.month}
-                        </Typography>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <h2 className={styles.panelTitle}>{DASHBOARD_TEXT.alertsTitle}</h2>
+          <p className={styles.panelSubtitle}>{DASHBOARD_TEXT.alertsSubtitle}</p>
+        </div>
+        <div className={styles.chartBody}>
+          <Alerts alerts={recentAlerts} emptyMessage={DASHBOARD_TEXT.alertsEmptyMessage} />
+        </div>
+      </div>
 
-        <Grid item xs={12}>
-          <Card sx={cardStyle}>
-            <CardContent sx={{ p: 0 }}>
-              <Box sx={{ p: 4, pb: 3 }}>
-                <Typography variant="h5" fontWeight="600" sx={{ color: '#111827', mb: 1 }}>
-                  Citas Recientes
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Historial de las últimas citas registradas en el sistema
-                </Typography>
-              </Box>
-              <Divider />
-              <TableContainer component={Box} sx={{ width: '100%', overflowX: 'auto' }}>
-                <Table sx={{ minWidth: 650, width: '100%' }} aria-label="citas recientes">
-                  <TableHead sx={{ backgroundColor: '#f9fafb' }}>
-                    <TableRow>
-                      {tableColumns.map((col) => (
-                        <TableCell 
-                          key={col.key} 
-                          align={col.align || 'left'}
-                          sx={{ 
-                            color: '#6b7280', 
-                            fontWeight: '600', 
-                            fontSize: '0.8125rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            width: col.width,
-                            borderBottom: '1px solid #e5e7eb',
-                            py: 2
-                          }}
-                        >
-                          {col.label}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {ultimasCitas.map((row) => (
-                      <TableRow 
-                        key={row.id}
-                        sx={{ 
-                          '&:last-child td, &:last-child th': { border: 0 },
-                          '&:hover': { backgroundColor: '#f9fafb' },
-                          transition: 'background-color 0.2s ease'
-                        }}
-                      >
-                        {tableColumns.map((col) => (
-                          <TableCell 
-                            key={col.key} 
-                            align={col.align || 'left'}
-                            sx={{ borderBottom: '1px solid #f3f4f6', py: 2 }}
-                          >
-                            {col.render ? col.render(row) : row[col.key]}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
+          <h2 className={styles.panelTitle}>{DASHBOARD_TEXT.tableTitle}</h2>
+          <p className={styles.panelSubtitle}>{DASHBOARD_TEXT.tableSubtitle}</p>
+        </div>
+        <TableB
+          columns={tableColumns}
+          data={ultimasCitas}
+          rowKey="id"
+          emptyMessage={DASHBOARD_TEXT.tableEmptyMessage}
+        />
+      </div>
+
+      <DrawPanel
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        title={DASHBOARD_TEXT.filterDrawerTitle}
+        description={DASHBOARD_TEXT.filterDrawerDescription}
+        width="420px"
+        showActions
+        onConfirm={handleApplyFilters}
+        confirmText={DASHBOARD_TEXT.filterApplyButton}
+        cancelText={DASHBOARD_TEXT.filterCancelButton}
+      >
+        <Filters
+          period={draftFilters.period}
+          onPeriodChange={(period) => setDraftFilters((f) => ({ ...f, period }))}
+          status={draftFilters.status}
+          onStatusChange={(status) => setDraftFilters((f) => ({ ...f, status }))}
+          onClear={() => setDraftFilters(DEFAULT_FILTERS)}
+        />
+      </DrawPanel>
+    </div>
   );
 }

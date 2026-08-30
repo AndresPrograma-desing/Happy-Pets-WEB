@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, startOfWeek, setMonth, setYear } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, CalendarDays, X, ChevronDown } from 'lucide-react';
 import styles from './CustomDatePicker.module.css';
-import TextField from '../Material-UI/Components/TextField/Index';
+import MuiTextField from '@mui/material/TextField';
 
 const CustomDatePicker = ({ label, name, value, onChange, required = false, disabled = false }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -118,16 +119,24 @@ const CustomDatePicker = ({ label, name, value, onChange, required = false, disa
 
   return (
     <div className={styles.inputGroup} onClick={(e) => e.stopPropagation()}>
-      <TextField
-        label={label}
+      <MuiTextField
+        label={
+          label ? (
+            <span>
+              {label}
+              {required && <span style={{ color: 'red', marginLeft: '4px' }}>**</span>}
+            </span>
+          ) : undefined
+        }
         value={selectedDate ? format(selectedDate, 'dd/MM/yyyy') : ''}
-        readOnly
         placeholder="dd/mm/aaaa"
         onClick={() => !disabled && setIsOpen(true)}
         disabled={disabled}
-        required={required}
+        size="small"
+        fullWidth
         slotProps={{
           input: {
+            readOnly: true,
             endAdornment: (
               <CalendarDays 
                 size={16} 
@@ -137,9 +146,10 @@ const CustomDatePicker = ({ label, name, value, onChange, required = false, disa
             )
           }
         }}
+        sx={{ m: 0, '& .MuiInputBase-root': { backgroundColor: '#fff' } }}
       />
 
-      {isOpen && (
+      {isOpen && createPortal(
         <div className={styles.modalBackdrop} onClick={() => { setIsOpen(false); setShowSelectors(false); }}>
           <div className={styles.calendarModal} ref={modalRef} onClick={(e) => e.stopPropagation()}>
             
@@ -232,7 +242,8 @@ const CustomDatePicker = ({ label, name, value, onChange, required = false, disa
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

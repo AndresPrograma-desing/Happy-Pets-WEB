@@ -43,7 +43,16 @@ const Loading = ({ text = "", phrases = [], size = 'medium', variant = 'default'
       default:
         return (
           <div className={styles.spinnerWrapper}>
-            <div className={styles.spinner}></div>
+            <svg className={styles.spinner} viewBox="0 0 50 50">
+              <circle
+                className={styles.spinnerCircle}
+                cx="25"
+                cy="25"
+                r="20"
+                fill="none"
+                strokeWidth="4"
+              />
+            </svg>
           </div>
         );
     }

@@ -4,23 +4,26 @@ import api from '../../../services/api';
 import styles from './Consulta.module.css';
 import AgreeProduct from '../../../components/ProductList/AgreeProduct/AgreeProduct';
 import AlertModal from '../../../components/AlertModal/AlertModal';
-import { 
-  Stethoscope, 
-  Thermometer, 
-  Weight, 
-  ClipboardList, 
-  Pill, 
-  Save, 
+import {
+  Stethoscope,
+  Thermometer,
+  Weight,
+  ClipboardList,
+  Pill,
+  Save,
   ArrowLeft,
   Trash2,
   PlusCircle,
-  AlertCircle
+  AlertCircle,
+  Syringe
 } from 'lucide-react';
 import ModalTooltip from '../../../components/ModalTooltip/ModalTooltip';
 import { FormCard, FormInput, FormTextArea } from '../../../components/screens/components/FormControls';
 import Button from '../../../components/screens/components/Button';
 import MultilinePlaceholder from '../../../components/screens/components/Material-UI/Components/MultilinePlaceholder/index';
 import Input from '../../../components/screens/components/Input/Index';
+import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
+import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
 
 function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const { state } = useLocation();
@@ -45,6 +48,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
     receta: '',
     observaciones: '',
     productos: [],
+    vacunas: [],
   });
 
   const NO_PRODUCT_LABEL = 'no se usaron productos';
@@ -52,6 +56,21 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const [error, setError] = useState(null);
   const [showBadReqModal, setShowBadReqModal] = useState(false);
   const [showConfirmSaveModal, setShowConfirmSaveModal] = useState(false);
+  const [vaccines, setVaccines] = useState([]);
+  const [loadingVaccines, setLoadingVaccines] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setLoadingVaccines(true);
+    api.getVaccines({ active: true, pageSize: 100 })
+      .then((res) => {
+        if (!active) return;
+        setVaccines(Array.isArray(res) ? res : (res?.items || []));
+      })
+      .catch((err) => console.error('Error cargando vacunas:', err))
+      .finally(() => { if (active) setLoadingVaccines(false); });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     setForm(prev => ({
@@ -128,6 +147,54 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
     setForm((s) => ({ ...s, productos: s.productos.filter((_, i) => i !== idx) }));
   };
 
+  const addVacuna = () => {
+    setForm((s) => ({
+      ...s,
+      vacunas: [...s.vacunas, {
+        vaccine_id: '',
+        vaccine_batch_id: '',
+        application_date: new Date().toISOString().slice(0, 10),
+        weight_at_application: '',
+        dose: '',
+        next_dose_date_override: '',
+        clinical_observations: '',
+        _batches: [],
+        _loadingBatches: false,
+      }],
+    }));
+  };
+
+  const updateVacuna = (idx, key, value) => {
+    setForm((s) => {
+      const copy = [...s.vacunas];
+      copy[idx] = { ...copy[idx], [key]: value };
+      return { ...s, vacunas: copy };
+    });
+  };
+
+  const removeVacuna = (idx) => {
+    setForm((s) => ({ ...s, vacunas: s.vacunas.filter((_, i) => i !== idx) }));
+  };
+
+  const handleVacunaVaccineChange = async (idx, vaccineId) => {
+    setForm((s) => {
+      const copy = [...s.vacunas];
+      copy[idx] = { ...copy[idx], vaccine_id: vaccineId, vaccine_batch_id: '', _batches: [] };
+      return { ...s, vacunas: copy };
+    });
+    if (!vaccineId) return;
+    updateVacuna(idx, '_loadingBatches', true);
+    try {
+      const res = await api.getVaccineBatches(vaccineId, { active: true, pageSize: 100 });
+      const list = Array.isArray(res) ? res : (res?.items || []);
+      updateVacuna(idx, '_batches', list.filter((b) => !b.is_expired));
+    } catch (err) {
+      console.error('Error cargando lotes de vacuna:', err);
+    } finally {
+      updateVacuna(idx, '_loadingBatches', false);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setShowConfirmSaveModal(true);
@@ -137,7 +204,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
     setShowConfirmSaveModal(false);
     setSubmitting(true);
     try {
-      if (!form.mascota_id || form.productos.length === 0) {
+      if (!form.mascota_id) {
         setShowBadReqModal(true);
         return;
       }
@@ -149,7 +216,18 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
           ...p,
           producto_id: Number(p.producto_id),
           cantidad: Number(p.cantidad)
-        }))
+        })),
+        vacunas: form.vacunas
+          .filter(v => v.vaccine_id && v.vaccine_batch_id)
+          .map(v => ({
+            vaccine_id: Number(v.vaccine_id),
+            vaccine_batch_id: Number(v.vaccine_batch_id),
+            application_date: v.application_date,
+            weight_at_application: v.weight_at_application ? Number(v.weight_at_application) : null,
+            dose: v.dose || '',
+            next_dose_date_override: v.next_dose_date_override || null,
+            clinical_observations: v.clinical_observations || '',
+          }))
       };
 
       await api.createConsulta(payload);
@@ -352,6 +430,104 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
             </div>
           </FormCard>
 
+          <FormCard
+            icon={Syringe}
+            title="Vacunas Aplicadas"
+            headerActions={
+              <ModalTooltip text="Registrar la aplicación de una vacuna en esta consulta" placement="top">
+                <Button type="button" variant="ghost" circle onClick={addVacuna} icon={PlusCircle} color="primary" />
+              </ModalTooltip>
+            }
+          >
+            <div className={styles.productsList}>
+              {form.vacunas.length === 0 && (
+                <p className={styles.emptyMsg}>No hay vacunas registradas en esta consulta.</p>
+              )}
+              {form.vacunas.map((v, idx) => (
+                <div key={idx} className={styles.productCard}>
+                  <div className={styles.productMainRow}>
+                    <div className={styles.flexGrow}>
+                      <label className={styles.miniLabel}>Vacuna</label>
+                      <Selector
+                        placeholder="Selecciona una vacuna"
+                        value={v.vaccine_id}
+                        onChange={(e) => handleVacunaVaccineChange(idx, e.target.value)}
+                        loading={loadingVaccines}
+                        options={vaccines.map((vac) => ({ value: String(vac.id), label: vac.name }))}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      color="error"
+                      circle
+                      onClick={() => removeVacuna(idx)}
+                      icon={Trash2}
+                      title="Quitar"
+                    />
+                  </div>
+
+                  <div className={styles.productDetailsGrid}>
+                    <div className={styles.group}>
+                      <label className={styles.miniLabel}>Lote</label>
+                      <Selector
+                        placeholder={v.vaccine_id ? 'Selecciona un lote' : 'Selecciona primero una vacuna'}
+                        value={v.vaccine_batch_id}
+                        onChange={(e) => updateVacuna(idx, 'vaccine_batch_id', e.target.value)}
+                        loading={v._loadingBatches}
+                        options={(v._batches || []).map((b) => ({ value: String(b.id), label: `${b.batch_number} — ${b.laboratory}` }))}
+                      />
+                    </div>
+                    <div className={styles.group}>
+                      <TextField
+                        label="Fecha de Aplicación"
+                        type="date"
+                        value={v.application_date}
+                        onChange={(e) => updateVacuna(idx, 'application_date', e.target.value)}
+                      />
+                    </div>
+                    <div className={styles.group}>
+                      <TextField
+                        label="Peso al Aplicar (kg)"
+                        type="number"
+                        inputProps={{ step: '0.01' }}
+                        value={v.weight_at_application}
+                        onChange={(e) => updateVacuna(idx, 'weight_at_application', e.target.value)}
+                      />
+                    </div>
+                    <div className={styles.group}>
+                      <Input
+                        className={styles.subInput}
+                        placeholder="Dosis"
+                        value={v.dose}
+                        label="Dosis"
+                        onChange={(e) => updateVacuna(idx, 'dose', e.target.value)}
+                      />
+                    </div>
+                    <div className={styles.group}>
+                      <TextField
+                        label="Próxima Dosis (Opcional)"
+                        type="date"
+                        value={v.next_dose_date_override}
+                        onChange={(e) => updateVacuna(idx, 'next_dose_date_override', e.target.value)}
+                      />
+                    </div>
+                    <div className={styles.fullWidth}>
+                      <MultilinePlaceholder
+                        label="Observaciones clínicas sobre la aplicación..."
+                        value={v.clinical_observations}
+                        onChange={(e) => updateVacuna(idx, 'clinical_observations', e.target.value)}
+                        rows={2}
+                        size="small"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </FormCard>
+
           <div className={styles.actionCard}>
             <Button
               type="submit"
@@ -368,7 +544,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
 
       <AlertModal open={showBadReqModal} 
         title="Atención" 
-        message="Debe completar los datos obligatorios y productos." 
+        message="Debe completar los datos obligatorios de la consulta."
         onClose={() => setShowBadReqModal(false)}
          />
       <AlertModal 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, startTransition } from "react";
+import React, { useState, useEffect, useRef, startTransition } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 //Manejo de fallas de conexion al servidor o internet
@@ -179,8 +179,48 @@ function App() {
   );
 }
 
+// El API debe estar caído de forma continua por más de este tiempo antes de mostrar /witing.
+const WAITING_THRESHOLD_MS = 16 * 60 * 1000;
+const DOWN_SINCE_KEY = 'apiDownSince';
+
 function AppRouterWrapper({ isOnline, isBackendAlive, isChecking }) {
   const location = useLocation();
+  const [showWaiting, setShowWaiting] = useState(false);
+  const timeoutRef = useRef(null);
+
+  // Se persiste "desde cuándo está caído" en sessionStorage para que el conteo de 16 min
+  // sobreviva a un reload de página mientras el backend sigue sin responder.
+  useEffect(() => {
+    if (isChecking) return undefined;
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    const isDown = !isOnline || !isBackendAlive;
+
+    if (isDown) {
+      let downSince = Number(sessionStorage.getItem(DOWN_SINCE_KEY));
+      if (!downSince) {
+        downSince = Date.now();
+        sessionStorage.setItem(DOWN_SINCE_KEY, String(downSince));
+      }
+
+      const remaining = WAITING_THRESHOLD_MS - (Date.now() - downSince);
+      timeoutRef.current = setTimeout(() => setShowWaiting(true), Math.max(remaining, 0));
+    } else {
+      sessionStorage.removeItem(DOWN_SINCE_KEY);
+      timeoutRef.current = setTimeout(() => setShowWaiting(false), 0);
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, [isOnline, isBackendAlive, isChecking]);
 
   // While the first health-check is still running, render nothing.
   // This prevents a premature redirect on every page reload.
@@ -188,7 +228,7 @@ function AppRouterWrapper({ isOnline, isBackendAlive, isChecking }) {
     return null;
   }
 
-  if (!isOnline || !isBackendAlive) {
+  if (showWaiting) {
     if (location.pathname !== '/witing') {
       // Remember where the user was so we can restore it after reconnection
       sessionStorage.setItem('redirectAfterWiting', location.pathname);

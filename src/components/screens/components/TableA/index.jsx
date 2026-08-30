@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './index.module.css';
-import Loading from '../Loading/Index';
+import Skeleton from '../Skeleton/Index';
 import { AlertCircle, Inbox } from 'lucide-react';
 import Button from '../Button';
 import ScrollBar from '../ScrollBar';
@@ -12,18 +12,48 @@ const TableA = (props) => {
     keyExtractor,
     rowClassName,
     loading = false,
+    skeletonRows = 4,
     error = null,
     onRetry,
     emptyIcon: EmptyIcon = Inbox,
-    emptyMessage = "No hay datos disponibles"
+    emptyMessage = "No hay datos disponibles",
+    surfaceColor,
+    headerColor,
+    textColor,
+    headingColor,
+    mutedTextColor,
+    borderColor,
+    hoverColor,
+    rowBorderColor,
+    onRowClick
   } = props;
+
+  const themeVars = {
+    '--tableA-surface': surfaceColor,
+    '--tableA-header': headerColor,
+    '--tableA-text': textColor,
+    '--tableA-heading-text': headingColor,
+    '--tableA-muted-text': mutedTextColor,
+    '--tableA-border': borderColor,
+    '--tableA-hover': hoverColor,
+    '--tableA-row-border': rowBorderColor
+  };
+
   return (
-    <ScrollBar horizontal vertical={false} className={styles.tableWrapper}>
+    <ScrollBar horizontal vertical={false} className={styles.tableWrapper} style={themeVars}>
       <table className={styles.table}>
         <thead>
           <tr>
             {columns.map((col, idx) => (
-              <th key={idx} style={{ textAlign: col.align || 'left' }}>
+              <th
+                key={idx}
+                style={{
+                  textAlign: col.align || 'left',
+                  width: col.width,
+                  minWidth: col.width,
+                  maxWidth: col.width,
+                }}
+              >
                 {col.header}
               </th>
             ))}
@@ -31,13 +61,15 @@ const TableA = (props) => {
         </thead>
         <tbody>
           {loading ? (
-            <tr>
-              <td colSpan={columns.length} style={{ padding: 0 }}>
-                <div className={styles.tableLoadingContainer}>
-                  <Loading size="large" text="" />
-                </div>
-              </td>
-            </tr>
+            Array.from({ length: skeletonRows }).map((_, rowIdx) => (
+              <tr key={`skeleton-${rowIdx}`} className={styles.row}>
+                {columns.map((col, colIdx) => (
+                  <td key={colIdx} style={{ textAlign: col.align || 'left', width: col.width, minWidth: col.width, maxWidth: col.width }}>
+                    <Skeleton height="14px" width={col.align === 'right' || col.align === 'center' ? '60%' : '85%'} />
+                  </td>
+                ))}
+              </tr>
+            ))
           ) : error ? (
             <tr>
               <td colSpan={columns.length} style={{ padding: 0 }}>
@@ -68,12 +100,22 @@ const TableA = (props) => {
             </tr>
           ) : (
             data.map((row) => (
-              <tr 
-                key={keyExtractor(row)} 
+              <tr
+                key={keyExtractor(row)}
                 className={`${styles.row} ${rowClassName ? rowClassName(row) : ''}`}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                style={onRowClick ? { cursor: 'pointer' } : undefined}
               >
                 {columns.map((col, colIndex) => (
-                  <td key={colIndex} style={{ textAlign: col.align || 'left' }}>
+                  <td
+                    key={colIndex}
+                    style={{
+                      textAlign: col.align || 'left',
+                      width: col.width,
+                      minWidth: col.width,
+                      maxWidth: col.width,
+                    }}
+                  >
                     {col.render ? col.render(row) : row[col.accessor]}
                   </td>
                 ))}

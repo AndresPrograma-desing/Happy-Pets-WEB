@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronRight } from 'lucide-react'; // <-- Cambiado de X a ChevronRight
 import styles from './index.module.css';
 
 import Button from '../Button/index';
 import CountdownBar from '../CountdownBar/index';
+import { DrawPanelFooterContext } from './FooterContext';
 
-const DrawPanel = ({ 
+const DrawPanel = ({
   isOpen, 
   onClose, 
   title, 
@@ -15,6 +16,7 @@ const DrawPanel = ({
   children,
   width = '400px',
   showActions = false,
+  dynamicFooter = false,
   onConfirm,
   confirmText = 'Confirmar',
   cancelText = 'Cancelar',
@@ -38,19 +40,60 @@ const DrawPanel = ({
   totalItems = [],
   selectedItems = [],
   formData,
-  requiredFields = []
+  requiredFields = [],
+  hasUnsavedChanges,
+  closeConfirmMessage = 'Vuelve a hacer clic fuera para cerrar sin guardar'
 }) => {
   const [render, setRender] = useState(isOpen);
+  const [pendingClose, setPendingClose] = useState(false);
+  const pendingCloseTimeoutRef = useRef(null);
+  const [footerNode, setFooterNode] = useState(null);
 
   useEffect(() => {
     if (isOpen) setRender(true);
   }, [isOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (pendingCloseTimeoutRef.current) clearTimeout(pendingCloseTimeoutRef.current);
+    };
+  }, []);
+
   const onAnimationEnd = () => {
-    if (!isOpen) setRender(false);
+    if (!isOpen) {
+      setRender(false);
+      setPendingClose(false);
+      if (pendingCloseTimeoutRef.current) {
+        clearTimeout(pendingCloseTimeoutRef.current);
+        pendingCloseTimeoutRef.current = null;
+      }
+    }
   };
 
   if (!render) return null;
+
+  // Contenido "sucio": si hay datos cargados en el formulario, un solo clic fuera
+  // no cierra el panel (para no perder lo que el usuario escribió); requiere un
+  // segundo clic. Sin datos, el panel se cierra normalmente con un solo clic.
+  const formHasValues = formData
+    ? Object.values(formData).some((val) => val !== undefined && val !== null && String(val).trim() !== '')
+    : false;
+  const isDirty = hasUnsavedChanges ?? formHasValues;
+
+  const handleOverlayClick = () => {
+    if (!isDirty) {
+      onClose();
+      return;
+    }
+    if (pendingClose) {
+      if (pendingCloseTimeoutRef.current) clearTimeout(pendingCloseTimeoutRef.current);
+      setPendingClose(false);
+      onClose();
+      return;
+    }
+    setPendingClose(true);
+    pendingCloseTimeoutRef.current = setTimeout(() => setPendingClose(false), 2500);
+  };
 
   // Lógica Genérica de Cálculo de Progreso
   let calculatedProgress = countdownValue ?? 0;
@@ -70,16 +113,20 @@ const DrawPanel = ({
   }
 
   return createPortal(
-    <div 
-      className={`${styles.overlay} ${isOpen ? styles.fadeIn : styles.fadeOut}`} 
-      onClick={onClose}
+    <div
+      className={`${styles.overlay} ${isOpen ? styles.fadeIn : styles.fadeOut}`}
+      onClick={handleOverlayClick}
       onAnimationEnd={onAnimationEnd}
     >
-      <div 
+      <div
         className={`${styles.panel} ${isOpen ? styles.slideIn : styles.slideOut} ${className}`}
         style={{ maxWidth: width }}
         onClick={(e) => e.stopPropagation()}
       >
+        {pendingClose && (
+          <div className={styles.closeHint}>{closeConfirmMessage}</div>
+        )}
+
         <div className={styles.header}>
           <div className={styles.headerTitleContainer}>
             <h3 className={styles.title}>{title}</h3>
@@ -118,7 +165,9 @@ const DrawPanel = ({
         )}
 
         <div className={styles.content}>
-          {children}
+          <DrawPanelFooterContext.Provider value={footerNode}>
+            {children}
+          </DrawPanelFooterContext.Provider>
           {description && descriptionPosition === 'bottom' && (
             <div className={styles.descriptionBottom}>
               <h4 className={styles.descriptionBottomTitle}>Descripción de Tarea</h4>
@@ -126,6 +175,8 @@ const DrawPanel = ({
             </div>
           )}
         </div>
+
+        {dynamicFooter && <div ref={setFooterNode} className={styles.footer} />}
 
         {showActions && (
           <div className={styles.footer}>

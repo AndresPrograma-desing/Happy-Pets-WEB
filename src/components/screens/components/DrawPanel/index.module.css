@@ -70,6 +70,41 @@
   }
 }
 
+.closeHint {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #0f172a;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+  z-index: 5;
+  pointer-events: none;
+  white-space: nowrap;
+  animation: closeHintFade 2.5s ease forwards;
+}
+
+@keyframes closeHintFade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .header {
   display: flex;
   align-items: flex-start;
@@ -135,6 +170,18 @@
 
 .content::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
+}
+
+/* Los formularios de las distintas pantallas usan su propio CSS Module con
+   grids de 2 columnas (ej. .formRow, .row, .gridTwoColumns) para poner campos
+   uno al lado del otro. Se fuerza aquí a 1 columna para que dentro del panel
+   siempre queden apilados, sin tener que tocar cada formulario.
+   Solo afecta a elementos con display:grid (no toca flex rows como
+   .settingRow de DesplegablePanel o los grids de CalendarPicker/HoursPicker,
+   que no matchean por nombre). */
+.content [class*="row" i],
+.content [class*="twocolumn" i] {
+  grid-template-columns: 1fr !important;
 }
 
 .footer {

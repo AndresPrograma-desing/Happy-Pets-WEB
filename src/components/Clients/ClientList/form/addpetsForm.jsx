@@ -6,8 +6,11 @@ import Selector from '../../../screens/components/Material-UI/Components/Selecto
 import Input from '../../../screens/components/Input/Index';
 import Switch from '../../../screens/components/Swich/Index';
 import ErrorMessage from '../../../Notification/Error/ErrorMessage';
+import useSpecies from '../../../../hooks/useSpecies';
 
 export default function AddPetsForm({ petForm, setPetForm, petError }) {
+    const { speciesOptions } = useSpecies();
+
     return (
         <div className={styles.formContainer}>
             
@@ -24,13 +27,12 @@ export default function AddPetsForm({ petForm, setPetForm, petError }) {
                     />
                 </div>
                 <div className={styles.inputGroup}>
-                    <Input 
-                        label="Especie" 
-                        name="especie" 
-                        value={petForm.especie} 
-                        onChange={(e) => handleFormChange(e, setPetForm)} 
-                        placeholder="Ej: Perro, Gato" 
-                        required 
+                    <Selector
+                        label="Especie"
+                        value={petForm.especie}
+                        onChange={(e) => setPetForm(prev => ({ ...prev, especie: e.target.value }))}
+                        options={speciesOptions}
+                        required
                     />
                 </div>
             </div>

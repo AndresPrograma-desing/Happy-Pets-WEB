@@ -1,6 +1,4 @@
-import React from 'react';
-import { Link2, BellPlus, Users, BotIcon, Mail, Activity } from 'lucide-react';
-import { getText } from '../../constants';
+import { resolveCatalogIcon } from '../../utils/lucideIcon';
 
 export const getUserRole = () => {
   try {
@@ -35,124 +33,174 @@ export const getUserPermissions = () => {
   return null;
 };
 
-// Filtra los items (y sub-items) del sidebar según las claves de permiso otorgadas.
-// Si permissions es null/undefined, devuelve los items sin cambios (fallback al menú del rol).
+// Filtra los items del sidebar según las claves de permiso que tiene otorgadas el usuario.
+// Los items sin permissionKey (root, siempre visibles) se muestran pase lo que pase. Los que
+// requieren permiso (planos o dentro de un grupo) solo se muestran una vez que /Auth/me cargó
+// el array de permisos; si todavía no cargó (permissions null/undefined), se ocultan.
 export const filterMenuByPermissions = (items, permissions) => {
-  if (!permissions) return [];
-
+  const hasPermissions = Array.isArray(permissions);
   return items.reduce((acc, item) => {
-    if (item.subItems && item.subItems.length > 0) {
-      const allowedSubItems = item.subItems.filter(
-        (sub) => !sub.permissionKey || permissions.includes(sub.permissionKey)
-      );
-      if (allowedSubItems.length > 0) {
-        acc.push({ ...item, subItems: allowedSubItems });
-      }
+    if (item.subItems) {
+      if (!hasPermissions) return acc;
+      const visibleSubItems = item.subItems.filter((sub) => !sub.permissionKey || permissions.includes(sub.permissionKey));
+      if (visibleSubItems.length > 0) acc.push({ ...item, subItems: visibleSubItems });
       return acc;
     }
-
-    if (!item.permissionKey || permissions.includes(item.permissionKey)) {
+    if (!item.permissionKey) {
       acc.push(item);
+      return acc;
     }
+    if (hasPermissions && permissions.includes(item.permissionKey)) acc.push(item);
     return acc;
   }, []);
 };
 
-// Aplana el menú de un rol en [{ key, label }] para construir la UI de administración de permisos.
-export const getAllPermissionKeysForRole = (role, options = {}) => {
-  const defaultMenus = getDefaultMenus(options);
-  const items = defaultMenus[role] || [];
+// Este archivo ya NO define texto ni ícono de ningún item con permissionKey: eso vive en el
+// catálogo de permisos del backend (GET /Permissions/permission), agrupado por módulo y con keys
+// globales (sin prefijo de rol). Lo que queda acá es puramente ruteo/comportamiento de click,
+// indexado por esa misma key — ver resolveMenuFromCatalog.
+//
+// Los items sin permissionKey (los "root" de cada panel: Panel/Dashboard) no tienen módulo
+// equivalente en el catálogo, así que llevan label/icon fijos acá y se muestran siempre,
+// sin gating por permiso.
+//
+// Un módulo se agrupa en `subItems` solo cuando sus permisos apuntan al mismo path (son
+// vistas/tabs de una misma pantalla, ej. vacunas o productos). Si apuntan a paths distintos
+// quedan como items planos separados, igual que antes.
+export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal, setShowCreateClientModal, setShowCreateUserModal }) => ({
+  user: [
+    { path: '/', label: 'Inicio', icon: 'Home' },
+    { path: '/projects', permissionKey: 'projects.view' },
+    { path: '/panel-menssage', permissionKey: 'messages.view' },
+  ],
+  admin: [
+    { path: '/AdminSystem', label: 'Panel', icon: 'Home' },
+    { path: '/AdminSystem/dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { path: '/AdminSystem/users', permissionKey: 'users.view' },
+    { onClick: () => setShowCreateUserModal(true), permissionKey: 'users.create' },
+    {
+      subItems: [
+        { path: '/AdminSystem/products', state: { view: 'list' }, permissionKey: 'products.view' },
+        { path: '/AdminSystem/products', state: { view: 'manage' }, permissionKey: 'products.manage' },
+      ],
+    },
+    { path: '/panel-menssage', permissionKey: 'messages.view' },
+    { path: '/facturas', permissionKey: 'invoices.view' },
+    { onClick: () => setShowNotificationModal(true), permissionKey: 'notifications.create' },
+    { path: '/clients', permissionKey: 'clients.view' },
+    { path: '/AdminSystem/emails', permissionKey: 'emails.manage' },
+    {
+      subItems: [
+        { path: '/AdminSystem/vaccines', state: { view: 'list' }, permissionKey: 'vaccines.view' },
+        { path: '/AdminSystem/vaccines', state: { view: 'manage', openCreate: true }, permissionKey: 'vaccines.manage' },
+        { path: '/AdminSystem/vaccines', state: { view: 'pending' }, permissionKey: 'vaccines.pending' },
+        { path: '/AdminSystem/vaccines', state: { view: 'batches' }, permissionKey: 'vaccines.batches' },
+      ],
+    },
+    { path: '/AdminSystem/settings', permissionKey: 'settings.manage' },
+  ],
+  secretaria: [
+    { path: '/SecretariaSystem', label: 'Panel', icon: 'Home' },
+    { path: '/citas', state: { role: 'secretaria' }, permissionKey: 'citas.list' },
+    { path: '/citas/crear', state: { role: 'secretaria' }, permissionKey: 'citas.create' },
+    { onClick: () => setShowCreateClientModal && setShowCreateClientModal(true), permissionKey: 'clients.create' },
+    { path: '/calendar', state: { role: 'secretaria' }, permissionKey: 'calendar.view' },
+    { path: '/factura-manager', permissionKey: 'invoices.manage' },
+    { path: '/panel-menssage', permissionKey: 'messages.view' },
+    { path: '/facturas', permissionKey: 'invoices.view' },
+    {
+      subItems: [
+        { path: '/AdminSystem/vaccines', state: { view: 'list' }, permissionKey: 'vaccines.view' },
+        { path: '/AdminSystem/vaccines', state: { view: 'manage', openCreate: true }, permissionKey: 'vaccines.manage' },
+        { path: '/AdminSystem/vaccines', state: { view: 'pending' }, permissionKey: 'vaccines.pending' },
+        { path: '/AdminSystem/vaccines', state: { view: 'batches' }, permissionKey: 'vaccines.batches' },
+      ],
+    },
+    { path: '/doctor/recetas', permissionKey: 'recipes.manage' },
+    { onClick: () => setShowNotificationModal(true), permissionKey: 'notifications.create' },
+    { path: '/clients', permissionKey: 'clients.view' },
+  ],
+  doctor: [
+    { path: '/doctor', label: 'Panel', icon: 'Home' },
+    { path: '/citas', permissionKey: 'citas.mine' },
+    { path: '/calendar', permissionKey: 'calendar.view' },
+    { path: '/doctor/pacientes', permissionKey: 'records.view' },
+    { path: '/doctor/recetas', permissionKey: 'recipes.manage' },
+    {
+      subItems: [
+        { path: '/AdminSystem/vaccines', state: { view: 'list' }, permissionKey: 'vaccines.view' },
+        { path: '/AdminSystem/vaccines', state: { view: 'manage', openCreate: true }, permissionKey: 'vaccines.manage' },
+        { path: '/AdminSystem/vaccines', state: { view: 'pending' }, permissionKey: 'vaccines.pending' },
+        { path: '/AdminSystem/vaccines', state: { view: 'batches' }, permissionKey: 'vaccines.batches' },
+      ],
+    },
+    { path: '/panel-menssage', permissionKey: 'messages.view' },
+    { path: '/facturas', permissionKey: 'invoices.view' },
+    { onClick: () => setShowNotificationModal(true), permissionKey: 'notifications.create' },
+  ],
+});
+
+// Cruza los items de ruteo (path/onClick) con el catálogo del backend, agrupado por módulo:
+// { [permissionKey]: { key, label, module, moduleLabel, moduleIcon } } (ver usePermissionsCatalog).
+// Un item con permissionKey SOLO aparece si esa key tiene entrada en el catálogo. Los items sin
+// permissionKey (root) ya traen su label/icon fijo y pasan siempre. Los grupos con subItems
+// resuelven cada subitem por su propia key y toman el label/icono del módulo para el header del
+// grupo; si ningún subitem resuelve, el grupo entero se descarta.
+export const resolveMenuFromCatalog = (items, permissionsCatalog) => {
+  const catalog = permissionsCatalog || {};
 
   return items.reduce((acc, item) => {
-    if (item.subItems && item.subItems.length > 0) {
-      item.subItems.forEach((sub) => {
-        if (sub.permissionKey) acc.push({ key: sub.permissionKey, label: `${item.label} - ${sub.label}` });
+    if (item.subItems) {
+      const resolvedSubItems = item.subItems.reduce((subAcc, sub) => {
+        const entry = catalog[sub.permissionKey];
+        if (!entry) return subAcc;
+        subAcc.push({ ...sub, id: sub.permissionKey, label: entry.label, icon: resolveCatalogIcon(entry.moduleIcon) });
+        return subAcc;
+      }, []);
+      if (resolvedSubItems.length === 0) return acc;
+      const groupMeta = catalog[resolvedSubItems[0].id];
+      acc.push({
+        id: `group-${groupMeta.module}`,
+        label: groupMeta.moduleLabel,
+        icon: resolveCatalogIcon(groupMeta.moduleIcon),
+        subItems: resolvedSubItems,
       });
       return acc;
     }
-    if (item.permissionKey) acc.push({ key: item.permissionKey, label: item.label });
+
+    if (!item.permissionKey) {
+      acc.push({ ...item, icon: resolveCatalogIcon(item.icon) });
+      return acc;
+    }
+
+    const entry = catalog[item.permissionKey];
+    if (!entry) return acc;
+    acc.push({ ...item, id: item.permissionKey, label: entry.label, icon: resolveCatalogIcon(entry.moduleIcon) });
     return acc;
   }, []);
 };
 
-export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal, setShowCreateClientModal }) => ({
-  user: [
-    { label: getText("userInterface.menuItemDashboard"), path: '/', icon: 'house', permissionKey: 'user.dashboard' },
-    { label: 'Proyectos', path: '/projects', icon: 'service', permissionKey: 'user.projects' },
-    { label: 'Mensajes', path: '/panel-menssage', icon: 'message', permissionKey: 'user.messages' },
-  ],
-  admin: [
-    { label: getText("generalPanelTexts.titleA"), path: '/AdminSystem', icon: 'adminRole', permissionKey: 'admin.panel' },
-    { label: getText("adminInterface.menuItemDashboard"), path: '/AdminSystem/dashboard', icon: 'dashboard', permissionKey: 'admin.dashboard' },
-    { label: getText("adminInterface.menuItemUsers"), path: '/AdminSystem/users', icon: 'user', permissionKey: 'admin.users' },
-    {
-      label: getText("adminInterface.menuItemProducts"), icon: 'box',
-      subItems: [
-        { label: 'Ver productos', path: '/AdminSystem/products', state: { view: 'list' }, permissionKey: 'admin.products.view' },
-        { label: 'Administrar productos', path: '/AdminSystem/products', state: { view: 'manage' }, permissionKey: 'admin.products.manage' }
-      ]
-    },
-    { label: getText("adminInterface.menuItemMessages"), path: '/panel-menssage', icon: 'message', permissionKey: 'admin.messages' },
-    { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck', permissionKey: 'admin.invoices.view' },
-    { label: getText("generalPanelTexts.optionsNavegations.notificationCreated"), icon: <BellPlus />, onClick: () => setShowNotificationModal(true), permissionKey: 'admin.notifications.create' },
-    { label: getText("generalPanelTexts.optionsNavegations.clientList"), path: '/clients', icon: <Users />, permissionKey: 'admin.clients' },
-    { label: 'Plantillas Emails', path: '/AdminSystem/emails', icon: <Mail />, permissionKey: 'admin.emails' },
-    {
-      label: 'Vacunas', icon: <Activity />,
-      subItems: [
-        { label: 'Ver vacunas', path: '/AdminSystem/vaccines', state: { view: 'list' }, permissionKey: 'admin.vaccines.view' },
-        { label: 'Crear vacuna', path: '/AdminSystem/vaccines', state: { view: 'manage', openCreate: true }, permissionKey: 'admin.vaccines.manage' },
-        { label: 'Vacunas pendientes', path: '/AdminSystem/vaccines', state: { view: 'pending' }, permissionKey: 'admin.vaccines.pending' },
-        { label: 'Lotes de vacunas', path: '/AdminSystem/vaccines', state: { view: 'batches' }, permissionKey: 'admin.vaccines.batches' }
-      ]
-    },
-    { label: getText("adminInterface.menuItemSettings"), path: '/AdminSystem/settings', icon: 'engranaje', permissionKey: 'admin.settings' },
-  ],
-  secretaria: [
-    { label: 'Panel', path: '/SecretariaSystem', icon: 'secretariaRole', permissionKey: 'secretaria.panel' },
-    {
-      label: 'Citas', icon: 'calendario',
-      subItems: [
-        { label: 'Lista de Citas', path: '/citas', state: { role: 'secretaria' }, permissionKey: 'secretaria.citas.list' },
-        { label: 'Nueva Cita', path: '/citas/crear', state: { role: 'secretaria' }, permissionKey: 'secretaria.citas.create' },
-        { label: 'Nuevo Cliente', onClick: () => setShowCreateClientModal && setShowCreateClientModal(true), permissionKey: 'secretaria.citas.newClient' }
-      ]
-    },
-    { label: 'Calendario', path: '/calendar', state: { role: 'secretaria' }, icon: 'calendario', permissionKey: 'secretaria.calendar' },
-    { label: 'Gestion de Recibos', path: '/factura-manager', icon: 'fileText', permissionKey: 'secretaria.invoices.manage' },
-    { label: 'Mensajes', path: '/panel-menssage', icon: 'message', permissionKey: 'secretaria.messages' },
-    { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck', permissionKey: 'secretaria.invoices.view' },
-    {
-      label: 'Vacunas', icon: <Activity />,
-      subItems: [
-        { label: 'Ver vacunas', path: '/AdminSystem/vaccines', state: { view: 'list' }, permissionKey: 'secretaria.vaccines.view' },
-        { label: 'Crear vacuna', path: '/AdminSystem/vaccines', state: { view: 'manage', openCreate: true }, permissionKey: 'secretaria.vaccines.manage' },
-        { label: 'Vacunas pendientes', path: '/AdminSystem/vaccines', state: { view: 'pending' }, permissionKey: 'secretaria.vaccines.pending' },
-        { label: 'Lotes de vacunas', path: '/AdminSystem/vaccines', state: { view: 'batches' }, permissionKey: 'secretaria.vaccines.batches' }
-      ]
-    },
-    { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus', permissionKey: 'secretaria.recipes' },
-    { label: 'Crear Alerta', icon: <BellPlus />, onClick: () => setShowNotificationModal(true), permissionKey: 'secretaria.notifications.create' },
-    { label: getText("generalPanelTexts.optionsNavegations.clientList"), path: '/clients', icon: <Users />, permissionKey: 'secretaria.clients' },
-  ],
-  doctor: [
-    { label: 'Panel Médico', path: '/doctor', icon: 'userCita', permissionKey: 'doctor.panel' },
-    { label: 'Mis Citas', path: '/citas', icon: 'calendario', permissionKey: 'doctor.citas' },
-    { label: 'Calendario', path: '/calendar', icon: 'calendario', permissionKey: 'doctor.calendar' },
-    { label: 'Historias Clínicas', path: '/doctor/pacientes', icon: 'fileText', permissionKey: 'doctor.records' },
-    { label: 'Gestión de Recetas', path: '/doctor/recetas', icon: 'clipboardPlus', permissionKey: 'doctor.recipes' },
-    {
-      label: 'Vacunas', icon: <Activity />,
-      subItems: [
-        { label: 'Ver vacunas', path: '/AdminSystem/vaccines', state: { view: 'list' }, permissionKey: 'doctor.vaccines.view' },
-        { label: 'Crear vacuna', path: '/AdminSystem/vaccines', state: { view: 'manage', openCreate: true }, permissionKey: 'doctor.vaccines.manage' },
-        { label: 'Vacunas pendientes', path: '/AdminSystem/vaccines', state: { view: 'pending' }, permissionKey: 'doctor.vaccines.pending' },
-        { label: 'Lotes de vacunas', path: '/AdminSystem/vaccines', state: { view: 'batches' }, permissionKey: 'doctor.vaccines.batches' }
-      ]
-    },
-    { label: 'Mensajes', path: '/panel-menssage', icon: 'message', permissionKey: 'doctor.messages' },
-    { label: 'Ver Recibos', path: '/facturas', icon: 'fileCheck', permissionKey: 'doctor.invoices.view' },
-    // { label: 'Asistente Virtual', path: '/asistente-virtual', icon: <BotIcon />, newTab: true },
-    { label: 'Crear Alerta', icon: <BellPlus />, onClick: () => setShowNotificationModal(true), permissionKey: 'doctor.notifications.create' },
-  ],
-});
+// Aplana el menú de un rol (incluyendo lo agrupado en subItems) en [{ key, label }] para la UI
+// de selección de permisos (crear usuario / editar permisos). Solo incluye claves que existan
+// en el catálogo.
+export const getAllPermissionKeysForRole = (role, options = {}, permissionsCatalog = {}) => {
+  const defaultMenus = getDefaultMenus(options);
+  const items = defaultMenus[role] || [];
+  const catalog = permissionsCatalog || {};
+
+  const collect = (list) => list.reduce((acc, item) => {
+    if (item.subItems) return acc.concat(collect(item.subItems));
+    const entry = item.permissionKey ? catalog[item.permissionKey] : null;
+    if (entry) acc.push({ key: item.permissionKey, label: entry.label });
+    return acc;
+  }, []);
+
+  return collect(items);
+};
+
+// Aplana TODO el catálogo de permisos del sistema en [{ key, label }], sin filtrar por rol.
+// Usado en crear usuario / editar permisos de usuario para poder asignar cualquier permiso
+// del sistema, no solo los que el menú del rol seleccionado usa.
+export const getAllPermissionKeys = (permissionsCatalog = {}) => (
+  Object.values(permissionsCatalog || {}).map(({ key, label }) => ({ key, label }))
+);

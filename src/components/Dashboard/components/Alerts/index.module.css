@@ -1,0 +1,42 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item {
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.title {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.date {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.message {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.emptyMessage {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}

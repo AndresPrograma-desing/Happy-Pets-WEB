@@ -4,9 +4,10 @@ import MenuItem from '@mui/material/MenuItem';
 import { ChevronRight } from 'lucide-react';
 import Button from '../../../Button';
 
-export default function MenuPopover({ item, styles = {}, renderIcon, onNavigate, isCollapsed, children }) {
+export default function MenuPopover({ item, styles = {}, renderIcon, onNavigate, isCollapsed, placement = 'bottom', children }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const isRightFlyout = placement === 'right';
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -52,21 +53,20 @@ export default function MenuPopover({ item, styles = {}, renderIcon, onNavigate,
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
+        anchorOrigin={isRightFlyout
+          ? { vertical: 'top', horizontal: 'right' }
+          : { vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={isRightFlyout
+          ? { vertical: 'top', horizontal: 'left' }
+          : { vertical: 'top', horizontal: 'right' }}
         slotProps={{
           paper: {
             style: {
               backgroundColor: '#ffffffff',
               color: '#000000ff',
               borderRadius: '8px',
-              marginTop: '4px',
+              marginTop: isRightFlyout ? 0 : '4px',
+              marginLeft: isRightFlyout ? '8px' : 0,
               boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
               minWidth: '200px',
               border: '1px solid rgba(0, 0, 0, 0.08)'

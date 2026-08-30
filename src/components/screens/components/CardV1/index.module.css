@@ -3,7 +3,11 @@
   border: 1px solid var(--color-border, #e2e8f0);
   border-radius: 10px;
   padding: 12px;
-  width: 180px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 180px;
+  max-width: 260px;
+  overflow-wrap: break-word;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 
   transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
@@ -44,12 +48,15 @@
 
 .mainContent {
   margin-bottom: 8px;
+  min-width: 0;
 }
 
 .priceContainer {
   display: flex;
   align-items: baseline;
   gap: 4px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .currencyLabel {

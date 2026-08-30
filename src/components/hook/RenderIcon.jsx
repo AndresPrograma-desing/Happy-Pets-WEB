@@ -12,7 +12,7 @@ export const renderIcon = (icon, classNameStyles = '') => {
 
   return React.cloneElement(icon, {
     className: `${icon.props.className || ''} ${classNameStyles}`.trim(),
-    size: icon.props.size || 14,
+    size: icon.props.size || 20,
     color: iconColor,
     style: { 
       filter: 'none',

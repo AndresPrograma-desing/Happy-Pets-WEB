@@ -1,0 +1,450 @@
+/* Sidebar base styling */
+.sidebar {
+  height: 100vh;
+  max-height: 100vh;
+  background: var(--sidebar-bg);
+  backdrop-filter: var(--sidebar-blur);
+  -webkit-backdrop-filter: var(--sidebar-blur);
+  border-radius: 0;
+  border: none;
+  border-right: var(--sidebar-border-right);
+  color: var(--sidebar-text);
+  padding: 24px 16px;
+  width: 280px;
+  min-width: 280px;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  transition: width 0.3s ease, min-width 0.3s ease, padding 0.3s ease;
+}
+
+/* Collapsed state styling */
+.sidebar.collapsed {
+  width: 68px;
+  min-width: 68px;
+  padding: 20px 8px;
+}
+
+.sidebar.collapsed .sidebarHeader {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar.collapsed .sidebarItemBtn {
+  padding: 10px 0 !important;
+  justify-content: center !important;
+}
+
+.sidebar.collapsed .btnLayout {
+  justify-content: center !important;
+}
+
+.sidebar.collapsed .leftPart {
+  justify-content: center !important;
+  flex: none !important;
+  gap: 0 !important;
+}
+
+/* Header section */
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  min-height: 40px;
+  gap: 8px;
+}
+
+.headerContent {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.toggleBtn {
+  flex-shrink: 0;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+  z-index: 5;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.toggleBtn:hover {
+  background-color: #0d52f8 !important;
+  color: #ffffff !important;
+  border-color: #0d52f8 !important;
+}
+
+/* Search wrapper */
+.searchWrapper {
+  margin-top: 4px;
+}
+
+/* Navigation container */
+.navContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.navContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.navContainer::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Menu groups */
+.menuGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.groupTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.06em;
+  display: block;
+  padding-left: 8px;
+  text-transform: uppercase;
+}
+
+.buttonList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Sidebar list items */
+.sidebarItemBtn {
+  width: 100% !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  text-align: left !important;
+  padding: 10px 12px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--sidebar-text-muted) !important;
+  background-color: transparent !important;
+  text-transform: none !important;
+  display: flex !important;
+  transition: background-color 0.2s, color 0.2s !important;
+}
+
+.btnLayout {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 12px;
+}
+
+.leftPart {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.icon {
+  width: 20px !important;
+  height: 20px !important;
+  color: var(--sidebar-text-muted);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+}
+
+.label {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge styles */
+.badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.badgePost { background: #dcfce7; color: #15803d; }
+.badgeGet { background: #e0f2fe; color: #0369a1; }
+.badgePut { background: #fef3c7; color: #b45309; }
+.badgeDelete { background: #fee2e2; color: #b91c1c; }
+.badgeInfo { background: #f1f5f9; color: #475569; }
+
+.sidebarItemBtn:hover {
+  background-color: var(--sidebar-hover-bg) !important;
+  color: var(--sidebar-text-active) !important;
+}
+
+.dragHandle {
+  display: inline-flex;
+  align-items: center;
+  color: var(--sidebar-text-muted);
+  opacity: 0.5;
+  flex-shrink: 0;
+  cursor: grab;
+}
+
+.sidebarItemBtn:hover .dragHandle {
+  opacity: 0.9;
+}
+
+.pinnedIcon {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.dragging {
+  opacity: 0.5 !important;
+}
+
+.dragOver {
+  box-shadow: inset 0 2px 0 0 #0d52f8 !important;
+}
+
+.sidebarItemBtn:hover .icon {
+  color: var(--sidebar-text-active) !important;
+}
+
+.expandChevron {
+  flex-shrink: 0;
+  color: var(--sidebar-text-muted);
+  transition: transform 0.15s ease;
+}
+
+/* Inline accordion for subItems (used when useSubItemsPopover is false) */
+.subItemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 4px 18px;
+  padding-left: 10px;
+  border-left: 1px solid var(--sidebar-border);
+}
+
+.subItemBtn {
+  width: 100% !important;
+  justify-content: flex-start !important;
+  padding: 8px 10px !important;
+  border-radius: 6px !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--sidebar-text-muted) !important;
+  background-color: transparent !important;
+  text-transform: none !important;
+  font-size: 0.85rem !important;
+}
+
+.subItemBtn:hover {
+  background-color: var(--sidebar-hover-bg) !important;
+  color: var(--sidebar-text-active) !important;
+}
+
+/* Active navigation item styling */
+.activeBtn {
+  background-color: var(--sidebar-hover-bg) !important;
+  color: var(--sidebar-text-active) !important;
+  font-weight: 600 !important;
+}
+
+.activeBtn .icon {
+  color: var(--sidebar-text-active) !important;
+}
+
+/* Footer section: groups the optional footerContent slot and the user footer together
+   so both stay bottom-aligned and share a single top divider. */
+.footerGroup {
+  margin-top: auto;
+  border-top: 1px solid var(--sidebar-border);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* User footer: avatar + email, opens the user menu (Ajustes, Cómo usar, Cerrar sesión, etc.) */
+.userFooter {
+  position: relative;
+}
+
+.userFooterButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+}
+
+.userFooterButton:hover {
+  background-color: var(--sidebar-hover-bg);
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0d52f8;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  overflow: hidden;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.userEmail {
+  font-size: 0.82rem;
+  color: var(--sidebar-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Rendered through a portal into document.body (see Index.jsx) so it always
+   paints above the rest of the app, regardless of the sidebar's stacking
+   context; position is computed from the trigger button's bounding rect. */
+.userMenu {
+  position: fixed;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 2000;
+}
+
+.userMenuEmail {
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+
+.userMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+}
+
+.userMenuItem:hover {
+  background-color: #f1f5f9;
+}
+
+.userMenuItemDanger {
+  color: #dc2626;
+}
+
+.userMenuItemDanger:hover {
+  background-color: #fef2f2;
+}
+
+/* Right-click context menu for sidebar items (Editar / Eliminar).
+   Also rendered through a portal into document.body — see Index.jsx. */
+.contextMenu {
+  position: fixed;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 2000;
+  min-width: 150px;
+}
+
+.contextMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+}
+
+.contextMenuItem:hover {
+  background-color: #f1f5f9;
+}
+
+.contextMenuItemDanger {
+  color: #dc2626;
+}
+
+.contextMenuItemDanger:hover {
+  background-color: #fef2f2;
+}

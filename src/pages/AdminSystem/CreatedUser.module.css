@@ -117,36 +117,3 @@
   color: #991b1b;
 }
 
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 6px;
-}
-.actions button {
-  padding: 9px 18px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  font-size: 0.9rem;
-  transition: all 0.15s;
-}
-.actions button[type="button"] {
-  background: #f1f5f9;
-  color: #334155;
-}
-.actions button[type="button"]:hover:not(:disabled) {
-  background: #e2e8f0;
-}
-.actions button[type="submit"] {
-  background: #2563eb;
-  color: white;
-}
-.actions button[type="submit"]:hover:not(:disabled) {
-  background: #1d4ed8;
-}
-.actions button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}

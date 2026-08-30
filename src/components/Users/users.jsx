@@ -9,13 +9,12 @@ import usePanelHeader from "../GenericPanel/usePanelHeader";
 import TableA from "../screens/components/TableA";
 import UserAvatar from "../screens/components/Profile/Avatar/Index";
 
-import { EDIT_PERMISSIONS_TEXT } from "./constants";
-
 // Asegúrate de que estas rutas coincidan con tu estructura de archivos
 import Button from "../screens/components/Button/index";
 import EditProfileForm from "../EditProfile/EditProfile";
 import EditPermissionsForm from "./EditPermissionsForm";
-import DrawPanel from "../screens/components/DrawPanel/index";  
+import DrawPanel from "../screens/components/DrawPanel/index";
+import WizardActions from "../UserWizard/WizardActions";
 
 const Users = () => {
   const [userList, setUserList] = useState([]);
@@ -32,16 +31,15 @@ const Users = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeUser, setActiveUser] = useState(null);
   
-  // Estados para el panel lateral de edición
+  // Estados para el panel lateral de edición (wizard de 2 pasos: datos -> permisos)
   const [showEditModal, setShowEditModal] = useState(false);
+  const [editStep, setEditStep] = useState(1);
   const [editLoading, setEditLoading] = useState(false); // Para deshabilitar botones al guardar
+  const [editPermissionsLoading, setEditPermissionsLoading] = useState(false);
 
   // Estados para el panel lateral de permisos
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [permissionsLoading, setPermissionsLoading] = useState(false);
-
-  // Estado para capturar la selección genérica del formulario de permisos
-  const [permissionsState, setPermissionsState] = useState({ total: [], selected: [] });
 
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
@@ -100,13 +98,33 @@ const Users = () => {
   };
 
   const handleEditClick = () => {
+    setEditStep(1);
     setShowEditModal(true);
     handleCloseMenu();
   };
 
+  const handleEditWizardClose = () => {
+    setShowEditModal(false);
+    setEditStep(1);
+  };
+
+  const handleEditWizardBack = () => {
+    setEditStep(1);
+  };
+
+  const handleEditProfileSuccess = () => {
+    fetchUsers();
+    setEditStep(2);
+  };
+
+  const handleEditWizardPermissionsSuccess = () => {
+    handleEditWizardClose();
+    setAlertMessage("Usuario y permisos actualizados correctamente");
+    setAlertType("success");
+    setShowAlert(true);
+  };
+
   const handleEditPermissionsClick = () => {
-    // Reseteamos el estado de selección al abrir
-    setPermissionsState({ total: [], selected: [] });
     setShowPermissionsModal(true);
     handleCloseMenu();
   };
@@ -161,14 +179,6 @@ const Users = () => {
     setShowAlert(true);
     setShowConfirm(false);
     setUserToDelete(null);
-  };
-
-  const handleEditSuccess = (finalName, finalAvatarUrl) => {
-    setShowEditModal(false);
-    setAlertMessage("Usuario actualizado correctamente");
-    setAlertType("success");
-    setShowAlert(true);
-    fetchUsers(); 
   };
 
   const columns = [
@@ -305,68 +315,101 @@ const Users = () => {
           </div>
         </Popover>
 
-        {/* DrawPanel para Editar Usuario */}
+        {/* DrawPanel para Editar Usuario: paso 1 datos, paso 2 permisos (mismo wizard que Crear Usuario) */}
         <DrawPanel
           isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          title="Editar Usuario"
-          width="400px"
-          showActions={true}
-          confirmText="Guardar Cambios"
-          cancelText="Cancelar"
-          formId="edit-user-form"
-          loading={editLoading}
+          onClose={editStep === 2 ? handleEditWizardBack : handleEditWizardClose}
+          title={editStep === 1 ? "Editar Usuario" : "Editar Permisos"}
+          width={editStep === 1 ? "400px" : "420px"}
+          showActions={false}
+          dynamicFooter
         >
-          {activeUser && (
-            <EditProfileForm
-              formId="edit-user-form"
-              userId={activeUser.id}
-              currentName={`${activeUser.nombre || ''} ${activeUser.apellido || ''}`.trim()}
-              currentAvatarUrl={activeUser.avatarUrl}
-              onSaveStart={() => setEditLoading(true)}
-              onSaveEnd={() => setEditLoading(false)}
-              onSuccess={handleEditSuccess}
-              onError={(err) => {
-                setAlertMessage(err || "Error al actualizar el usuario");
-                setAlertType("error");
-                setShowAlert(true);
-              }}
-            />
+          {activeUser && editStep === 1 && (
+            <>
+              <EditProfileForm
+                formId="edit-user-form"
+                userId={activeUser.id}
+                currentName={`${activeUser.nombre || ''} ${activeUser.apellido || ''}`.trim()}
+                currentAvatarUrl={activeUser.avatarUrl}
+                onSaveStart={() => setEditLoading(true)}
+                onSaveEnd={() => setEditLoading(false)}
+                onSuccess={handleEditProfileSuccess}
+                onError={(err) => {
+                  setAlertMessage(err || "Error al actualizar el usuario");
+                  setAlertType("error");
+                  setShowAlert(true);
+                }}
+              />
+              <WizardActions
+                backLabel="Cancelar"
+                onBack={handleEditWizardClose}
+                confirmLabel="Siguiente"
+                confirmType="submit"
+                formId="edit-user-form"
+                loading={editLoading}
+              />
+            </>
+          )}
+          {activeUser && editStep === 2 && (
+            <>
+              <EditPermissionsForm
+                formId="edit-user-permissions-form"
+                userId={activeUser.id}
+                role={activeUser.rol}
+                onSaveStart={() => setEditPermissionsLoading(true)}
+                onSaveEnd={() => setEditPermissionsLoading(false)}
+                onSuccess={handleEditWizardPermissionsSuccess}
+                onError={(err) => {
+                  setAlertMessage(err || "Error al actualizar los permisos");
+                  setAlertType("error");
+                  setShowAlert(true);
+                }}
+              />
+              <WizardActions
+                backLabel="Atrás"
+                onBack={handleEditWizardBack}
+                confirmLabel="Guardar Permisos"
+                confirmType="submit"
+                formId="edit-user-permissions-form"
+                loading={editPermissionsLoading}
+              />
+            </>
           )}
         </DrawPanel>
 
-        {/* DrawPanel para Editar Permisos */}
+        {/* DrawPanel para Editar Permisos (atajo directo desde el menú de la fila) */}
         <DrawPanel
           isOpen={showPermissionsModal}
           onClose={() => setShowPermissionsModal(false)}
           title="Editar Permisos"
-          description={EDIT_PERMISSIONS_TEXT.description}
           width="420px"
-          showActions={true}
-          confirmText="Guardar Permisos"
-          cancelText="Cancelar"
-          formId="edit-permissions-form"
-          loading={permissionsLoading}
-          showCountdown={true}
-          progressMode="selection"
-          totalItems={permissionsState.total}
-          selectedItems={permissionsState.selected}
+          showActions={false}
+          dynamicFooter
         >
           {activeUser && (
-            <EditPermissionsForm
-              formId="edit-permissions-form"
-              userId={activeUser.id}
-              role={activeUser.rol}
-              onSelectionChange={setPermissionsState}
-              onSaveStart={() => setPermissionsLoading(true)}
-              onSaveEnd={() => setPermissionsLoading(false)}
-              onSuccess={handlePermissionsSuccess}
-              onError={(err) => {
-                setAlertMessage(err || "Error al actualizar los permisos");
-                setAlertType("error");
-                setShowAlert(true);
-              }}
-            />
+            <>
+              <EditPermissionsForm
+                formId="edit-permissions-form"
+                userId={activeUser.id}
+                role={activeUser.rol}
+                onSaveStart={() => setPermissionsLoading(true)}
+                onSaveEnd={() => setPermissionsLoading(false)}
+                onSuccess={handlePermissionsSuccess}
+                onError={(err) => {
+                  setAlertMessage(err || "Error al actualizar los permisos");
+                  setAlertType("error");
+                  setShowAlert(true);
+                }}
+              />
+              <WizardActions
+                backLabel="Cancelar"
+                onBack={() => setShowPermissionsModal(false)}
+                confirmLabel="Guardar Permisos"
+                confirmType="submit"
+                formId="edit-permissions-form"
+                loading={permissionsLoading}
+              />
+            </>
           )}
         </DrawPanel>
 

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Award, Download , IdCard} from 'lucide-react';
 import Input from '../screens/components/Input/Index';
 import StatusModal from '../common/statusWarning';
@@ -8,8 +9,7 @@ import styles from './GenericPanel.module.css';
 import AlertModal from '../AlertModal/AlertModal';
 import Footer from '../Footer/Footer';
 import { Link2, Users, BotIcon, Check, X, CircleUser, AlertCircle, LogOut, ShieldAlert } from 'lucide-react';
-import { logout, getUserNameFromLoginSession } from '../../services/api';
-import { getCredencialPdf } from '../../services/api/pdf';
+import { logout, getUserNameFromLoginSession, getUserEmailFromLoginSession } from '../../services/api';
 import { getText } from '../../constants';
 import NotificationForm from '../NotificationForm/NotificationForm';
 import WhatsAppStatusModal from '../WSMessage/components/WhatsAppStatusModal';
@@ -19,13 +19,17 @@ import ToggleCard from '../screens/components/ToggleCard';
 import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
 import Button from '../screens/components/Button';
 import ModalTooltip from '../ModalTooltip/ModalTooltip';
+import ProSidebar from '../screens/components/Sidebar/Index';
 
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
-import { getUserRole, getDisplayRoleName, getDefaultMenus, getUserPermissions, filterMenuByPermissions } from './Routes';
-import { syncStorageName, fetchProfileName } from './utils';
+import { getUserRole, getDisplayRoleName, getDefaultMenus, getUserPermissions, filterMenuByPermissions, resolveMenuFromCatalog } from './Routes';
+import { syncStorageName, buildSidebarData, generateCertificatePdf, triggerFileDownload } from './utils';
+import { fetchUserProfile, updateUserProfile } from '../../redux/slices/userSlice';
 import { CustomerAndPetsForm } from '../../pages/DoctorSystem/CreateCustomerAndPets/CustomerAndPets';
 import InputWithIcon from '../screens/components/Material-UI/Components/InputWithIcon/Index';
 import EditProfileForm from '../EditProfile/EditProfile';
+import CreatedUser from '../../pages/AdminSystem/CreatedUser';
+import usePermissionsCatalog from '../../hooks/usePermissionsCatalog';
 import Loading from '../screens/components/Loading/Index';
 import UserAvatar from '../screens/components/Profile/Avatar/Index';
 import Container from '../screens/components/Container';
@@ -53,15 +57,15 @@ function GenericPanel({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    return localStorage.getItem('sidebar_collapsed') === 'true';
-  });
   const [searchValue, setSearchValue] = useState('');
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notificationLoading, setNotificationLoading] = useState(false);
+  const [notificationFormData, setNotificationFormData] = useState({});
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [showCreateClientModal, setShowCreateClientModal] = useState(false);
+  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [loggedOut, setLoggedOut] = useState(false);
   const [currentUserName, setCurrentUserName] = useState(() => getUserNameFromLoginSession());
   const [globalApiError, setGlobalApiError] = useState(null);
@@ -79,6 +83,9 @@ function GenericPanel({
 
   const [showOverlay, setShowOverlay] = useState(!hasLoadedOnce);
   const [fadeOverlay, setFadeOverlay] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+
+  const { byKey: permissionsCatalog, loading: permissionsCatalogLoading } = usePermissionsCatalog();
 
   React.useEffect(() => {
     const handleApiError = (event) => {
@@ -99,22 +106,25 @@ function GenericPanel({
     }
     (async () => {
       try {
-        const profile = await fetchProfileName();
+        const data = await dispatch(fetchUserProfile()).unwrap();
         if (!mounted) return;
-        if (profile) {
-          if (profile.name) {
-            setCurrentUserName(profile.name);
-            syncStorageName(profile.name);
+        if (data) {
+          const fullName = data.name || data.nombre || null;
+          if (fullName) {
+            const firstName = String(fullName).trim().split(/\s+/)[0];
+            setCurrentUserName(firstName);
+            syncStorageName(firstName);
           }
-          if (profile.avatarUrl) {
-            setCurrentAvatar(profile.avatarUrl);
-            localStorage.setItem('user_avatar_url', profile.avatarUrl);
+          const avatarUrl = data.avatarUrl || data.avatar_url || data.avatar || null;
+          if (avatarUrl) {
+            setCurrentAvatar(avatarUrl);
+            localStorage.setItem('user_avatar_url', avatarUrl);
           } else {
             setCurrentAvatar('');
             localStorage.removeItem('user_avatar_url');
           }
-          if (profile.permissions) {
-            sessionStorage.setItem('user_permissions', JSON.stringify(profile.permissions));
+          if (data.permissions) {
+            sessionStorage.setItem('user_permissions', JSON.stringify(data.permissions));
           } else {
             sessionStorage.removeItem('user_permissions');
           }
@@ -122,17 +132,28 @@ function GenericPanel({
       } catch (err) {
         console.error('Error cargando perfil inicial:', err);
       } finally {
-        if (mounted) {
-          hasLoadedOnce = true;
-          setFadeOverlay(true);
-          setTimeout(() => {
-            if (mounted) setShowOverlay(false);
-          }, 500);
-        }
+        if (mounted) setProfileLoaded(true);
       }
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [dispatch]);
+
+  // El overlay no debe soltarse hasta que el perfil Y el catálogo de permisos estén
+  // listos: si solo esperara al perfil, el contenido del módulo queda visible con el
+  // sidebar todavía vacío mientras /Permissions sigue en vuelo.
+  React.useEffect(() => {
+    if (role === 'client' || !profileLoaded || permissionsCatalogLoading) return;
+    let mounted = true;
+    hasLoadedOnce = true;
+    setFadeOverlay(true);
+    const timeoutId = setTimeout(() => {
+      if (mounted) setShowOverlay(false);
+    }, 500);
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [role, profileLoaded, permissionsCatalogLoading]);
 
   const overlayRef = useRef(null);
   const [expandedMenus, setExpandedMenus] = useState(() => {
@@ -155,7 +176,7 @@ function GenericPanel({
   };
 
   const actualRole = getUserRole() || role;
-  const defaultMenus = getDefaultMenus({ setShowNotificationModal, setShowWhatsAppModal, setShowCreateClientModal });
+  const defaultMenus = getDefaultMenus({ setShowNotificationModal, setShowWhatsAppModal, setShowCreateClientModal, setShowCreateUserModal });
 
   const toggleMenu = (label) => {
     setExpandedMenus(prev => {
@@ -166,20 +187,32 @@ function GenericPanel({
   };
 
   const rawItems = menuItems || defaultMenus[actualRole] || defaultMenus.user;
-  const items = filterMenuByPermissions(rawItems, getUserPermissions());
-  const filteredItems = items.filter(it =>
-    it.label?.toLowerCase().includes(searchValue.toLowerCase()) ||
-    (it.subItems && it.subItems.some(sub => sub.label?.toLowerCase().includes(searchValue.toLowerCase())))
-  );
+  const permittedItems = filterMenuByPermissions(rawItems, getUserPermissions());
+  const items = resolveMenuFromCatalog(permittedItems, permissionsCatalog);
+  const { groups, activeId } = buildSidebarData({ items, searchValue, pathname: location.pathname });
+
+  const userEmail = getUserEmailFromLoginSession();
+  const userObj = role !== 'client' && userEmail ? { email: userEmail, avatarUrl: currentAvatar } : null;
+  const userMenuItems = [
+    {
+      id: 'logout-btn',
+      label: 'Cerrar sesión',
+      icon: LogOut,
+      variant: 'danger',
+      onClick: () => setShowLogoutModal(true)
+    }
+  ];
 
   const handleAvatarUpdateSuccess = (newName, newAvatarUrl) => {
     if (newName) {
       setCurrentUserName(newName);
       syncStorageName(newName);
+      dispatch(updateUserProfile({ name: newName, nombre: newName }));
     }
     if (newAvatarUrl) {
       setCurrentAvatar(newAvatarUrl);
       localStorage.setItem('user_avatar_url', newAvatarUrl);
+      dispatch(updateUserProfile({ avatarUrl: newAvatarUrl }));
     }
     setShowEditProfileModal(false);
   };
@@ -204,24 +237,18 @@ function GenericPanel({
   const generateCertificate = () => {
     setGeneratingPdf(true);
     setPdfError(null);
-    
+
     const id = getUserId();
     if (!id) {
       setPdfError('ID de usuario no encontrado en la sesión.');
       setGeneratingPdf(false);
       return;
     }
-    
-    getCredencialPdf(id)
-      .then((res) => {
-        const { blob, filename } = res || {};
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          setPdfUrl(url);
-          setPdfFilename(filename || '');
-        } else {
-          throw new Error('No se pudo obtener el archivo de certificado.');
-        }
+
+    generateCertificatePdf(id)
+      .then(({ url, filename }) => {
+        setPdfUrl(url);
+        setPdfFilename(filename);
       })
       .catch((err) => {
         console.error(err);
@@ -243,12 +270,7 @@ function GenericPanel({
 
   const downloadPdfFile = () => {
     if (!pdfUrl) return;
-    const link = document.createElement('a');
-    link.href = pdfUrl;
-    link.download = pdfFilename || `certificado_${getUserId() || 'usuario'}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    triggerFileDownload(pdfUrl, pdfFilename || `certificado_${getUserId() || 'usuario'}.pdf`);
   };
 
   const handleClosePdfModal = () => {
@@ -290,101 +312,17 @@ function GenericPanel({
       )}
 
       <div className={styles.layoutContainer}>
-        <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
-          <div className={styles.sidebarHeader}>
-            {!isCollapsed && <div className={styles.brandText}>{menuTitle}</div>}
-            <Button
-              circle
-              size="small"
-              variant={Button.VARIANTS.GHOST}
-              className={styles.toggleBtn}
-              onClick={() => {
-                setIsCollapsed(prev => {
-                  const next = !prev;
-                  localStorage.setItem('sidebar_collapsed', String(next));
-                  return next;
-                });
-              }}
-              color="transparent"
-              style={{ minWidth: '0 !important' }}
-            >
-              <ModalTooltip 
-                key={isCollapsed}
-                text={isCollapsed ? 'Abrir' : 'Cerrar'} 
-                position="bottom"
-              >
-                {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-              </ModalTooltip>
-            </Button>
-          </div>
-
-          {sidebarLoading || showOverlay ? (
-            <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', padding: '2rem 0' }}>
-              <Loading size="medium" text={isCollapsed ? "" : "Cargando"} />
-            </div>
-          ) : (
-            <nav className={styles.sidebarNav}>
-              {items.length === 0 ? (
-                <div className={styles.noPermissionsMessage}>
-                  <ShieldAlert size={24} className={styles.noPermissionsIcon} />
-                  <span>{isCollapsed ? "Sin permisos" : "Sin permisos asignados"}</span>
-                </div>
-              ) : filteredItems.length === 0 ? (
-                <div className={styles.noResultsMessage}>
-                  {isCollapsed ? "No hay" : "No se encontraron resultados"}
-                </div>
-              ) : (
-                filteredItems.map((it) => {
-                  const hasSubItems = it.subItems && it.subItems.length > 0;
-
-                  return (
-                    <div key={it.label} style={{ width: '100%' }}>
-                      {hasSubItems ? (
-                        <MenuPopover 
-                          item={it} 
-                          styles={styles} 
-                          renderIcon={renderIcon} 
-                          onNavigate={handleNavigate} 
-                          isCollapsed={isCollapsed}
-                        />
-                      ) : (
-                        <Button
-                          variant={Button.VARIANTS.GHOST}
-                          color="inherit"
-                          className={`${styles.navItem} ${location.pathname === it.path ? styles.activeNavItem : ''}`}
-                          onClick={() => handleNavigate(it)}
-                          style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', textTransform: 'none' }}
-                          title={isCollapsed ? it.label : undefined}
-                        >
-                          {renderIcon(it.icon, styles.icon)}
-                          {!isCollapsed && <span style={{ flex: 1, textAlign: 'left' }}>{it.label}</span>}
-                        </Button>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </nav>
-          )}
-
-          {role !== 'client' && (
-            <div className={styles.sidebarFooter}>
-              <Button
-                color={Button.COLORS.RED}
-                size={Button.SIZES.MEDIUM}
-                variant={Button.VARIANTS.OUTLINE}
-                onClick={() => setShowLogoutModal(true)}
-                icon={LogOut}
-                fullWidth={!isCollapsed}
-                circle={isCollapsed}
-                title={isCollapsed ? "Cerrar sesión" : undefined}
-                style={isCollapsed ? { margin: '0 auto', display: 'flex' } : {}}
-              >
-                {!isCollapsed && "Cerrar sesión"}
-              </Button>
-            </div>
-          )}
-        </aside>
+        <ProSidebar
+          groups={groups}
+          activeId={activeId}
+          onSelect={handleNavigate}
+          collapsible={true}
+          loading={sidebarLoading || showOverlay}
+          headerContent={<div className={styles.brandText}>{menuTitle}</div>}
+          user={userObj}
+          userMenuItems={userMenuItems}
+          useSubItemsPopover={false}
+        />
 
         <div className={styles.mainWrapper}>
           
@@ -460,12 +398,17 @@ function GenericPanel({
           formId="notification-form"
           confirmText="Crear Notificación"
           cancelText="Cancelar"
+          showCountdown={true}
+          progressMode="form"
+          formData={notificationFormData}
+          requiredFields={['title', 'message', 'type', 'priority', 'origin', 'destination']}
           loading={notificationLoading}
         >
           <NotificationForm
             onSuccess={() => setShowNotificationModal(false)}
             onClose={() => setShowNotificationModal(false)}
             onLoading={setNotificationLoading}
+            onFormChange={setNotificationFormData}
           />
         </DrawPanel>
 
@@ -518,7 +461,7 @@ function GenericPanel({
           confirmText="Guardar Cambios"
           cancelText="Cancelar"
           formId="editProfileForm"
-        >
+      >
           <EditProfileForm
             formId="editProfileForm"
             currentName={currentUserName || getDisplayRoleName(actualRole)}
@@ -539,6 +482,20 @@ function GenericPanel({
               setShowCreateClientModal(false);
             }}
             onCancel={() => setShowCreateClientModal(false)}
+          />
+        </DrawPanel>
+
+        <DrawPanel
+          isOpen={showCreateUserModal}
+          onClose={() => setShowCreateUserModal(false)}
+          title="Crear usuario"
+          width="420px"
+          showActions={false}
+          dynamicFooter
+        >
+          <CreatedUser
+            isOpen={showCreateUserModal}
+            onClose={() => setShowCreateUserModal(false)}
           />
         </DrawPanel>
       </div>

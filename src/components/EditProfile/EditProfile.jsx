@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import UserAvatar from '../screens/components/Profile/Avatar/Index';
 import styles from './Index.module.css';
 import InputWithIcon from '../screens/components/Material-UI/Components/InputWithIcon/Index';
 import Selector from '../screens/components/Material-UI/Components/Selector/Index';
 import { Pencil, Mail, Phone } from 'lucide-react'; // Agregado el icono Phone
 import Loading from '../screens/components/Loading/Index';
-import { 
-  ChangeProfileAvatar, 
-  updateUserName, 
-  getUserFirstNameFromLoginSession, 
-  getUserLastNameFromLoginSession, 
-  getProfile, 
-  getUserEmailFromLoginSession, 
-  syncStorageProfileData, 
-  getUsers 
+import {
+  ChangeProfileAvatar,
+  updateUserName,
+  getUserFirstNameFromLoginSession,
+  getUserLastNameFromLoginSession,
+  getUserEmailFromLoginSession,
+  syncStorageProfileData,
+  getUsers
 } from '../../services/api';
+import { fetchUserProfile, updateUserProfile } from '../../redux/slices/userSlice';
 import { getUserId } from '../../context/LocalStorage';
 
 const extractList = (res) => {
@@ -68,6 +69,7 @@ export default function EditProfileForm({
   const [dataLoading, setDataLoading] = useState(true);
   const [targetUserId, setTargetUserId] = useState(null);
   const fileInputRef = useRef(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     let mounted = true;
@@ -83,8 +85,7 @@ export default function EditProfileForm({
           const userList = extractList(res);
           data = userList.find(u => String(u.id) === String(userId));
         } else {
-          const profile = await getProfile();
-          data = profile?.data || profile?.user || profile;
+          data = await dispatch(fetchUserProfile()).unwrap();
         }
 
         if (!mounted) return;

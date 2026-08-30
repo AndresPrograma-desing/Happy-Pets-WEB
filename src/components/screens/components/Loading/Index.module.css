@@ -21,16 +21,20 @@
 }
 
 .spinner {
-  border: 3px solid rgba(0, 0, 0, 0.05);
-  border-left-color: var(--btn-blue);
-  border-radius: 50%;
-  animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  width: 24px;
+  height: 24px;
+  animation: spinnerRotate 1.8s linear infinite;
+}
+
+.spinnerCircle {
+  stroke: var(--btn-blue);
+  stroke-linecap: round;
+  animation: spinnerDash 1.5s ease-in-out infinite;
 }
 
 .small .spinner {
   width: 16px;
   height: 16px;
-  border-width: 2px;
 }
 
 .medium .spinner {
@@ -41,13 +45,33 @@
 .large .spinner {
   width: 40px;
   height: 40px;
-  border-width: 4px;
 }
 
 .giant .spinner {
   width: 64px;
   height: 64px;
-  border-width: 5px;
+}
+
+@keyframes spinnerRotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinnerDash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  47% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  95%,
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
 }
 
 
@@ -166,10 +190,4 @@
 .fadeOut {
   opacity: 0;
   transform: translateY(-4px);
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }

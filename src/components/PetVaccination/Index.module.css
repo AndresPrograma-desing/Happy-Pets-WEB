@@ -29,59 +29,6 @@
     gap: 14px;
 }
 
-.statusCard {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 14px;
-    border-radius: 12px;
-    background-color: #f8fafc;
-    border-left: 6px solid #94a3b8;
-}
-
-.statusCard.tlRed {
-    border-left-color: #ef4444;
-    background-color: #fef2f2;
-}
-
-.statusCard.tlYellow {
-    border-left-color: #f59e0b;
-    background-color: #fffbeb;
-}
-
-.statusCard.tlGreen {
-    border-left-color: #10b981;
-    background-color: #f0fdf4;
-}
-
-.statusCardHeader {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.statusCardName {
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.statusCardBadge {
-    font-size: 12px;
-    font-weight: 600;
-    width: fit-content;
-    padding: 2px 10px;
-    border-radius: 999px;
-    background-color: rgba(0, 0, 0, 0.06);
-}
-
-.statusCardDates {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 13px;
-    color: #475569;
-}
-
 .tableWrapper {
     border-radius: 12px;
     overflow: hidden;

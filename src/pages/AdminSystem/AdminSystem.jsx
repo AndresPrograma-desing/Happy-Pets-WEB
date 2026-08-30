@@ -1,6 +1,5 @@
 import React from 'react';
 import usePanelHeader from '../../components/GenericPanel/usePanelHeader';
-import CreatedUser from './CreatedUser';
 import { getText } from '../../constants';
 import DollarCard from '../../components/GenericPanel/Components/Cards/DollarBcv';
 import BillingStatusCard from '../../components/GenericPanel/Components/Cards/BillingStatusCard';
@@ -21,9 +20,6 @@ function AdminSystem() {
   return (
     <>
       <div style={{ marginBottom: 24 }}>
-        <CreatedUser />
-        <hr style={{ border: '0', borderTop: '1px solid #131414', margin: '1.5rem 0' }} />
-
         <div className={styles.cardContainer}>
           <DollarCard />
           <BillingStatusCard />

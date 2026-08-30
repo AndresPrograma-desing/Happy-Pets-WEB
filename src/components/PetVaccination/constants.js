@@ -15,10 +15,10 @@ export const PET_VACCINATION_TEXT = {
   doctorCol: "DOCTOR",
   actionsCol: "ACCIONES",
   postponeBtn: "Posponer",
-  invoiceBtn: "Enviar a Factura",
+  invoiceBtn: "Enviar a Recibos",
   postponeModalTitle: "Posponer Vacunación",
   postponeReasonLabel: "Motivo del aplazamiento",
-  invoiceModalTitle: "Enviar a Factura",
+  invoiceModalTitle: "Enviar a Recibos",
   invoiceModalMessage: "¿Confirma enviar esta dosis aplicada a facturación?",
   noPetSelected: "Seleccione una mascota para ver su vacunación.",
   trafficLightLabels: {

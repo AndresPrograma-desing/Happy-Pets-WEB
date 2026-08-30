@@ -95,11 +95,15 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
       try {
         setLoadingHistory(true);
         setErrorHistory(null);
-        
-        // Primero llamamos al endpoint de refrescar
-        await refrestMedicalHistory(selectedPetId);
-        
-        // Al responder OK, llamamos a getMedicalHistory
+
+        // Intentamos refrescar el historial (llama a un servicio externo de análisis).
+        // Si falla, no debe bloquear la carga del historial ni el acceso a la sección.
+        try {
+          await refrestMedicalHistory(selectedPetId);
+        } catch (refreshErr) {
+          console.error('Error al refrescar el historial médico:', refreshErr);
+        }
+
         const res = await getMedicalHistory(selectedPetId);
         setHistoryData(res);
       } catch (err) {
@@ -160,11 +164,6 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
         <div className={styles.loadingWrapper}>
           <Loading size='large' phrases={TEXTS.LOADING_TEXT_PHASES} />
         </div>
-      ) : errorHistory ? (
-        <div className={styles.errorContainer}>
-          <ShieldAlert size={48} />
-          <span>{errorHistory}</span>
-        </div>
       ) : !selectedPetId ? (
         <div className={styles.emptyContainer}>
           <ClipboardList size={48} className={styles.emptyIcon} />
@@ -176,56 +175,9 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
             <div className={styles.loadingWrapper}>
               <Loading text="Cargando sección..." />
             </div>
-          ) : viewMode === 'vacunas' ? (
-            <div className={styles.vacunasView}>
-              <div style={{ marginBottom: '1rem' }}>
-                <Button 
-                  onClick={() => switchView('info')} 
-                  variant="outline"
-                  icon={ArrowLeft}
-                >
-                  Volver al Historial
-                </Button>
-              </div>
-              <h2 className={styles.mainTitle} style={{ marginBottom: '0.5rem' }}>{TEXTS.VACUNAS_TITLE}</h2>
-              <p style={{ marginBottom: '1.5rem', color: '#64748b' }}>{TEXTS.VACUNAS_DESC}</p>
-              <PetVaccinationPanel mascotaId={selectedPetId} />
-            </div>
           ) : (
-            <div className={styles.infoView}>
-              {/* Acciones de Navegación Superiores */}
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                <Button 
-                  onClick={() => switchView('vacunas')}
-                  variant="outline" 
-                  color={Button.COLORS.BLUE}
-                  icon={Syringe}
-                >
-                  Ver {TEXTS.VACUNAS_TITLE}
-                </Button>
-                
-                {(alertasRiesgo || suggestionsList.length > 0) && (
-                  <Button 
-                    onClick={() => setIsIaDrawerOpen(true)}
-                    variant="outline" 
-                    color={Button.COLORS.RED}
-                    icon={AlertTriangle}
-                  >
-                    Ver Recomendaciones y Riesgos
-                  </Button>
-                  
-                )}
-                 <Button 
-                    onClick={() => { console.log('click pdf'); }}
-                    variant="prymary" 
-                    color={Button.COLORS.GREEN}
-                    icon={FileText}
-                  >
-                Descargar Pdf
-                  </Button>
-              </div>
-
-              {/* Información General del Paciente */}
+            <>
+              {/* Información General del Paciente - visible en ambas vistas */}
               {mascota && (
                 <div className={styles.petInfoBanner}>
                   <div className={styles.petInfoHeader}>
@@ -262,19 +214,79 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
                 </div>
               )}
 
-              {/* Diagnósticos e Insights de IA */}
-              <SummaryCard 
-                title={TEXTS.IA_SUMMARY_TITLE} 
-                text={resumen || TEXTS.NO_DATA} 
-                enableCopy={true}
-              />
+              {viewMode === 'vacunas' ? (
+                <div className={styles.vacunasView}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <Button
+                      onClick={() => switchView('info')}
+                      variant="outline"
+                      icon={ArrowLeft}
+                    >
+                      Volver al Historial
+                    </Button>
+                  </div>
+                  <h2 className={styles.mainTitle} style={{ marginBottom: '0.5rem' }}>{TEXTS.VACUNAS_TITLE}</h2>
+                  <p style={{ marginBottom: '1.5rem', color: '#64748b' }}>{TEXTS.VACUNAS_DESC}</p>
+                  <PetVaccinationPanel mascotaId={selectedPetId} />
+                </div>
+              ) : (
+                <div className={styles.infoView}>
+                  {/* Acciones de Navegación Superiores */}
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                    <Button
+                      onClick={() => switchView('vacunas')}
+                      variant="outline"
+                      color={Button.COLORS.BLUE}
+                      icon={Syringe}
+                    >
+                      Ver {TEXTS.VACUNAS_TITLE}
+                    </Button>
 
-              {ultimoAnalisis && (
-                <div className={styles.analysisTime}>
-                  <span>{TEXTS.LAST_ANALYSIS} {formatDateTime(ultimoAnalisis)}</span>
+                    {(alertasRiesgo || suggestionsList.length > 0) && (
+                      <Button
+                        onClick={() => setIsIaDrawerOpen(true)}
+                        variant="outline"
+                        color={Button.COLORS.RED}
+                        icon={AlertTriangle}
+                      >
+                        Ver Recomendaciones y Riesgos
+                      </Button>
+
+                    )}
+                     <Button
+                        onClick={() => { console.log('click pdf'); }}
+                        variant="prymary"
+                        color={Button.COLORS.GREEN}
+                        icon={FileText}
+                      >
+                    Descargar Pdf
+                      </Button>
+                  </div>
+
+                  {/* Diagnósticos e Insights de IA - oculto si falló la carga del historial */}
+                  {errorHistory ? (
+                    <div className={styles.errorContainer}>
+                      <ShieldAlert size={48} />
+                      <span>{errorHistory}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <SummaryCard
+                        title={TEXTS.IA_SUMMARY_TITLE}
+                        text={resumen || TEXTS.NO_DATA}
+                        enableCopy={true}
+                      />
+
+                      {ultimoAnalisis && (
+                        <div className={styles.analysisTime}>
+                          <span>{TEXTS.LAST_ANALYSIS} {formatDateTime(ultimoAnalisis)}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
-            </div>
+            </>
           )}
           
           {/* Drawer de IA */}

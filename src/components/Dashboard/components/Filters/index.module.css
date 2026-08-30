@@ -1,0 +1,30 @@
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.clearRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.optionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

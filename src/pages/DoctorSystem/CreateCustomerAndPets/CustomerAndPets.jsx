@@ -8,7 +8,10 @@ import { User, Mail, Phone, MapPin, IdCard, PawPrint, Award, Palette, HeartHands
 import usePanelHeader from '../../../components/GenericPanel/usePanelHeader';
 import Button, { COLORS } from '../../../components/screens/components/Button';
 import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
+import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
 import CountdownBar from '../../../components/screens/components/CountdownBar';
+import Switch from '../../../components/screens/components/Swich/Index';
+import useSpecies from '../../../hooks/useSpecies';
 
 const initialForm = {
     nombre: '',
@@ -42,6 +45,7 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
     const [modalError, setModalError] = useState(null);  
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { creating, createClientAndPet } = useClientAndPets();
+    const { speciesOptions } = useSpecies();
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -207,12 +211,11 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
                     onChange={handleChange}
                     required
                 />
-                <TextField
+                <Selector
                     label="Especie"
-                    name="especie"
-                    placeholder="Especie"
                     value={form.especie}
-                    onChange={handleChange}
+                    onChange={(e) => setForm(prev => ({ ...prev, especie: e.target.value }))}
+                    options={speciesOptions}
                     required
                 />
             </div>
@@ -293,10 +296,13 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             </div>
 
             <div className={styles.row}>
-                <label className={styles.checkRow}>
-                    <input name="esterilizado" type="checkbox" checked={form.esterilizado} onChange={handleChange} />
-                    Esterilizado
-                </label>
+                <div className={styles.checkRow}>
+                    <Switch
+                        value={form.esterilizado}
+                        onChange={(newVal) => setForm(prev => ({ ...prev, esterilizado: newVal }))}
+                    />
+                    <span style={{ userSelect: 'none' }}>Esterilizado</span>
+                </div>
             </div>
 
             <div className={styles.actions}>

@@ -1,0 +1,24 @@
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.stepDescription {
+  font-size: 0.85rem;
+  color: #475569;
+  margin-bottom: 14px;
+}
+
+.permissionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 10px;
+}
+
+.noOptionsText {
+  font-size: 0.85rem;
+  color: #6b7280;
+}

@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import {
-  getProfile, getUsers, getUserMessages,
+  getUsers, getUserMessages,
   getConversation, sendMessage, markMessageAsRead,
   grop
 } from '../../../services/api';
+import { fetchUserProfile } from '../../../redux/slices/userSlice';
 
 // --- Utils ---
 export const extractList = (data) => {
@@ -47,6 +49,7 @@ export const getInitials = (name) => {
 // --- Hook ---
 export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } = {}) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [currentUser, setCurrentUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [conversations, setConversations] = useState([]);
@@ -139,17 +142,16 @@ export function useMessaging({ currentUserId: propUserId, pollInterval = 3000 } 
         if (propUserId) {
           setCurrentUser({ id: String(propUserId), name: `Usuario ${propUserId}` });
         } else {
-          const profile = await getProfile();
+          const data = await dispatch(fetchUserProfile()).unwrap();
           if (!mounted) return;
-          const normalized = normalizeUser(profile?.data || profile?.user || profile);
-          setCurrentUser(normalized);
+          setCurrentUser(normalizeUser(data));
         }
       } catch (err) {
         console.error('Error cargando perfil:', err);
       }
     })();
     return () => { mounted = false; };
-  }, [propUserId]);
+  }, [propUserId, dispatch]);
 
   const usersById = useMemo(() => {
     const map = new Map(users.map(u => [u.id, u]));

@@ -1,21 +1,22 @@
 import React, { useEffect, useCallback, useMemo, useState } from 'react';
-import usePanelHeader from '../../../GenericPanel/usePanelHeader';
+import usePanelHeader from '../../../../GenericPanel/usePanelHeader';
 import { Activity, PlusCircle } from 'lucide-react';
-import styles from '../../Index.module.css';
-import TableB from '../../../screens/components/TableB';
-import ModalTooltip from '../../../ModalTooltip/ModalTooltip';
-import Filter from '../../../screens/components/Filter/Index';
-import TextField from '../../../screens/components/Material-UI/Components/TextField/Index';
-import Selector from '../../../screens/components/Material-UI/Components/Selector/Index';
-import Button from '../../../screens/components/Button';
-import DrawPanel from '../../../screens/components/DrawPanel';
-import AlertModal from '../../../AlertModal/AlertModal';
-import { getIcon } from '../../../../assets/icons/ExportIcon/Index';
-import { useCurrency } from '../../../../hooks/moneyType';
-import { useVaccinesLogic, useVaccineCreateLogic, formatFrequency } from './utils';
-import { VACCINES_TEXT } from './constants';
+import styles from '../../../Index.module.css';
+import TableB from '../../../../screens/components/TableB';
+import ModalTooltip from '../../../../ModalTooltip/ModalTooltip';
+import Filter from '../../../../screens/components/Filter/Index';
+import TextField from '../../../../screens/components/Material-UI/Components/TextField/Index';
+import Selector from '../../../../screens/components/Material-UI/Components/Selector/Index';
+import Button from '../../../../screens/components/Button';
+import DrawPanel from '../../../../screens/components/DrawPanel';
+import AlertModal from '../../../../AlertModal/AlertModal';
+import { getIcon } from '../../../../../assets/icons/ExportIcon/Index';
+import { useCurrency } from '../../../../../hooks/moneyType';
+import useSpecies from '../../../../../hooks/useSpecies';
+import { useVaccinesLogic, useVaccineCreateLogic, formatFrequency } from '../utils';
+import { VACCINES_TEXT } from '../constants';
 
-function VaccineFormContent({ form, onChange, onSelectChange, productOptions, loadingProducts }) {
+function VaccineFormContent({ form, onChange, onSelectChange, productOptions, loadingProducts, speciesOptions }) {
   return (
     <div className={styles.formContent}>
       <div className={styles.formRow}>
@@ -32,12 +33,7 @@ function VaccineFormContent({ form, onChange, onSelectChange, productOptions, lo
           value={form.species}
           onChange={(e) => onSelectChange('species', e.target.value)}
           required
-          options={[
-            { value: 'canino', label: 'Canino' },
-            { value: 'felino', label: 'Felino' },
-            { value: 'equino', label: 'Equino' },
-            { value: 'bovino', label: 'Bovino' }
-          ]}
+          options={speciesOptions}
         />
       </div>
 
@@ -76,21 +72,21 @@ function VaccineFormContent({ form, onChange, onSelectChange, productOptions, lo
           value={form.booster_frequency_unit}
           onChange={(e) => onSelectChange('booster_frequency_unit', e.target.value)}
           options={[
-            { value: 'Semanas', label: 'Semanas' },
-            { value: 'Meses', label: 'Meses' },
-            { value: 'Años', label: 'Años' }
+            { value: 'days', label: 'Días' },
+            { value: 'months', label: 'Meses' },
+            { value: 'years', label: 'Años' }
           ]}
         />
       </div>
 
       <div className={styles.formRow}>
-        <Selector
+        {/* <Selector
           label={VACCINES_TEXT.formProduct}
           value={form.producto_id}
           onChange={(e) => onSelectChange('producto_id', e.target.value)}
           placeholder={loadingProducts ? VACCINES_TEXT.loadingProducts : VACCINES_TEXT.selectProductPlaceholder}
           options={productOptions}
-        />
+        /> */}
         <Selector
           label={VACCINES_TEXT.formStatus}
           value={form.active}
@@ -198,6 +194,8 @@ export default function VaccineCreate({ openCreate }) {
       setShowForm(true);
     }
   }, [openCreate, setShowForm]);
+
+  const { speciesOptions } = useSpecies();
 
   const { currency, convertAmount, isLoading: currencyLoading } = useCurrency();
   const esUSD = currency?.toUpperCase() === 'USD';
@@ -340,12 +338,7 @@ export default function VaccineCreate({ openCreate }) {
           value={filterSpecies}
           onChange={(e) => setFilterSpecies(e.target.value)}
           emptyOptionLabel={VACCINES_TEXT.allSpecies}
-          options={[
-            { value: 'canino', label: 'Canino' },
-            { value: 'felino', label: 'Felino' },
-            { value: 'equino', label: 'Equino' },
-            { value: 'bovino', label: 'Bovino' }
-          ]}
+          options={speciesOptions}
         />
 
         <Selector
@@ -392,6 +385,7 @@ export default function VaccineCreate({ openCreate }) {
           onSelectChange={handleSelectChange}
           productOptions={productOptions}
           loadingProducts={loadingProducts}
+          speciesOptions={speciesOptions}
         />
       </DrawPanel>
 

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styles from './index.module.css';
-import { AlertCircle, Inbox, ChevronDown, ChevronUp } from 'lucide-react';
+import { Inbox, ChevronDown, ChevronUp } from 'lucide-react';
 import Barnner from '../Barnner';
 import Button from '../Button';
 import Loading from '../Loading/Index';
+import Skeleton from '../Skeleton/Index';
 import ScrollBar from '../ScrollBar';
 
 const TableB = (props) => {
@@ -11,6 +12,7 @@ const TableB = (props) => {
     columns = [],
     data = [],
     loading = false,
+    skeletonRows = 4,
     error = null,
     emptyIcon: EmptyIcon = Inbox,
     emptyMessage = "No hay datos disponibles.",
@@ -46,13 +48,16 @@ const TableB = (props) => {
         </thead>
         <tbody>
           {loading ? (
-            <tr>
-              <td colSpan={columns.length + (expandable ? 1 : 0)} style={{ padding: 0 }}>
-                <div className={styles.tableLoadingContainer}>
-                  <Loading size="large" text="" />
-                </div>
-              </td>
-            </tr>
+            Array.from({ length: skeletonRows }).map((_, rowIdx) => (
+              <tr key={`skeleton-${rowIdx}`}>
+                {columns.map((col, colIdx) => (
+                  <td key={col.key || colIdx} style={{ textAlign: col.align || 'left', width: col.width }}>
+                    <Skeleton height="14px" width={col.align === 'right' || col.align === 'center' ? '60%' : '85%'} />
+                  </td>
+                ))}
+                {expandable && <td className={styles.expandCell} />}
+              </tr>
+            ))
           ) : error ? (
             <tr>
               <td colSpan={columns.length + (expandable ? 1 : 0)} style={{ padding: 0 }}>

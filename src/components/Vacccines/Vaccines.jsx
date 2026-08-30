@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import VaccineList from './Components/Vacunas/VaccineList';
-import VaccineCreate from './Components/Vacunas/VaccineCreate';
+import VaccineCreate from './Components/Vacunas/Created/VaccineCreate';
 import PendingVaccinations from './Components/Pendientes/Index';
 import VaccineBatchesPanel from './Components/Lotes/Index';
 

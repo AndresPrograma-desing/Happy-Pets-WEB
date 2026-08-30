@@ -376,6 +376,10 @@ export async function updateUserPermissions(userId, permissions) {
   return request(`/UserPermissions/${userId}`, { method: 'PUT', body: { permissions } });
 }
 
+export async function getPermissionsCatalog() {
+  return request('/Permissions/permission', { method: 'GET' });
+}
+
 export async function decreaseProductStock(productId, cantidad = 1) {
   try {
     return await request(`/Products/${productId}/quantity`, { method: 'PATCH', body: { quantity: String(cantidad) } });
@@ -600,6 +604,10 @@ export async function getCitasByCliente(clienteId) {
   });
 }
 
+export async function getVaccineSpecies() {
+  return request('/Vaccine/species', { method: 'GET' });
+}
+
 export async function getVaccines(params = {}) {
   const query = new URLSearchParams();
   if (params.species) query.append('species', params.species);
@@ -742,6 +750,7 @@ export default {
   getClientById,
   getClientMascotas,
   getCitasByCliente,
+  getVaccineSpecies,
   getVaccines,
   createVaccine,
   getVaccineById,
@@ -757,5 +766,6 @@ export default {
   getPendingVaccinationsThisWeek,
   getUserPermissions,
   updateUserPermissions,
+  getPermissionsCatalog,
   externalNowGrosWeb: externalNowGrodWeb
 };

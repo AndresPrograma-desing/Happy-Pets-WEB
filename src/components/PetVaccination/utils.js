@@ -13,11 +13,25 @@ export function formatDate(dateStr) {
   }
 }
 
-export const TRAFFIC_LIGHT_CLASS = {
-  Red: 'tlRed',
-  Yellow: 'tlYellow',
-  Green: 'tlGreen'
+export const TRAFFIC_LIGHT_COLORS = {
+  Red: { bg: '#fee2e2', text: '#991b1b' },
+  Yellow: { bg: '#fffbeb', text: '#92400e' },
+  Green: { bg: '#d1fae5', text: '#065f46' },
+  default: { bg: '#f1f5f9', text: '#475569' }
 };
+
+// El backend a veces envía el nombre ('Red'/'Yellow'/'Green') y a veces el código hex directamente.
+const TRAFFIC_LIGHT_HEX_TO_KEY = {
+  '#EF4444': 'Red',
+  '#EAB308': 'Yellow',
+  '#22C55E': 'Green'
+};
+
+export function normalizeTrafficLight(trafficLight) {
+  const value = String(trafficLight || '').trim();
+  if (TRAFFIC_LIGHT_COLORS[value]) return value;
+  return TRAFFIC_LIGHT_HEX_TO_KEY[value.toUpperCase()] || value;
+}
 
 export function usePetVaccinationLogic(mascotaId) {
   const [status, setStatus] = useState([]);

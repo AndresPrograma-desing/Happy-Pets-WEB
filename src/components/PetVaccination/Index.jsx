@@ -7,13 +7,13 @@ import Button from '../screens/components/Button';
 import Loading from '../screens/components/Loading/Index';
 import AlertModal from '../AlertModal/AlertModal';
 import RegisterVaccinationForm from './RegisterVaccinationForm';
+import VaccineStatusCard from './Components/VaccineStatusCard';
 import {
   usePetVaccinationLogic,
   useCarnetDownload,
   usePetVaccinationActions,
   useRegisterVaccinationLogic,
-  formatDate,
-  TRAFFIC_LIGHT_CLASS
+  formatDate
 } from './utils';
 import { PET_VACCINATION_TEXT } from './constants';
 
@@ -110,11 +110,11 @@ export default function PetVaccinationPanel({ mascotaId }) {
           onClick: (row) => openPostpone(row),
           disabled: (row) => row.status === 'Postponed'
         },
-        {
-          label: PET_VACCINATION_TEXT.invoiceBtn,
-          onClick: (row) => openInvoice(row),
-          disabled: (row) => !!row.detalle_factura_id
-        }
+        // {
+        //   label: PET_VACCINATION_TEXT.invoiceBtn,
+        //   onClick: (row) => openInvoice(row),
+        //   disabled: (row) => !!row.detalle_factura_id
+        // }
       ]
     }
   ];
@@ -148,22 +148,7 @@ export default function PetVaccinationPanel({ mascotaId }) {
       ) : (
         <div className={styles.statusGrid}>
           {status.map((item) => (
-            <div
-              key={item.vaccine_id}
-              className={`${styles.statusCard} ${styles[TRAFFIC_LIGHT_CLASS[item.traffic_light]] || ''}`}
-            >
-              <div className={styles.statusCardHeader}>
-                <Syringe size={16} />
-                <span className={styles.statusCardName}>{item.vaccine_name}</span>
-              </div>
-              <span className={styles.statusCardBadge}>
-                {PET_VACCINATION_TEXT.trafficLightLabels[item.traffic_light] || item.traffic_light}
-              </span>
-              <div className={styles.statusCardDates}>
-                <span>Última: {formatDate(item.last_application_date)}</span>
-                <span>Próxima: {formatDate(item.next_dose_date)}</span>
-              </div>
-            </div>
+            <VaccineStatusCard key={item.vaccine_id} item={item} />
           ))}
         </div>
       )}

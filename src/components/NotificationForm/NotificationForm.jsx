@@ -8,11 +8,7 @@ import TextField from '../screens/components/Material-UI/Components/TextField/In
 import { getUserRole } from '../GenericPanel/Routes';
 import { NOTIFICATION_FORM_TEXTS } from './constants';
 
-const actorOptions = [
-  { value: 'Doctor', label: 'Doctor' },
-  { value: 'Admin', label: 'Admin' },
-  { value: 'Secretaria', label: 'Secretaria' }
-];
+import useRoles from '../../hooks/useRoles';
 
 const typeOptions = [
   { value: 'Normal', label: 'Normal' },
@@ -32,7 +28,17 @@ const roleMap = {
   secretaria: 'Secretaria'
 };
 
-const NotificationForm = ({ onSuccess, onClose, onLoading }) => {
+const NotificationForm = ({ onSuccess, onClose, onLoading, onFormChange }) => {
+  const { roles, loading: loadingRoles } = useRoles();
+
+  const actorOptions = roles.map((role) => {
+    const formatted = role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+    return {
+      value: formatted,
+      label: formatted
+    };
+  });
+
   const [formData, setFormData] = useState({
     title: '',
     message: '',
@@ -57,6 +63,12 @@ const NotificationForm = ({ onSuccess, onClose, onLoading }) => {
       }));
     }
   }, []);
+
+  useEffect(() => {
+    if (onFormChange) {
+      onFormChange(formData);
+    }
+  }, [formData, onFormChange]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -116,6 +128,7 @@ const NotificationForm = ({ onSuccess, onClose, onLoading }) => {
           name="title"
           value={formData.title}
           onChange={handleChange}
+          required={true}
         />
       </div>
 
@@ -136,6 +149,7 @@ const NotificationForm = ({ onSuccess, onClose, onLoading }) => {
             value={formData.type}
             onChange={(e) => handleCustomSelectChange('type', e.target.value)}
             placeholder={NOTIFICATION_FORM_TEXTS.typePlaceholder}
+            required={true}
           />
         </div>
 
@@ -146,6 +160,7 @@ const NotificationForm = ({ onSuccess, onClose, onLoading }) => {
             value={formData.priority}
             onChange={(e) => handleCustomSelectChange('priority', e.target.value)}
             placeholder={NOTIFICATION_FORM_TEXTS.priorityPlaceholder}
+            required={true}
           />
         </div>
       </div>
@@ -156,8 +171,10 @@ const NotificationForm = ({ onSuccess, onClose, onLoading }) => {
           options={actorOptions}
           value={formData.destination}
           onChange={(e) => handleCustomSelectChange('destination', e.target.value)}
-          placeholder={NOTIFICATION_FORM_TEXTS.destinationPlaceholder}
-        />
+          placeholder={loadingRoles ? "Cargando roles..." : NOTIFICATION_FORM_TEXTS.destinationPlaceholder}
+          required={true}
+       
+       />
       </div>
     </form>
   );
