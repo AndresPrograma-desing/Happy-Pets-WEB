@@ -1,14 +1,12 @@
 .containerCard {
   position: relative;
   width: 100%;
-  max-width: 1300px;
+  max-width: 1600px;
   background: var(--letter-white, #ffffff);
-  backdrop-filter: var(--blur, blur(10px));
-  -webkit-backdrop-filter: var(--blur, blur(10px));
   padding: 35px;
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--logo-yellow-border, #e2e8f0);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   min-height: 550px; /* Tamaño estático/mínimo por defecto para evitar saltos al cargar */
   box-sizing: border-box;
   display: flex;

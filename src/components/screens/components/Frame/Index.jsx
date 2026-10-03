@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import styles from './Index.module.css';
 import Loading from '../Loading/Index';
 
-function Frame({ title, icon, content, error, children, className = '', isModal = false, onClose, isLoading = false }) {
+function Frame({ title, icon, content, error, children, className = '', isModal = false, onClose, isLoading = false, LoadingSize='giant' }) {
     const frameContent = (
         <div className={`${styles.frameCard} ${className}`} onClick={(e) => e.stopPropagation()}>
             {(title || icon) && (
@@ -18,7 +18,8 @@ function Frame({ title, icon, content, error, children, className = '', isModal 
                 {isLoading && (
                     <div className={styles.loadingOverlay}>
                         <Loading 
-                            size="giant" 
+                            size={LoadingSize} 
+                            phrases={["Cargando", ".", "..","..."]}
                         />
                     </div>
                 )}

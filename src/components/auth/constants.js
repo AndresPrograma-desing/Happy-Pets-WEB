@@ -3,15 +3,9 @@ export const TEXTS = {
     emailLabel: "Correo",
     emailPlaceholder: "tu@email",
     passwordLabel: "Contraseña",
-    roleLabel: "Rol",
-    rolePlaceholder: "Seleccione un rol",
-    searchPlaceholder: "Busca un rol",
     submitButton: "Ingresar",
     recoverPasswordButton: "Recuperar contraseña",
-    roleAdmin: "Administrador",
-    roleDoctor: "Doctor",
-    roleSecretaria: "Secretaria",
-    
+
     // Recovery
     recoveryTitle: "Recuperar Contraseña",
     recoveryTooltip: "El código será enviado a esta dirección para que puedas recuperar el acceso a tu cuenta.",

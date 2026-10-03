@@ -215,8 +215,9 @@ export async function request(path, { method = 'GET', body, headers = {}, auth =
     res = await fetch(url, opts);
   } catch (err) {
     if (import.meta.env.DEV) console.error('[api.request] fetch failed', err);
-    const e = new Error('Verifica tu conexión a internet e inténtalo de nuevo.');
+    const e = new Error(err?.message || 'Network request failed');
     e.original = err;
+    e.isNetworkError = true;
     throw e;
   }
 

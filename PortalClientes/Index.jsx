@@ -299,7 +299,7 @@ export default function PortalClientes() {
             </div>
           )}
         </div>
-        <AsistentChat />
+        {/* <AsistentChat /> */}
       </ClientPanel>
     );
   }
@@ -377,7 +377,7 @@ export default function PortalClientes() {
         onClose={() => setShowContacts(false)}
       />
 
-      <AsistentChat />
+      {/* <AsistentChat /> */}
     </div>
   );
 }

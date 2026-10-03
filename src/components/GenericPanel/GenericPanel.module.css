@@ -3,7 +3,7 @@
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background-color: var(--bg-marron-gueso);
+  background-color: var(--letter-white, #ffffff);
 }
 
 /* Sidebar base */
@@ -199,7 +199,7 @@
 .contentArea,
 .contentContainer {
   flex: 1;
-  padding: 40px;
+  padding: 24px 28px;
   display: flex;
   justify-content: center;
 }
@@ -285,63 +285,8 @@
 }
 
 @media (max-width: 768px) {
-  .layoutContainer,
-  .adminRoot {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
-    order: -1;
-  }
-
-  .sidebarHeader {
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
-    text-align: center;
-  }
-
   .brandText {
     font-size: 1rem;
-  }
-
-  .sidebarNav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px;
-    padding: 0.5rem;
-  }
-
-  .navItem {
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    gap: 6px;
-    width: auto;
-  }
-
-  .navItem:hover {
-    transform: none;
-  }
-
-  .icon {
-    width: 16px;
-    height: 16px;
-  }
-
-  .icon:global(svg),
-  svg.icon {
-    stroke: #ffffff !important;
-  }
-
-  .sidebarFooter {
-    padding: 0.5rem 1rem;
-  }
-
-  .logoutBtn {
-    padding: 6px 10px;
   }
 
   .contentArea,

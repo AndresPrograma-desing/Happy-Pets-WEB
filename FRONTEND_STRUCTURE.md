@@ -34,7 +34,7 @@ El frontend de **Happy Pets Vet System WEB** es una aplicación de tipo Panel/Da
    - Ubicado bajo la ruta `/portal-cliente`, permite a los dueños de mascotas consultar su información o estado sin tener un rol operativo en la clínica.
 
 ### Mecanismos de Tolerancia a Fallos y Conectividad:
-- **Health Check Continuo:** El sistema evalúa periódicamente el estado de la conexión a internet y la salud de la API (`useHealthCheck`). Si detecta una interrupción, redirige temporalmente a los usuarios a una vista de espera (`/witing`). Al restablecerse la conexión, los devuelve a la vista en la que se encontraban.
+- **Health Check Continuo:** El sistema evalúa periódicamente el estado de la conexión a internet y la salud de la API (`useHealthCheck`). Si detecta una interrupción, redirige temporalmente a los usuarios a una vista de espera (`/espera`). Al restablecerse la conexión, los devuelve a la vista en la que se encontraban.
 - **Modo Simulado (Dummy Mode):** Para facilitar pruebas locales sin un backend activo, el cliente API puede configurarse en modo "Dummy" usando un archivo JSON de base de datos simulada (`src/dummy/db.json`).
 
 ---

@@ -1,69 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styles from "./LoginForm.module.css";
 import { HelpCircle } from 'lucide-react';
-import CustomSelect from '../UI/DesplegableSelector/CustomSelect';
-import { getIcon } from '../../assets/icons/ExportIcon/Index';
-import { handleLoginSubmit, mapRolesToOptions } from './utils';
+import { handleLoginSubmit } from './utils';
 import Frame from '../screens/components/Frame/Index';
 import TextField from '../screens/components/Material-UI/Components/TextField/Index';
 import Button from '../screens/components/Button/index';
 import ModalTooltip from '../ModalTooltip/ModalTooltip';
-import Selector from '../screens/components/Material-UI/Components/Selector/Index';
-import { getCodeRecovery, sendCodeRecovery, getRoles } from '../../services/api';
+import { getCodeRecovery, sendCodeRecovery } from '../../services/api';
 import CountdownBar from '../screens/components/CountdownBar';
 import { useCountdown } from '../screens/components/CountdownBar/utils';
 import { TEXTS } from './constants';
-
-let rolesPromise = null;
 
 function LoginForm() {
     const { register, handleSubmit, getValues, watch, setValue } = useForm();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [apiError, setApiError] = useState(null);
-    const [rol, setRol] = useState('admin');
     const [mode, setMode] = useState('login'); // 'login' | 'request_email' | 'code_entry' | 'password_sent'
 
     const [countdownActive, setCountdownActive] = useState(false);
     const [countdownDuration, setCountdownDuration] = useState(0);
-
-    const [roles, setRoles] = useState([]);
-    const [initialLoading, setInitialLoading] = useState(true);
-
-    useEffect(() => {
-        let isMounted = true;
-        const fetchRoles = async () => {
-            try {
-                if (!rolesPromise) {
-                    rolesPromise = getRoles();
-                }
-                const resp = await rolesPromise;
-                const rolesList = resp?.roles || [];
-                if (isMounted) {
-                    setRoles(rolesList);
-                    if (rolesList.length > 0) {
-                        setRol(rolesList[0]);
-                    }
-                }
-            } catch (err) {
-                console.error("Error fetching roles:", err);
-                if (isMounted) {
-                    setApiError(err?.message || "Error al cargar roles del servidor");
-                }
-                rolesPromise = null; // Clear promise on error so it can retry
-            } finally {
-                if (isMounted) {
-                    setInitialLoading(false);
-                }
-            }
-        };
-        fetchRoles();
-        return () => {
-            isMounted = false;
-        };
-    }, []);
 
     const timerState = useCountdown(
         countdownActive,
@@ -73,8 +31,6 @@ function LoginForm() {
             setApiError(null);
         }
     );
-
-    const roleOptions = mapRolesToOptions(roles, getIcon, TEXTS);
 
     const onSubmit = async (data) => {
         if (mode === 'request_email') {
@@ -108,7 +64,6 @@ function LoginForm() {
 
         handleLoginSubmit({
             data,
-            rol,
             setApiError,
             setLoading,
             navigate,
@@ -225,10 +180,9 @@ function LoginForm() {
     const frameError = countdownActive ? null : errorText;
 
     return (
-        <Frame 
-            title={TEXTS.title} 
-            error={frameError} 
-            isLoading={initialLoading}
+        <Frame
+            title={TEXTS.title}
+            error={frameError}
         >
             <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
                 {countdownActive && (
@@ -265,21 +219,6 @@ function LoginForm() {
                     {...register("password", { required: true })}
                 />
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: '700', color: '#000000' }}>{TEXTS.roleLabel}</label>
-                    <div className={styles.customSelectWrapper}>
-                        <Selector 
-                            options={roleOptions}
-                            value={rol}
-                            onChange={(e) => setRol(e.target.value)}
-                            placeholder={TEXTS.rolePlaceholder}
-                            showSearch={false}
-                            required
-                            searchPlaceholder={TEXTS.searchPlaceholder}
-                        />
-                    </div>
-                </div>
-                
                 <div className={styles.actionGroup} style={{ flexDirection: 'column', gap: '0.5rem' }}>
                     <Button 
                     type="submit" 

@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import { BellPlus, Mail, Pencil, Settings } from 'lucide-react';
+import React from 'react';
+import { Pencil, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../screens/components/Button';
 import ModalTooltip from '../ModalTooltip/ModalTooltip';
 import UserAvatar from '../screens/components/Profile/Avatar/Index';
-import useNotificationsContext from '../../hooks/useNotificationsContext';
-import useUnreadMessagesCount from '../../hooks/useUnreadMessagesCount';
 import { getUserRole } from '../GenericPanel/Routes';
 import styles from './Index.module.css';
-import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover/index';
 import NowGrod from '../External/Components/NowGrodKIT/NowGrod';
+import NotificationsBell from './components/NotificationsBell';
+import MessagesBell from './components/MessagesBell';
 
 const TopBar = ({
   currentAvatar,
@@ -20,11 +19,7 @@ const TopBar = ({
   role
 }) => {
   const navigate = useNavigate();
-  const { notifications } = useNotificationsContext();
-  const unreadNotifications = notifications?.filter(n => !(n.is_read || n.leida || n.read || n.isRead || n.completada || n.completed)) || [];
-  const notificationsCount = unreadNotifications.length > 0 ? unreadNotifications.length : (notifications?.length || 0);
-  const unreadMessagesCount = useUnreadMessagesCount();
-  
+
   const userRole = role || getUserRole();
   const isAdmin = userRole === 'admin';
   const isClient = userRole === 'client';
@@ -43,33 +38,17 @@ const TopBar = ({
     );
   }
 
-  // Aquí puedes agregar fácilmente más iconos al TopBar
-  const actionIcons = [
-    {
-      id: 'notifications',
-      icon: <BellPlus size={18} />,
-      tooltip: 'Notificaciones',
-      count: notificationsCount,
-      onClick: () => console.log('Abrir notificaciones')
-    },
-    {
-      id: 'messages',
-      icon: <Mail size={18} />,
-      tooltip: 'Mensajes',
-      count: unreadMessagesCount,
-      onClick: () => console.log('Abrir mensajes')
-    },
-    ...extraActions 
-  ];
-
   return (
     <>
       <header className={styles.topBar}>
         <div className={styles.topBarContent}>
-        
+
         {/* Renderizado automático de los iconos */}
         <div className={styles.actionsContainer}>
-          {actionIcons.map((action) => (
+          <NotificationsBell />
+          <MessagesBell />
+
+          {extraActions.map((action) => (
             <div key={action.id} className={styles.iconButtonWrap}>
               <Button
                 variant={Button.VARIANTS.GHOST}
@@ -91,7 +70,7 @@ const TopBar = ({
 
           {/* Chatbot Popover */}
           <div className={styles.iconButtonWrap}>
-            <NowGrod />
+            {/* <NowGrod /> */}
           </div>
 
           {isAdmin && (
@@ -102,7 +81,7 @@ const TopBar = ({
                   variant={Button.VARIANTS.GHOST}
                   className={styles.actionIconButton}
                   aria-label="Ajustes."
-                  onClick={() => navigate('/AdminSystem/settings')}
+                  onClick={() => navigate('/administracion/configuracion')}
                 >
                   <ModalTooltip text="Ajustes del Sistema" position="bottom">
                     <Settings size={18} />
@@ -137,7 +116,7 @@ const TopBar = ({
              </ModalTooltip>
           </Button>
         </div>
-        
+
       </div>
       </header>
 

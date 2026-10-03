@@ -21,14 +21,14 @@ Frontend (run from repo root):
 Mock backend (only covers auth + messaging):
 - `cd server && npm install && npm start`
 
-There is no configured test runner/script in `package.json`; `Tests/Playground` holds manual/visual dev playgrounds (wired into `App.jsx` at `/test`), not automated tests.
+There is no configured test runner/script in `package.json`; `Tests/Playground` holds manual/visual dev playgrounds (wired into `App.jsx` at `/prueba`), not automated tests.
 
 Environment variables (`.env` at repo root): `VITE_API_URL`, `VITE_HEALTH_URL` (falls back to hardcoded URLs in `config/config.js` if unset).
 
 ## Architecture
 
 ### Routing and shell (`src/App.jsx`)
-- `App` wraps everything in `useHealthCheck()`; while the first health check is pending nothing renders, and once online/offline status is known, `AppRouterWrapper` redirects to `/witing` (offline) or restores the last route (back online) via `sessionStorage['redirectAfterWiting']`.
+- `App` wraps everything in `useHealthCheck()`; while the first health check is pending nothing renders, and once online/offline status is known, `AppRouterWrapper` redirects to `/espera` (offline) or restores the last route (back online) via `sessionStorage['redirectAfterEspera']`.
 - Authenticated routes share one persistent shell: they're nested under `<Route element={<PanelLayout />}>` (`src/components/GenericPanel/PanelLayout`) using `<Outlet>`, so the TopBar/panel chrome doesn't remount on navigation. New authenticated pages should be added inside that route group, not as siblings of it.
 - `/portal-cliente` mounts the independent `PortalClientes` app (own `Components/`, `Constants.js`, `utils.js` at repo root, outside `src/`).
 
@@ -40,7 +40,7 @@ Environment variables (`.env` at repo root): `VITE_API_URL`, `VITE_HEALTH_URL` (
 
 ### Dummy/offline mode
 - When dummy mode is active, `client.js` short-circuits `request()` and returns canned data from `src/dummy/db.json` (or an inline fallback) instead of hitting the network — used to develop without a live backend. Toggled via the `USE_DUMMY_DATA` localStorage key (read through `isDummyModeActive()`).
-- `useHealthCheck` (`src/hooks/useHealthCheck.js`) polls `${DEV_URL_API.baseURL}/Health` every 10s (60s timeout on the very first check, 8s after) to distinguish "no internet" from "backend down," driving the `/witing` redirect and the dummy-mode "backend is back" banner in `App.jsx`.
+- `useHealthCheck` (`src/hooks/useHealthCheck.js`) polls `${DEV_URL_API.baseURL}/Health` every 10s (60s timeout on the very first check, 8s after) to distinguish "no internet" from "backend down," driving the `/espera` redirect and the dummy-mode "backend is back" banner in `App.jsx`.
 
 ### Session/auth
 - Session data (token, login payload, doctor id) is written to both `sessionStorage` and `localStorage` via `src/services/api/storage.js`; reads prefer `sessionStorage` and lazily backfill it from `localStorage`. Use the existing `get*FromLoginSession`/`extract*` helpers there rather than reaching into storage keys directly — payload shapes vary by role/backend version and those helpers already account for it.

@@ -90,7 +90,7 @@ const Settings = () => {
               description={getText("setting.logsDesc")}
               icon={ClipboardIcon}
               iconColorVariant="purple"
-              onToggle={() => window.open('/AdminSystem/logs', '_blank')}
+              onToggle={() => window.open('/administracion/registros', '_blank')}
               isOpen={false}
             />
 

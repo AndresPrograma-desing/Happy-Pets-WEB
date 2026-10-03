@@ -20,7 +20,7 @@ function Sidebar({ children, menuTitle = "Menú" }) {
   // Handler de mensajes original
   const handleOpenMessages = () => {
     setHasNewMessages(false);
-    const messagesUrl = `${window.location.origin}/panel-menssage`;
+    const messagesUrl = `${window.location.origin}/panel-mensajes`;
     window.open(messagesUrl, '_blank', 'noopener,noreferrer');
   };
 

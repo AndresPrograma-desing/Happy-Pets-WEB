@@ -55,7 +55,7 @@ function AppContent() {
   // Obtener el user_id usando la utilidad
   const userId = getUserId();
   
-  const isPublicRoute = ['/login', '/inicio', '/', '/witing', '/portal-cliente'].includes(location.pathname);
+  const isPublicRoute = ['/login', '/inicio', '/', '/espera', '/portal-cliente'].includes(location.pathname);
 
   useEffect(() => {
     startTransition(() => setIsLoading(true));
@@ -79,40 +79,40 @@ function AppContent() {
           {/* Rutas autenticadas: comparten un único GenericPanel/TopBar persistente
               (no se remonta en cada navegación) via PanelLayout + <Outlet>. */}
           <Route element={<PanelLayout />}>
-            <Route path="/AdminSystem" element={<AdminSystem />} />
-            <Route path="/AdminSystem/dashboard" element={<DashboardPage />} />
-            <Route path="/SecretariaSystem" element={<SecretariaSystem />} />
+            <Route path="/administracion" element={<AdminSystem />} />
+            <Route path="/administracion/dashboard" element={<DashboardPage />} />
+            <Route path="/secretaria" element={<SecretariaSystem />} />
             <Route path="/doctor" element={<DoctorSystem />} />
             <Route path="/citas" element={<CitasDoctor />} />
-            <Route path="/panel-menssage" element={<PanelMenssage />} />
+            <Route path="/panel-mensajes" element={<PanelMenssage />} />
             <Route path="/citas/crear" element={<CreatedCita />} />
             <Route path="/clientes/crear" element={<CustomerAndPets />} />
-            <Route path="/AdminSystem/products" element={<Products />} />
-            <Route path="/AdminSystem/products/manage" element={<ProductCreate />} />
-            <Route path="/factura-manager" element={<FacturaManager />} />
-            <Route path="/facturas" element={<FacturasList />} />
-            <Route path="/AdminSystem/settings" element={<Settings />} />
-            <Route path="/AdminSystem/users" element={<Users />} />
-            <Route path="/AdminSystem/emails" element={<EmailsTemplates />} />
+            <Route path="/administracion/productos" element={<Products />} />
+            <Route path="/administracion/productos/gestionar" element={<ProductCreate />} />
+            <Route path="/gestor-facturas" element={<FacturaManager />} />
+            <Route path="/recibos" element={<FacturasList />} />
+            <Route path="/administracion/configuracion" element={<Settings />} />
+            <Route path="/administracion/usuarios" element={<Users />} />
+            <Route path="/administracion/correos" element={<EmailsTemplates />} />
             <Route path="/doctor/recetas" element={<Recetas />} />
             <Route path="/doctor/pacientes" element={<HistorialMedico />} />
-            <Route path="/clients" element={<ClientList />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/AdminSystem/vaccines" element={<Vaccines />} />
+            <Route path="/clientes" element={<ClientList />} />
+            <Route path="/calendario" element={<Calendar />} />
+            <Route path="/administracion/vacunas" element={<Vaccines />} />
           </Route>
 
           <Route path="/consultas/crear" element={<Consultas />} />
           <Route path="/facturas/crear" element={<CreateFactura />} />
           <Route path="/factura-local" element={<FacturaLocal />} />
-          <Route path="/AdminSystem/logs" element={<SystemLogs />} />
+          <Route path="/administracion/registros" element={<SystemLogs />} />
 
-          <Route path="/health" element={<Health />} />
+          <Route path="/salud" element={<Health />} />
 
-          <Route path="/witing" element={<WaitingPage />} />
+          <Route path="/espera" element={<WaitingPage />} />
 
           <Route path="/portal-cliente" element={<PortalClientes />} />
 
-          <Route path="/test" element={<VistaDesarrollo />} />
+          <Route path="/prueba" element={<VistaDesarrollo />} />
 
           <Route path="*" element={<Navigate to="/inicio" replace />} />
         </Routes>
@@ -179,7 +179,7 @@ function App() {
   );
 }
 
-// El API debe estar caído de forma continua por más de este tiempo antes de mostrar /witing.
+// El API debe estar caído de forma continua por más de este tiempo antes de mostrar /espera.
 const WAITING_THRESHOLD_MS = 16 * 60 * 1000;
 const DOWN_SINCE_KEY = 'apiDownSince';
 
@@ -229,15 +229,15 @@ function AppRouterWrapper({ isOnline, isBackendAlive, isChecking }) {
   }
 
   if (showWaiting) {
-    if (location.pathname !== '/witing') {
+    if (location.pathname !== '/espera') {
       // Remember where the user was so we can restore it after reconnection
-      sessionStorage.setItem('redirectAfterWiting', location.pathname);
-      return <Navigate to="/witing" replace />;
+      sessionStorage.setItem('redirectAfterEspera', location.pathname);
+      return <Navigate to="/espera" replace />;
     }
-  } else if (location.pathname === '/witing') {
+  } else if (location.pathname === '/espera') {
     // Restore the original path, or default to /inicio
-    const returnTo = sessionStorage.getItem('redirectAfterWiting') || '/inicio';
-    sessionStorage.removeItem('redirectAfterWiting');
+    const returnTo = sessionStorage.getItem('redirectAfterEspera') || '/inicio';
+    sessionStorage.removeItem('redirectAfterEspera');
     return <Navigate to={returnTo} replace />;
   }
 
