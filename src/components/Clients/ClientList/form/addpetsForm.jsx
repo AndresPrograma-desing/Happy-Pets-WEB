@@ -3,18 +3,36 @@ import { handleFormChange } from '../utils';
 import styles from './styles.module.css';
 import CalendarPicker from '../../../screens/components/CalendarPicker/Index';
 import Selector from '../../../screens/components/Material-UI/Components/Selector/Index';
-import Input from '../../../screens/components/Input/Index';
 import Switch from '../../../screens/components/Swich/Index';
 import ErrorMessage from '../../../Notification/Error/ErrorMessage';
 import useSpecies from '../../../../hooks/useSpecies';
+import { Input, ProfileAvatar } from 'anteriority-ui';
+import useImagePicker from '../../../../hooks/useImagePicker';
 
-export default function AddPetsForm({ petForm, setPetForm, petError }) {
+export default function AddPetsForm({ petForm, setPetForm, petError, petImage, setPetImage, currentImageUrl }) {
     const { speciesOptions } = useSpecies();
+    const picker = useImagePicker(petImage, setPetImage);
 
     return (
         <div className={styles.formContainer}>
             
             {petError && ( <ErrorMessage message={petError} /> )}
+
+            {setPetImage && (
+                <div className={styles.inputGroup} style={{ alignItems: 'center' }}>
+                    <input type="file" ref={picker.inputRef} accept="image/jpeg,image/png,image/webp,image/gif" style={{ display: 'none' }} onChange={picker.handleSelect} />
+                    <ProfileAvatar
+                        src={picker.preview || currentImageUrl}
+                        name={petForm.nombre || 'Mascota'}
+                        size={80}
+                        editable
+                        onEditClick={picker.openPicker}
+                    />
+                    <span style={{ fontSize: '0.8rem', color: picker.error ? '#d32f2f' : '#64748b' }}>
+                        {picker.error || 'Foto de la mascota (opcional, máx. 5 MB)'}
+                    </span>
+                </div>
+            )}
 
             <div className={styles.gridTwoColumns}>
                 <div className={styles.inputGroup}>
@@ -85,9 +103,11 @@ export default function AddPetsForm({ petForm, setPetForm, petError }) {
             <div className={styles.gridTwoColumns}>
                 <div className={styles.inputGroup}>
                     <Input 
-                        type="number" 
-                        slotProps={{ htmlInput: { step: "0.01" } }}
-                        label="Peso (kg)" 
+                        numeric
+                        allowDecimal
+                        min={0}
+                        step={0.1}
+                        label="Peso (kg)"
                         name="peso" 
                         value={petForm.peso} 
                         onChange={(e) => handleFormChange(e, setPetForm)} 

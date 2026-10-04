@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import useClientAndPets from '../../../hooks/ClientAndPets';
 import styles from './CustumerAndPets.module.css';
@@ -6,12 +7,17 @@ import CalendarPicker from '../../../components/screens/components/CalendarPicke
 import AlertModal from '../../../components/AlertModal/AlertModal'; 
 import { User, Mail, Phone, MapPin, IdCard, PawPrint, Award, Palette, HeartHandshake, Weight, Activity, ShieldAlert, Notebook,Dna } from 'lucide-react';
 import usePanelHeader from '../../../components/GenericPanel/usePanelHeader';
-import Button, { COLORS } from '../../../components/screens/components/Button';
+import Button from '../../../components/screens/components/Button';
 import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
 import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
 import CountdownBar from '../../../components/screens/components/CountdownBar';
 import Switch from '../../../components/screens/components/Swich/Index';
 import useSpecies from '../../../hooks/useSpecies';
+import { Input, ProfileAvatar } from 'anteriority-ui';
+import useImagePicker from '../../../hooks/useImagePicker';
+import { DrawPanelFooterContext } from '../../../components/screens/components/DrawPanel/FooterContext';
+
+const FORM_ID = 'customerAndPetsForm';
 
 const initialForm = {
     nombre: '',
@@ -44,8 +50,14 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
     const [form, setForm] = useState(initialForm);
     const [modalError, setModalError] = useState(null);  
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [clientImage, setClientImage] = useState(null);
+    const [petImage, setPetImage] = useState(null);
+    const [pendingCreated, setPendingCreated] = useState(null);
+    const clientPicker = useImagePicker(clientImage, setClientImage);
+    const petPicker = useImagePicker(petImage, setPetImage);
     const { creating, createClientAndPet } = useClientAndPets();
     const { speciesOptions } = useSpecies();
+    const footerNode = useContext(DrawPanelFooterContext);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -78,9 +90,17 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
         }
 
         try {
-            const created = await createClientAndPet(form);
-            if (typeof onCreated === 'function') onCreated(created);
+            const created = await createClientAndPet(form, { clientImage, petImage });
             setForm(initialForm);
+            setClientImage(null);
+            setPetImage(null);
+            if (created?.imageWarning) {
+                setPendingCreated(created);
+                setModalError(created.imageWarning);
+                setIsModalOpen(true);
+                return;
+            }
+            if (typeof onCreated === 'function') onCreated(created);
         } catch (err) {
             const isConflict = err?.status === 409 || /conflict/i.test(String(err?.body?.message || err?.message || ''));
             const fallbackMessage = isConflict
@@ -110,8 +130,19 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
     const totalFields = REQUIRED_FIELDS.length;
     const progressValue = (filledFieldsCount / totalFields) * 100;
 
+    const actionButtons = (
+        <>
+            <Button type="submit" form={FORM_ID} variant="primary" loading={isSubmitting} fullWidth={!!footerNode}>
+                {isSubmitting ? 'Guardando registro' : 'Crear Cliente y Mascota'}
+            </Button>
+            <Button type="button" border={Button.COLORS.RED} onClick={onCancel} disabled={isSubmitting} fullWidth={!!footerNode}>
+                Cancelar
+            </Button>
+        </>
+    );
+
     return (
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
+        <form id={FORM_ID} onSubmit={handleSubmit} className={styles.form} noValidate>
             
             <AlertModal
                 open={isModalOpen}
@@ -121,6 +152,11 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
                 onClose={() => {
                     setIsModalOpen(false);
                     setModalError(null);
+                    if (pendingCreated) {
+                        const created = pendingCreated;
+                        setPendingCreated(null);
+                        if (typeof onCreated === 'function') onCreated(created);
+                    }
                 }}
             />
 
@@ -131,7 +167,21 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             </div>
 
             <h3 className={styles.sectionTitle}>Datos del cliente</h3>
-            
+
+            <div className={styles.imageRow}>
+                <input type="file" ref={clientPicker.inputRef} accept="image/jpeg,image/png,image/webp,image/gif" style={{ display: 'none' }} onChange={clientPicker.handleSelect} />
+                <ProfileAvatar
+                    src={clientPicker.preview}
+                    name={`${form.nombre} ${form.apellido}`.trim() || 'Cliente'}
+                    size={80}
+                    editable={!isSubmitting}
+                    onEditClick={clientPicker.openPicker}
+                />
+                <span className={styles.imageHint}>
+                    {clientPicker.error || 'Foto del cliente (opcional, máx. 5 MB)'}
+                </span>
+            </div>
+{/* <p style={{ color: 'red', fontSize: '12px' }}>Todo lo que esta en ** es obligatorio</p> */}
             <div className={styles.row}>
                 <TextField
                     label="Nombre"
@@ -201,7 +251,21 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             </div>
 
             <h3 className={styles.sectionTitle}>Datos de la mascota</h3>
-            
+
+            <div className={styles.imageRow}>
+                <input type="file" ref={petPicker.inputRef} accept="image/jpeg,image/png,image/webp,image/gif" style={{ display: 'none' }} onChange={petPicker.handleSelect} />
+                <ProfileAvatar
+                    src={petPicker.preview}
+                    name={form.mascota_nombre || 'Mascota'}
+                    size={80}
+                    editable={!isSubmitting}
+                    onEditClick={petPicker.openPicker}
+                />
+                <span className={styles.imageHint}>
+                    {petPicker.error || 'Foto de la mascota (opcional, máx. 5 MB)'}
+                </span>
+            </div>
+
             <div className={styles.row}>
                 <TextField
                     label="Nombre de mascota"
@@ -258,11 +322,13 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             </div>
 
             <div className={styles.row}>
-                <TextField
+                <Input
+                    numeric
+                    allowDecimal
+                    min={0}
+                    step={0.1}
                     label="Peso (kg)"
                     name="peso"
-                    type="number"
-                    step="0.1"
                     placeholder="Peso"
                     value={form.peso}
                     onChange={handleChange}
@@ -305,19 +371,7 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
                 </div>
             </div>
 
-            <div className={styles.actions}>
-                <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? 'Guardando registro' : 'Crear Cliente y Mascota'}
-                </Button>
-                <Button 
-                variant="contained" 
-                color={COLORS.TRANSPARENT} 
-                borderColor="var('--border-gray-low')" 
-                onClick={onCancel} 
-                disabled={isSubmitting}>
-                    Cancelar
-                </Button>
-            </div>
+            {footerNode ? createPortal(actionButtons, footerNode) : <div className={styles.actions}>{actionButtons}</div>}
         </form>
     );
 }
