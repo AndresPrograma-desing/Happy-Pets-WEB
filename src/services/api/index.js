@@ -448,6 +448,16 @@ export async function searchClients(query) {
     method: 'GET' 
   });
 }
+export async function uploadClientImage(clientId, file) {
+  const body = new FormData();
+  body.append('image', file);
+  return request(`/ClientPets/client/${encodeURIComponent(clientId)}/image`, { method: 'POST', body });
+}
+export async function uploadPetImage(petId, file) {
+  const body = new FormData();
+  body.append('image', file);
+  return request(`/ClientPets/pet/${encodeURIComponent(petId)}/image`, { method: 'POST', body });
+}
 export async function createPetForExistingClient(body) {
   return request(`/ClientPets/add-pet`, { 
     method: 'POST',
@@ -724,6 +734,8 @@ export default {
   markMessageAsRead,
   searchClients,
   createPetForExistingClient,
+  uploadClientImage,
+  uploadPetImage,
   createConsulta,
   getConsultaById,
   requestPasswordReset,

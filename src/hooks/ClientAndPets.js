@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { createClienteMascota } from '../services/api';
+import { createClienteMascota, uploadClientImage, uploadPetImage } from '../services/api';
 
 export default function useClientAndPets() {
 	const [creating, setCreating] = useState(false);
 	const [error, setError] = useState(null);
 
-	const createClientAndPet = async (form) => {
+	const createClientAndPet = async (form, { clientImage = null, petImage = null } = {}) => {
 		setError(null);
 		setCreating(true);
 		try {
@@ -32,8 +32,19 @@ export default function useClientAndPets() {
 			};
 
 			const res = await createClienteMascota(payload);
+
+			const failed = [];
+			if (clientImage) {
+				try { await uploadClientImage(res.clienteId, clientImage); } catch { failed.push('del cliente'); }
+			}
+			if (petImage) {
+				try { await uploadPetImage(res.mascotaId, petImage); } catch { failed.push('de la mascota'); }
+			}
+
 			setCreating(false);
-			return res;
+			return failed.length > 0
+				? { ...res, imageWarning: `Se registró el cliente, pero no se pudo subir la imagen ${failed.join(' ni la imagen ')}.` }
+				: res;
 		} catch (err) {
 			setError(err);
 			setCreating(false);

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { getClients, createPetForExistingClient, deleteClient, updateClient, updatePet, deletePet } from '../../../services/api';
+import { getClients, createPetForExistingClient, uploadPetImage, uploadClientImage, deleteClient, updateClient, updatePet, deletePet } from '../../../services/api';
+import { ProfileAvatar } from 'anteriority-ui';
+import useImagePicker from '../../../hooks/useImagePicker';
 import SearchInput from '../../UI/Search/Search';
 import AlertModal from '../../../components/AlertModal/AlertModal';
 import PetForm from './form/addpetsForm';
@@ -43,6 +45,7 @@ export default function ClientList() {
   const [showPetModal, setShowPetModal] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [petForm, setPetForm] = useState(INITIAL_PET_FORM);
+  const [petImage, setPetImage] = useState(null);
   const [petSubmitting, setPetSubmitting] = useState(false);
   const [petError, setPetError] = useState('');
 
@@ -57,6 +60,8 @@ export default function ClientList() {
     identificacion: '',
     nota: ''
   });
+  const [clientImage, setClientImage] = useState(null);
+  const clientPicker = useImagePicker(clientImage, setClientImage);
   const [clientSubmitting, setClientSubmitting] = useState(false);
   const [clientEditError, setClientEditError] = useState('');
   const [clientEditSuccess, setClientEditSuccess] = useState(undefined);
@@ -64,6 +69,7 @@ export default function ClientList() {
   const [showEditPetModal, setShowEditPetModal] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [editPetForm, setEditPetForm] = useState(INITIAL_PET_FORM);
+  const [editPetImage, setEditPetImage] = useState(null);
   const [editPetSubmitting, setEditPetSubmitting] = useState(false);
   const [editPetError, setEditPetError] = useState('');
   const [editPetSuccess, setEditPetSuccess] = useState(undefined);
@@ -123,6 +129,7 @@ export default function ClientList() {
   const handleOpenAddPet = (clientId) => {
     setSelectedClientId(clientId);
     setPetForm(INITIAL_PET_FORM);
+    setPetImage(null);
     setPetError('');
     setShowPetModal(true);
   };
@@ -137,7 +144,16 @@ export default function ClientList() {
     setPetError('');
     try {
       const payload = preparePetPayload(selectedClientId, petForm);
-      await createPetForExistingClient(payload);
+      const created = await createPetForExistingClient(payload);
+      if (petImage) {
+        try {
+          await uploadPetImage(created.mascotaId, petImage);
+        } catch (imgErr) {
+          setPetError('La mascota se registró, pero no se pudo subir su imagen.');
+          await fetchClients();
+          return;
+        }
+      }
       setShowPetModal(false);
       await fetchClients();
     } catch (err) {
@@ -158,6 +174,7 @@ export default function ClientList() {
       identificacion: client.identificacion || '',
       nota: client.nota || ''
     });
+    setClientImage(null);
     setClientEditError('');
     setClientEditSuccess(undefined);
     setShowEditClientModal(true);
@@ -182,6 +199,16 @@ export default function ClientList() {
         nota: clientForm.nota?.trim() || null
       };
       await updateClient(selectedClient.id, payload);
+      if (clientImage) {
+        try {
+          await uploadClientImage(selectedClient.id, clientImage);
+        } catch (imgErr) {
+          setClientEditSuccess(undefined);
+          setClientEditError('Los datos se guardaron, pero no se pudo subir la imagen.');
+          await fetchClients();
+          return;
+        }
+      }
       setClientEditSuccess(true);
       setClientEditError('¡Datos del cliente actualizados con éxito!');
       await fetchClients();
@@ -211,6 +238,7 @@ export default function ClientList() {
       condicionesMedicas: pet.condicionesMedicas || '',
       esterilizado: Boolean(pet.esterilizado)
     });
+    setEditPetImage(null);
     setEditPetError('');
     setEditPetSuccess(undefined);
     setShowEditPetModal(true);
@@ -239,6 +267,16 @@ export default function ClientList() {
         esterilizado: Boolean(editPetForm.esterilizado)
       };
       await updatePet(selectedPet.id, payload);
+      if (editPetImage) {
+        try {
+          await uploadPetImage(selectedPet.id, editPetImage);
+        } catch (imgErr) {
+          setEditPetSuccess(undefined);
+          setEditPetError('Los datos se guardaron, pero no se pudo subir la imagen.');
+          await fetchClients();
+          return;
+        }
+      }
       setEditPetSuccess(true);
       setEditPetError('¡Datos de la mascota actualizados con éxito!');
       await fetchClients();
@@ -340,8 +378,13 @@ export default function ClientList() {
       label: 'Cliente',
       render: (row) => (
         <div className={styles.avatarArea}>
-          <div className={styles.avatar}>
-            {row.nombre?.charAt(0).toUpperCase()}{row.apellido?.charAt(0).toUpperCase()}
+          <div className={styles.avatarSlot}>
+            <ProfileAvatar
+              src={row.image_url}
+              name={`${row.nombre} ${row.apellido}`}
+              size={40}
+              viewable
+            />
           </div>
           <div className={styles.identitySummary}>
             <div className={styles.clientName}>{row.nombre} {row.apellido}</div>
@@ -418,9 +461,15 @@ export default function ClientList() {
             {client.mascotas.map((pet) => (
               <div key={pet.id} className={styles.petCardRow}>
                 <div className={styles.petMainInfo}>
-                  <div className={styles.petIconWrapper} data-especie={pet.especie?.toLowerCase()}>
-                    <PawPrint size={16} />
-                  </div>
+                  {pet.image_url ? (
+                    <div className={styles.avatarSlot} style={{ flexBasis: 36, width: 36 }}>
+                      <ProfileAvatar src={pet.image_url} name={pet.nombre} size={36} viewable />
+                    </div>
+                  ) : (
+                    <div className={styles.petIconWrapper} data-especie={pet.especie?.toLowerCase()}>
+                      <PawPrint size={16} />
+                    </div>
+                  )}
                   <div>
                     <h5 className={styles.petName}>{pet.nombre}</h5>
                     <p className={styles.petBreed}>{pet.especie} • {pet.raza || 'Mestizo'}</p>
@@ -518,8 +567,10 @@ export default function ClientList() {
       >
         <PetForm 
           petForm={petForm} 
-          setPetForm={setPetForm} 
-          petError={petError} 
+          setPetForm={setPetForm}
+          petError={petError}
+          petImage={petImage}
+          setPetImage={setPetImage}
         />
       </DrawPanel>
 
@@ -538,6 +589,19 @@ export default function ClientList() {
         requiredFields={['nombre', 'apellido', 'email']}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem 0' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
+            <input type="file" ref={clientPicker.inputRef} accept="image/jpeg,image/png,image/webp,image/gif" style={{ display: 'none' }} onChange={clientPicker.handleSelect} />
+            <ProfileAvatar
+              src={clientPicker.preview || selectedClient?.image_url}
+              name={`${clientForm.nombre} ${clientForm.apellido}`.trim() || 'Cliente'}
+              size={80}
+              editable
+              onEditClick={clientPicker.openPicker}
+            />
+            <span style={{ fontSize: '0.8rem', color: clientPicker.error ? '#d32f2f' : '#64748b' }}>
+              {clientPicker.error || 'Haz clic en la foto para cambiarla (máx. 5 MB)'}
+            </span>
+          </div>
           {clientEditError && (
             <ErrorMessage 
               title={clientEditSuccess ? "¡Actualización Exitosa!" : "Atención"} 
@@ -610,8 +674,11 @@ export default function ClientList() {
           )}
           <PetForm 
             petForm={editPetForm} 
-            setPetForm={setEditPetForm} 
-            petError="" 
+            setPetForm={setEditPetForm}
+            petError=""
+            petImage={editPetImage}
+            setPetImage={setEditPetImage}
+            currentImageUrl={selectedPet?.image_url}
           />
         </div>
       </DrawPanel>
