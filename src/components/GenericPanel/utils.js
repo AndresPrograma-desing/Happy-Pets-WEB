@@ -37,7 +37,7 @@ export const buildSidebarData = ({ items, searchValue = '', pathname = '' }) => 
     id: it.id || it.path || it.label || `sidebar-item-${idx}`,
     subItems: it.subItems?.map((sub, sIdx) => ({
       ...sub,
-      id: sub.id || sub.path || sub.label || `sub-item-${sIdx}`
+      id: sub.id || sub.path || sub.label || `sub-item-${sIdx}`,
     }))
   }));
 

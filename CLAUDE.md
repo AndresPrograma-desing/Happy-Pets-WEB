@@ -51,7 +51,7 @@ Environment variables (`.env` at repo root): `VITE_API_URL`, `VITE_HEALTH_URL` (
 - `src/redux/` (`store.js`, `slices/rolesSlice.js`) is a newer addition using Redux Toolkit — currently scoped to role state. Don't assume broader app state lives in Redux; check whether a hook already owns the data before introducing a new slice.
 
 ### Directory map (see `FRONTEND_STRUCTURE.md` for the full narrative version)
-- `src/components/screens/components/` — the base component library (buttons, inputs, cards, tables). Reuse these before building new primitives.
+- `src/components/screens/components/` — the base component library (buttons, inputs, cards, tables), largely superseded by `anteriority-ui` (see Project conventions below) — most of these now have an equivalent exported from the package and new code should prefer that instead.
 - `src/pages/` — routed views grouped by role (`AdminSystem/`, `DoctorSystem/`, `SecretariSystem/`).
 - `src/features/` — self-contained features (e.g. internal messaging).
 - `src/constants/` — centralized UI text (`TEXT.js`, `constants.js`).
@@ -63,7 +63,7 @@ Environment variables (`.env` at repo root): `VITE_API_URL`, `VITE_HEALTH_URL` (
 
 These are enforced project rules, not suggestions:
 - Every component lives in its own subfolder as `<ComponentName>/index.jsx` (+ `index.module.css` if it has styles), never as a bare file dropped next to its siblings — this applies everywhere in `src/`, not just `screens/components/`. A feature's own subcomponents go under `<Feature>/components/<ComponentName>/index.jsx` (e.g. `Dashboard/components/Filters/index.jsx`), dropping the feature name as a prefix since the path already carries it. The feature's own top-level component (e.g. `Dashboard/Dashboard.jsx`) is the one exception and stays flat alongside its `utils.js`.
-- Reuse components from `src/components/screens/components/` first; if a new one is truly needed, build it there following existing conventions.
+- **Prioritize `anteriority-ui`** (the internal design-system package, `import { X } from 'anteriority-ui'`) over anything local. Before building or touching UI, check its catalog — `node_modules/anteriority-ui/AnteriorityUI.md` (props/usage for all ~50 components) and `README.md` (setup/import conventions) — for an existing component that fits. Only fall back to `src/components/screens/components/` or build a new component there when the library truly has no equivalent (and it isn't reasonable to extend the library itself); follow existing conventions there in that case.
 - No inline logic in JSX — extract non-trivial JS into a `utils.js` or a hook.
 - No inline or hardcoded CSS in JSX — all styles go in a co-located `.module.css` file.
 - No hardcoded UI text — centralize strings in a `constants.js`/`TEXT.js`.

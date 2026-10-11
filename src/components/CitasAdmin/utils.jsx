@@ -293,6 +293,7 @@ export function CitasModals({
                 onClose={() => setShowCreateClientModal(false)}
                 width="600px"
                 showActions={false}
+                dynamicFooter
             >
                 <CustomerAndPetsForm
                     onCreated={() => {

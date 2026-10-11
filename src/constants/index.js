@@ -88,6 +88,7 @@ const TEXT = {
             updateTrashError: getLogsTxt("configReportMassages.updateTrashError"),
             updateAutoGenError: getLogsTxt("configReportMassages.updateAutoGenError"),
             chargingReportErrror: getLogsTxt("configReportMassages.chargingReportErrror"),
+            downloadError: getLogsTxt("configReportMassages.downloadError"),
         }
     },
     configFactura: {

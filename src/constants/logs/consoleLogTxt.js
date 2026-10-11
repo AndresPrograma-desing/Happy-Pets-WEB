@@ -12,6 +12,7 @@ const LOGS = {
             updateTrashError: "Error al actualizar la eliminación automática.",
             updateAutoGenError: "Error al actualizar la generación automática.",
             chargingReportErrror: "No se pudieron cargar los reportes anteriores.",
+            downloadError: "No se pudo descargar el reporte.",
         },
         moneySettingsMessages: {
             errorFetchingCurrency: "Error al obtener la moneda actual.",

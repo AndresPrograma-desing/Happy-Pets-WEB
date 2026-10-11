@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { files } from "../../../../../services/api";
+import { files, downloadReportExcel } from "../../../../../services/api";
 import style from "../../settings.module.css";
 import { Download, FileSpreadsheet, RefreshCw, AlertCircle } from "lucide-react";
 import ModalTooltip from "../../../../../components/ModalTooltip/ModalTooltip";
@@ -13,6 +13,7 @@ const Files = ({ refreshTrigger }) => {
     const [reportList, setReportList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [downloadingId, setDownloadingId] = useState(null);
 
     const fetchReports = async () => {
         setLoading(true);
@@ -34,9 +35,25 @@ const Files = ({ refreshTrigger }) => {
         fetchReports();
     }, [refreshTrigger]);
 
-    const handleDownload = (url) => {
-        if (url) {
-            window.open(url);
+    const handleDownload = async (report) => {
+        setDownloadingId(report.id);
+        setError(null);
+        try {
+            const { blob, filename } = await downloadReportExcel(report.id);
+            if (!blob) throw new Error(getText("configReport.configReportMassages.downloadError"));
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename || `Reporte_${report.id}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            setError(getText("configReport.configReportMassages.downloadError"));
+            console.error(err);
+        } finally {
+            setDownloadingId(null);
         }
     };
 
@@ -81,7 +98,9 @@ const Files = ({ refreshTrigger }) => {
                             icon={FileSpreadsheet}
                             action={
                                 <Button
-                                    onClick={() => handleDownload(report.url)}
+                                    onClick={() => handleDownload(report)}
+                                    disabled={downloadingId === report.id}
+                                    loading={downloadingId === report.id}
                                     variant={Button.VARIANTS.DANGER}
                                     color={Button.COLORS.TRANSPARENT}
                                     borderColor="var(--border-gray-low)"

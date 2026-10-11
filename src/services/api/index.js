@@ -345,6 +345,9 @@ export async function genarateReport(generadoPor) {
 export async function files() {
   return request(`/Report`, { method: 'GET' });
 }
+export async function downloadReportExcel(id) {
+  return request(`/Report/excel/${id}`, { method: 'GET', responseType: 'blob' });
+}
 export async function settingReport(days) {
   return request(`/Report/settings/retention-days`, 
     { method: 'POST', body: { days } });
@@ -389,7 +392,7 @@ export async function decreaseProductStock(productId, cantidad = 1) {
     } catch (err2) {
       try {
         return await request(`/admin/Products/${productId}/quantity`, { method: 'PATCH', body: { quantity: String(cantidad) } });
-      } catch (err3) {
+      } catch (err3) { 
         try {
           return await request(`/Products/${productId}/quantity`, { method: 'PATCH', body: { cantidad: String(cantidad) } });
         } catch (err4) {

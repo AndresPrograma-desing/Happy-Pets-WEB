@@ -6,10 +6,9 @@ import { KeyRound, FileText, ClipboardIcon, CircleDollarSign, Mail, Eye, EyeOff,
 import Report from "./Components/Report/index";
 import { getText } from "../../../constants";
 import CurrencySelector from "./Components/MoneySettings/CurrencySelector";
-import DesplegablePanel from "../../../components/screens/components/DesplegablePanel";
 import SettingResend from "./Components/SettingResend";
 // import GroqSettings from "./Components/NowGrodSettings/index";
-import DrawPanel from "../../../components/screens/components/DrawPanel/index";
+import { DesplegablePanel, DrawPanel } from "anteriority-ui";
 import PasswordResetPanel from "./Components/PasswordReset";
 import { CONFIG_PANEL_TEXTS } from "./constants";
 import WorkerCenter from "./Components/WorkerCenter";
@@ -23,17 +22,12 @@ const Settings = () => {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showResendPanel, setShowResendPanel] = useState(false);
   const [showReportPanel, setShowReportPanel] = useState(false);
+  const [showMoneyPanel, setShowMoneyPanel] = useState(false);
   // const [showGroqPanel, setShowGroqPanel] = useState(false);
   // const [groqLoading, setGroqLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [activeMenu, setActiveMenu] = useState(null);
-
 
   // Password reset panel state is fully encapsulated in PasswordResetPanel now.
-
-  const toggleMenu = (menuName) => {
-    setActiveMenu(activeMenu === menuName ? null : menuName);
-  };
 
   usePanelHeader({
     title: getText("setting.tittle"),
@@ -108,11 +102,9 @@ const Settings = () => {
               description={getText("setting.moneySettingsDesc")}
               icon={CircleDollarSign}
               iconColorVariant="green2"
-              onToggle={() => toggleMenu('moneysettings')}
-              isOpen={activeMenu === 'moneysettings'}
-            >
-              <CurrencySelector />
-            </DesplegablePanel>
+              onToggle={() => setShowMoneyPanel(true)}
+              isOpen={false}
+            />
           </div>
         </section>
 
@@ -157,6 +149,14 @@ const Settings = () => {
       // width="450px"
       >
         <Report />
+      </DrawPanel>
+
+      <DrawPanel
+        isOpen={showMoneyPanel}
+        onClose={() => setShowMoneyPanel(false)}
+        title={getText("setting.tittleMoneySettings")}
+      >
+        <CurrencySelector />
       </DrawPanel>
 
       {/* <DrawPanel
