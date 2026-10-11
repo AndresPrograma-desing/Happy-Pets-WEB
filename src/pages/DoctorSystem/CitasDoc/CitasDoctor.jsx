@@ -252,6 +252,7 @@ function CitasDoctor() {
 				onClose={closeCreateClientModal}
 				width="600px"
 				showActions={false}
+				dynamicFooter
 			>
 				<CustomerAndPetsForm onCreated={handleCreateClientSuccess} onCancel={closeCreateClientModal} onError={handleCreateClientError} />
 			</DrawPanel>

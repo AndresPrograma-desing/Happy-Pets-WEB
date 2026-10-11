@@ -19,7 +19,10 @@ import ToggleCard from '../screens/components/ToggleCard';
 import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
 import Button from '../screens/components/Button';
 import ModalTooltip from '../ModalTooltip/ModalTooltip';
-import ProSidebar from '../screens/components/Sidebar/Index';
+// anteriority-ui@1.4.0 no soporta `subItems`/submenús en ProSidebar (ver AnteriorityUI.md),
+// así que para los grupos con subItems (Productos, Vacunas, etc.) se usa la versión local
+// que sí implementa el acordeón/popover de subitems.
+import { ProSidebar } from '../screens/components/Sidebar/Index';
 
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
 import { getUserRole, getDisplayRoleName, getDefaultMenus, getUserPermissions, filterMenuByPermissions, resolveMenuFromCatalog } from './Routes';
@@ -313,6 +316,7 @@ function GenericPanel({
 
       <div className={styles.layoutContainer}>
         <ProSidebar
+          className={styles.sidebarSticky}
           groups={groups}
           activeId={activeId}
           onSelect={handleNavigate}
@@ -476,6 +480,7 @@ function GenericPanel({
           title="Crear cliente y mascota"
           width="500px"
           showActions={false}
+          dynamicFooter
         >
           <CustomerAndPetsForm
             onCreated={() => {

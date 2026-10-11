@@ -196,7 +196,7 @@ import BlueLink from '../BlueLink/index'; // export default
 
 ### Breadcrumbs
 
-Rastro de navegación (breadcrumb trail) animado; el último elemento de `items` siempre se muestra como página actual (no clicable), y los anteriores con `onClick` se renderizan como botones.
+Rastro de navegación (breadcrumb trail) animado; el último elemento de `items` siempre se muestra como página actual (texto en negrita, no clicable, sin chip/fondo), y los anteriores con `onClick` se renderizan como botones.
 
 **Import:**
 ```jsx
@@ -218,11 +218,16 @@ import { Breadcrumbs } from '../Breadcrumbs/index'; // named export (también de
 
 | Prop | Tipo | Default | Descripción |
 |---|---|---|---|
-| `items` | array de `{ id?, label, onClick? }` | `[]` | Ruta completa de migas de pan en orden; si está vacío no renderiza nada |
+| `items` | array de `{ id?, label, icon?, onClick? }` | `[]` | Ruta completa de migas de pan en orden; si está vacío no renderiza nada. `icon` es opcional, un componente (ej. ícono de `lucide-react`) que se muestra antes del label de ese ítem puntual |
 | `className` | string | `''` | Clase CSS adicional en el `<nav>` |
-| `iconColor` | string | — | Color del ícono de "home" (`--crumb-icon-color`) |
-| `activeBgColor` | string | — | Fondo del crumb activo/actual (`--crumb-active-bg`) |
+| `separator` | string | `'/'` | Carácter divisor entre crumbs (ej. `'/'`, `'-'`, `'>'`) |
+| `iconColor` | string | — | Color de los íconos de los crumbs (`--crumb-icon-color`) |
 | `linkColor` | string | — | Color de los crumbs clicables (`--crumb-link-color`) |
+| `maxItems` | number | — | Si `items.length` supera este valor, colapsa los crumbs del medio detrás de un botón "…" con un menú |
+| `itemsBeforeCollapse` | number | `1` | Cantidad de crumbs visibles antes del colapso (solo aplica si `maxItems` está seteado) |
+| `itemsAfterCollapse` | number | `1` | Cantidad de crumbs visibles después del colapso, incluyendo el actual (solo aplica si `maxItems` está seteado) |
+| `menuBgColor` | string | `'#1b1f27'` | Fondo del menú desplegable de crumbs colapsados |
+| `menuTextColor` | string | `'#e6e8ec'` | Color de texto del menú desplegable de crumbs colapsados |
 
 **Ejemplos:**
 ```jsx
@@ -236,7 +241,36 @@ import { Breadcrumbs } from '../Breadcrumbs/index'; // named export (también de
 />
 ```
 
-**Notas:** El primer ítem siempre muestra un ícono de casa; las animaciones de entrada usan `--crumb-index` y respetan `prefers-reduced-motion`. Se puede importar tanto como named export (`{ Breadcrumbs }`) o default.
+Con íconos por crumb y separador custom:
+```jsx
+import { Home, Flame, Gem } from 'lucide-react';
+
+<Breadcrumbs
+  separator=">"
+  items={[
+    { label: 'MUI', icon: Home, onClick: goHome },
+    { label: 'Core', icon: Flame, onClick: goCore },
+    { label: 'Breadcrumb', icon: Gem },
+  ]}
+/>
+```
+
+Con colapso de crumbs intermedios detrás de un menú:
+```jsx
+<Breadcrumbs
+  maxItems={3}
+  items={[
+    { label: 'Breadcrumb 1', onClick: go1 },
+    { label: 'Breadcrumb 2', onClick: go2 },
+    { label: 'Breadcrumb 3', onClick: go3 },
+    { label: 'Breadcrumb 4', onClick: go4 },
+    { label: 'Breadcrumb 5', onClick: go5 },
+    { label: 'Breadcrumb 6' },
+  ]}
+/>
+```
+
+**Notas:** Si un ítem no trae `icon`, el primer crumb cae por defecto en el ícono de casa (comportamiento sin cambios); los demás no muestran ícono salvo que se pase uno. Las animaciones de entrada usan `--crumb-index` y respetan `prefers-reduced-motion`. El botón "…" de crumbs colapsados reutiliza [MenuPopover](#menupopover) (`isCollapsed` + `triggerProps={{ circle: true }}` para el ícono redondo, `children` como render-prop para la lista de items ocultos con sus propios `MenuItem`) en vez de armar un `@mui/material/Menu` propio — así ambos componentes comparten el mismo mecanismo de dropdown y escalan juntos si ese diseño cambia. Se puede importar tanto como named export (`{ Breadcrumbs }`) o default.
 
 ---
 
@@ -373,12 +407,13 @@ import CalendarPicker from '../CalendarPicker/index'; // export default
 |---|---|---|---|
 | `label` | string | — | Label del `TextField` |
 | `name` | string | — | Nombre usado en el evento sintético `onChange` |
-| `value` | string (`YYYY-MM-DD`) \| Date | — | Fecha seleccionada |
-| `onChange` | function | — | Recibe un evento `{ target: { name, value, type: 'date' } }` |
+| `value` | string (`YYYY-MM-DD`) \| Date | — | Fecha seleccionada (modo simple). Ignorado si `range` es `true`. |
+| `onChange` | function | — | Recibe un evento `{ target: { name, value, type } }`. `type` es `'date'` en modo simple o `'date-range'` en modo rango. |
 | `required` | boolean | `false` | Marca el campo como requerido |
 | `disabled` | boolean | `false` | Deshabilita la apertura del calendario |
+| `range` | boolean | `false` | Activa selección de rango. `value`/`onChange` pasan a usar `{ start, end }` (strings `YYYY-MM-DD`) en vez de una fecha suelta. |
 | `inputSx` | object | — | `sx` custom pasado al `TextField` interno |
-| `selectedColor` | string | — | Color del día seleccionado / botón confirmar (`--cp-selected`) |
+| `selectedColor` | string | — | Color del día seleccionado (y de los extremos/relleno del rango) (`--cp-selected`) |
 | `accentColor` | string | — | Color de acento / botón "Hoy" (`--cp-accent`) |
 
 **Ejemplos:**
@@ -386,9 +421,81 @@ import CalendarPicker from '../CalendarPicker/index'; // export default
 <CalendarPicker label="Fecha requerida" name="requiredDate" value="" required onChange={handleChange} />
 
 <CalendarPicker label="Fecha bloqueada" name="disabledDate" value="2024-01-01" disabled onChange={handleChange} />
+
+// Rango de fechas
+<CalendarPicker
+  label="Rango de estadía"
+  name="stayRange"
+  range
+  value={{ start: '2024-06-10', end: '2024-06-18' }}
+  onChange={(e) => setStayRange(e.target.value)} // e.target.value = { start, end }
+/>
 ```
 
 **Notas:** El calendario se abre dentro de `Frame` (`isModal`), a diferencia de `CalendarComponent` que usa su propio backdrop; ambos componentes son intercambiables en su API pero difieren en la implementación visual del modal.
+
+En modo `range`, la selección soporta dos gestos, intercambiables: (1) click en el día de inicio → click en el día de fin (el panel queda abierto entre medio, permitiendo navegar de mes con las flechas sin perder el progreso), o (2) mousedown sobre el día de inicio + arrastrar + soltar sobre el día de fin (confirma al soltar, sin necesidad de un segundo click). Si el día de fin es anterior al de inicio, se reordenan automáticamente. Mientras se arrastra/pasa el mouse se previsualiza el rango con un resaltado tenue antes de confirmar.
+
+---
+
+### Callout
+
+Caja de aviso/notificación (advertencia, error, éxito, info, nota neutral) con ícono y paleta de color por `variant`, título opcional y cuerpo en Markdown completo (listas, negrita, links, bloques de código, tablas, etc. — reutiliza `MarkdownContent` por dentro). Pensado para usarse suelto en una vista, dentro de `DrawPanel`/`Frame`, o como notificación.
+
+**Import:**
+```jsx
+import Callout from '../Callout/index'; // export default
+```
+
+**Uso básico:**
+```jsx
+<Callout variant="warning" title="Advertencia">
+  {'Esta acción afecta a **todos los usuarios** del workspace.'}
+</Callout>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `variant` | `'info'` \| `'warning'` \| `'danger'` \| `'success'` \| `'neutral'` | `'info'` | Determina paleta (fondo/borde/texto/ícono) e ícono por default. |
+| `title` | string | — | Título en negrita sobre el cuerpo. |
+| `children` | string | — | Cuerpo en Markdown (mismo formato que `MarkdownContent`). |
+| `icon` | component | — | Reemplaza el ícono default del `variant`. |
+| `actions` | node | — | Contenido (ej. botones) renderizado debajo del cuerpo. |
+| `onClose` | `function()` | — | Si se define, muestra un botón de cerrar (×) arriba a la derecha. |
+| `closeLabel` | string | `'Cerrar aviso'` | `aria-label` del botón de cerrar. |
+| `bgColor` | string | — | Sobrescribe el color de fondo de la paleta del `variant`. |
+| `textColor` | string | — | Sobrescribe el color del título y del cuerpo (markdown incluido). |
+| `iconColor` | string | — | Sobrescribe el color del ícono. |
+| `borderColor` | string | — | Sobrescribe el color del borde. |
+| `linkColor` | string | — | Color de los links dentro del markdown (pasa a `MarkdownContent`). |
+| `markdownComponents` | object | — | Renderers custom de `react-markdown` (pasa a `MarkdownContent`). |
+| `className` | string | `''` | Clase adicional en el contenedor raíz. |
+| `style` | object | — | Estilos inline adicionales en el contenedor raíz. |
+
+**Ejemplos:**
+```jsx
+// Con Markdown completo
+<Callout variant="warning" title="Antes de continuar">
+  {`- La migración **no es reversible**\n- Backup desde \`Configuración → Backups\`\n- [Documentación](https://example.com/docs)`}
+</Callout>
+
+// Con acciones y botón de cerrar
+<Callout
+  variant="danger"
+  title="Eliminar cuenta"
+  onClose={() => setShow(false)}
+  actions={<>
+    <Button size="small" variant={Button.VARIANTS.DANGER}>Eliminar</Button>
+    <Button size="small" variant={Button.VARIANTS.GHOST}>Cancelar</Button>
+  </>}
+>
+  Esta acción es permanente y no se puede deshacer.
+</Callout>
+```
+
+**Notas:** Si no se pasa `title` ni `children`, el componente retorna `null`. `role` se calcula automáticamente (`'alert'` para `warning`/`danger`, `'status'` para el resto).
 
 ---
 
@@ -553,6 +660,39 @@ import PermissionCheckboxItem from '../Checks/index'; // export default
 ```
 
 **Notas:** Todo el `ButtonBase` es clicable (no solo el checkbox visual), y el checkbox interno tiene `tabIndex={-1}` para que el foco recaiga en el contenedor.
+
+---
+
+### ColorPicker
+
+Selector de color: botón con muestra + hex que despliega un popover con área de saturación/brillo, barra de matiz y edición numérica en HEX, RGB o HSL. Lógica portada del `ColorPickerPanel` de Workspace-Backoffice-Web (sin `energy-ui` ni `i18next`).
+
+**Import:**
+```jsx
+import ColorPicker from '../ColorPicker/index'; // export default (memo), archivo index.jsx
+```
+
+**Uso básico:**
+```jsx
+const [color, setColor] = useState('#1717FF');
+<ColorPicker label="Color" value={color} onChange={setColor} />
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| value | string | `'#000000'` | Color en hex de 6 dígitos (con o sin `#`). Controlado: si cambia desde afuera, el panel se resincroniza. |
+| onChange | function | — | Recibe el hex en mayúsculas (`'#RRGGBB'`). Durante el arrastre se emite con throttle de 80 ms y se hace flush al soltar. |
+| label | string | — | Etiqueta sobre el botón. |
+| ariaLabel | string | `label` | `aria-label` del botón. |
+| disabled | boolean | `false` | Deshabilita el selector. |
+| placement | string | `'bottom-start'` | Posición del popover (se voltea/ajusta solo si no hay espacio). |
+| labels | object | textos en español | Textos traducibles: `saturation`, `hue`, `invalidHex`, `invalidRgb`, `invalidHsl`, `channels` (`r g b h s l`). |
+| className | string | `''` | Clase CSS del contenedor. |
+| bgColor / textColor / borderColor / accentColor | string | blanco / `#1e293b` / `#e2e8f0` / `#1717ff` | Colores del botón y del popover. |
+
+**Notas:** Accesible por teclado (flechas sobre el área de saturación y la barra de matiz, Escape cierra). Soporta mouse y touch (pointer events). Un valor inválido en HEX/RGB/HSL muestra error y se restaura al salir del campo.
 
 ---
 
@@ -1065,7 +1205,7 @@ import GreenHighlight from '../GreenHighlight/index'; // export default, archivo
 
 ### HoursPicker
 
-Selector de hora (formato 12h AM/PM en la UI, valor en formato 24h) implementado como un `TextField` de solo lectura que abre un modal con ruedas de hora/minuto y accesos rápidos.
+Selector de hora (formato 12h AM/PM por default en la UI, valor siempre en formato 24h `"HH:MM"`) implementado como un `TextField` de solo lectura que abre un modal con ruedas de hora/minuto y accesos rápidos. Soporta modo rango (hora de inicio/fin) y formato 24h en la UI.
 
 **Import:**
 ```jsx
@@ -1088,10 +1228,12 @@ import HoursPicker from '../HoursPicker/index'; // export default, archivo index
 |---|---|---|---|
 | label | string | — | Etiqueta del `TextField` que dispara el selector. |
 | name | string | — | Nombre devuelto en `event.target.name`. |
-| value | string | — | Hora en formato 24h `"HH:MM"` (ej. `"14:30"`). |
-| onChange | function | — | Se llama con un evento simulado `{ target: { name, value, type: 'time' } }` al confirmar, limpiar o al usar "Hora Actual". |
+| value | string | — | Hora en formato 24h `"HH:MM"` (ej. `"14:30"`). En modo `range`, se ignora y se usa `{ start, end }` en su lugar. |
+| onChange | function | — | Se llama con un evento simulado `{ target: { name, value, type } }` al confirmar, limpiar o al usar "Hora Actual". `type` es `'time'` (simple) o `'time-range'` (con `range`). |
 | required | boolean | `false` | Marca el campo como obligatorio (asterisco en el `TextField`). |
 | disabled | boolean | `false` | Deshabilita la apertura del selector. |
+| range | boolean | `false` | Activa selección de rango (hora de inicio/fin). `value`/`onChange` pasan a usar `{ start, end }` (strings `"HH:MM"` 24h) en vez de una hora suelta. El modal muestra tabs "Inicio"/"Fin" para elegir cuál se está editando. |
+| format24h | boolean | `false` | Si es `true`, la UI (rueda de horas, preview, presets, texto del `TextField`) usa formato 24h (`00`-`23`, sin AM/PM) en vez de 12h. El valor guardado siempre es `"HH:MM"` 24h, independientemente de esta prop — solo cambia cómo se edita. |
 | selectedColor | string | `'#10b981'` | Color de la columna hora/minuto activa y de los presets seleccionados. |
 | accentColor | string | `'#0f172a'` | Color de acento del botón "Confirmar" y de selecciones por defecto. |
 
@@ -1102,8 +1244,75 @@ import HoursPicker from '../HoursPicker/index'; // export default, archivo index
 ```jsx
 <HoursPicker label="Hora de cierre" name="closeTime" value="18:00" disabled onChange={handleChange} />
 ```
+```jsx
+// Rango de horario
+<HoursPicker
+  label="Horario de atención"
+  name="attentionRange"
+  range
+  value={{ start: '09:00', end: '17:30' }}
+  onChange={(e) => setRange(e.target.value)} // e.target.value = { start, end }
+/>
+```
+```jsx
+// Formato 24h (también combinable con range)
+<HoursPicker label="Hora (24h)" name="militaryTime" format24h value="14:30" onChange={handleChange} />
+```
 
-**Notas:** Al abrirse renderiza un `Frame` en modo modal (`isModal`) con selector numérico, presets rápidos (`QUICK_TIMES` en `Constants.js`) y botones "Hora Actual" / "Confirmar" / "Borrar". Depende de `TextField`, `Frame` y `Button`.
+**Notas:** Al abrirse renderiza un `Frame` en modo modal (`isModal`) con selector por columnas (hora/minuto, y AM/PM si no es `format24h`), presets rápidos (`QUICK_TIMES` en `Constants.js`) y botones "Hora Actual" / "Confirmar" / "Borrar". Depende de `TextField`, `Frame` y `Button`.
+
+---
+
+### Icons (react-icons)
+
+No es un componente con props propias, sino un mecanismo de subpaths: `anteriority-ui` empaqueta [react-icons](https://react-icons.github.io/react-icons/) completo como dependency propia (igual que `lucide-react`), para que un proyecto consumidor use cualquier ícono de cualquier pack de react-icons (Simple Icons, Font Awesome, Material Design, Bootstrap Icons, Ionicons, etc.) **sin instalar `react-icons` por su cuenta** — queda disponible transitivamente al instalar `anteriority-ui`.
+
+**Import:**
+```jsx
+import { SiJavascript, SiYaml, SiDocker } from 'anteriority-ui/screens/components/Icons/si';
+import { FaFileAudio } from 'anteriority-ui/screens/components/Icons/fa';
+import { VscJson } from 'anteriority-ui/screens/components/Icons/vsc';
+```
+
+**Uso básico:**
+```jsx
+<SiJavascript size={24} color="#f7df1e" />
+```
+
+**Packs disponibles:** cada pack de react-icons se expone en `screens/components/Icons/<pack>`, con el mismo nombre de carpeta que usa react-icons: `ai`, `bi`, `bs`, `cg`, `ci`, `di`, `fa`, `fa6`, `fc`, `fi`, `gi`, `go`, `gr`, `hi`, `hi2`, `im`, `io`, `io5`, `lia`, `lu`, `md`, `pi`, `ri`, `rx`, `si`, `sl`, `tb`, `tfi`, `ti`, `vsc`, `wi`.
+
+**Notas:** Los nombres de cada ícono son exactamente los que exporta react-icons — usar el [buscador oficial](https://react-icons.github.io/react-icons/) o el componente [IconCatalog](#iconcatalog) para encontrar el nombre exacto dentro de su pack. `si` (Simple Icons) es el pack más relevante para logos de marcas/lenguajes/herramientas (JavaScript, YAML, Docker, etc.), pero **no tiene cobertura total** — por ejemplo no existe un ícono de C# en `si`; ese logo vive en el pack `tb` (`TbBrandCSharp`). Si un ícono no aparece en `si`, buscarlo en otros packs (`tb`, `fa`, `md`, etc.) antes de asumir que no está disponible. Packs como `fa` o `md` cubren además íconos genéricos de tipo de archivo (audio, pdf, imagen) que no tienen un logo de marca propio. Los archivos `screens/components/Icons/<pack>/index.js` son re-exports de 1 línea generados por `node scripts/generate-icon-packs.mjs` (correr de nuevo solo si react-icons agrega o quita un pack); quedan versionados en el repo como cualquier otro archivo fuente, no se regeneran en cada build.
+
+---
+
+### IconCatalog
+
+Página/panel navegable para buscar y copiar el nombre exacto de cualquier ícono de cualquier pack de react-icons empaquetado en [Icons (react-icons)](#icons-react-icons). Pensado para que un proyecto consumidor lo monte en una ruta propia (ej. `/dev/icons`) y así explorar qué íconos tiene disponibles la librería sin depender del Storybook de `anteriority-ui`.
+
+**Import:**
+```jsx
+import { IconCatalog } from 'anteriority-ui';
+```
+
+**Uso básico:**
+```jsx
+<Route path="/dev/icons" element={<IconCatalog />} />
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `defaultPack` | string | `'si'` | Pack de react-icons seleccionado al montar (ver lista de packs en [Icons (react-icons)](#icons-react-icons)) |
+
+**Ejemplos:**
+```jsx
+<IconCatalog />
+
+<IconCatalog defaultPack="tb" />
+```
+
+**Notas:** El selector de pack reutiliza [Selector](#selector) y el buscador de texto reutiliza [Search](#search) (en modo `freeSolo`, sin `options`, como `TextField` libre) en vez de elementos nativos — consistente con el resto de la librería. Muestra hasta 200 resultados por búsqueda (`MAX_RESULTS` en `constants.js`) para no renderizar packs completos de miles de íconos de una sola vez. Cada resultado incluye el ícono renderizado junto a su nombre exacto envuelto en [CopyText](#copytext), para copiarlo con un clic y pegarlo directo en un import. No expone `size`/`color` como props porque es una herramienta de exploración, no un ícono para usar en UI final — una vez encontrado el nombre, se importa directo desde el subpath del pack correspondiente (ver [Icons (react-icons)](#icons-react-icons)).
 
 ---
 
@@ -1176,6 +1385,14 @@ import Input from '../Input/index'; // export default, forwardRef, archivo index
 | helperText | string | — | Texto de ayuda bajo el campo (se ignora si hay `error`). |
 | required | boolean | — | Muestra el indicador `**` junto a la etiqueta. |
 | requiredColor | string | `'red'` | Color del indicador de requerido. |
+| numeric | boolean | `false` | Solo acepta números. Al enfocar muestra un popover con flechas ▲▼; la rueda del mouse y las flechas del teclado también suben/bajan el valor. |
+| min / max | number | — | Límites (solo con `numeric`); se aplican al usar el stepper y al salir del campo. |
+| step | number | `1` | Incremento por click/rueda (solo con `numeric`). |
+| allowDecimal | boolean | `false` | Permite punto decimal (solo con `numeric`). |
+| allowNegative | boolean | `min < 0` o sin `min` | Permite signo `-` (solo con `numeric`). |
+| showStepper | boolean | `true` | Muestra el popover de flechas (solo con `numeric`). |
+| popoverPlacement | `'top'` \| `'bottom'` | `'top'` | Lado del popover respecto al campo (se voltea solo si no hay espacio; solo con `numeric`). |
+| popoverBgColor / popoverIconColor | string | `'#ffffff'` / `'#0f172a'` | Colores del popover (solo con `numeric`). |
 | ...props | any | — | Cualquier otra prop de `TextField` (`type`, `placeholder`, `value`, `onChange`, `disabled`, etc.). |
 
 **Ejemplos:**
@@ -1229,7 +1446,7 @@ import Loading from '../Loading/index'; // export default, archivo index.jsx
 
 ### MarkdownContent
 
-Renderiza una cadena markdown como HTML, con soporte GFM (tablas, listas de tareas, etc.) vía `react-markdown` + `remark-gfm`. Los bloques de código (` ``` `) y los encabezados (`#` a `######`) muestran, al pasar el mouse (o al enfocarlos con teclado), un botón con ícono de copiar en la esquina que copia respectivamente el código completo o el texto del título al portapapeles (con feedback visual de "copiado" por ~1.6s).
+Renderiza una cadena markdown como HTML, con soporte GFM (tablas, listas de tareas, etc.) vía `react-markdown` + `remark-gfm`. Los bloques de código (` ``` `) y los encabezados (`#` a `######`) muestran, al pasar el mouse (o al enfocarlos con teclado), un botón con ícono de copiar en la esquina que copia respectivamente el código completo o el texto del título al portapapeles (con feedback visual de "copiado" por ~1.6s). El color de texto es `inherit` por default (hereda del contenedor donde se use), así que se puede soltar directamente dentro de cualquier componente (`Frame`, `DrawPanel`, `Callout`, burbujas de chat, etc.) sin quedar ilegible por un color fijo; usar `style`/`linkColor` para un color puntual.
 
 **Import:**
 ```jsx
@@ -1584,6 +1801,7 @@ import Selector from '../Material-UI/Components/Selector/index'; // export defau
 | required | boolean | — | Muestra un indicador `**` junto a la etiqueta. |
 | requiredColor | string | `'red'` | Color del indicador de requerido. |
 | disableClearable | boolean | `false` | Si es `true`, oculta el botón de limpiar selección. |
+| hideScrollbar | boolean | `true` | Oculta la barra de scroll de la lista desplegable (el scroll con rueda/teclado/touch sigue funcionando). |
 
 **Ejemplos:**
 ```jsx
@@ -1908,6 +2126,9 @@ import ScrollBar from 'screens/components/ScrollBar';
 | `horizontal` | `boolean` | `true` | Habilita scroll/thumb horizontal. |
 | `autoHide` | `boolean` | `true` | Si es `false`, los thumbs permanecen siempre visibles. |
 | `maxHeight` | `string` \| `number` | — | Altura máxima del área scrolleable. |
+| `hideHorizontalTrack` | `boolean` | `false` | Oculta el thumb/track horizontal propio (el scroll sigue funcionando). Lo usa `TableA` cuando muestra su pie de desplazamiento. |
+| `hideVerticalTrack` | `boolean` | `false` | Oculta el thumb/track vertical propio (el scroll sigue funcionando). Lo usa `TableA`/`TableB` con `stickyHeader`. |
+| `scrollAreaRef` | `ref` \| `function` | — | Recibe el elemento del área de scroll interna, para poder leer o mover `scrollLeft`/`scrollTop` desde afuera. |
 | `className` | `string` | `''` | Clase adicional para el contenedor raíz. |
 | `contentClassName` | `string` | `''` | Clase adicional para el área de scroll interna. |
 | `style` | `object` | — | Estilos inline para el contenedor raíz. |
@@ -1958,6 +2179,8 @@ import Sidebar from 'screens/components/Sidebar/index';
 | `footerContent` | `node` | — | Contenido custom del footer (oculto si está colapsado). |
 | `user` | `{ email }` | — | Si tiene `email`, muestra el footer de usuario con menú desplegable. |
 | `userMenuItems` | `Array<{ id?, label, icon?, onClick?, variant? }>` | `[]` | Items del menú de usuario (variant `'danger'` los resalta en rojo). |
+| `userMenuLinks` | `Array<{ id?, label, link, target?, onClick? }>` | `[]` | Links secundarios (ej. "Política de Privacidad") agrupados debajo de `userMenuItems` dentro del mismo menú desplegable, con divisor y estilo chico/centrado. `target` por default es `'_blank'`. |
+| `userFooterAction` | `{ icon, tooltip, onClick, tooltipPosition? }` | — | Botón circular de acción al lado del perfil (ej. ajustes), con `ModalTooltip`. No abre el menú de usuario al hacer click. Se oculta si el sidebar está colapsado. |
 | `onItemEdit` | `function(item)` | — | Habilita "Editar" en el menú contextual del item. |
 | `onItemDelete` | `function(item)` | — | Habilita "Eliminar"/"Salir" en el menú contextual. |
 | `onItemPin` | `function(item)` | — | Habilita "Fijar"/"Desfijar" en el menú contextual. |
@@ -1977,6 +2200,18 @@ import Sidebar from 'screens/components/Sidebar/index';
   onItemEdit={(item) => console.log('edit', item)}
   onItemDelete={(item) => console.log('delete', item)}
   onReorderItems={(orderedIds) => console.log('reordered', orderedIds)}
+/>
+
+// Menú de usuario con links legales + botón de acción (ajustes) al lado del perfil
+<Sidebar
+  groups={groups}
+  user={{ email: 'jane.doe@example.com' }}
+  userMenuItems={[{ id: 'logout', label: 'Cerrar sesión', icon: LogOut, variant: 'danger', onClick: handleLogout }]}
+  userMenuLinks={[
+    { id: 'privacy', label: 'Política de Privacidad', link: '/privacidad' },
+    { id: 'terms', label: 'Términos del Servicio', link: '/terminos' },
+  ]}
+  userFooterAction={{ icon: Settings, tooltip: 'Configuración', onClick: () => navigate('/settings') }}
 />
 ```
 
@@ -2017,6 +2252,42 @@ import Skeleton from 'screens/components/Skeleton/index';
   <Skeleton width="60%" height="12px" />
 </div>
 ```
+
+---
+
+### Slider
+
+Slider horizontal controlado, basado en el `Slider` de MUI, con color de acento configurable y tooltip opcional con el porcentaje. Es el que usa el pie de desplazamiento de `TableA`/`TableB`.
+
+**Import:**
+```jsx
+import Slider from 'screens/components/Slider/index';
+// también disponible como export nombrado: import { Slider } from 'screens/components/Slider/index';
+```
+
+**Uso básico:**
+```jsx
+const [value, setValue] = useState(30);
+
+<Slider value={value} onChange={setValue} showPercentage aria-label="Volumen" />
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `value` | `number` | `0` | Valor actual (controlado). |
+| `min` | `number` | `0` | Valor mínimo. |
+| `max` | `number` | `100` | Valor máximo. |
+| `step` | `number` | `1` | Incremento. |
+| `onChange` | `function(value: number)` | — | Se llama con el nuevo valor ya convertido a número. |
+| `disabled` | `boolean` | `false` | Deshabilita el slider. |
+| `showPercentage` | `boolean` | `false` | Muestra en el tooltip del thumb el porcentaje del recorrido (`(value - min) / (max - min)`), al arrastrar o pasar el mouse. |
+| `accentColor` | `string` | `'#7c9cff'` | Color de acento (barra rellena y thumb). |
+| `thickness` | `number` | `8` | Grosor de la línea en px (el thumb crece en proporción). |
+| `className` | `string` | `''` | Clase adicional. |
+| `style` | `object` | — | Estilos inline. |
+| `aria-label` | `string` | — | Texto accesible del slider. |
 
 ---
 
@@ -2167,6 +2438,14 @@ import TableA from 'screens/components/TableA';
 | `surfaceColor`, `headerColor`, `textColor`, `headingColor`, `mutedTextColor`, `borderColor`, `hoverColor`, `rowBorderColor` | `string` | — | Overrides de tema vía variables CSS `--tableA-*`. |
 | `filterIconColor` | `string` | — | Color del ícono de embudo cuando la columna no tiene filtro activo. |
 | `filterActiveColor` | `string` | `'#10b981'` | Color del ícono de embudo cuando `col.filter.value` tiene un valor (filtro activo). |
+| `stickyFirstColumn` | `boolean` | `false` | Deja la primera columna fija a la izquierda mientras la tabla se desplaza en horizontal. Su celda necesita fondo opaco: por defecto usa `surfaceColor`; si pintás las filas con un tinte (`rowClassName`), el fondo de `td:first-child` debe seguir siendo opaco (ej. el tinte como `linear-gradient` sobre el color de superficie). |
+| `stickyHeader` | `boolean` | `false` | Encabezado siempre visible: la tabla pasa a scrollear en vertical por dentro (hasta `maxHeight`, sin barra vertical visible) y el `<th>` queda pegado arriba con `position: sticky`. Combina bien con `scrollFooter`, que queda siempre a la vista bajo la tabla. |
+| `maxHeight` | `string` \| `number` | `'70vh'` | Alto máximo del área de la tabla cuando `stickyHeader` está activo. |
+| `scrollFooter` | `boolean` | `false` | Muestra un pie pegado al borde inferior de la pantalla (`position: sticky`) con un botón ◀, un slider y un botón ▶ para desplazar la tabla en horizontal sin bajar hasta su final. Solo aparece si la tabla es más ancha que su contenedor y reemplaza la barra de scroll horizontal propia de la tabla. Ningún ancestro de la tabla debe tener `overflow: hidden/auto` entre ella y el scroll de la página (usar `overflow: clip` si hace falta recortar). |
+| `scrollFooterBgColor` | `string` | `surfaceColor` | Fondo del pie de desplazamiento. |
+| `scrollFooterBorderColor` | `string` | `borderColor` | Borde del pie de desplazamiento. |
+| `scrollControlsColor` | `string` | `'#7c9cff'` (slider) / color por defecto de `Button` | Color de los botones ◀ ▶ y del slider del pie. |
+| `scrollLeftLabel`, `scrollRightLabel`, `scrollSliderLabel` | `string` | `'Desplazar tabla a la izquierda'`, `'Desplazar tabla a la derecha'`, `'Posición horizontal de la tabla'` | Textos (tooltips / `aria-label`) del pie de desplazamiento. |
 
 **Filtro por columna (`col.filter`):**
 
@@ -2191,6 +2470,15 @@ La tabla **no filtra `data` por sí misma** — solo maneja el ciclo de valores 
   keyExtractor={(row) => row.id}
   error="No se pudieron cargar los datos."
   onRetry={() => console.log('retry clicked')}
+/>
+
+// Tabla ancha: primera columna fija + pie de desplazamiento horizontal
+<TableA
+  columns={wideColumns}
+  data={rows}
+  keyExtractor={(row) => row.id}
+  stickyFirstColumn
+  scrollFooter
 />
 
 // Con filtro por columna
@@ -2268,6 +2556,13 @@ import TableB from 'screens/components/TableB';
 | `badgeColors` | `{ success?, warning?, danger?: { bg, color } }` | — | Overrides de color para columnas tipo badge. |
 | `filterIconColor` | `string` | — | Color del ícono de embudo sin filtro activo. |
 | `filterActiveColor` | `string` | `'#10b981'` | Color del ícono de embudo con filtro activo. |
+| `stickyFirstColumn` | `boolean` | `false` | Deja la primera columna fija a la izquierda al desplazar en horizontal. Su celda usa `surfaceColor` como fondo opaco (si pintás las filas con un tinte, el fondo de `td:first-child` debe seguir siendo opaco). Las celdas con colSpan (vacío, error, fila expandida) no se fijan. |
+| `stickyHeader` | `boolean` | `false` | Encabezado siempre visible: la tabla pasa a scrollear en vertical por dentro (hasta `maxHeight`, sin barra vertical visible) y el `<th>` queda pegado arriba con `position: sticky`. Combina bien con `scrollFooter`, que queda siempre a la vista bajo la tabla. |
+| `maxHeight` | `string` \| `number` | `'70vh'` | Alto máximo del área de la tabla cuando `stickyHeader` está activo. |
+| `scrollFooter` | `boolean` | `false` | Pie `position: sticky` al borde inferior de la pantalla con ◀, slider y ▶ para desplazar la tabla sin bajar hasta su final. Solo aparece si la tabla es más ancha que su contenedor y reemplaza la barra horizontal propia. Ningún ancestro entre la tabla y el scroll de la página debe tener `overflow: hidden/auto` (usar `overflow: clip`). |
+| `scrollFooterBgColor`, `scrollFooterBorderColor` | `string` | `surfaceColor`, `borderColor` | Fondo y borde del pie. |
+| `scrollControlsColor` | `string` | `'#7c9cff'` (slider) / color por defecto de `Button` | Color de los botones ◀ ▶ y del slider. |
+| `scrollLeftLabel`, `scrollRightLabel`, `scrollSliderLabel` | `string` | `'Desplazar tabla a la izquierda'`, `'Desplazar tabla a la derecha'`, `'Posición horizontal de la tabla'` | Textos (tooltips / `aria-label`) del pie. |
 
 **Filtro por columna (`col.filter`):** misma API que en `TableA` — ver esa sección para el detalle de `options`/`value`/`onChange`/`tooltip`. La tabla solo cicla el valor y muestra el ícono; el filtrado real de `data` lo hace el consumidor.
 

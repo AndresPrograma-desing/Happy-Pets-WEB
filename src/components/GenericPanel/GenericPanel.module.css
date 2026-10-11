@@ -6,6 +6,16 @@
   background-color: var(--letter-white, #ffffff);
 }
 
+/* ProSidebar (anteriority-ui) ya se renderiza a 100vh de alto, pero su propio
+   CSS la deja en position: relative — sin esto, al crecer el contenido más
+   que el viewport, la página entera scrollea y el sidebar sube con el resto
+   en vez de quedarse fijo como el TopBar (que sí es sticky). */
+.sidebarSticky {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+}
+
 /* Sidebar base */
 .sidebar {
   height: 100vh;
