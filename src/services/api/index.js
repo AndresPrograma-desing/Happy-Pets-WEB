@@ -55,6 +55,21 @@ export async function login(credentials) {
   
   return data;
 }
+export async function loginWithContextHub(ticket) {
+  const data = await request('/Auth/login-contexthub', { method: 'POST', body: { ticket }, auth: false });
+
+  if (data?.token) setStorageValue(TOKEN_KEY, data.token);
+  if (data) setStorageValue(LOGIN_DATA_KEY, JSON.stringify(data));
+
+  const doctorId =
+    extractDoctorId(data) ||
+    extractDoctorId(data?.data) ||
+    extractDoctorId(data?.result) ||
+    '';
+  if (doctorId) setStorageValue(DOCTOR_ID_KEY, doctorId);
+
+  return data;
+}
 export async function getCodeRecovery(email) {
   return request(`/PasswordRecovery/request-code?email=${encodeURIComponent(email)}`, { method: 'GET' });
 }
