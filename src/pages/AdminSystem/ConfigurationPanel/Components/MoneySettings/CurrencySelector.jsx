@@ -1,13 +1,11 @@
 import React from 'react';
 import styles from './CurrencySelector.module.css';
-import { DollarSign, Wallet, RefreshCw, Check, AlertCircle } from 'lucide-react';
-import { useCurrency } from '../../../../../hooks/moneyType'; 
+import { DollarSign, Wallet } from 'lucide-react';
+import { useCurrency } from '../../../../../hooks/moneyType';
 import { getText } from '../../../../../constants';
+import { Loading, PlaceholderButton, Checks } from 'anteriority-ui';
 import ErrorMessage from '../../../../../components/Notification/Error/ErrorMessage';
-import CardV1 from '../../../../../components/screens/components/CardV1';
-import Loading from '../../../../../components/screens/components/Loading/Index';
 import { updateBcvPrice } from '../../../../../services/api';
-import PlaceholderButton from '../../../../../components/screens/components/PlaceholderButton';
 import { useBcvSettings } from '../BcvConfig/utils';
 import { BCV_CONFIG_TEXT } from '../../../../../constants/TEXT';
 
@@ -45,28 +43,14 @@ const CurrencySelector = () => {
         {currencies.map((c) => {
           const isActive = currentCurrency === c.code;
           return (
-            <div 
+            <Checks
               key={c.code}
-              onClick={() => !isUpdating && changeCurrency(c.code)} 
-              style={{ cursor: isUpdating ? 'default' : 'pointer' }}
-            >
-              <CardV1
-                badgeIcon={c.icon}
-                badgeText={c.code}
-                badgeBgColor={isActive ? '#dcfce7' : '#f1f5f9'}
-                badgeTextColor={isActive ? '#166534' : '#475569'}
-                primaryText={c.label}
-                secondaryText={isActive ? "Activo" : "Seleccionar"}
-                secondaryTextStyle={{
-                  color: isActive ? '#16a34a' : '#64748b',
-                  fontSize: '1.25rem',
-                  fontWeight: '600'
-                }}
-                actionIcon={isActive ? Check : (isUpdating && !isActive ? RefreshCw : undefined)}
-                isSpinning={isUpdating && !isActive}
-                actionDisabled={isUpdating && !isActive}
-              />
-            </div>
+              label={`${c.label} (${c.code})`}
+              checked={isActive}
+              disabled={isUpdating}
+              onChange={() => !isActive && changeCurrency(c.code)}
+              checkedBgColor="#dcfce7"
+            />
           );
         })}
       </div>

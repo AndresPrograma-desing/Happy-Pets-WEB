@@ -1,27 +1,10 @@
-import React, { useEffect, useCallback, useRef } from 'react';
-import { Receipt, CheckCircle2, RefreshCw } from 'lucide-react';
+import React from 'react';
+import { Receipt, CheckCircle2 } from 'lucide-react';
 import { useCurrency } from '../../../../hooks/moneyType';
 import CardV1 from '../../../screens/components/CardV1';
 
 const BillingStatusCard = () => {
-  const { currency, isLoading, error, fetchCurrency } = useCurrency();
-  const hasFetched = useRef(false);
-
-  const getStatus = useCallback(async (isManualRefresh = false) => {
-    if (!isManualRefresh && hasFetched.current) return;
-    
-    hasFetched.current = true; 
-    try {
-      await fetchCurrency()
-    } catch (err) {
-      console.error("", err);
-      hasFetched.current = false; 
-    }
-  }, [fetchCurrency]);
-
-  useEffect(() => {
-    getStatus();
-  }, [getStatus]);
+  const { currency, isLoading, error } = useCurrency();
 
   return (
     <CardV1

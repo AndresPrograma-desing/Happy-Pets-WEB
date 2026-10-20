@@ -83,6 +83,25 @@
     padding-bottom: 0.75rem;
 }
 
+.sectionHeaderRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.sectionHeaderRow .sectionTitle {
+    flex: 1;
+    min-width: 200px;
+}
+
+.requestFormStack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 .mockBanner {
     display: flex;
     justify-content: center;
@@ -309,4 +328,23 @@
   padding: 1rem !important;
   background: #ffffff !important;
   border-top: 1px solid #e2e8f0 !important;
+}
+
+.recetaActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recetaPdfLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #e0f2fe;
+  color: #0284c7;
+  text-decoration: none;
+  flex-shrink: 0;
 }

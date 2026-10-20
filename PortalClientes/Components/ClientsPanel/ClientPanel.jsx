@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { LogOut, BellPlus, Camera } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from '../../../src/components/GenericPanel/GenericPanel.module.css';
 import topBarStyles from '../../../src/components/TopBar/Index.module.css';
 import Footer from '../../../src/components/Footer/Footer';
-import Button from '../../../src/components/screens/components/Button';
-import Container from '../../../src/components/screens/components/Container';
-import ModalTooltip from '../../../src/components/ModalTooltip/ModalTooltip';
+import { Container, TopBar as AnteriorityTopBar, Sidebar } from 'anteriority-ui';
+import useAnchoredPanel from '../../../src/hooks/useAnchoredPanel';
+import ClientNotificationsBell from '../ClientNotificationsBell';
+
+const formatBadge = (count) => (count > 0 ? (count > 99 ? '99+' : count) : undefined);
 
 export default function ClientPanel({
   title,
@@ -16,13 +18,37 @@ export default function ClientPanel({
   menuItems = [],
   activeTab,
   onTabChange,
-  onLogout
+  onLogout,
+  notifications = [],
+  onNotificationConfirm,
+  onNotificationDecline,
+  onNotificationDismiss,
+  userName,
+  userAvatarUrl,
+  onChangeAvatarClick
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    return localStorage.getItem('sidebar_collapsed') === 'true';
-  });
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const { openKey: openPanel, anchorStyle, panelRef, toggle: togglePanel, close: closePanel } = useAnchoredPanel();
+
+  const unreadNotifications = notifications.filter((n) => !n.is_read);
+
+  const actions = [
+    {
+      key: 'notifications',
+      icon: BellPlus,
+      tooltip: 'Notificaciones',
+      badge: formatBadge(unreadNotifications.length),
+      onClick: togglePanel('notifications')
+    }
+  ];
+
+  const user = { name: userName, avatarUrl: userAvatarUrl };
+  const userMenuItems = onChangeAvatarClick
+    ? [{ id: 'change-avatar', label: 'Cambiar foto de perfil', icon: Camera, onClick: onChangeAvatarClick }]
+    : [];
 
   const handleNavigate = (item) => {
     if (!item) return;
@@ -35,88 +61,55 @@ export default function ClientPanel({
     }
   };
 
+  const activeId = menuItems.find((it) => activeTab === it.id || location.pathname === it.path)?.id;
+
+  const sidebarUserMenuItems = onLogout
+    ? [{ id: 'logout', label: 'Salir del Portal', icon: LogOut, variant: 'danger', onClick: onLogout }]
+    : [];
+
   return (
     <div className={styles.layoutContainer}>
-      {/* Sidebar */}
-      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
-        <div className={styles.sidebarHeader}>
-          {!isCollapsed && <div className={styles.brandText}>{menuTitle}</div>}
-          <Button
-            circle
-            size="small"
-            variant={Button.VARIANTS.GHOST}
-            className={styles.toggleBtn}
-            onClick={() => {
-              setIsCollapsed(prev => {
-                const next = !prev;
-                localStorage.setItem('sidebar_collapsed', String(next));
-                return next;
-              });
-            }}
-            color="transparent"
-            style={{ minWidth: '0 !important' }}
-          >
-            <ModalTooltip
-              key={isCollapsed}
-              text={isCollapsed ? 'Abrir' : 'Cerrar'}
-              position="bottom"
-            >
-              {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-            </ModalTooltip>
-          </Button>
-        </div>
-
-        <nav className={styles.sidebarNav}>
-          {menuItems.map((it) => (
-            <div key={it.label} style={{ width: '100%' }}>
-              <Button
-                variant={Button.VARIANTS.GHOST}
-                color="inherit"
-                className={`${styles.navItem} ${(activeTab === it.id || location.pathname === it.path) ? styles.activeNavItem : ''}`}
-                onClick={() => handleNavigate(it)}
-                style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', textTransform: 'none' }}
-                title={isCollapsed ? it.label : undefined}
-              >
-                {it.icon}
-                {!isCollapsed && <span style={{ flex: 1, textAlign: 'left', marginLeft: '12px' }}>{it.label}</span>}
-              </Button>
-            </div>
-          ))}
-        </nav>
-
-        {onLogout && (
-          <div className={styles.sidebarFooter}>
-            <Button
-              color={Button.COLORS.RED}
-              size={Button.SIZES.MEDIUM}
-              variant={Button.VARIANTS.OUTLINE}
-              onClick={onLogout}
-              icon={LogOut}
-              fullWidth={!isCollapsed}
-              circle={isCollapsed}
-              title={isCollapsed ? "Salir del Portal" : undefined}
-              style={isCollapsed ? { margin: '0 auto', display: 'flex' } : {}}
-            >
-              {!isCollapsed && <span>Salir del Portal</span>}
-            </Button>
-          </div>
-        )}
-      </aside>
+      <Sidebar
+        groups={[{ items: menuItems }]}
+        activeId={activeId}
+        onSelect={handleNavigate}
+        collapsible={true}
+        headerContent={<div className={styles.brandText}>{menuTitle}</div>}
+        user={userName ? { email: userName } : null}
+        userMenuItems={sidebarUserMenuItems}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
+      />
 
       {/* Main Wrapper */}
       <div className={styles.mainWrapper}>
-        {/* Simple Top Bar (no admin hooks, no requests) */}
-        <header className={topBarStyles.topBar}>
-          <div className={topBarStyles.topBarContent} style={{ justifyContent: 'flex-end' }}>
-            <div className={topBarStyles.userBadge} style={{ fontWeight: '600', color: '#ffffffff', fontSize: '0.95rem', marginRight: '1rem' }}>
-              Portal de Clientes
-            </div>
-          </div>
-        </header>
+        <AnteriorityTopBar
+          className={`${topBarStyles.stickyBar} glass-pink-green`}
+          title="Portal de Clientes"
+          actions={actions}
+          user={user}
+          userMenuItems={userMenuItems}
+          actionBgColor="transparent"
+          onMenuClick={() => setIsMobileSidebarOpen(true)}
+        />
+
+        <ClientNotificationsBell
+          isOpen={openPanel === 'notifications'}
+          anchorStyle={openPanel === 'notifications' ? anchorStyle : null}
+          panelRef={panelRef}
+          notifications={notifications}
+          onConfirmClick={onNotificationConfirm}
+          onDeclineClick={onNotificationDecline}
+          onDismiss={onNotificationDismiss}
+          onRequestClose={closePanel}
+        />
 
         {/* Content Area */}
         <main className={styles.contentArea}>
-          <Container showPagination={false}>
+          <Container
+          showPagination={false}
+          wattermark={false}
+          >
             <div className={styles.cardHeaderFlex}>
               <div className={styles.cardHeaderInfo}>
                 {title && <h1 className={styles.mainTitle}>{title}</h1>}
@@ -125,9 +118,8 @@ export default function ClientPanel({
             </div>
             <div className={styles.extraContent}>{children}</div>
           </Container>
+          <Footer />
         </main>
-
-        <Footer />
       </div>
     </div>
   );

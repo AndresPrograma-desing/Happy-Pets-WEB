@@ -214,70 +214,19 @@
   color: #cbd5e1;
   margin: 0 2px;
 } 
-.modalContent {
+.detailContent {
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 0.5rem;
+  gap: 14px;
 }
 
-.modalHeaderRow {
+.detailRow {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  border-bottom: 1px dashed #e2e8f0;
-  padding-bottom: 8px;
-}
-
-.modalLabel {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #64748b;
-  margin-right: 4px;
-}
-
-.modalValue {
-  font-size: 0.85rem;
-  color: #1e293b;
-  font-weight: 500;
-}
-
-.modalPriority {
-  font-size: 0.85rem;
-  font-weight: 700; 
-  color: var(--priority-color, #64748b);
-}
-
-.modalMessageBox {
-  background-color: #f8fafc;
-  padding: 12px;
-  border-radius: 6px; 
-  border-left: 3px solid var(--priority-color, #cbd5e1);
-}
-
-.modalBoxTitle {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #64748b;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.modalFullText {
-  font-size: 0.9rem;
-  color: #334155;
-  line-height: 1.5;
-  margin: 0;
-  white-space: pre-wrap;
-}
-.modalFullText {
-  font-size: 0.9rem;
-  color: #334155;
-  line-height: 1.5;
-  margin: 0;
-  white-space: pre-wrap; 
-  word-break: break-word;  
-  overflow-wrap: break-word;  
+  gap: 8px;
+  flex-wrap: wrap;
 }
  
 .markAsReadBtn {

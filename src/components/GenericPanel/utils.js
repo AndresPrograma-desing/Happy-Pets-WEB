@@ -1,4 +1,26 @@
+import React from 'react';
 import { getCredencialPdf } from '../../services/api/pdf';
+import { getIcon } from '../../assets/icons/ExportIcon/Index';
+
+/**
+ * El catálogo de permisos resuelve `icon` como un elemento JSX ya instanciado
+ * (ej. `<House />`, vía resolveCatalogIcon) o como un string de ícono custom —
+ * la convención que entiende el `renderIcon()` local. El `Sidebar` de
+ * anteriority-ui en cambio espera una referencia al componente para
+ * instanciarlo él mismo (`icon: House`), así que acá se adapta uno al otro.
+ */
+function normalizeSidebarIcon(icon) {
+  if (!icon) return undefined;
+  if (React.isValidElement(icon)) return icon.type;
+  if (typeof icon === 'string') {
+    const src = getIcon(icon);
+    if (!src) return undefined;
+    return function AssetIcon({ size = 20 }) {
+      return React.createElement('img', { src, alt: '', width: size, height: size });
+    };
+  }
+  return icon;
+}
 
 export const syncStorageName = (newName) => {
   try {
@@ -35,9 +57,11 @@ export const buildSidebarData = ({ items, searchValue = '', pathname = '' }) => 
   const filteredItemsWithId = filteredItems.map((it, idx) => ({
     ...it,
     id: it.id || it.path || it.label || `sidebar-item-${idx}`,
+    icon: normalizeSidebarIcon(it.icon),
     subItems: it.subItems?.map((sub, sIdx) => ({
       ...sub,
-      id: sub.id || sub.path || sub.label || `sub-item-${sIdx}`
+      id: sub.id || sub.path || sub.label || `sub-item-${sIdx}`,
+      icon: normalizeSidebarIcon(sub.icon),
     }))
   }));
 
