@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Info } from 'lucide-react';
+import { Badge } from 'anteriority-ui';
 import styles from './NotificationForm.module.css';
 import { createdNotification } from '../../services/api';
 import ErrorMessage from '../Notification/Error/ErrorMessage';
@@ -121,6 +123,8 @@ const NotificationForm = ({ onSuccess, onClose, onLoading, onFormChange }) => {
   return (
     <form id="notification-form" onSubmit={handleSubmit} className={styles.formContainer}>
       <ErrorMessage message={error} title={NOTIFICATION_FORM_TEXTS.validationErrorTitle} variant="danger" />
+
+      <Badge icon={Info} value="El mensaje acepta Markdown" iconColor="#0ea5e9" />
 
       <div className={styles.fieldGroup}>
         <TextField

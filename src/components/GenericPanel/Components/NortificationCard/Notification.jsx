@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import cardStyles from '../css/CardMain.module.css';
-import { Bell, BellRing, Eye, Circle, CheckCircle2 } from 'lucide-react';
-import AlertModal from '../../../AlertModal/AlertModal'; 
+import { Bell, BellRing, Eye, Circle, CheckCircle2, Calendar, ArrowRight } from 'lucide-react';
+import { DrawPanel, Badge, Callout } from 'anteriority-ui';
 import { markNotificationAsRead } from '../../../../services/api';
 import CardV1 from '../../../screens/components/CardV1';
 import { getPriorityData } from '../../../screens/components/CardV1/utils';
 
+const getCalloutVariant = (priority) => {
+  const key = String(priority || '').toLowerCase();
+  if (key === '3' || key === 'alta') return 'danger';
+  if (key === '2' || key === 'media') return 'warning';
+  if (key === '1' || key === 'baja') return 'success';
+  return 'neutral';
+};
+
 const NotificationCard = ({ notification = null, loading = false, error = null, onNotificationRead }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isReading, setIsReading] = useState(false);
   const [justRead, setJustRead] = useState(false);
 
@@ -68,6 +76,7 @@ const NotificationCard = ({ notification = null, loading = false, error = null, 
   }
 
   const priorityData = getPriorityData(notification.priority);
+  const PriorityIcon = priorityData.icon;
   const isLongMessage = notification.message && notification.message.length > 45;
   const isReadState = notification.is_read || justRead;
   
@@ -107,7 +116,7 @@ const NotificationCard = ({ notification = null, loading = false, error = null, 
         {isLongMessage && (
           <button
             type="button"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsDrawerOpen(true)}
             className={cardStyles.viewMoreBtn}
           >
             <Eye size={12} />
@@ -116,29 +125,46 @@ const NotificationCard = ({ notification = null, loading = false, error = null, 
         )}
       </CardV1>
 
-      <AlertModal
-        open={isModalOpen}
+      <DrawPanel
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
         title={notification.title || 'Detalle de Notificación'}
-        onClose={() => setIsModalOpen(false)}
-        confirmText="Entendido"
+        width="420px"
       >
-        <div className={cardStyles.modalContent}>
-          <div className={cardStyles.modalHeaderRow}>
-            <div>
-              <span className={cardStyles.modalLabel}>Prioridad:</span>
-              <span className={cardStyles.modalPriority}>{priorityData.label}</span>
-            </div>
-            <div>
-              <span className={cardStyles.modalLabel}>Fecha:</span>
-              <span className={cardStyles.modalValue}>{notification.created_at ? notification.created_at.slice(0, 10) : 'Hoy'}</span>
-            </div>
+        <div className={cardStyles.detailContent}>
+          <div className={cardStyles.detailRow}>
+            <Badge
+              icon={PriorityIcon}
+              label="Prioridad"
+              value={priorityData.label}
+              iconColor={priorityData.color}
+              valueColor={priorityData.color}
+            />
+            <Badge
+              icon={Calendar}
+              label="Fecha"
+              value={notification.created_at ? notification.created_at.slice(0, 10) : 'Hoy'}
+              iconColor="#64748b"
+            />
           </div>
-          <div className={cardStyles.modalMessageBox}>
-            <span className={cardStyles.modalBoxTitle}>Mensaje de Alerta Completo:</span>
-            <p className={cardStyles.modalFullText}>{notification.message}</p>
+
+          <Callout
+            variant={getCalloutVariant(notification.priority)}
+            icon={BellRing}
+            title="Mensaje de alerta"
+            iconColor={priorityData.color}
+            borderColor={priorityData.color}
+          >
+            {notification.message}
+          </Callout>
+
+          <div className={cardStyles.detailRow}>
+            <Badge label="De" value={notification.origin?.toLowerCase()} />
+            <ArrowRight size={14} color="#94a3b8" />
+            <Badge label="Para" value={notification.destination?.toLowerCase()} />
           </div>
         </div>
-      </AlertModal>
+      </DrawPanel>
     </div>
   );
 };

@@ -12,6 +12,7 @@ import usePanelHeader from '../../GenericPanel/usePanelHeader';
 
 import {
   FileText,
+  FileCog,
   RotateCw,
   HelpCircle,
   Search,
@@ -88,6 +89,7 @@ export default function Recetas() {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ title: '', message: '' });
   const [sendingId, setSendingId] = useState(null);
+  const [generatingPdfId, setGeneratingPdfId] = useState(null);
 
   const [editPanelOpen, setEditPanelOpen] = useState(false);
   const [selectedReceta, setSelectedReceta] = useState(null);
@@ -123,6 +125,22 @@ export default function Recetas() {
       });
     } finally {
       setSendingId(null);
+    }
+  };
+
+  const handleGeneratePdf = async (receta) => {
+    if (generatingPdfId) return;
+
+    setGeneratingPdfId(receta.id);
+    try {
+      await api.generateConsultaPdf(receta.id);
+      showAlert({ title: 'PDF Generado', message: TEXT_RECETAS_GESTION.pdfSuccess });
+      load({ force: true });
+    } catch (err) {
+      console.error('Error al generar el PDF de la receta:', err);
+      showAlert({ title: 'Error', message: err?.message || TEXT_RECETAS_GESTION.pdfError });
+    } finally {
+      setGeneratingPdfId(null);
     }
   };
 
@@ -203,24 +221,36 @@ export default function Recetas() {
       render: (row) => {
         const isUrlValid = row.url_docx?.startsWith('http');
         const isSending = sendingId === row.id;
-        
+        const isGeneratingPdf = generatingPdfId === row.id;
+
         return (
           <div className={styles.actionsColumn}>
-            <ModalTooltip text={isUrlValid ? 'Descargar PDF' : 'PDF no disponible'}>
-              <a 
-                href={isUrlValid ? row.url_docx : '#'} 
-                target="_blank" 
-                rel="noreferrer" 
-                className={styles.linkIcon}
-                style={{ 
-                  background: isUrlValid ? '#e0f2fe' : '#f1f5f9', 
-                  color: isUrlValid ? '#0284c7' : '#94a3b8',
-                  pointerEvents: isUrlValid ? 'auto' : 'none'
-                }}
-              >
-                <FileText size={16} />
-              </a>
-            </ModalTooltip>
+            {isUrlValid ? (
+              <ModalTooltip text="Descargar PDF">
+                <a
+                  href={row.url_docx}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.linkIcon}
+                  style={{ background: '#e0f2fe', color: '#0284c7' }}
+                >
+                  <FileText size={16} />
+                </a>
+              </ModalTooltip>
+            ) : (
+              <ModalTooltip text={isGeneratingPdf ? 'Generando...' : 'Generar PDF'}>
+                <Button
+                  type="button"
+                  onClick={() => handleGeneratePdf(row)}
+                  disabled={isGeneratingPdf}
+                  variant="ghost"
+                  color={isGeneratingPdf ? '#94a3b8' : '#0284c7'}
+                  circle
+                  icon={FileCog}
+                  style={{ backgroundColor: isGeneratingPdf ? '#f1f5f9' : '#e0f2fe' }}
+                />
+              </ModalTooltip>
+            )}
 
             <ModalTooltip text="Editar receta">
               <Button

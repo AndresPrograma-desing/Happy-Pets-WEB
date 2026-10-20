@@ -1,4 +1,4 @@
-import { getStorageValue, logout, TOKEN_KEY } from './storage';
+import { getStorageValue, logout, TOKEN_KEY, getClientToken, clientLogout } from './storage';
 import { DEV_URL_API, isDummyModeActive } from '../../../config/config';
 import dummyDB from '../../dummy/db.json';
 
@@ -179,7 +179,12 @@ export async function request(path, { method = 'GET', body, headers = {}, auth =
     opts.cache = 'no-store';
   }
 
-  if (auth) {
+  if (auth === 'client') {
+    const clientToken = getClientToken();
+    if (clientToken) {
+      opts.headers['Authorization'] = `Bearer ${clientToken}`;
+    }
+  } else if (auth) {
     const token = getStorageValue(TOKEN_KEY);
     if (token) {
       opts.headers['Authorization'] = `Bearer ${token}`;
@@ -268,7 +273,7 @@ export async function request(path, { method = 'GET', body, headers = {}, auth =
 
     if (!res.ok) {
     if (res.status === 401) {
-      try { logout(); } catch (err) { if (import.meta.env.DEV) console.error('logout failed', err); }
+      try { auth === 'client' ? clientLogout() : logout(); } catch (err) { if (import.meta.env.DEV) console.error('logout failed', err); }
     }
 
     // 1. Priorizamos el mensaje detallado enviado por el backend en el JSON

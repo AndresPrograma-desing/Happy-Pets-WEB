@@ -84,6 +84,92 @@ import AlertModal from '../AlertModal/AlertModal'; // export default
 
 ---
 
+### Avatar
+
+Componente de avatar nativo (sin dependencias de MUI) para fotos de perfil, iniciales de nombre o íconos, con generación automática de colores armoniosos basados en el texto/nombre e iniciales automáticas.
+
+**Import:**
+```jsx
+import Avatar from '../Avatar'; // o import { Avatar } from 'anteriority-ui'
+```
+
+**Uso básico:**
+```jsx
+<Avatar src="/foto.jpg" alt="Natacha" />
+<Avatar name="Martin Perez" />
+<Avatar>M</Avatar>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `src` | string | — | URL de la imagen del avatar |
+| `alt` | string | `''` | Texto alternativo de la imagen |
+| `name` | string | `''` | Nombre usado para calcular la inicial y el color de fondo si no hay imagen |
+| `children` | node | — | Contenido libre o letra inicial directa (ej. `<Avatar>M</Avatar>`) |
+| `size` | number \| `'small'` \| `'medium'` \| `'large'` | `32` | Diámetro del avatar en píxeles |
+| `shape` | `'circle'` \| `'rounded'` \| `'square'` | `'circle'` | Forma geométrica del avatar |
+| `bgColor` | string | — | Color de fondo personalizado |
+| `textColor` | string | `'#ffffff'` | Color del texto |
+| `icon` | component | — | Icono opcional (ej. de `lucide-react`) si no hay foto ni inicial |
+
+---
+
+### AvatarChip
+
+Componente de chip/píldora con avatar, texto y acciones opcionales (sin MUI). Incluye la prop especial `expandOnHover` para mostrar inicialmente solo el avatar circular y desplegar suavemente el nombre/label hacia un lado al colocar el puntero encima. Incluye `AvatarChipGroup` para agrupar chips fácilmente reemplazando `Stack`.
+
+**Import:**
+```jsx
+import AvatarChip, { Chip, Avatar, AvatarChipGroup } from '../AvatarChip'; 
+// o import { AvatarChip, Chip, AvatarChipGroup } from 'anteriority-ui'
+```
+
+**Uso básico:**
+```jsx
+// 1. Estilo MUI Chip con Avatar y Stack
+<AvatarChipGroup direction="row" spacing={8}>
+  <Chip avatar={<Avatar>M</Avatar>} label="Avatar" />
+  <Chip
+    avatar={<Avatar alt="Natacha" src="/foto.jpg" />}
+    label="Avatar"
+    variant="outlined"
+  />
+</AvatarChipGroup>
+
+// 2. Con animación expandOnHover (solo avatar, se despliega al hover)
+<AvatarChip
+  expandOnHover
+  src="/foto.jpg"
+  label="Natacha Romanov"
+/>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `avatar` | node | — | Elemento Avatar personalizado (ej. `<Avatar>M</Avatar>`) |
+| `src` | string | — | Atajo directo para la foto del avatar |
+| `name` | string | — | Atajo para el nombre (calcula iniciales y color automáticamente) |
+| `initial` | string | — | Atajo para la inicial directa del avatar (ej. `"M"`) |
+| `icon` | component | — | Atajo para icono en lugar de avatar de imagen |
+| `label` | node | — | Texto o contenido principal del chip |
+| `variant` | `'filled'` \| `'outlined'` | `'filled'` | Estilo visual del chip |
+| `size` | `'small'` \| `'medium'` \| `'large'` | `'medium'` | Tamaño del chip (`small` = 24px, `medium` = 32px, `large` = 40px) |
+| `expandOnHover` | boolean | `false` | Si es `true`, muestra solo el avatar circular y lo expande suavemente a un lado mostrando el label al colocar el puntero (hover) |
+| `collapsed` | boolean | — | Control manual del estado colapsado (opcional) |
+| `onClick` | function | — | Si se define, el chip se vuelve clickeable con hover y accesibilidad de botón |
+| `onDelete` | function | — | Si se define, renderiza un botón de eliminar (icono X) al extremo derecho |
+| `deleteIcon` | node | — | Icono personalizado para el botón de eliminar |
+| `disabled` | boolean | `false` | Deshabilita la interacción del chip |
+| `bgColor` | string | — | Color de fondo personalizado |
+| `textColor` | string | — | Color de texto personalizado |
+| `borderColor` | string | — | Color de borde personalizado |
+
+---
+
 ### Badge
 
 Etiqueta pequeña e inline para mostrar un par label/valor, opcionalmente con ícono, usada para indicadores de estado o métricas cortas.
@@ -223,6 +309,7 @@ import { Breadcrumbs } from '../Breadcrumbs/index'; // named export (también de
 | `separator` | string | `'/'` | Carácter divisor entre crumbs (ej. `'/'`, `'-'`, `'>'`) |
 | `iconColor` | string | — | Color de los íconos de los crumbs (`--crumb-icon-color`) |
 | `linkColor` | string | — | Color de los crumbs clicables (`--crumb-link-color`) |
+| `currentColor` | string | — | Color del último crumb (página actual, texto en negrita) (`--crumb-current-color`). Útil para usar `Breadcrumbs` sobre fondos claros — el default (`#e6e8ec`) está pensado para fondo oscuro. |
 | `maxItems` | number | — | Si `items.length` supera este valor, colapsa los crumbs del medio detrás de un botón "…" con un menú |
 | `itemsBeforeCollapse` | number | `1` | Cantidad de crumbs visibles antes del colapso (solo aplica si `maxItems` está seteado) |
 | `itemsAfterCollapse` | number | `1` | Cantidad de crumbs visibles después del colapso, incluyendo el actual (solo aplica si `maxItems` está seteado) |
@@ -440,7 +527,7 @@ En modo `range`, la selección soporta dos gestos, intercambiables: (1) click en
 
 ### Callout
 
-Caja de aviso/notificación (advertencia, error, éxito, info, nota neutral) con ícono y paleta de color por `variant`, título opcional y cuerpo en Markdown completo (listas, negrita, links, bloques de código, tablas, etc. — reutiliza `MarkdownContent` por dentro). Pensado para usarse suelto en una vista, dentro de `DrawPanel`/`Frame`, o como notificación.
+Caja de aviso/notificación (advertencia, error, éxito, info, nota neutral) con ícono y paleta de color por `variant`, título opcional, timestamp opcional y cuerpo en Markdown completo (listas, negrita, links, bloques de código, tablas, etc. — reutiliza `MarkdownContent` por dentro). Pensado para usarse suelto en una vista, dentro de `DrawPanel`/`Frame`, o como notificación (es el building block que usa `NotificationsPanel` para cada item de la lista). Opcionalmente clickeable/navegable vía `onClick`/`href`.
 
 **Import:**
 ```jsx
@@ -461,10 +548,13 @@ import Callout from '../Callout/index'; // export default
 | `variant` | `'info'` \| `'warning'` \| `'danger'` \| `'success'` \| `'neutral'` | `'info'` | Determina paleta (fondo/borde/texto/ícono) e ícono por default. |
 | `title` | string | — | Título en negrita sobre el cuerpo. |
 | `children` | string | — | Cuerpo en Markdown (mismo formato que `MarkdownContent`). |
+| `timestamp` | string | — | Texto pequeño (ej. `"Hace 5 minutos"`) mostrado debajo del cuerpo. |
 | `icon` | component | — | Reemplaza el ícono default del `variant`. |
-| `actions` | node | — | Contenido (ej. botones) renderizado debajo del cuerpo. |
-| `onClose` | `function()` | — | Si se define, muestra un botón de cerrar (×) arriba a la derecha. |
+| `actions` | node | — | Contenido (ej. botones) renderizado debajo del cuerpo. Los clicks dentro de `actions` no disparan `onClick`/`href` del Callout (`stopPropagation`). |
+| `onClose` | `function()` | — | Si se define, muestra un botón de cerrar (×) arriba a la derecha. Su click tampoco dispara `onClick`/`href`. |
 | `closeLabel` | string | `'Cerrar aviso'` | `aria-label` del botón de cerrar. |
+| `onClick` | `function(event)` | — | Si se define (y no hay `href`), el Callout entero se vuelve clickeable: se renderiza como `<div role="button" tabIndex={0}>` con soporte de teclado (Enter/Espacio) y cursor pointer. |
+| `href` | string | — | Si se define, el Callout se renderiza como `<a href={href}>` (navegación nativa: Ctrl+click, abrir en pestaña nueva, etc.). Tiene prioridad sobre `onClick` como tag, pero `onClick` igual se dispara si también se pasa. |
 | `bgColor` | string | — | Sobrescribe el color de fondo de la paleta del `variant`. |
 | `textColor` | string | — | Sobrescribe el color del título y del cuerpo (markdown incluido). |
 | `iconColor` | string | — | Sobrescribe el color del ícono. |
@@ -726,7 +816,8 @@ import Container from '../Container'; // export default (index.jsx)
 | `pageSize` | number | `10` | Tamaño de página actual |
 | `pageSizeOptions` | array | `[5, 10, 20, 50]` | Opciones de tamaño de página |
 | `onPageSizeChange` | function | — | Handler de cambio de tamaño de página |
-| `...props` | — | — | Cualquier otra prop (ej. `onClick`, `id`) se pasa al `div` raíz |
+| `borderColor` | string | `'rgba(0, 0, 0, 0.08)'` | Color del borde del contenedor (`--container-border`). Por defecto un negro claro sutil. |
+| `...props` | — | — | Cualquier otra prop (ej. `onClick`, `id`, `style`) se pasa al `div` raíz |
 
 **Ejemplos:**
 ```jsx
@@ -1123,7 +1214,7 @@ import { FormCard, FormInput, FormTextArea } from '../FormControls/index'; // na
 
 ### Frame
 
-Contenedor tipo "card" con título, ícono, descripción y estado de error/carga opcionales. Puede renderizarse inline o como modal (overlay + portal).
+Contenedor tipo "card" con título, ícono, descripción y estado de error/carga opcionales. Puede renderizarse inline o como modal (overlay + portal). Opcionalmente scrollea su contenido internamente (vía `ScrollBar`, sin barra de scroll nativa) cuando el contenido supera un alto máximo.
 
 **Import:**
 ```jsx
@@ -1147,7 +1238,12 @@ import Frame from '../Frame/index'; // export default, archivo index.jsx
 | className | string | `''` | Clase(s) CSS adicionales. |
 | isModal | boolean | `false` | Si es `true`, renderiza el frame como overlay modal vía `createPortal` a `document.body`. |
 | onClose | function | — | Se ejecuta al hacer click en el overlay (solo aplica con `isModal`). |
-| isLoading | boolean | `false` | Muestra un overlay con `Loading` (`size="giant"`) y oculta el contenido. |
+| isLoading | boolean | `false` | Muestra un overlay sobre el contenido (oculto con `visibility: hidden`, no desmontado) mientras carga. El tipo de overlay lo decide `loadingType`. |
+| loadingType | `'spinner'` \| `'skeleton'` | `'spinner'` | Con `isLoading`: `'spinner'` muestra `Loading` (`size="giant"`); `'skeleton'` muestra `skeletonCount` barras `Skeleton` genéricas apiladas. |
+| loadingVariant | string | `'default'` | Con `loadingType="spinner"`, se pasa tal cual como prop `variant` a `Loading` (`'default'` \| `'bars'` \| `'bounce'` \| `'box'`). |
+| skeletonCount | number | `3` | Con `loadingType="skeleton"`, cantidad de barras `Skeleton` a mostrar. |
+| scrollable | boolean | `false` | Si es `true`, envuelve `children` con `ScrollBar` (scroll interno sin barra nativa, thumb delgado visible solo on hover/scroll). |
+| maxHeight | number \| string | — | Con `scrollable`, alto máximo del área scrolleable (pasa a `ScrollBar` como `maxHeight`). Sin `maxHeight`, el contenido crece libremente (el `ScrollBar` no limita el alto por sí solo). |
 | bgColor | string | — | Color de fondo del frame (`--frame-bg`). |
 | iconColor | string | — | Color del contenedor del ícono (`--frame-icon`). |
 | descriptionBgColor | string | — | Color de fondo del texto de descripción (`--frame-description-bg`). |
@@ -1161,8 +1257,20 @@ import Frame from '../Frame/index'; // export default, archivo index.jsx
   <p>Este contenido queda oculto mientras carga.</p>
 </Frame>
 ```
+```jsx
+// Overlay tipo skeleton en vez del spinner default
+<Frame title="Cargando datos" isLoading loadingType="skeleton" skeletonCount={4}>
+  <p>Este contenido queda oculto mientras carga.</p>
+</Frame>
+```
+```jsx
+// Lista larga con scroll interno (sin barra de scroll nativa)
+<Frame title="Lista larga" scrollable maxHeight={220}>
+  {items.map((item) => <p key={item.id}>{item.label}</p>)}
+</Frame>
+```
 
-**Notas:** `isModal` renderiza vía `createPortal` sobre `document.body` con un overlay que cierra al hacer click fuera (así lo usa internamente `HoursPicker`). Depende del componente `Loading` para el estado `isLoading`.
+**Notas:** `isModal` renderiza vía `createPortal` sobre `document.body` con un overlay que cierra al hacer click fuera (así lo usa internamente `HoursPicker`). El estado `isLoading` depende de `Loading` (modo `'spinner'`, default) o de `Skeleton` (modo `'skeleton'`) — el skeleton es genérico (barras simples) porque `Frame` no conoce la forma real del contenido de cada consumidor; componentes como `NotificationsPanel` exponen las mismas props (`isLoading`/`loadingType`/`loadingVariant`/`skeletonCount`/`scrollable` vía `maxHeight`) y simplemente las reenvían a su `Frame` interno en vez de reimplementar loading o scroll por su cuenta.
 
 ---
 
@@ -1281,7 +1389,31 @@ import { VscJson } from 'anteriority-ui/screens/components/Icons/vsc';
 
 **Packs disponibles:** cada pack de react-icons se expone en `screens/components/Icons/<pack>`, con el mismo nombre de carpeta que usa react-icons: `ai`, `bi`, `bs`, `cg`, `ci`, `di`, `fa`, `fa6`, `fc`, `fi`, `gi`, `go`, `gr`, `hi`, `hi2`, `im`, `io`, `io5`, `lia`, `lu`, `md`, `pi`, `ri`, `rx`, `si`, `sl`, `tb`, `tfi`, `ti`, `vsc`, `wi`.
 
-**Notas:** Los nombres de cada ícono son exactamente los que exporta react-icons — usar el [buscador oficial](https://react-icons.github.io/react-icons/) o el componente [IconCatalog](#iconcatalog) para encontrar el nombre exacto dentro de su pack. `si` (Simple Icons) es el pack más relevante para logos de marcas/lenguajes/herramientas (JavaScript, YAML, Docker, etc.), pero **no tiene cobertura total** — por ejemplo no existe un ícono de C# en `si`; ese logo vive en el pack `tb` (`TbBrandCSharp`). Si un ícono no aparece en `si`, buscarlo en otros packs (`tb`, `fa`, `md`, etc.) antes de asumir que no está disponible. Packs como `fa` o `md` cubren además íconos genéricos de tipo de archivo (audio, pdf, imagen) que no tienen un logo de marca propio. Los archivos `screens/components/Icons/<pack>/index.js` son re-exports de 1 línea generados por `node scripts/generate-icon-packs.mjs` (correr de nuevo solo si react-icons agrega o quita un pack); quedan versionados en el repo como cualquier otro archivo fuente, no se regeneran en cada build.
+**Notas:** Los nombres de cada ícono son exactamente los que exporta react-icons — usar el [buscador oficial](https://react-icons.github.io/react-icons/), el componente [IconCatalog](#iconcatalog) o la función [findIcons](#findicons) para encontrar el nombre exacto dentro de su pack. `si` (Simple Icons) es el pack más relevante para logos de marcas/lenguajes/herramientas (JavaScript, YAML, Docker, etc.), pero **no tiene cobertura total** — por ejemplo no existe un ícono de C# en `si`; ese logo vive en los packs `tb` (`TbBrandCSharp`) y `pi` (`PiFileCSharp`). Si un ícono no aparece en `si`, buscarlo en otros packs antes de asumir que no está disponible — o usar `findIcons`, que ya busca en los 31 a la vez. Packs como `fa` o `md` cubren además íconos genéricos de tipo de archivo (audio, pdf, imagen) que no tienen un logo de marca propio. Los archivos `screens/components/Icons/<pack>/index.js` son re-exports de 1 línea generados por `node scripts/generate-icon-packs.mjs` (correr de nuevo solo si react-icons agrega o quita un pack); quedan versionados en el repo como cualquier otro archivo fuente, no se regeneran en cada build. `screens/components/Icons/registry.js` centraliza el import de los 31 packs (`ICON_PACKS`, `ICON_PACK_NAMES`) — tanto `IconCatalog` como `findIcons` lo reusan en vez de repetir la lista de imports.
+
+---
+
+### findIcons
+
+Busca un término (substring, case-insensitive) en el nombre de ícono de **todos** los packs de react-icons a la vez, sin necesidad de saber de antemano en qué pack vive cada uno. Pensada para resolver casos como "necesito el logo de C#" sin tener que adivinar o probar pack por pack — `findIcons('csharp')` ya devuelve los matches de `tb`, `pi`, etc. en un solo llamado.
+
+**Import:**
+```jsx
+import { findIcons } from 'anteriority-ui/common/icons';
+```
+
+**Uso básico:**
+```jsx
+const results = findIcons('csharp');
+// [{ pack: 'tb', name: 'TbBrandCSharp', Icon: [Function] }, { pack: 'pi', name: 'PiFileCSharp', Icon: [Function] }, ...]
+
+const { Icon } = results[0];
+<Icon size={24} />
+```
+
+**Firma:** `findIcons(query: string) => { pack: string, name: string, Icon: ComponentType }[]`
+
+**Notas:** Es una utilidad de **búsqueda en runtime**, no un import estático — devuelve el componente ya resuelto (`Icon`), listo para renderizar, pero no reemplaza el subpath import para un ícono que ya se conoce (ver [Icons (react-icons)](#icons-react-icons)), que sigue siendo más explícito y con mejor tree-shaking cuando el nombre exacto ya está decidido. Con query vacío devuelve `[]`. Puede devolver cientos de resultados con términos muy cortos/genéricos (ej. `'a'`) — conviene truncar/paginar en la UI que consuma el resultado, como hace [IconCatalog](#iconcatalog) internamente. También se puede usar directo desde `anteriority-ui/screens/components/Icons/findIcons` (el subpath real); `anteriority-ui/common/icons` es solo un alias más corto.
 
 ---
 
@@ -1931,6 +2063,107 @@ import ErrorMessage from 'screens/components/Notification/Error/ErrorMessage';
 
 ---
 
+### NotificationsPanel
+
+Panel de notificaciones construido sobre `Frame` (header con ícono de campana + título). Cada notificación se renderiza con `Callout` (título, mensaje en Markdown, timestamp, ícono, paleta por `variant`, botones de acción vía `Button`, botón de descarte (×) y soporte de click/navegación). La lista scrollea internamente (vía la prop `scrollable` de `Frame`, que a su vez usa `ScrollBar`) sin mostrar una barra de scroll nativa — el thumb queda oculto hasta hover/scroll. Soporta modo inline o modal (overlay + portal) y loading en dos variantes (spinner o skeleton), todo heredado de `Frame`.
+
+**Import:**
+```jsx
+import NotificationsPanel from '../NotificationsPanel/index'; // export default
+```
+
+**Uso básico:**
+```jsx
+<NotificationsPanel
+  notifications={[
+    {
+      id: 1,
+      title: 'Nueva cita agendada - Firulais',
+      message: 'Se agendó una cita para Firulais el 08/10/2026 a las 15:00 con el Dr. Doctor Doctor.',
+      timestamp: 'Hace 5 minutos',
+      actions: [
+        { label: 'Confirmar asistencia', variant: 'primary', onClick: () => {} },
+        { label: 'No podré asistir', variant: 'outline', color: 'red', onClick: () => {} },
+      ],
+    },
+  ]}
+  onDismiss={(id) => console.log('quitar', id)}
+/>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `title` | string | `'Notificaciones'` | Título del header (prop `title` de `Frame`). |
+| `icon` | node | `<Bell size={20} />` | Ícono del header (prop `icon` de `Frame`). |
+| `notifications` | array | `[]` | Lista de notificaciones. Cada item acepta: `{ id, title?, message?, timestamp?, icon?, variant?, actions?, onClick?, href?, bgColor?, borderColor?, iconColor?, textColor? }`. `message` se pasa como `children` de `Callout` (acepta Markdown). `actions` es un array de `{ key?, label, variant?, color?, fullWidth?, onClick? }`, renderizados con `Button`. `variant` es la misma paleta de `Callout` (`'info'` \| `'warning'` \| `'danger'` \| `'success'` \| `'neutral'`, default `'neutral'`). `onClick`/`href` hacen la tarjeta entera clickeable/navegable (ver `Callout`). Los `bgColor`/`borderColor`/`iconColor`/`textColor` del item individual tienen prioridad sobre los equivalentes globales del panel (`itemBgColor`, etc.). |
+| `onDismiss` | `function(id)` | — | Si se define, cada tarjeta muestra un botón (×) que lo invoca con el `id` de la notificación. El panel no quita el item solo — el consumidor controla el array `notifications` (ver ejemplo `Dismissible` en Storybook). |
+| `emptyMessage` | string | `'No tenés notificaciones nuevas.'` | Texto mostrado cuando `notifications` está vacío. |
+| `maxHeight` | number | `380` | Alto máximo (px) del área scrolleable (pasa a `Frame` como `maxHeight`, junto con `scrollable` activado automáticamente cuando hay notificaciones). |
+| `dismissLabel` | string | `'Quitar notificación'` | `aria-label` del botón de descarte (pasa a `Callout` como `closeLabel`). |
+| `isModal` | boolean | `false` | Renderiza como overlay modal (pasa a `Frame`). |
+| `onClose` | function | — | Click en el overlay cuando `isModal` (pasa a `Frame`). |
+| `isLoading` | boolean | `false` | Muestra el overlay de carga de `Frame` (spinner o skeleton genérico) en vez de la lista. |
+| `loadingType` | `'spinner'` \| `'skeleton'` | `'spinner'` (default de `Frame`) | Tipo de loading cuando `isLoading` (pasa a `Frame`). |
+| `loadingVariant` | string | `'default'` (default de `Frame`) | Con `loadingType="spinner"`, variant de `Loading` (pasa a `Frame`). |
+| `skeletonCount` | number | `3` (default de `Frame`) | Con `loadingType="skeleton"`, cantidad de barras `Skeleton` (pasa a `Frame`). |
+| `className` | string | `''` | Clase adicional en el `Frame` raíz. |
+| `bgColor` | string | — | Color de fondo del panel (pasa a `Frame` como `bgColor`). |
+| `iconColor` | string | — | Color del ícono del header — la campana (pasa a `Frame` como `iconColor`). |
+| `itemBgColor` | string | — | Color de fondo por default de cada tarjeta (pasa a `Callout` como `bgColor`; cada item puede pisarlo con su propio `bgColor`). |
+| `itemBorderColor` | string | — | Color de borde por default de cada tarjeta (pasa a `Callout` como `borderColor`; pisable por item). |
+| `itemIconColor` | string | — | Color del ícono por default de cada tarjeta (pasa a `Callout` como `iconColor`; pisable por item). |
+| `textColor` | string | — | Color de texto (título + mensaje + timestamp) por default de cada tarjeta (pasa a `Callout`; pisable por item). |
+
+**Ejemplos:**
+```jsx
+// Vacío
+<NotificationsPanel notifications={[]} />
+
+// Con descarte controlado por el consumidor
+function Example() {
+  const [items, setItems] = useState(notifications);
+  return (
+    <NotificationsPanel
+      notifications={items}
+      onDismiss={(id) => setItems((prev) => prev.filter((n) => n.id !== id))}
+    />
+  );
+}
+
+// Como modal
+<NotificationsPanel notifications={notifications} isModal onClose={() => setOpen(false)} />
+
+// Loading tipo skeleton
+<NotificationsPanel notifications={[]} isLoading loadingType="skeleton" skeletonCount={4} />
+
+// Notificación clickeable (navega al hacer click) y con paleta/colores propios
+<NotificationsPanel
+  notifications={[
+    {
+      id: 1,
+      variant: 'danger',
+      title: 'Pago rechazado',
+      message: 'No se pudo procesar el pago.',
+      onClick: () => navigate('/facturas/00234'),
+    },
+    {
+      id: 2,
+      title: 'Con colores propios',
+      message: 'Esta tarjeta define su propio bgColor/borderColor/textColor.',
+      bgColor: '#ecfdf5',
+      borderColor: '#a7f3d0',
+      textColor: '#065f46',
+    },
+  ]}
+/>
+```
+
+**Notas:** No persiste ni elimina notificaciones por su cuenta — es UI pura (ver regla de separación en `CLAUDE.md`). `onDismiss` solo informa el `id`; el array `notifications` sigue siendo responsabilidad de quien lo use. El contenedor interno aplica `overflow` vía `ScrollBar`, que oculta el track nativo del navegador y muestra un thumb delgado solo mientras se hace hover/scroll. Cada tarjeta es un `Callout` — para personalizar algo no cubierto por las props de `NotificationsPanel` (ej. `linkColor`, `markdownComponents`), usar `Callout` directamente en vez de este componente.
+
+---
+
 ### PasswordResetPanel
 
 Panel deslizante (basado en `DrawPanel`) para que un administrador solicite y complete el restablecimiento de contraseña de un usuario, incluyendo lista de solicitudes pendientes, polling de estado y asignación de nueva clave.
@@ -2128,6 +2361,7 @@ import ScrollBar from 'screens/components/ScrollBar';
 | `maxHeight` | `string` \| `number` | — | Altura máxima del área scrolleable. |
 | `hideHorizontalTrack` | `boolean` | `false` | Oculta el thumb/track horizontal propio (el scroll sigue funcionando). Lo usa `TableA` cuando muestra su pie de desplazamiento. |
 | `hideVerticalTrack` | `boolean` | `false` | Oculta el thumb/track vertical propio (el scroll sigue funcionando). Lo usa `TableA`/`TableB` con `stickyHeader`. |
+| `reserveTrackSpace` | `boolean` | `false` | Reserva `padding-right` en el área de scroll para que el thumb vertical no quede superpuesto sobre el contenido (texto/botones). Pensado para listas verticales de tarjetas (lo usa `Frame` cuando `scrollable`); no afecta el ancho de tablas con scroll horizontal porque es opt-in. |
 | `scrollAreaRef` | `ref` \| `function` | — | Recibe el elemento del área de scroll interna, para poder leer o mover `scrollLeft`/`scrollTop` desde afuera. |
 | `className` | `string` | `''` | Clase adicional para el contenedor raíz. |
 | `contentClassName` | `string` | `''` | Clase adicional para el área de scroll interna. |
@@ -2146,7 +2380,7 @@ import ScrollBar from 'screens/components/ScrollBar';
 
 ### Sidebar
 
-Barra lateral de navegación colapsable con grupos de items, badges por método HTTP, menú de usuario, menú contextual por item (editar/eliminar/fijar/colaboradores) y reordenamiento por drag & drop.
+Barra lateral de navegación colapsable con grupos de items, subitems anidados y colapsables (ej. "Vacunas" → Ver/Crear/Pendientes/Lotes), badges por método HTTP, menú de usuario, menú contextual por item (editar/eliminar/fijar/colaboradores) y reordenamiento por drag & drop.
 
 **Import:**
 ```jsx
@@ -2168,8 +2402,8 @@ import Sidebar from 'screens/components/Sidebar/index';
 
 | Prop | Tipo | Default | Descripción |
 |---|---|---|---|
-| `groups` | `Array<{ title?, items: Array<{ id, label, icon?, badge?, badgeType?, pinned?, isOwner?, isShared? }> }>` | — | Estructura de grupos e items del menú. |
-| `activeId` | `string`\|`number` | — | Id del item actualmente activo. |
+| `groups` | `Array<{ title?, items: Array<{ id, label, icon?, badge?, badgeType?, pinned?, isOwner?, isShared?, subItems? }> }>` | — | Estructura de grupos e items del menú. `subItems` es un array opcional de `{ id, label, icon?, badge?, badgeType? }`: si un item lo tiene, se renderiza como header colapsable (con chevron) en vez de item navegable — el click solo expande/colapsa, no dispara `onSelect` ni se marca "activo" (ver Notas). |
+| `activeId` | `string`\|`number` | — | Id del item (o subitem) actualmente activo. Si matchea el id de un subitem, ese subitem se resalta y su grupo padre se auto-expande al montar el componente. |
 | `onSelect` | `function(item)` | — | Callback al seleccionar un item. |
 | `collapsible` | `boolean` | `true` | Muestra el botón de colapsar y habilita el atajo de teclado para colapsar/expandir. |
 | `loading` | `boolean` | `false` | Muestra `skeletonItems` filas de `Skeleton` en vez de los grupos reales. |
@@ -2192,6 +2426,32 @@ import Sidebar from 'screens/components/Sidebar/index';
 
 **Ejemplos:**
 ```jsx
+// Item con subItems colapsables (ej. "Vacunas")
+<Sidebar
+  groups={[
+    {
+      title: 'General',
+      items: [
+        { id: 'home', label: 'Inicio', icon: Home },
+        {
+          id: 'vaccines',
+          label: 'Vacunas',
+          icon: Activity,
+          subItems: [
+            { id: 'vaccines-view', label: 'Ver vacunas' },
+            { id: 'vaccines-create', label: 'Crear vacuna' },
+            { id: 'vaccines-pending', label: 'Vacunas pendientes' },
+            { id: 'vaccines-batches', label: 'Lotes de vacunas' },
+          ],
+        },
+      ],
+    },
+  ]}
+  activeId="vaccines-view"
+  onSelect={(item) => setActiveId(item.id)}
+  user={{ email: 'jane.doe@example.com' }}
+/>
+
 <Sidebar groups={[]} loading skeletonItems={8} user={{ email: 'jane.doe@example.com' }} />
 
 <Sidebar
@@ -2215,7 +2475,7 @@ import Sidebar from 'screens/components/Sidebar/index';
 />
 ```
 
-**Notas:** Persiste el estado colapsado en `localStorage` bajo la clave `sidebar_collapsed`.
+**Notas:** Persiste el estado colapsado en `localStorage` bajo la clave `sidebar_collapsed`. Los subitems no soportan drag & drop (`onReorderItems`), menú contextual (`onItemEdit`/`onItemDelete`/`onItemPin`/`onItemCollaborators`) ni colapsado individual persistido — solo navegación simple vía `onSelect`. Cuando el sidebar está colapsado (`isCollapsed`), los grupos con `subItems` se muestran colapsados y sin chevron (igual que cualquier item simple, con tooltip); hay que expandir el sidebar para ver/navegar los subitems. `onSearch`/`filterMenuGroups` matchea por `label` del item padre o de cualquiera de sus `subItems`, pero si matchea, se muestra el item completo con **todos** sus subitems (no solo el que matcheó).
 
 ---
 
@@ -2611,6 +2871,64 @@ function PetsTable() {
 
 > **Confirmado:** `TableB` usa una forma de columna DISTINTA a `TableA`: `{ key, label, type, badgeType(row), actions }` en vez de `{ header, accessor, render }`.
 
+### Swich
+
+Componente interruptor (toggle switch) interactivo con animación de onda (ripple), tooltip de estado y opciones visuales para mostrar íconos en el thumb (redondito blanco) o etiquetas de texto en el espacio libre del track.
+
+**Import:**
+```jsx
+import Switch from 'screens/components/Swich'; // o import { Swich } from 'anteriority-ui'
+```
+
+**Uso básico:**
+```jsx
+const [enabled, setEnabled] = useState(false);
+
+<Switch value={enabled} onChange={setEnabled} />
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `value` | `boolean` | `false` | Estado actual del interruptor (`true` = activo / habilitado, `false` = inactivo). |
+| `onChange` | `function(boolean)` | — | Callback invocado al alternar el estado con el nuevo valor booleano. |
+| `disabled` | `boolean` | `false` | Deshabilita la interacción del switch. |
+| `activeColor` | `string` | `'#088d4f'` | Color de fondo del switch cuando está activo. |
+| `inactiveColor` | `string` | `'#919191'` | Color de fondo del switch cuando está inactivo. |
+| `thumbColor` | `string` | `'#ffffff'` | Color del círculo deslizante (thumb / redondito blanco). |
+| `variant` | `'default'` \| `'icons'` \| `'labels'` \| `'both'` | `'default'` | Variante visual: `'icons'` muestra check/X en el thumb; `'labels'` muestra SI/NO en la parte libre del track; `'both'` activa ambos. |
+| `showIcons` / `icons` | `boolean` | `false` | Muestra un ícono de check cuando está en `true` y una X cuando está en `false` dentro del círculo blanco (thumb). |
+| `showLabels` / `labels` | `boolean` | `false` | Muestra texto descriptivo en la parte que queda libre del track (por defecto "SI" cuando está activo y "NO" cuando está inactivo). |
+| `yesText` | `string` | `'SI'` | Texto para el estado activo cuando `showLabels` está habilitado. |
+| `noText` | `string` | `'NO'` | Texto para el estado inactivo cuando `showLabels` está habilitado. |
+| `iconActiveColor` | `string` | `activeColor` | Color del ícono de check dentro del thumb. |
+| `iconInactiveColor` | `string` | `inactiveColor` | Color del ícono de X dentro del thumb. |
+| `labelActiveColor` | `string` | `'#ffffff'` | Color del texto "SI" en el track. |
+| `labelInactiveColor` | `string` | `'#ffffff'` | Color del texto "NO" en el track. |
+| `showTooltip` | `boolean` | `true` | Habilita o deshabilita el tooltip flotante de estado. Pasar `false` para no mostrar tooltip. |
+| `tooltip` | `boolean` \| `string` \| `{ enabled?, disabled? }` | — | Configura el tooltip. Si es `false`, oculta el tooltip; si es un `string`, muestra ese texto fijo; si es un objeto, permite personalizar los textos según el estado. |
+| `className` | `string` | `''` | Clase CSS adicional en el elemento `<button>`. |
+| `style` | `object` | `{}` | Estilos inline adicionales. |
+
+**Ejemplos:**
+```jsx
+// Switch con Check / X en el redondito blanco (thumb)
+<Switch value={value} onChange={setValue} showIcons />
+
+// Switch con texto SI / NO en la parte que queda libre (track)
+<Switch value={value} onChange={setValue} showLabels />
+
+// Switch con ambos
+<Switch value={value} onChange={setValue} variant="both" />
+
+// Switch sin tooltip
+<Switch value={value} onChange={setValue} showTooltip={false} />
+
+// Switch con tooltip personalizado
+<Switch value={value} onChange={setValue} tooltip="Activar notificaciones" />
+```
+
 ---
 
 ### ToggleCard
@@ -2660,6 +2978,86 @@ import ToggleCard from 'screens/components/ToggleCard';
 ```
 
 **Notas:** Es usado internamente por `PasswordResetPanel` (variant `"floating"`) para mostrar avisos flotantes de estado.
+
+---
+
+### TopBar
+
+Barra superior de navegación de 3 secciones (izquierda / centro / derecha), estilo "top nav" de apps tipo GitHub: logo + breadcrumb a la izquierda, buscador centrado con atajo de teclado, y botones de acción (casi cuadrados, con borde fino y fondo gris claro) + separador vertical + usuario con menú desplegable a la derecha. Reutiliza `Breadcrumbs` para la navegación jerárquica y `Profile/Avatar` para el avatar de usuario.
+
+**Import:**
+```jsx
+import TopBar from '../TopBar/index'; // export default
+```
+
+**Uso básico:**
+```jsx
+<TopBar
+  logo={<Logo />}
+  breadcrumbItems={[{ label: 'Mi Empresa', onClick: goHome }, { label: 'Proyecto' }]}
+  searchProps={{ value, onChange: (e) => setValue(e.target.value) }}
+  actions={[{ icon: Bell, tooltip: 'Notificaciones', badge: 3, onClick: openNotifications }]}
+  user={{ name: 'Jane Doe', email: 'jane.doe@example.com' }}
+  userMenuItems={[{ label: 'Cerrar sesión', icon: LogOut, variant: 'danger', onClick: logout }]}
+/>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `logo` | node | — | Contenido del logo (ej. un `<svg>` o `<img>`), renderizado en un botón si se pasa `onLogoClick`. |
+| `onLogoClick` | `function()` | — | Si se define, el logo se vuelve clickeable. |
+| `breadcrumbItems` | array de `{ label, icon?, onClick? }` | — | Si se define y no está vacío, renderiza `Breadcrumbs` con estos items (mismo formato que el componente `Breadcrumbs`). Tiene prioridad sobre `title`. |
+| `title` | string | — | Título simple mostrado cuando no hay `breadcrumbItems`. |
+| `searchProps` | `{ value, onChange, placeholder?, shortcut?, onFocus?, onBlur? }` | — | Si se define, renderiza un input de búsqueda estilizado con ícono y badge de atajo de teclado a la derecha (ej. `/`). `shortcut: false` oculta el badge. Tiene prioridad sobre `centerContent`. |
+| `centerContent` | node | — | Contenido libre para la sección central (alternativa a `searchProps` para casos custom). |
+| `actions` | array de `{ key?, icon, tooltip?, badge?, onClick?, disabled? }` | `[]` | Botones de acción a la derecha (casi cuadrados — `border-radius: 6px`, no círculos). `icon` es un componente (ej. de `lucide-react`); `tooltip` envuelve el botón en `ModalTooltip`. `badge` es flexible: `true` muestra un punto de notificación; cualquier otro valor truthy (número o string, ej. `3`, `'Nuevo'`) se muestra como texto dentro de un pill superpuesto en la esquina; `undefined`/`false`/`null` no muestra nada. Pensado para números cortos (1-2 dígitos) o texto corto — un string largo se desborda del pill. |
+| `user` | `{ name?, email?, avatarUrl? }` | — | Si se define, muestra el avatar de usuario (`Profile/Avatar`) con menú desplegable al hacer click. |
+| `userMenuItems` | array de `{ id?, label, icon?, onClick?, variant? }` | `[]` | Items del menú de usuario (variant `'danger'` los resalta en rojo). |
+| `className` | string | `''` | Clase adicional en el `<header>` raíz. |
+| `showDivider` | boolean | `true` | Si es `true` y hay tanto `actions` (no vacío) como `user`, muestra una línea divisora vertical entre el grupo de acciones y el avatar. |
+| `bgColor` | string | — | Color de fondo de la barra (`--topbar-bg`). |
+| `textColor` | string | — | Color del texto/título y del crumb activo (`--topbar-text`, también se usa como `currentColor` de `Breadcrumbs` si no se pasa `breadcrumbCurrentColor`). |
+| `borderColor` | string | — | Color del borde inferior (`--topbar-border`). |
+| `iconColor` | string | — | Color de los íconos de acción y del buscador (`--topbar-icon`). |
+| `accentColor` | string | — | Color de foco del buscador; también default del fondo del badge si no se pasa `badgeBgColor` (`--topbar-accent`). |
+| `searchBgColor` | string | — | Color de fondo del input de búsqueda (`--topbar-search-bg`). Ajustar junto con `bgColor` en temas oscuros — sin esta prop, el buscador mantiene su fondo claro default. |
+| `actionBgColor` | string | — | Color de fondo de los botones de acción (`--topbar-action-bg`). |
+| `actionBorderColor` | string | — | Color de borde de los botones de acción (`--topbar-action-border`). Pasar `"transparent"` para quitar visualmente el borde (sigue ocupando 1px de layout). |
+| `dividerColor` | string | — | Color de la línea divisora entre acciones y usuario (`--topbar-divider`). |
+| `badgeBgColor` | string | — | Color de fondo del badge (punto o pill numérico) (`--topbar-badge-bg`). Si no se pasa, cae a `accentColor` y luego al rojo default. |
+| `badgeTextColor` | string | — | Color del texto dentro del badge numérico/texto (`--topbar-badge-text`). |
+| `breadcrumbLinkColor` | string | `'#64748b'` | Color de los crumbs clicables (pasa a `Breadcrumbs.linkColor`). El default de `Breadcrumbs` está pensado para fondo oscuro, por eso `TopBar` pisa este valor con uno legible en su tema claro default. |
+| `breadcrumbCurrentColor` | string | `'#0f172a'` | Color del crumb activo cuando no se pasa `textColor` (pasa a `Breadcrumbs.currentColor`). |
+| `loading` | boolean | `false` | Activa el estado de carga utilizando el componente `Skeleton` para logo, breadcrumbs/título, buscador y acciones, conservando la estructura y layout sin saltos visuales. |
+| `isLoading` | boolean | `false` | Alias de conveniencia para `loading`. |
+| `skeletonActionsCount` | number | `3` (o `actions.length`) | Cantidad de botones de acción a mostrar como skeleton durante el estado de carga. |
+
+
+**Ejemplos:**
+```jsx
+// Con título simple en vez de breadcrumb
+<TopBar logo={<Logo />} title="Panel de administración" actions={actions} user={user} />
+
+// Tema oscuro estilo GitHub, logrado solo con props de color
+<TopBar
+  logo={<Logo />}
+  breadcrumbItems={breadcrumbItems}
+  searchProps={searchProps}
+  actions={actions}
+  user={user}
+  bgColor="#0d1117"
+  textColor="#e6edf3"
+  borderColor="#30363d"
+  iconColor="#9198a1"
+  accentColor="#2f81f7"
+  searchBgColor="#161b22"
+  breadcrumbLinkColor="#9198a1"
+/>
+```
+
+**Notas:** El menú de usuario se renderiza vía `createPortal` a `document.body` (mismo patrón que el menú de usuario de `Sidebar`), posicionado contra el botón del avatar. `actions` son completamente genéricas — no asume ningún set fijo de íconos (notificaciones, mensajes, ayuda, etc. quedan a elección del consumidor).
 
 ---
 

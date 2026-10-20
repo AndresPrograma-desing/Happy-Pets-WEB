@@ -1,6 +1,8 @@
 export const TOKEN_KEY = 'token';
 export const LOGIN_DATA_KEY = 'auth_login_data';
 export const DOCTOR_ID_KEY = 'doctor_id';
+export const CLIENT_TOKEN_KEY = 'client_token';
+export const CLIENT_DATA_KEY = 'client_auth_data';
 
 export function getStorageValue(key) {
   const sessionValue = sessionStorage.getItem(key);
@@ -38,6 +40,33 @@ export function logout() {
   localStorage.removeItem(DOCTOR_ID_KEY);
   localStorage.removeItem('user_permissions');
   localStorage.removeItem('USE_DUMMY_DATA');
+}
+
+// Sesión del Portal de Clientes: aislada de la sesión de empleados (TOKEN_KEY/LOGIN_DATA_KEY)
+// para que un mismo navegador compartido (ej. recepción) no mezcle ambos tokens.
+export function getClientToken() {
+  return getStorageValue(CLIENT_TOKEN_KEY);
+}
+
+export function setClientSession(token, client) {
+  setStorageValue(CLIENT_TOKEN_KEY, token);
+  setStorageValue(CLIENT_DATA_KEY, JSON.stringify(client || {}));
+}
+
+export function getClientSessionData() {
+  try {
+    const raw = getStorageValue(CLIENT_DATA_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clientLogout() {
+  sessionStorage.removeItem(CLIENT_TOKEN_KEY);
+  sessionStorage.removeItem(CLIENT_DATA_KEY);
+  localStorage.removeItem(CLIENT_TOKEN_KEY);
+  localStorage.removeItem(CLIENT_DATA_KEY);
 }
 
 export function extractDoctorId(source) {

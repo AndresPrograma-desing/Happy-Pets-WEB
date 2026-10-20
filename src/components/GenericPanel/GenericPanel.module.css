@@ -1,69 +1,14 @@
+/* height: 100vh fijo (no min-height) — el Sidebar y el TopBar de anteriority-ui
+   quedan así siempre contenidos dentro del viewport sin necesitar position:
+   sticky propio; es el contenido (.contentArea) el único que scrollea,
+   igual patrón que AppLayout.jsx en SIGECOIM/KeepContext. Con min-height el
+   layout entero podía crecer más que el viewport y generar overflow. */
 .layoutContainer,
 .adminRoot {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
   background-color: var(--letter-white, #ffffff);
-}
-
-/* ProSidebar (anteriority-ui) ya se renderiza a 100vh de alto, pero su propio
-   CSS la deja en position: relative — sin esto, al crecer el contenido más
-   que el viewport, la página entera scrollea y el sidebar sube con el resto
-   en vez de quedarse fijo como el TopBar (que sí es sticky). */
-.sidebarSticky {
-  position: sticky;
-  top: 0;
-  align-self: flex-start;
-}
-
-/* Sidebar base */
-.sidebar {
-  height: 100vh;
-  max-height: 100vh;
-  background: var(--sidebar-bg);
-  backdrop-filter: var(--sidebar-blur);
-  -webkit-backdrop-filter: var(--sidebar-blur);
-  border-radius: 0;
-  border: none;
-  border-right: var(--sidebar-border-right);
-  color: var(--sidebar-text);
-  padding: 24px 16px;
-  width: 280px;
-  min-width: 280px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-sizing: border-box;
-  position: sticky;
-  top: 0;
-  transition: width 0.3s ease, min-width 0.3s ease, padding 0.3s ease;
-}
-
-/* Collapsed status */
-.sidebar.collapsed {
-  width: 68px;
-  min-width: 68px;
-  padding: 20px 8px;
-}
-
-.sidebar.collapsed .sidebarHeader {
-  justify-content: center;
-  padding: 0;
-}
-
-.sidebar.collapsed .navItem {
-  padding: 10px 0 !important;
-  justify-content: center !important;
-}
-
-/* Sidebar header */
-.sidebarHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 4px;
-  min-height: 40px;
-  gap: 8px;
 }
 
 .brandText {
@@ -77,133 +22,13 @@
   letter-spacing: 0.05em;
 }
 
-/* Collapsible toggle button */
-.toggleBtn {
-  flex-shrink: 0;
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 0 !important;
-  padding: 0 !important;
-  background-color: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #475569 !important;
-  border-radius: 50% !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.toggleBtn:hover {
-  background-color: #0d52f8 !important;
-  color: #ffffff !important;
-  border-color: #0d52f8 !important;
-}
-
-/* Search wrapper */
-.searchWrapper {
-  margin-top: 4px;
-  padding: 0 4px;
-}
-
-/* Sidebar nav */
-.sidebarNav {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-}
-
-.sidebarNav::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-.sidebarNav::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Nav Item buttons */
-.navItem {
-  width: 100% !important;
-  justify-content: flex-start !important;
-  align-items: center !important;
-  text-align: left !important;
-  padding: 10px 12px !important;
-  border-radius: 8px !important;
-  border: none !important;
-  box-shadow: none !important;
-  color: var(--sidebar-text-muted) !important;
-  background-color: transparent !important;
-  text-transform: none !important;
-  display: flex !important;
-  gap: 12px;
-  transition: background-color 0.2s, color 0.2s !important;
-}
-
-.navItem:hover {
-  background-color: var(--sidebar-hover-bg) !important;
-  color: var(--sidebar-text-active) !important;
-}
-
-.navItem:hover .icon {
-  color: var(--sidebar-text-active) !important;
-}
-
-/* Icon */
-.icon {
-  width: 20px !important;
-  height: 20px !important;
-  color: var(--sidebar-text-muted);
-  flex-shrink: 0;
-}
-
-/* Active Nav Item */
-.activeNavItem {
-  background-color: var(--sidebar-hover-bg) !important;
-  color: var(--sidebar-text-active) !important;
-  font-weight: 600 !important;
-}
-
-.activeNavItem .icon {
-  color: var(--sidebar-text-active) !important;
-}
-
-/* Footer and LogOut */
-.sidebarFooter {
-  padding: 14px 4px;
-  border-top: 1px solid var(--sidebar-border);
-}
-
-.logoutBtn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 8px 12px;
-  background: transparent;
-  border: none;
-  color: #f87171;
-  cursor: pointer;
-  border-radius: 8px;
-}
-
-.logoutBtn:hover {
-  background: rgba(239, 68, 68, 0.08);
-}
-
 .mainWrapper,
 .contentWrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  max-width: 100%;
 }
 
 .contentArea,
@@ -211,7 +36,24 @@
   flex: 1;
   padding: 24px 28px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* El Container (anteriority-ui) es width:100% + max-width:1300px sin margin
+   propio. align-items:center en .contentArea lo encogería a su contenido
+   (gotcha de flexbox: stretch es el default en el eje cruzado, pero "center"
+   lo rompe) causando que el grid interno de cards desborde; centramos con
+   margin auto en su lugar, que no tiene ese efecto.
+   flex-shrink:0 es necesario porque .contentArea es flex-column con
+   overflow-y:auto dentro de un árbol de altura fija (100vh): sin esto, el
+   motor de flexbox encoge el Container a la altura visible en vez de dejarlo
+   crecer con su contenido real, y su propio contenido (ej. varias cards de
+   notificaciones) termina desbordando la caja ya encogida, superponiéndose
+   con el Footer en vez de empujarlo hacia abajo con scroll. */
+.contentArea > :first-child {
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 .mainTitle,
@@ -231,10 +73,6 @@
 
 .extraContent {
   margin-top: 12px;
-}
-
-.mainWrapper footer {
-  margin-top: auto;
 }
 
 .globalLoaderOverlay {
@@ -295,10 +133,6 @@
 }
 
 @media (max-width: 768px) {
-  .brandText {
-    font-size: 1rem;
-  }
-
   .contentArea,
   .contentContainer {
     padding: 1.5rem 1rem;

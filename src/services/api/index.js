@@ -458,6 +458,12 @@ export async function getNotifications(userId) {
 export async function markNotificationAsRead(notificationId) {
   return request(`/Notification/${encodeURIComponent(String(notificationId || ''))}/mark-as-read`, { method: 'POST' });
 }
+export async function respondToCitaRequest(alertId, aceptar, mensaje) {
+  return request(`/Notification/${encodeURIComponent(String(alertId || ''))}/respond-cita-request`, {
+    method: 'POST',
+    body: { aceptar, mensaje }
+  });
+}
 export async function wsmessageAPI() {
   return request(`/WSMessage/session/status`, { method: 'GET' });
 }
@@ -541,6 +547,10 @@ export async function updateConsultaReceta(id, payload) {
   return request(`/Consultas/${id}/receta`, { method: 'PATCH', body: payload });
 }
 
+export async function generateConsultaPdf(id) {
+  return request(`/Consultas/${id}/pdf`, { method: 'POST' });
+}
+
 export async function updateUserName(payload) {
   return request('/Users/update-user-name', { method: 'PATCH', body: payload });
 }
@@ -604,13 +614,6 @@ export async function getLogs(pageNumber = 1, pageSize = 10) {
   return request(`/Logs/get-logs?pageNumber=${pageNumber}&pageSize=${pageSize}`, { method: 'GET' });
 }
 
-export async function getClientPortalData(identifier) {
-  return request(`/Clients/validate?identifier=${encodeURIComponent(identifier)}`, {
-    method: 'GET',
-    auth: false
-  });
-}
-
 export async function getClientById(id) {
   return request(`/Clients/${encodeURIComponent(id)}`, {
     method: 'GET',
@@ -618,17 +621,98 @@ export async function getClientById(id) {
   });
 }
 
-export async function getClientMascotas(clienteId) {
-  return request(`/Clients/${encodeURIComponent(clienteId)}/mascotas`, {
-    method: 'GET',
+// Portal de Clientes: login passwordless por código de un solo uso enviado al correo
+// (el cliente nunca crea ni recuerda una contraseña). Sesión propia (token 'client',
+// ver services/api/storage.js), independiente del login de empleados.
+// Ver Controller/Clients/ClientAuthController.cs.
+export async function requestClientLoginCode(identifier) {
+  return request('/ClientAuth/request-code', {
+    method: 'POST',
+    body: { identifier },
     auth: false
   });
 }
 
-export async function getCitasByCliente(clienteId) {
-  return request(`/Citas/portal/cliente/${encodeURIComponent(clienteId)}`, {
-    method: 'GET',
+export async function verifyClientLoginCode(code) {
+  return request('/ClientAuth/verify-code', {
+    method: 'POST',
+    body: { code },
     auth: false
+  });
+}
+
+export async function getClientMe() {
+  return request('/ClientAuth/me', { method: 'GET', auth: 'client' });
+}
+
+export async function getClientMeMascotas() {
+  return request('/ClientAuth/me/mascotas', { method: 'GET', auth: 'client' });
+}
+
+export async function getClientMeCitas() {
+  return request('/ClientAuth/me/citas', { method: 'GET', auth: 'client' });
+}
+
+export async function getClientMeHistorial(mascotaId) {
+  return request(`/ClientAuth/me/mascotas/${encodeURIComponent(mascotaId)}/historial`, { method: 'GET', auth: 'client' });
+}
+
+export async function uploadMyClientImage(file) {
+  const body = new FormData();
+  body.append('image', file);
+  return request('/ClientAuth/me/image', { method: 'POST', body, auth: 'client' });
+}
+
+export async function uploadMyPetImage(petId, file) {
+  const body = new FormData();
+  body.append('image', file);
+  return request(`/ClientAuth/me/mascotas/${encodeURIComponent(petId)}/image`, { method: 'POST', body, auth: 'client' });
+}
+
+// Portal de Clientes: acciones de autoservicio (cancelar cita, solicitar cita nueva,
+// solicitar renovación de receta). Ver Controller/Clients/ClientRequestsController.cs.
+export async function cancelClientCita(citaId, motivo) {
+  return request(`/ClientRequests/citas/${encodeURIComponent(citaId)}/cancel`, {
+    method: 'POST',
+    body: { motivo },
+    auth: 'client'
+  });
+}
+
+export async function confirmClientCita(citaId, mensaje) {
+  return request(`/ClientRequests/citas/${encodeURIComponent(citaId)}/confirm`, {
+    method: 'POST',
+    body: { mensaje },
+    auth: 'client'
+  });
+}
+
+export async function getClientMeNotifications() {
+  return request('/ClientAuth/me/notifications', { method: 'GET', auth: 'client' });
+}
+
+export async function markClientNotificationAsRead(alertId) {
+  return request(`/ClientAuth/me/notifications/${encodeURIComponent(alertId)}/read`, { method: 'POST', auth: 'client' });
+}
+
+export async function requestClientCita({ mascotaId, motivo, fechaPreferida, horaPreferida }) {
+  return request('/ClientRequests/citas', {
+    method: 'POST',
+    body: {
+      mascota_id: mascotaId,
+      motivo,
+      fecha_preferida: fechaPreferida || null,
+      hora_preferida: horaPreferida || null
+    },
+    auth: 'client'
+  });
+}
+
+export async function requestClientRecetaRenewal(consultaId, nota) {
+  return request(`/ClientRequests/recetas/${encodeURIComponent(consultaId)}/renovar`, {
+    method: 'POST',
+    body: { nota },
+    auth: 'client'
   });
 }
 
@@ -772,14 +856,26 @@ export default {
   getIaConocimiento,
   saveIaConocimiento,
   updateConsultaReceta,
+  generateConsultaPdf,
   getCalendar,
   checkDoctorAvailability,
   getLogs,
   getRoles,
-  getClientPortalData,
   getClientById,
-  getClientMascotas,
-  getCitasByCliente,
+  requestClientLoginCode,
+  verifyClientLoginCode,
+  getClientMe,
+  getClientMeMascotas,
+  getClientMeCitas,
+  getClientMeHistorial,
+  uploadMyClientImage,
+  uploadMyPetImage,
+  cancelClientCita,
+  confirmClientCita,
+  getClientMeNotifications,
+  markClientNotificationAsRead,
+  requestClientCita,
+  requestClientRecetaRenewal,
   getVaccineSpecies,
   getVaccines,
   createVaccine,
