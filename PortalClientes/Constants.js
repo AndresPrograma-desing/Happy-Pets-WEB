@@ -45,5 +45,23 @@ export const TEXT_PORTAL = {
     },
     security: {
         errorMessage: "El propietario no fue encontrado o la mascota no está asociada a esta cuenta. Intenta de nuevo."
+    },
+    login: {
+        requestTitle: "Acceder al Portal",
+        identifierLabel: "Cédula o Email",
+        identifierPlaceholder: "Ingresa tu cédula o email",
+        requestAccessButton: "Enviar código de acceso",
+        requestingAccess: "Enviando código...",
+        requestAccessHelp: "No necesitas contraseña: te enviaremos un código de 6 dígitos a tu correo registrado, válido por un tiempo limitado.",
+        codeSentMessage: "Código enviado. Revisa tu correo e ingrésalo a continuación.",
+        verifyTitle: "Ingresa tu código",
+        codeLabel: "Código de verificación",
+        codePlaceholder: "123456",
+        verifyButton: "Ingresar",
+        verifying: "Verificando...",
+        changeIdentifier: "Usar otra cédula o email",
+        invalidCodeError: "Código inválido o expirado. Solicita uno nuevo.",
+        genericError: "Ocurrió un error. Intenta de nuevo.",
+        logoutButton: "Cerrar sesión"
     }
 };

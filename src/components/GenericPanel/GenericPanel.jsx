@@ -10,19 +10,16 @@ import AlertModal from '../AlertModal/AlertModal';
 import Footer from '../Footer/Footer';
 import { Link2, Users, BotIcon, Check, X, CircleUser, AlertCircle, LogOut, ShieldAlert } from 'lucide-react';
 import { logout, getUserNameFromLoginSession, getUserEmailFromLoginSession } from '../../services/api';
-import { getText } from '../../constants';
 import NotificationForm from '../NotificationForm/NotificationForm';
 import WhatsAppStatusModal from '../WSMessage/components/WhatsAppStatusModal';
 import DrawPanel from '../screens/components/DrawPanel';
-import { renderIcon } from '../hook/RenderIcon';
 import ToggleCard from '../screens/components/ToggleCard';
 import MenuPopover from '../screens/components/Material-UI/Components/MenuPopover';
 import Button from '../screens/components/Button';
 import ModalTooltip from '../ModalTooltip/ModalTooltip';
-// anteriority-ui@1.4.0 no soporta `subItems`/submenús en ProSidebar (ver AnteriorityUI.md),
-// así que para los grupos con subItems (Productos, Vacunas, etc.) se usa la versión local
-// que sí implementa el acordeón/popover de subitems.
-import { ProSidebar } from '../screens/components/Sidebar/Index';
+
+import { Sidebar as ProSidebar } from 'anteriority-ui';
+import { Badge } from 'anteriority-ui';
 
 import { GENERIC_PANEL_TEXT } from '../../constants/TEXT';
 import { getUserRole, getDisplayRoleName, getDefaultMenus, getUserPermissions, filterMenuByPermissions, resolveMenuFromCatalog } from './Routes';
@@ -84,6 +81,7 @@ function GenericPanel({
     return localStorage.getItem('user_avatar_url') || '';
   });
 
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showOverlay, setShowOverlay] = useState(!hasLoadedOnce);
   const [fadeOverlay, setFadeOverlay] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
@@ -316,7 +314,6 @@ function GenericPanel({
 
       <div className={styles.layoutContainer}>
         <ProSidebar
-          className={styles.sidebarSticky}
           groups={groups}
           activeId={activeId}
           onSelect={handleNavigate}
@@ -325,17 +322,19 @@ function GenericPanel({
           headerContent={<div className={styles.brandText}>{menuTitle}</div>}
           user={userObj}
           userMenuItems={userMenuItems}
-          useSubItemsPopover={false}
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
         <div className={styles.mainWrapper}>
-          
-          <TopBar 
+
+          <TopBar
             styles={styles}
             currentAvatar={currentAvatar}
             currentUserName={currentUserName}
             displayRoleName={getDisplayRoleName(actualRole)}
             onEditProfileClick={() => setShowEditProfileModal(true)}
+            onMenuClick={() => setIsMobileSidebarOpen(true)}
             role={role}
           />
 
@@ -381,9 +380,8 @@ function GenericPanel({
               </div>
               <div className={styles.extraContent}>{children}</div>
             </Container>
+            <Footer />
           </main>
-
-          <Footer />
         </div>
 
         <AlertModal
@@ -414,6 +412,8 @@ function GenericPanel({
             onLoading={setNotificationLoading}
             onFormChange={setNotificationFormData}
           />
+      
+
         </DrawPanel>
 
         <AlertModal

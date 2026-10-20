@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from '../../Index.module.css';
+// import styles from '../../Index.module.css';
 import DrawPanel from '../../../src/components/screens/components/DrawPanel';
 import ToggleCard from '../../../src/components/screens/components/ToggleCard/index';
 import Input from '../../../src/components/screens/components/Input/Index';
