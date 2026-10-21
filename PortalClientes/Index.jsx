@@ -26,7 +26,7 @@ import useImagePicker from '../src/hooks/useImagePicker';
 import ClientPanel from './Components/ClientsPanel/ClientPanel.jsx';
 import { getClientSessionData, clientLogout } from '../src/services/api/storage';
 import { isDummyModeActive } from '../config/config';
-import { calculateAge, formatDate, formatHour } from './utils';
+import { calculateAge, formatDate, formatHour, downloadClientMedicalHistoryPdf } from './utils';
 
 export default function PortalClientes() {
   const navigate = useNavigate();
@@ -43,6 +43,7 @@ export default function PortalClientes() {
   const [dataError, setDataError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
   const [notifications, setNotifications] = useState([]);
+  const [downloadingHistorialId, setDownloadingHistorialId] = useState(null);
 
   // Cancelar cita
   const [cancelTarget, setCancelTarget] = useState(null);
@@ -131,6 +132,18 @@ export default function PortalClientes() {
     setActiveTab('pets');
     setDataError('');
     navigate('/portal-cliente');
+  };
+
+  const handleDownloadHistorialPdf = async (mascotaId) => {
+    if (!mascotaId || downloadingHistorialId) return;
+    setDownloadingHistorialId(mascotaId);
+    try {
+      await downloadClientMedicalHistoryPdf(mascotaId);
+    } catch (err) {
+      setDataError(err?.message || 'No se pudo descargar el historial médico.');
+    } finally {
+      setDownloadingHistorialId(null);
+    }
   };
 
   // Única fuente de datos del portal: usa la sesión del cliente autenticado (token propio)
@@ -429,7 +442,22 @@ export default function PortalClientes() {
     { header: 'Nombre', render: (row) => <strong style={{ color: '#0f172a' }}>{row.nombre}</strong> },
     { header: 'Especie', accessor: 'especie' },
     { header: 'Raza', accessor: 'raza' },
-    { header: 'Edad', render: (row) => row.edad || calculateAge(row.fechaNacimiento) }
+    { header: 'Edad', render: (row) => row.edad || calculateAge(row.fechaNacimiento) },
+    {
+      header: 'Historial Médico',
+      render: (row) => (
+        <Button
+          variant={Button.VARIANTS.GHOST}
+          color={Button.COLORS.GREEN}
+          size={Button.SIZES.SMALL}
+          icon={FileText}
+          disabled={downloadingHistorialId === row.id}
+          onClick={() => handleDownloadHistorialPdf(row.id)}
+        >
+          {downloadingHistorialId === row.id ? 'Generando...' : 'Descargar Pdf'}
+        </Button>
+      )
+    }
   ];
 
   const columnsCitas = [

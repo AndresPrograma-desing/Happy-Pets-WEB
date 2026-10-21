@@ -657,6 +657,14 @@ export async function getClientMeHistorial(mascotaId) {
   return request(`/ClientAuth/me/mascotas/${encodeURIComponent(mascotaId)}/historial`, { method: 'GET', auth: 'client' });
 }
 
+export async function getClientMeHistorialPdf(mascotaId) {
+  return request(`/ClientAuth/me/mascotas/${encodeURIComponent(mascotaId)}/historial/pdf`, {
+    method: 'GET',
+    auth: 'client',
+    responseType: 'blob'
+  });
+}
+
 export async function uploadMyClientImage(file) {
   const body = new FormData();
   body.append('image', file);
@@ -868,6 +876,7 @@ export default {
   getClientMeMascotas,
   getClientMeCitas,
   getClientMeHistorial,
+  getClientMeHistorialPdf,
   uploadMyClientImage,
   uploadMyPetImage,
   cancelClientCita,

@@ -13,3 +13,10 @@ export async function getVaccinationCarnetPdf(mascotaId) {
     responseType: 'blob'
   });
 }
+
+export async function getMedicalHistoryPdf(mascotaId) {
+  return request(`/Pdf/mascota/${mascotaId}/historial`, {
+    method: 'GET',
+    responseType: 'blob'
+  });
+}
