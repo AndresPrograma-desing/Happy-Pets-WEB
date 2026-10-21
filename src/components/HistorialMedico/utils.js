@@ -1,4 +1,5 @@
 import React from 'react';
+import { getMedicalHistoryPdf } from '../../services/api/pdf';
 
 export const parseSuggestions = (suggestionsString) => {
   if (!suggestionsString) return [];
@@ -39,6 +40,21 @@ export const formatDateTime = (dateString) => {
   } catch (e) {
     return dateString;
   }
+};
+
+export const downloadMedicalHistoryPdf = async (mascotaId) => {
+  if (!mascotaId) return;
+  const res = await getMedicalHistoryPdf(mascotaId);
+  const { blob, filename } = res || {};
+  if (!blob) throw new Error('No se pudo obtener el historial médico.');
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename || `historial-medico-${mascotaId}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 };
 
 export const getConsultaColumns = () => [

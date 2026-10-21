@@ -1,3 +1,20 @@
+import { getClientMeHistorialPdf } from '../src/services/api';
+
+export async function downloadClientMedicalHistoryPdf(mascotaId) {
+  if (!mascotaId) return;
+  const res = await getClientMeHistorialPdf(mascotaId);
+  const { blob, filename } = res || {};
+  if (!blob) throw new Error('No se pudo obtener el historial médico.');
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename || `historial-medico-${mascotaId}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 export function calculateAge(birthDateString) {
   if (!birthDateString) return '—';
   try {

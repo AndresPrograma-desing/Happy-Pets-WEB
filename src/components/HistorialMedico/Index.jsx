@@ -31,7 +31,8 @@ import { TEXTS } from './Constants';
 import {
   parseSuggestions,
   formatWeight,
-  formatDateTime
+  formatDateTime,
+  downloadMedicalHistoryPdf
 } from './utils';
 
 function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
@@ -52,6 +53,19 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
   const [viewMode, setViewMode] = useState('info'); // 'info' or 'vacunas'
   const [isLoadingView, setIsLoadingView] = useState(false);
   const [isIaDrawerOpen, setIsIaDrawerOpen] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    if (!selectedPetId || downloadingPdf) return;
+    setDownloadingPdf(true);
+    try {
+      await downloadMedicalHistoryPdf(selectedPetId);
+    } catch (err) {
+      console.error('Error al descargar el historial médico en PDF:', err);
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
 
   const switchView = (mode) => {
     setIsLoadingView(true);
@@ -254,12 +268,13 @@ function HistorialMedico({ mascotaId: propMascotaId, isDrawer = false }) {
 
                     )}
                      <Button
-                        onClick={() => { console.log('click pdf'); }}
-                        variant="prymary"
+                        onClick={handleDownloadPdf}
+                        disabled={downloadingPdf}
+                        variant="primary"
                         color={Button.COLORS.GREEN}
                         icon={FileText}
                       >
-                    Descargar Pdf
+                    {downloadingPdf ? 'Generando Pdf...' : 'Descargar Pdf'}
                       </Button>
                   </div>
 
