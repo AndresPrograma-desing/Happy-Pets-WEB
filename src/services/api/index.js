@@ -563,7 +563,7 @@ export async function getMedicalHistory(id) {
 }
 
 export async function refrestMedicalHistory(id) {
-  return request(`/MedicalHistory/mascota/${encodeURIComponent(id)}/refrescar`, { method: 'POST' });
+  return request(`/MedicalHistory/mascota/${encodeURIComponent(id)}/history`, { method: 'POST' });
 }
 export async function grop(pregunta, historial = []) {
   return request('/NowGrod/consultar', { 

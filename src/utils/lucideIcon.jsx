@@ -12,7 +12,14 @@ export function resolveCatalogIcon(name) {
   if (!name || typeof name !== 'string') return null;
   const assetSrc = getIcon(name);
   if (assetSrc) {
-    const CustomAssetIcon = (props) => <img src={assetSrc} alt="" {...props} />;
+    // El Sidebar renderiza <Icon size={N} />: para un componente lucide, `size` se
+    // traduce a width/height en px. Un <img> no entiende la prop `size` (no es un
+    // atributo HTML válido ahí), así que sin este mapeo la imagen cae a su tamaño
+    // intrínseco del SVG en vez de a N px — de ahí los íconos custom más grandes
+    // que los de lucide-react en el mismo menú.
+    const CustomAssetIcon = ({ size, ...props }) => (
+      <img src={assetSrc} alt="" width={size} height={size} {...props} />
+    );
     return CustomAssetIcon;
   }
   return LucideIcons[name] || null;

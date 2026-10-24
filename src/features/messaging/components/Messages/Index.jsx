@@ -1,8 +1,7 @@
 import React from 'react';
-import ChatWindow from '../../../../components/screens/components/ChatWindow/Index';
+import { ChatWindow } from 'anteriority-ui';
 
 export default function MessageThread({
-  selectedUser,
   selectedContact,
   messages,
   currentUser,

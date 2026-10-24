@@ -55,7 +55,7 @@ function AppContent() {
   // Obtener el user_id usando la utilidad
   const userId = getUserId();
   
-  const isPublicRoute = ['/login', '/inicio', '/', '/espera', '/portal-cliente'].includes(location.pathname);
+  const isPublicRoute = ['/login', '/inicio', '/', '/espera', '/portal-cliente', '/portal-clientes'].includes(location.pathname);
 
   useEffect(() => {
     startTransition(() => setIsLoading(true));
@@ -111,6 +111,7 @@ function AppContent() {
           <Route path="/espera" element={<WaitingPage />} />
 
           <Route path="/portal-cliente" element={<PortalClientes />} />
+          <Route path="/portal-clientes" element={<PortalClientes />} />
 
           <Route path="/prueba" element={<VistaDesarrollo />} />
 
