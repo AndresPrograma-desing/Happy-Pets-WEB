@@ -44,7 +44,7 @@ export const getStatusBreakdown = (citasPorEstado) =>
 
 export const formatAlertDate = (isoDate) => {
   const date = new Date(isoDate);
-  return Number.isNaN(date.getTime()) ? '' : format(date, "dd MMM yyyy, HH:mm", { locale: es });
+  return Number.isNaN(date.getTime()) ? '' : format(date, "dd MMM yyyy, hh:mm a", { locale: es });
 };
 
 const toISODate = (date) => date.toISOString().slice(0, 10);

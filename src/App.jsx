@@ -33,6 +33,7 @@ import InDevelopment from "./components/InDevelopment/InDevelopment";
 import FacturasList from './components/FacturaDownloader/FacturaList/facturas';
 import Settings from './pages/AdminSystem/ConfigurationPanel/settings';
 import SystemLogs from './pages/AdminSystem/ConfigurationPanel/Components/Logs/Index';
+import WorkerProcessEvents from './pages/AdminSystem/ConfigurationPanel/Components/WorkerProcessEvents';
 import Users from "./components/Users/users";
 import StatusModal from "./components/common/statusWarning";
 import { getUserId } from "./context/LocalStorage";
@@ -99,6 +100,7 @@ function AppContent() {
             <Route path="/clientes" element={<ClientList />} />
             <Route path="/calendario" element={<Calendar />} />
             <Route path="/administracion/vacunas" element={<Vaccines />} />
+            <Route path="/administracion/eventos-workers" element={<WorkerProcessEvents />} />
           </Route>
 
           <Route path="/consultas/crear" element={<Consultas />} />

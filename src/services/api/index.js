@@ -614,6 +614,18 @@ export async function getLogs(pageNumber = 1, pageSize = 10) {
   return request(`/Logs/get-logs?pageNumber=${pageNumber}&pageSize=${pageSize}`, { method: 'GET' });
 }
 
+export async function getWorkerProcessEvents(filters = {}) {
+  const { pageNumber = 1, pageSize = 10, typeEvent, isResolved, fromDate, toDate } = filters;
+
+  const params = new URLSearchParams({ pageNumber, pageSize });
+  if (typeEvent) params.append('typeEvent', typeEvent);
+  if (isResolved !== undefined && isResolved !== null) params.append('isResolved', isResolved);
+  if (fromDate) params.append('fromDate', fromDate);
+  if (toDate) params.append('toDate', toDate);
+
+  return request(`/WorkerProcessEvents/get-events?${params.toString()}`, { method: 'GET' });
+}
+
 export async function getClientById(id) {
   return request(`/Clients/${encodeURIComponent(id)}`, {
     method: 'GET',
