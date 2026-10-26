@@ -194,7 +194,7 @@ export async function generateInvoiceDocx(invoice) {
                 para([run('Tel: (555) 123-4567 · hola@vetclinic.com', { size: SIZES.LABEL, color: COLORS.textLight })]),
               ], { width: 5500 }),
               cell([
-                para([run('FACTURA', { bold: true, size: 38, color: COLORS.bgWhite })], { alignment: AlignmentType.CENTER }),
+                para([run('RECIBO', { bold: true, size: 38, color: COLORS.bgWhite })], { alignment: AlignmentType.CENTER }),
                 para([run(invoice.numero_factura, { bold: true, size: 26, color: COLORS.bgWhite })], { alignment: AlignmentType.CENTER }),
                 para([run(`Fecha: ${formatDate(invoice.fecha_emision)}`, { size: 20, color: COLORS.bgWhite })], { alignment: AlignmentType.CENTER }),
               ], { width: 3860, bg: COLORS.primaryLight, borders: thinBorder(COLORS.primaryLight) }),
@@ -275,7 +275,7 @@ export async function generateInvoiceDocx(invoice) {
           run('Si tienes alguna duda o necesitas asistencia, contáctanos a hola@vetclinic.com o al (555) 123-4567', { size: SIZES.SMALL, color: COLORS.textLight }),
         ], { alignment: AlignmentType.CENTER }),
         para([
-          run('Este documento es una factura oficial válida para efectos fiscales.', { size: SIZES.SMALL, color: COLORS.textLight, italic: true }),
+          run('Este documento es un recibo oficial válido para efectos fiscales.', { size: SIZES.SMALL, color: COLORS.textLight, italic: true }),
         ], { alignment: AlignmentType.CENTER, spacing: { before: 100 } }),
       ]
     }]

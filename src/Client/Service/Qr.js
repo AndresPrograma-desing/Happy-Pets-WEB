@@ -11,5 +11,5 @@ export const generateQRUrl = (factura) => {
 };
 
 export const formatFileName = (factura) => {
-  return `QR_Factura_${factura.numero_factura}.png`;
+  return `QR_Recibo_${factura.numero_factura}.png`;
 };

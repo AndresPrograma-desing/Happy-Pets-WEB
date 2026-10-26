@@ -122,7 +122,7 @@ function PagoToggle({ metodo, estadoPago, facturaId, onPaymentUpdate }) {
       <button
         type="button"
         className={styles.squareBtn}
-        aria-label={isPagada ? 'Factura pagada' : TEXT_FACTURAS_LIST.tooltips.markPaid}
+        aria-label={isPagada ? 'Recibo pagado' : TEXT_FACTURAS_LIST.tooltips.markPaid}
         onClick={() => {
           if (!isPagada && !loading) {
             handleActualizarPago(facturaId, (newEstado) => {
@@ -134,7 +134,7 @@ function PagoToggle({ metodo, estadoPago, facturaId, onPaymentUpdate }) {
         disabled={isPagada || loading}
         style={{ padding: 0, background: 'none', border: 'none', cursor: isPagada || loading ? 'default' : 'pointer' }}
       >
-        <ModalTooltip text={isPagada ? 'Factura pagada' : TEXT_FACTURAS_LIST.tooltips.markPaid}>
+        <ModalTooltip text={isPagada ? 'Recibo pagado' : TEXT_FACTURAS_LIST.tooltips.markPaid}>
           <span style={{ display: 'inline-flex', alignItems: 'center' }}>
             {isPagada ? <CheckSquare size={18} color="#10b981" /> : <Square size={18} color="#4a5568" />}
           </span>

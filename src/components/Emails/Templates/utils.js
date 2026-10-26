@@ -11,6 +11,6 @@ export const sampleData = {
     system_name: "HappyPets",
     client_name: "Juan Pérez",
     pet_name: "Firulais",
-    factura_numero: "F-2026-001",
+    factura_numero: "R-2026-001",
     fecha_emision: new Date().toLocaleDateString('es-ES')
 };

@@ -19,7 +19,7 @@ export const PET_VACCINATION_TEXT = {
   postponeModalTitle: "Posponer Vacunación",
   postponeReasonLabel: "Motivo del aplazamiento",
   invoiceModalTitle: "Enviar a Recibos",
-  invoiceModalMessage: "¿Confirma enviar esta dosis aplicada a facturación?",
+  invoiceModalMessage: "¿Confirma enviar esta dosis aplicada a recibo?",
   noPetSelected: "Seleccione una mascota para ver su vacunación.",
   trafficLightLabels: {
     Red: "Vencida",
@@ -29,7 +29,7 @@ export const PET_VACCINATION_TEXT = {
   statusLabels: {
     Applied: "Aplicada",
     Postponed: "Pospuesta",
-    Invoiced: "Facturada",
+    Invoiced: "Recibo emitido",
     Pending: "Pendiente"
   },
   formVaccineLabel: "Vacuna",

@@ -4,8 +4,8 @@ import FacturaDownloader from '../../components/FacturaDownloader/FacturaDownloa
 export default function CreateFactura() {
   return (
     <div style={{ padding: 20 }}>
-      <h2>Crear Factura</h2>
-      <p>Ingresa el ID de la cita y descarga la factura en formato DOCX.</p>
+      <h2>Crear Recibo</h2>
+      <p>Ingresa el ID de la cita y descarga el recibo en formato DOCX.</p>
       <div style={{ marginTop: 12 }}>
         <FacturaDownloader />
       </div>

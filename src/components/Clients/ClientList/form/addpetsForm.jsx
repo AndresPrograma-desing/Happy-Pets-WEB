@@ -96,6 +96,7 @@ export default function AddPetsForm({ petForm, setPetForm, petError, petImage, s
                         value={petForm.fechaNacimiento}
                         onChange={(e) => handleFormChange(e, setPetForm)}
                         required
+                        maxDate={new Date()}
                     />
                 </div>
             </div>

@@ -68,7 +68,7 @@ export default function WhatsAppStatusModal() {
             <QrCode className={styles.qrHeaderIcon} />
             <div>
               <h3 className={styles.qrTitle}>Vincular WhatsApp</h3>
-              <p className={styles.qrSubtitle}>Escanea el código para activar los envios de facturas automatocas a WhatsApp</p>
+              <p className={styles.qrSubtitle}>Escanea el código para activar los envios de recibos automatocas a WhatsApp</p>
             </div>
           </div>
 

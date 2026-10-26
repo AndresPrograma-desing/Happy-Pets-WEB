@@ -156,12 +156,12 @@ export default function Recetas() {
     try {
       await api.updateConsultaReceta(selectedReceta.id, { receta: editRecetaText });
       
-      showAlert({ title: 'Éxito', message: 'Receta actualizada correctamente' });
+      showAlert({ title: 'Éxito', message: 'Recipe actualizada correctamente' });
       setEditPanelOpen(false);
       load({ force: true });
     } catch (err) {
       console.error('Error al actualizar receta:', err);
-      showAlert({ title: 'Error', message: 'No se pudo actualizar la receta.' });
+      showAlert({ title: 'Error', message: 'No se pudo actualizar la recipe.' });
     } finally {
       setSavingReceta(false);
     }
@@ -198,7 +198,7 @@ export default function Recetas() {
       )
     },
     {
-      header: 'Receta / Indicaciones',
+      header: 'Recipe / Indicaciones',
       accessor: 'receta',
       render: (row) => {
         const text = row.receta || '—';
@@ -252,7 +252,7 @@ export default function Recetas() {
               </ModalTooltip>
             )}
 
-            <ModalTooltip text="Editar receta">
+            <ModalTooltip text="Editar recipe">
               <Button
                 type="button"
                 onClick={() => handleEditClick(row)}
@@ -343,7 +343,7 @@ export default function Recetas() {
         <DrawPanel 
           isOpen={editPanelOpen} 
           onClose={() => setEditPanelOpen(false)} 
-          title="Editar Receta"
+          title="Editar Recipe"
         >
           <div className={styles.editPanelContent}>
             {selectedReceta && (
@@ -354,11 +354,11 @@ export default function Recetas() {
             )}
             <div className={styles.editFormGroup}>
               <MultilinePlaceholder
-                label="Receta / Indicaciones"
+                label="Recipe / Indicaciones"
                 value={editRecetaText}
                 onChange={(e) => setEditRecetaText(e.target.value)}
                 rows={10}
-                placeholder="Escribe la receta o indicaciones médicas"
+                placeholder="Escribe la recipe o indicaciones médicas"
               />
             </div>
             

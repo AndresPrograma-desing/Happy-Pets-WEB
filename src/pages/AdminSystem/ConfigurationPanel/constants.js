@@ -16,8 +16,8 @@ export const WORKER_TASK_INFO = {
     description: "Elimina automáticamente los reportes antiguos ya vencidos para liberar espacio.",
   },
   DeleteFacturaWorker: {
-    name: "Eliminación de Facturas",
-    description: "Elimina automáticamente los archivos de facturas antiguas ya vencidas.",
+    name: "Eliminación de Recibos",
+    description: "Elimina automáticamente los archivos de recibos antiguos ya vencidos.",
   },
   DeleteConsultaPdfWorker: {
     name: "Eliminación de PDFs de Consultas",

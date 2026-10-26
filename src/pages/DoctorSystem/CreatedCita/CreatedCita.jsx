@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import AlertModal from '../../../components/AlertModal/AlertModal';
-import { createCita, searchClients, getUsers, getSecretarias, checkDoctorAvailability } from '../../../services/api';
+import { createCita, searchClients, getUsers, getSecretarias, checkDoctorAvailability, getServices } from '../../../services/api';
 import styles from './CreatedCita.module.css';
 import { Calendar, ArrowLeft, Check, AlertTriangle } from 'lucide-react';
 import SelectModal from '../../../components/ClientSelect/SelectModal';
@@ -15,7 +15,6 @@ import MultilinePlaceholder from '../../../components/screens/components/Materia
 import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
 import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
 import Button from '../../../components/screens/components/Button';
-import useCitaTypes from '../../../hooks/GetTypesCitas';
 import Barnner from '../../../components/screens/components/Barnner';
 
 export default function CreatedCita() {
@@ -28,13 +27,13 @@ export default function CreatedCita() {
     const activeRole = roleFromState || roleFromQuery || 'doctor';
     const isSecretariaFlow = activeRole.includes('secret');
 
-    const { types: citaTypes } = useCitaTypes();
-
     const [showSelectModal, setShowSelectModal] = useState(false);
     const [clientes, setClientes] = useState([]);
     const [doctores, setDoctores] = useState([]);
     const [query, setQuery] = useState('');
     const [selectedCliente, setSelectedCliente] = useState(null);
+    const [services, setServices] = useState([]);
+    const [loadingServices, setLoadingServices] = useState(false);
 
     const [form, setForm] = useState({
         mascota_id: '',
@@ -43,12 +42,26 @@ export default function CreatedCita() {
         fecha_cita: location.state?.fecha_cita || '',
         hora_cita: location.state?.hora_cita || '',
         motivo: '',
-        tipo_cita: 'consulta',
+        servicio_id: '',
         estado: 'programada',
         notas: '',
         metodo_pago: 'efectivo',
         autoagendar: false,
     });
+
+    useEffect(() => {
+        let active = true;
+        setLoadingServices(true);
+        getServices({ active: true, pageSize: 100 })
+            .then((res) => {
+                if (!active) return;
+                const list = Array.isArray(res) ? res : (res?.items || []);
+                setServices(list);
+            })
+            .catch((err) => console.error('Error cargando servicios:', err))
+            .finally(() => { if (active) setLoadingServices(false); });
+        return () => { active = false; };
+    }, []);
 
     // Cargar doctor_id de la sesión si es rol doctor y no viene de location.state
     useEffect(() => {
@@ -290,6 +303,11 @@ export default function CreatedCita() {
                 setShowErrorModal(true);
                 return;
             }
+            if (!form.servicio_id) {
+                setError('Selecciona el servicio de la cita.');
+                setShowErrorModal(true);
+                return;
+            }
 
             const payload = {
                 mascota_id: Number(form.mascota_id),
@@ -298,7 +316,7 @@ export default function CreatedCita() {
                 fecha_cita: form.fecha_cita,
                 hora_cita: String(form.hora_cita || '').trim(),
                 motivo: String(form.motivo || '').trim(),
-                tipo_cita: form.tipo_cita,
+                servicio_id: form.servicio_id ? Number(form.servicio_id) : null,
                 estado: 'programada',
                 notas: form.notas,
                 metodo_pago: String(form.metodo_pago || 'efectivo'),
@@ -390,6 +408,7 @@ export default function CreatedCita() {
                                 value={form.fecha_cita}
                                 onChange={handleChange}
                                 required
+                                minDate={new Date()}
                             />
                         </div>
                         <div className={styles.group}>
@@ -406,10 +425,15 @@ export default function CreatedCita() {
                     <div className={styles.row}>
                         <div className={styles.group}>
                             <Selector
-                                label="Tipo de Cita"
-                                options={citaTypes}
-                                value={form.tipo_cita}
-                                onChange={(e) => setForm(prev => ({ ...prev, tipo_cita: e.target.value }))}
+                                label="Servicio"
+                                options={services.map((s) => ({
+                                    value: String(s.id),
+                                    label: s.nombre + (s.precio ? ` — USD ${Number(s.precio).toFixed(2)}` : '')
+                                }))}
+                                value={form.servicio_id}
+                                loading={loadingServices}
+                                placeholder="Selecciona un servicio"
+                                onChange={(e) => setForm(prev => ({ ...prev, servicio_id: e.target.value }))}
                                 required
                             />
                         </div>

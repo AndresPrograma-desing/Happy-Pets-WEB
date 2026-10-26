@@ -10,12 +10,20 @@ import Selector from '../Material-UI/Components/Selector/Index';
 import { MONTHS, WEEKDAYS, BUTTONS } from './Constants';
 import { parseValueToDate, getDaysForMonth } from './utils';
 
-const CalendarPicker = ({ label, name, value, onChange, required = false, disabled = false }) => {
+const CalendarPicker = ({ label, name, value, onChange, required = false, disabled = false, minDate = null, maxDate = null }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isOpen, setIsOpen] = useState(false);
   const [showSelectors, setShowSelectors] = useState(false);
 
   let selectedDate = parseValueToDate(value);
+  const minBoundary = parseValueToDate(minDate);
+  const maxBoundary = parseValueToDate(maxDate);
+
+  const isDayDisabled = (day) => {
+    if (minBoundary && day < minBoundary) return true;
+    if (maxBoundary && day > maxBoundary) return true;
+    return false;
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -38,6 +46,8 @@ const CalendarPicker = ({ label, name, value, onChange, required = false, disabl
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
 
   const handleDateClick = (day) => {
+    if (isDayDisabled(day)) return;
+
     const yyyy = day.getFullYear();
     const mm = String(day.getMonth() + 1).padStart(2, '0');
     const dd = String(day.getDate()).padStart(2, '0');
@@ -58,6 +68,7 @@ const CalendarPicker = ({ label, name, value, onChange, required = false, disabl
 
   const handleSetToday = () => {
     const today = new Date();
+    if (isDayDisabled(today)) return;
     setCurrentDate(today);
     handleDateClick(today);
   };
@@ -207,17 +218,19 @@ const CalendarPicker = ({ label, name, value, onChange, required = false, disabl
                   const isCurrentMonth = isSameMonth(day, monthStart);
                   const isSelected = selectedDate && isSameDay(day, selectedDate);
                   const isToday = isSameDay(day, new Date());
+                  const isDisabled = isDayDisabled(day);
 
                   let dayClassName = styles.dayCell;
                   if (!isCurrentMonth) dayClassName += ` ${styles.otherMonth}`;
                   if (isSelected) dayClassName += ` ${styles.selectedDay}`;
                   if (isToday && !isSelected) dayClassName += ` ${styles.todayDay}`;
+                  if (isDisabled) dayClassName += ` ${styles.disabledDay}`;
 
                   return (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className={dayClassName}
-                      onClick={() => isCurrentMonth && handleDateClick(day)}
+                      onClick={() => isCurrentMonth && !isDisabled && handleDateClick(day)}
                     >
                       {format(day, 'd')}
                     </div>

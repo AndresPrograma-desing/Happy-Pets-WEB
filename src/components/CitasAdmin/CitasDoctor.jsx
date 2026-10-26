@@ -17,9 +17,8 @@ import TextField from '../screens/components/Material-UI/Components/TextField/In
 import CalendarPicker from '../screens/components/CalendarPicker/Index.jsx';
 import HoursPicker from '../screens/components/HoursPicker/Index.jsx';
 import Button from '../screens/components/Button/index.jsx';
-import { getCitasDetalle, updateCita, getMascotasByUserName } from '../../services/api';
+import { getCitasDetalle, updateCita, getMascotasByUserName, getServices } from '../../services/api';
 import useCitaStatuses from '../../hooks/GetCitasStatuses.js';
-import useCitaTypes from '../../hooks/GetTypesCitas.js';
 import ErrorMessage from '../Notification/Error/ErrorMessage.jsx';
 
 const getTodayYYYYMMDD = () => {
@@ -39,8 +38,20 @@ function CitasLayout(props) {
     const [citasDelDia, setCitasDelDia] = useState(false);
     const [estadoCita, setEstadoCita] = useState('');
     const { statuses: rawStatuses } = useCitaStatuses();
-    const { types: rawCitaTypes } = useCitaTypes();
-    
+
+    const [services, setServices] = useState([]);
+    useEffect(() => {
+        let active = true;
+        getServices({ active: true, pageSize: 100 })
+            .then((res) => {
+                if (!active) return;
+                const list = Array.isArray(res) ? res : (res?.items || []);
+                setServices(list);
+            })
+            .catch((err) => console.error('Error cargando servicios:', err));
+        return () => { active = false; };
+    }, []);
+
     const [citasList, setCitasList] = useState([]);
     const [isFetchingCitas, setIsFetchingCitas] = useState(false);
 
@@ -102,7 +113,7 @@ function CitasLayout(props) {
         fecha_cita: '',
         hora_cita: '',
         motivo: '',
-        tipo_cita: '',
+        servicio_id: '',
         estado: '',
         notas: '',
         cliente_nombre: ''
@@ -189,17 +200,6 @@ function CitasLayout(props) {
         setHistoryDrawerOpen(true);
     };
 
-    const normalizeTipoCita = (str) => {
-        if (!str) return 'consulta';
-        const s = String(str).toLowerCase().trim();
-        if (s.includes('consulta')) return 'consulta';
-        if (s.includes('vacuna')) return 'vacunacion';
-        if (s.includes('cirug')) return 'cirugia';
-        if (s.includes('emerg')) return 'emergencia';
-        if (s.includes('segui')) return 'seguimiento';
-        return s;
-    };
-
     const handleOpenEdit = (cita) => {
         setSelectedCitaForEdit(cita);
         setEditNotification({ message: '', title: '', variant: 'danger' });
@@ -226,7 +226,7 @@ function CitasLayout(props) {
             fecha_cita: cita?.fecha_cita ? cita.fecha_cita.split('T')[0] : (cita?.fecha ? cita.fecha.split('T')[0] : ''),
             hora_cita: cita?.hora_cita || cita?.hora || '',
             motivo: cita?.motivo || '',
-            tipo_cita: normalizeTipoCita(cita?.tipo_cita || cita?.tipo),
+            servicio_id: cita?.servicio_id ? String(cita.servicio_id) : '',
             estado: cita?.estado || cita?.status || '',
             notas: cita?.notas || cita?.nota || '',
             cliente_nombre: clientName
@@ -310,7 +310,7 @@ const formatFechaToISO = (str) => {
             fecha_cita: formatFechaToISO(editFormValues.fecha_cita),
             hora_cita: cleanHora || undefined,
             motivo: editFormValues.motivo,
-            tipo_cita: normalizeTipoCita(editFormValues.tipo_cita),
+            servicio_id: editFormValues.servicio_id ? Number(editFormValues.servicio_id) : null,
             estado: editFormValues.estado,
             notas: editFormValues.notas
         };
@@ -499,6 +499,7 @@ const formatFechaToISO = (str) => {
                         value={editFormValues.fecha_cita}
                         onChange={(e) => setEditFormValues(prev => ({ ...prev, fecha_cita: e.target.value }))}
                         required
+                        minDate={todayISO}
                     />
 
                     <HoursPicker
@@ -516,10 +517,14 @@ const formatFechaToISO = (str) => {
                     />
 
                     <Selector
-                        label="Tipo de Cita"
-                        options={rawCitaTypes}
-                        value={editFormValues.tipo_cita}
-                        onChange={(e) => setEditFormValues(prev => ({ ...prev, tipo_cita: e.target.value }))}
+                        label="Servicio"
+                        options={services.map((s) => ({
+                            value: String(s.id),
+                            label: s.nombre + (s.precio ? ` — USD ${Number(s.precio).toFixed(2)}` : '')
+                        }))}
+                        value={editFormValues.servicio_id}
+                        placeholder="Selecciona un servicio"
+                        onChange={(e) => setEditFormValues(prev => ({ ...prev, servicio_id: e.target.value }))}
                     />
 
                     <Selector

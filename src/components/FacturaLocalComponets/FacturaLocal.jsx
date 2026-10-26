@@ -37,7 +37,7 @@ const VistaFactura = ({ idCita }) => {
           <p>Cuidado profesional para tu mascota</p>
         </div>
         <div className="info-seccion">
-          <h2>FACTURA</h2>
+          <h2>RECIBO</h2>
           <p><strong>N°:</strong> {factura.numero_factura}</p>
           <p><strong>Fecha:</strong> {new Date(factura.fecha_emision).toLocaleDateString()}</p>
         </div>
