@@ -450,7 +450,7 @@ const formatFechaToISO = (str) => {
                 isOpen={editDrawerOpen} 
                 onClose={() => setEditDrawerOpen(false)} 
                 title="Editar Cita"
-                width="600px"
+                width="1000px"
                 showActions={true}
                 onConfirm={handleUpdateSubmit}
                 confirmText="Guardar Cambios"

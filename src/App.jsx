@@ -46,6 +46,9 @@ import PortalClientes from '../PortalClientes/Index';
 import HistorialMedico from './components/HistorialMedico/Index';
 import PanelLayout from './components/GenericPanel/PanelLayout';
 import Vaccines from './components/Vacccines/Vaccines';
+import Services from './components/Services/Index';
+import Inventory from './pages/AdminSystem/ConfigurationPanel/Components/Inventory';
+import PriceHistory from './pages/AdminSystem/ConfigurationPanel/Components/PriceHistory';
 
 
 
@@ -101,12 +104,15 @@ function AppContent() {
             <Route path="/calendario" element={<Calendar />} />
             <Route path="/administracion/vacunas" element={<Vaccines />} />
             <Route path="/administracion/eventos-workers" element={<WorkerProcessEvents />} />
+            <Route path="/administracion/registros" element={<SystemLogs />} />
+            <Route path="/administracion/servicios" element={<Services />} />
+            <Route path="/administracion/inventario" element={<Inventory />} />
+            <Route path="/administracion/historial-precios" element={<PriceHistory />} />
           </Route>
 
           <Route path="/consultas/crear" element={<Consultas />} />
           <Route path="/facturas/crear" element={<CreateFactura />} />
           <Route path="/factura-local" element={<FacturaLocal />} />
-          <Route path="/administracion/registros" element={<SystemLogs />} />
 
           <Route path="/salud" element={<Health />} />
 

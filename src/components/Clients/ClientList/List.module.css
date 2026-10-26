@@ -33,6 +33,53 @@
   opacity: 0.9;
 }
 
+.accountSummary {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.accountSummaryCard {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.accountSummaryLabel {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.accountSummaryValue {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-top: 0.25rem;
+}
+
+.accountSectionTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.accountInvoiceRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.accountEmpty {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
 .spinning {
   animation: spin 1s linear infinite;
 }

@@ -1,12 +1,4 @@
 /**
- * Verifica si la clave ingresada coincide con la clave dummy esperada.
- */
-export function verifyPassword(input, expected) {
-  if (!input || !expected) return false;
-  return input.trim() === expected.trim();
-}
-
-/**
  * Formatea una cadena de fecha ISO a un formato local legible.
  */
 export function formatDate(dateString) {
@@ -57,4 +49,23 @@ export function getLogsActionColor(action) {
   if (act.includes("ELIMINAR") || act.includes("DELETE") || act.includes("REMOVE")) return "red";
   if (act.includes("LOGIN") || act.includes("AUTH")) return "purple";
   return "blue";
+}
+
+/**
+ * Convierte el color interno de la acción a la variante del Barnner de anteriority-ui.
+ */
+export function getLogsActionBadgeVariant(action) {
+  const color = getLogsActionColor(action);
+  switch (color) {
+    case "green":
+      return "success";
+    case "red":
+      return "danger";
+    case "blue":
+      return "default";
+    case "purple":
+      return "warning";
+    default:
+      return "default";
+  }
 }

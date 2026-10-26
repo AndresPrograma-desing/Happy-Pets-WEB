@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { getClients, createPetForExistingClient, uploadPetImage, uploadClientImage, deleteClient, updateClient, updatePet, deletePet } from '../../../services/api';
+import { getClients, createPetForExistingClient, uploadPetImage, uploadClientImage, deleteClient, updateClient, updatePet, deletePet, getClientAccount } from '../../../services/api';
+import { getUserPermissions } from '../../GenericPanel/Routes';
 import { ProfileAvatar } from 'anteriority-ui';
 import useImagePicker from '../../../hooks/useImagePicker';
 import SearchInput from '../../UI/Search/Search';
@@ -22,14 +23,15 @@ import {
   MapPin, 
   IdCard, 
   FileText, 
-  PawPrint, 
-  Calendar, 
-  Activity, 
+  PawPrint,
+  Calendar,
+  Activity,
   RefreshCw,
   Plus,
   Trash2,
   Settings,
-  Pencil
+  Pencil,
+  Wallet
 } from 'lucide-react';
 
 export default function ClientList() {
@@ -81,6 +83,13 @@ export default function ClientList() {
   const [showDeletePetModal, setShowDeletePetModal] = useState(false);
   const [petToDelete, setPetToDelete] = useState(null);
   const [deletePetLoading, setDeletePetLoading] = useState(false);
+
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const [accountClient, setAccountClient] = useState(null);
+  const [accountData, setAccountData] = useState(null);
+  const [accountLoading, setAccountLoading] = useState(false);
+  const [accountError, setAccountError] = useState('');
+  const canViewAccount = (getUserPermissions() || []).includes('invoices.account');
 
   // Debounce para el input de búsqueda
   useEffect(() => {
@@ -333,6 +342,22 @@ export default function ClientList() {
     }
   };
 
+  const handleOpenAccount = async (client) => {
+    setAccountClient(client);
+    setShowAccountModal(true);
+    setAccountLoading(true);
+    setAccountError('');
+    setAccountData(null);
+    try {
+      const data = await getClientAccount(client.id);
+      setAccountData(data);
+    } catch (err) {
+      setAccountError(err?.message || 'No se pudo cargar la cuenta del cliente');
+    } finally {
+      setAccountLoading(false);
+    }
+  };
+
   const getMenuActionsItem = (client) => {
     const subItems = [
       {
@@ -344,6 +369,13 @@ export default function ClientList() {
         onClick: () => handleOpenEditClient(client)
       }
     ];
+
+    if (canViewAccount) {
+      subItems.push({
+        label: 'Ver Cuenta',
+        onClick: () => handleOpenAccount(client)
+      });
+    }
 
     if (client.mascotas && client.mascotas.length > 0) {
       client.mascotas.forEach(pet => {
@@ -702,6 +734,55 @@ export default function ClientList() {
         confirmText={deletePetLoading ? "Eliminando..." : "Eliminar"}
         cancelText="Cancelar"
       />
+
+      <DrawPanel
+        isOpen={showAccountModal}
+        onClose={() => setShowAccountModal(false)}
+        title="Cuenta del Cliente"
+        description={accountClient ? `${accountClient.nombre} ${accountClient.apellido}` : undefined}
+        showActions={false}
+      >
+        {accountLoading && <p className={styles.accountEmpty}>Cargando cuenta...</p>}
+        {accountError && <ErrorMessage title="Atención" message={accountError} variant="danger" />}
+        {accountData && !accountLoading && (
+          <>
+            <div className={styles.accountSummary}>
+              <div className={styles.accountSummaryCard}>
+                <div className={styles.accountSummaryLabel}>Total Pagado</div>
+                <div className={styles.accountSummaryValue}>{Number(accountData.total_paid || 0).toFixed(2)}</div>
+              </div>
+              <div className={styles.accountSummaryCard}>
+                <div className={styles.accountSummaryLabel}>Saldo Pendiente</div>
+                <div className={styles.accountSummaryValue}>{Number(accountData.pending_balance || 0).toFixed(2)}</div>
+              </div>
+            </div>
+
+            <h4 className={styles.accountSectionTitle}>Recibos Pendientes</h4>
+            {accountData.pending_invoices?.length > 0 ? (
+              accountData.pending_invoices.map((inv) => (
+                <div key={inv.factura_id} className={styles.accountInvoiceRow}>
+                  <span>{inv.numero_factura}</span>
+                  <span>{Number(inv.total || 0).toFixed(2)}</span>
+                </div>
+              ))
+            ) : (
+              <p className={styles.accountEmpty}>Sin recibos pendientes.</p>
+            )}
+
+            <h4 className={styles.accountSectionTitle}>Recibos Pagados</h4>
+            {accountData.paid_invoices?.length > 0 ? (
+              accountData.paid_invoices.map((inv) => (
+                <div key={inv.factura_id} className={styles.accountInvoiceRow}>
+                  <span>{inv.numero_factura}</span>
+                  <span>{Number(inv.total || 0).toFixed(2)}</span>
+                </div>
+              ))
+            ) : (
+              <p className={styles.accountEmpty}>Sin recibos pagados.</p>
+            )}
+          </>
+        )}
+      </DrawPanel>
     </>
   );
 }

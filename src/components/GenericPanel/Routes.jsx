@@ -97,6 +97,9 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
         { path: '/administracion/vacunas', state: { view: 'batches' }, permissionKey: 'vaccines.batches' },
       ],
     },
+    { path: '/administracion/servicios', permissionKey: 'services.view' },
+    { path: '/administracion/inventario', permissionKey: 'inventory.view' },
+    { path: '/administracion/historial-precios', permissionKey: 'priceHistory.view' },
     { path: '/administracion/configuracion', permissionKey: 'settings.manage' },
   ],
   secretaria: [
@@ -119,6 +122,9 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     { path: '/doctor/recetas', permissionKey: 'recipes.manage' },
     { onClick: () => setShowNotificationModal(true), permissionKey: 'notifications.create' },
     { path: '/clientes', permissionKey: 'clients.view' },
+    { path: '/administracion/servicios', permissionKey: 'services.view' },
+    { path: '/administracion/inventario', permissionKey: 'inventory.view' },
+    { path: '/administracion/historial-precios', permissionKey: 'priceHistory.view' },
   ],
   doctor: [
     { path: '/doctor', label: 'Panel', icon: 'Home' },
@@ -137,6 +143,9 @@ export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal
     { path: '/panel-mensajes', permissionKey: 'messages.view' },
     { path: '/recibos', permissionKey: 'invoices.view' },
     { onClick: () => setShowNotificationModal(true), permissionKey: 'notifications.create' },
+    { path: '/administracion/servicios', permissionKey: 'services.view' },
+    { path: '/administracion/inventario', permissionKey: 'inventory.view' },
+    { path: '/administracion/historial-precios', permissionKey: 'priceHistory.view' },
   ],
 });
 
