@@ -10,7 +10,7 @@ const ShowQR = ({ url, facturaId, NameClient,NameMascota, onClose }) => {
         <button className={styles.showqrCloseBtn} onClick={onClose}>&times;</button>
         <h3>Escanear para ver/descargar PDF</h3>
         <QRCodeCanvas value={url} size={200} level="H" includeMargin={true} />
-        <p className={styles.showqrFacturaId}>ID Factura: <b>{facturaId}</b></p>
+        <p className={styles.showqrFacturaId}>ID Recibo: <b>{facturaId}</b></p>
         <p className={styles.showqrNameClient}>Nombre del Cliente: <b>{NameClient}</b></p>
         <p className={styles.showqrNameMascota}>Nombre de la Mascota: <b>{NameMascota}</b></p>
         <a href={url} target="_blank" rel="noopener noreferrer" className={styles.showqrDownloadLink}>Descargar PDF</a>

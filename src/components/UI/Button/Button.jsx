@@ -46,7 +46,7 @@ export default function Button({
           )}
         </div>
       </div>
-      {!onlyIcon && <span>{children || 'Enviar factura'}</span>}
+      {!onlyIcon && <span>{children || 'Enviar recibo'}</span>}
     </button>
   );
 }

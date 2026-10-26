@@ -45,6 +45,7 @@ export default function RegisterVaccinationForm({
           type="date"
           value={form.application_date}
           onChange={handleChange}
+          inputProps={{ max: new Date().toISOString().slice(0, 10) }}
           required
         />
         <TextField
@@ -70,6 +71,7 @@ export default function RegisterVaccinationForm({
           type="date"
           value={form.next_dose_date_override}
           onChange={handleChange}
+          inputProps={{ min: form.application_date || undefined }}
         />
       </div>
 

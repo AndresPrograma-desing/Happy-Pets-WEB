@@ -144,7 +144,7 @@ export default function Facturas() {
               <span className={styles.switchLabel} style={{ display: 'none' }}>{TEXT_FACTURAS_LIST.pdfOnlyLabel}</span>
               <InfoTooltip 
                 title="Filtrar por PDF"
-                content="Muestra únicamente las facturas que tengan un documento PDF generado."
+                content="Muestra únicamente los recibos que tengan un documento PDF generado."
               />
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function Facturas() {
                   <QRCodeCanvas value={qrData.url} size={200} level="H" includeMargin={true} />
                   <p className={styles.qrClienteText}>Cliente: <b>{qrData.cliente}</b></p>
                   <p className={styles.qrClienteText}>Mascota: <b>{qrData.mascota}</b></p>
-                  <p className={styles.qrIdText}>ID Factura: <b>{qrData.id}</b></p>
+                  <p className={styles.qrIdText}>ID Recibo: <b>{qrData.id}</b></p>
 
                   <a href={qrData.url} target="_blank" rel="noopener noreferrer" className={styles.qrDownloadLink}>
                     <FileText size={16} />
@@ -209,7 +209,7 @@ export default function Facturas() {
               ) : (
                 <p>
                   <Ban size={18} color="#ef4444" style={{ marginRight: 6 }} />
-                  No hay URL disponible para esta factura.
+                  No hay URL disponible para este recibo.
                 </p>
               )}
             </div>

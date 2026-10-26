@@ -252,6 +252,10 @@ export async function createCita(payload) {
     body.secretaria_id = Number(payload.secretaria_id);
   }
 
+  if (payload?.servicio_id !== null && payload?.servicio_id !== undefined && String(payload.servicio_id).trim() !== '') {
+    body.servicio_id = Number(payload.servicio_id);
+  }
+
   if (rawFecha) {
     body.fecha_cita = rawFecha;
   }

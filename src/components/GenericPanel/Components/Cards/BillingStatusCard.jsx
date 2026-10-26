@@ -19,7 +19,7 @@ const BillingStatusCard = () => {
       secondaryTextStyle={{ fontSize: '1.1rem', textTransform: 'uppercase' }}
       footerIcon={CheckCircle2}
       footerIconColor={currency === 'USD' ? "#22c55e" : "#0369a1"}
-      footerContent={<span style={{ marginLeft: '4px' }}>Facturando en {currency || '...'}</span>}
+      footerContent={<span style={{ marginLeft: '4px' }}>Emitiendo recibos en {currency || '...'}</span>}
     />
   );
 };

@@ -16,7 +16,9 @@ const TextField = forwardRef(({
   placeholder,
   required,
   requiredColor = 'red',
-  ...props 
+  minDate,
+  maxDate,
+  ...props
 }, ref) => {
   if (type === 'date') {
     return (
@@ -27,6 +29,8 @@ const TextField = forwardRef(({
         onChange={onChange}
         required={required}
         disabled={props.disabled}
+        minDate={minDate}
+        maxDate={maxDate}
       />
     );
   }

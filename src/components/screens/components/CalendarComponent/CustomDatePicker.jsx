@@ -6,33 +6,45 @@ import { ChevronLeft, ChevronRight, CalendarDays, X, ChevronDown } from 'lucide-
 import styles from './CustomDatePicker.module.css';
 import MuiTextField from '@mui/material/TextField';
 
-const CustomDatePicker = ({ label, name, value, onChange, required = false, disabled = false }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [isOpen, setIsOpen] = useState(false);
-  const [showSelectors, setShowSelectors] = useState(false);
-  const modalRef = useRef(null);
- 
- let selectedDate = null;
+const parseToDate = (value) => {
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    selectedDate = value;
-  } else if (typeof value === 'string' && value.trim() !== '') {
+    return value;
+  }
+  if (typeof value === 'string' && value.trim() !== '') {
     const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (match) {
       const year = Number(match[1]);
       const month = Number(match[2]);
       const day = Number(match[3]);
-      selectedDate = new Date(year, month - 1, day);
-    } else {
-      const fallbackDate = new Date(value);
-      if (!Number.isNaN(fallbackDate.getTime())) {
-        selectedDate = new Date(
-          fallbackDate.getUTCFullYear(),
-          fallbackDate.getUTCMonth(),
-          fallbackDate.getUTCDate()
-        );
-      }
+      return new Date(year, month - 1, day);
+    }
+    const fallbackDate = new Date(value);
+    if (!Number.isNaN(fallbackDate.getTime())) {
+      return new Date(
+        fallbackDate.getUTCFullYear(),
+        fallbackDate.getUTCMonth(),
+        fallbackDate.getUTCDate()
+      );
     }
   }
+  return null;
+};
+
+const CustomDatePicker = ({ label, name, value, onChange, required = false, disabled = false, minDate = null, maxDate = null }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [isOpen, setIsOpen] = useState(false);
+  const [showSelectors, setShowSelectors] = useState(false);
+  const modalRef = useRef(null);
+
+  const selectedDate = parseToDate(value);
+  const minBoundary = parseToDate(minDate);
+  const maxBoundary = parseToDate(maxDate);
+
+  const isDayDisabled = (day) => {
+    if (minBoundary && day < minBoundary) return true;
+    if (maxBoundary && day > maxBoundary) return true;
+    return false;
+  };
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
@@ -64,7 +76,7 @@ const CustomDatePicker = ({ label, name, value, onChange, required = false, disa
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
 
   const handleDateClick = (day) => {
-    if (isSameMonth(day, monthStart)) {
+    if (isSameMonth(day, monthStart) && !isDayDisabled(day)) {
       const yyyy = day.getFullYear();
       const mm = String(day.getMonth() + 1).padStart(2, '0');
       const dd = String(day.getDate()).padStart(2, '0');
@@ -86,6 +98,7 @@ const CustomDatePicker = ({ label, name, value, onChange, required = false, disa
 
   const handleSetToday = () => {
     const today = new Date();
+    if (isDayDisabled(today)) return;
     setCurrentDate(today);
     handleDateClick(today);
   };
@@ -213,17 +226,19 @@ const CustomDatePicker = ({ label, name, value, onChange, required = false, disa
                     const isCurrentMonth = isSameMonth(day, monthStart);
                     const isSelected = selectedDate && isSameDay(day, selectedDate);
                     const isToday = isSameDay(day, new Date());
+                    const isDisabled = isDayDisabled(day);
 
                     let dayClassName = styles.dayCell;
                     if (!isCurrentMonth) dayClassName += ` ${styles.otherMonth}`;
                     if (isSelected) dayClassName += ` ${styles.selectedDay}`;
                     if (isToday && !isSelected) dayClassName += ` ${styles.todayDay}`;
+                    if (isDisabled) dayClassName += ` ${styles.disabledDay}`;
 
                     return (
-                      <div 
-                        key={index} 
+                      <div
+                        key={index}
                         className={dayClassName}
-                        onClick={() => isCurrentMonth && handleDateClick(day)}
+                        onClick={() => isCurrentMonth && !isDisabled && handleDateClick(day)}
                       >
                         {format(day, 'd')}
                       </div>

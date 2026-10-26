@@ -165,7 +165,7 @@ export default function useFacturaDownloader() {
 
       const url_docx = extractUrlDocx(invoiceRaw);
       if (typeof url_docx === 'string' && /la factura se ha eliminado/i.test(url_docx)) {
-        setAlertMessage('La factura se ha eliminado en el servidor. Intenta generarla de nuevo si es necesario.');
+        setAlertMessage('El recibo se ha eliminado en el servidor. Intenta generarlo de nuevo si es necesario.');
         setAlertTitle('Aviso');
         setAlertConfirmText('Cerrar');
         setAlertOnConfirm(null);
@@ -178,7 +178,7 @@ export default function useFacturaDownloader() {
         if (url_docx.startsWith('/')) finalUrl = `${window.location.origin}${url_docx}`;
         else finalUrl = url_docx;
       } else if (!finalUrl) {
-        setAlertMessage('No se encontró un enlace de descarga (UrlDocx) para la factura generada.');
+        setAlertMessage('No se encontró un enlace de descarga (UrlDocx) para el recibo generado.');
         setAlertTitle('Aviso');
         setAlertConfirmText('Cerrar');
         setAlertOnConfirm(null);
@@ -205,8 +205,8 @@ export default function useFacturaDownloader() {
         }
       }
 
-      setAlertMessage(`Factura creada: ${fileName || 'desconocida'}`);
-      setAlertTitle('Factura creada');
+      setAlertMessage(`Recibo creado: ${fileName || 'desconocida'}`);
+      setAlertTitle('Recibo creado');
       setAlertConfirmText('Ver');
       setAlertCancelText('Cerrar');
       setAlertOnConfirm(() => () => {
@@ -229,7 +229,7 @@ export default function useFacturaDownloader() {
   const handleFileDownload = useCallback(async (citaId) => {
     const meta = invoiceUrls[citaId];
     if (!meta || !meta.url) {
-      setAlertMessage('No hay factura generada para descargar');
+      setAlertMessage('No hay recibo generado para descargar');
       setAlertTitle('Error');
       setAlertOpen(true);
       return;
@@ -241,7 +241,7 @@ export default function useFacturaDownloader() {
       if (String(url).startsWith('blob:')) {
         const a = document.createElement('a');
         a.href = url;
-        a.download = meta.file || `Factura-${citaId}.docx`;
+        a.download = meta.file || `Recibo-${citaId}.docx`;
         document.body.appendChild(a);
         a.click();
         a.remove();

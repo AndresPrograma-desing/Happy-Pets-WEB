@@ -318,6 +318,7 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
                     value={form.fecha_nacimiento}
                     onChange={handleChange}
                     required
+                    maxDate={new Date()}
                 />
             </div>
 

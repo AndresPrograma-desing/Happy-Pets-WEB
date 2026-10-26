@@ -14,14 +14,22 @@ const MultilinePlaceholder = forwardRef(({
   size = "small",
   fullWidth = true,
   placeholder,
-  ...props 
+  required,
+  requiredColor = 'red',
+  ...props
 }, ref) => {
   const formattedLabel = typeof label === 'string' ? formatHighlightedText(label) : label;
+  const displayLabel = formattedLabel ? (
+    <span>
+      {formattedLabel}
+      {required && <span style={{ color: requiredColor, marginLeft: '4px' }}>**</span>}
+    </span>
+  ) : undefined;
   const displayHelperText = typeof helperText === 'string' ? formatHighlightedText(helperText) : helperText;
 
   return (
     <MuiTextField
-      label={formattedLabel}
+      label={displayLabel}
       value={value}
       onChange={onChange}
       error={!!error}

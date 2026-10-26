@@ -133,6 +133,17 @@
   cursor: not-allowed;
 }
 
+.disabledDay {
+  color: #cbd5e1;
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.disabledDay:hover {
+  background-color: transparent;
+}
+
 .footer {
   display: flex;
   justify-content: space-between;

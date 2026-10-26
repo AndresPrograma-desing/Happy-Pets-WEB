@@ -35,11 +35,13 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const defaultMascotaId = cita?.mascota_id || cita?.Mascotum?.id || cita?.mascota?.id || state?.mascotaId || null;
   const defaultMascotaNombre = cita?.Mascotum?.nombre || cita?.mascota?.nombre || state?.mascotaNombre || 'Paciente';
 
+  const defaultServicioPrecio = cita?.servicio_precio ?? cita?.ServicioPrecio ?? '';
+
   const [form, setForm] = useState({
     cita_id: defaultCitaId,
     mascota_id: defaultMascotaId,
     doctor_id: defaultDoctorId,
-    fecha_consulta: new Date().toISOString(),
+    consulta_price: defaultServicioPrecio !== '' ? String(defaultServicioPrecio) : '',
     peso_actual: '',
     temperatura: '',
     sintomas: '',
@@ -100,24 +102,6 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
         duracion: '',
         instrucciones: '',
         aplicado_por: s.doctor_id || '',
-      }],
-    }));
-  };
-
-  const addNoProducto = () => {
-    setForm((s) => ({
-      ...s,
-      productos: [{
-        producto_id: 0,
-        producto_nombre: NO_PRODUCT_LABEL,
-        cantidad: 0,
-        precio_unitario: '0.00',
-        dosis: NO_PRODUCT_LABEL,
-        via_administracion: NO_PRODUCT_LABEL,
-        frecuencia: NO_PRODUCT_LABEL,
-        duracion: NO_PRODUCT_LABEL,
-        instrucciones: NO_PRODUCT_LABEL,
-        aplicado_por: s.doctor_id || 0,
       }],
     }));
   };
@@ -197,6 +181,10 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!form.mascota_id || !form.sintomas.trim() || !form.diagnostico.trim()) {
+      setShowBadReqModal(true);
+      return;
+    }
     setShowConfirmSaveModal(true);
   };
 
@@ -204,14 +192,11 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
     setShowConfirmSaveModal(false);
     setSubmitting(true);
     try {
-      if (!form.mascota_id) {
-        setShowBadReqModal(true);
-        return;
-      }
       const payload = {
         ...form,
         peso_actual: parseFloat(form.peso_actual) || null,
         temperatura: parseFloat(form.temperatura) || null,
+        consulta_price: parseFloat(form.consulta_price) || 0,
         productos: form.productos.map(p => ({
           ...p,
           producto_id: Number(p.producto_id),
@@ -288,6 +273,15 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
                 placeholder="38.0"
               />
             </div>
+            <FormInput
+              label={`Precio de Consulta (USD)${cita?.servicio_nombre || cita?.ServicioNombre ? ` — ${cita.servicio_nombre || cita.ServicioNombre}` : ''}`}
+              name="consulta_price"
+              type="number"
+              step="0.01"
+              value={form.consulta_price}
+              onChange={handleChange}
+              placeholder="0.00"
+            />
           </FormCard>
 
           <FormCard icon={ClipboardList} title="Evaluación Médica">
@@ -297,6 +291,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
               value={form.sintomas}
               onChange={handleChange}
               placeholder="Describa los síntomas reportados..."
+              required
             />
             <FormTextArea
               label="Diagnóstico"
@@ -304,6 +299,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
               value={form.diagnostico}
               onChange={handleChange}
               placeholder="Resultado de la evaluación..."
+              required
             />
             <FormTextArea
               label="Tratamiento"
@@ -313,7 +309,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
               placeholder="Plan de acción..."
             />
             <FormTextArea
-              label="Receta"
+              label="Recipe"
               name="receta"
               value={form.receta}
               onChange={handleChange}
@@ -327,14 +323,9 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
             icon={Pill} 
             title="Insumos Aplicados"
             headerActions={
-              <>
-                <ModalTooltip text="Agregar un producto o medicamento a esta consulta" placement="top">
-                  <Button type="button" variant="ghost" circle onClick={addProducto} icon={PlusCircle} color="primary" />
-                </ModalTooltip>
-                <ModalTooltip text="Indicar que no se usaron productos o medicamentos en esta consulta" placement="top">
-                  <Button type="button" variant="outline" color="#64748b" onClick={addNoProducto} size="small">No usar</Button>
-                </ModalTooltip>
-              </>
+              <ModalTooltip text="Agregar un producto o medicamento a esta consulta" placement="top">
+                <Button type="button" variant="ghost" circle onClick={addProducto} icon={PlusCircle} color="primary" />
+              </ModalTooltip>
             }
           >
             <div className={styles.productsList}>
@@ -485,6 +476,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
                         type="date"
                         value={v.application_date}
                         onChange={(e) => updateVacuna(idx, 'application_date', e.target.value)}
+                        maxDate={new Date()}
                       />
                     </div>
                     <div className={styles.group}>
@@ -511,6 +503,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
                         type="date"
                         value={v.next_dose_date_override}
                         onChange={(e) => updateVacuna(idx, 'next_dose_date_override', e.target.value)}
+                        minDate={v.application_date}
                       />
                     </div>
                     <div className={styles.fullWidth}>

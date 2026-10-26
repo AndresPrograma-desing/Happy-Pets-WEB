@@ -76,7 +76,7 @@ export const getConsultaColumns = () => [
     accessor: 'tratamiento'
   },
   {
-    header: 'Receta',
+    header: 'Recipe',
     accessor: 'receta'
   },
   {

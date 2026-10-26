@@ -6,7 +6,7 @@ export const TEXT_FACTURAS_LIST = {
   paidtTotal: 'Total Cobrado',
   receiptTotal: 'Total Recibos',
   pending: 'Pendientes',
-  emptyMessage: 'No se encontraron facturas.',
+  emptyMessage: 'No se encontraron recibos.',
   tooltips: {
     sendEmail: 'Enviar por correo',
     downloadPdf: 'Descargar PDF',

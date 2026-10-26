@@ -614,8 +614,8 @@ const VistaFactura = ({ idCita }) => {
 
           <div style={s.invoiceBadge} className="vf-badge">
             <span style={s.badgeLabel}>
-              <img src={getIcon('fileText')} style={s.icon} alt="Factura Icon" />
-              Factura
+              <img src={getIcon('fileText')} style={s.icon} alt="Recibo Icon" />
+              Recibo
               </span>
             <div style={s.invoiceNumber}>
               <img src={getIcon('hash')} style={s.icon} alt="Hash Icon" />
