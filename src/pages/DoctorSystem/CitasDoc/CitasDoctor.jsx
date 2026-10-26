@@ -95,12 +95,23 @@ function CitasDoctor() {
 			}
 	};
 
+	const to12h = (h24, m) => {
+		const period = h24 >= 12 ? 'PM' : 'AM';
+		let h12 = h24 % 12;
+		if (h12 === 0) h12 = 12;
+		return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${period}`;
+	};
+
 	const formatTime = (time, fallback) => {
-		if (time) return time.slice(0,5);
+		if (time) {
+			const match = String(time).match(/^(\d{1,2}):(\d{2})/);
+			if (match) return to12h(Number(match[1]), Number(match[2]));
+			return time.slice(0,5);
+		}
 		if (fallback) {
 			try {
 				const d = new Date(fallback);
-				return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+				return to12h(d.getHours(), d.getMinutes());
 			} catch (err) {
 				if (import.meta.env.DEV) console.error('formatTime fallback failed', err);
 				return fallback;

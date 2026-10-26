@@ -1,5 +1,5 @@
 export const TEXT_FACTURAS_LIST = {
-  title: 'Facturación General',
+  title: 'Recibos Generales',
   menuTitle: 'Panel de Recibos',
   searchPlaceholder: 'Buscar por cliente o mascota...',
   pdfOnlyLabel: 'Solo PDFs',

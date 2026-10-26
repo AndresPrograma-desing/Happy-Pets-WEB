@@ -363,7 +363,7 @@ const formatFechaToISO = (str) => {
               />      
                <ToggleCard
                 title="Hora Actual"
-                description={now?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) || new Date().toLocaleTimeString()}
+                description={(now || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
                 icon={Clock}
               />
             </div>
@@ -450,7 +450,7 @@ const formatFechaToISO = (str) => {
                 isOpen={editDrawerOpen} 
                 onClose={() => setEditDrawerOpen(false)} 
                 title="Editar Cita"
-                width="600px"
+                width="1000px"
                 showActions={true}
                 onConfirm={handleUpdateSubmit}
                 confirmText="Guardar Cambios"

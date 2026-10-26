@@ -1,0 +1,17 @@
+export const PRICE_HISTORY_TEXTS = {
+  panelTitle: "Historial de Precios",
+  panelDescription: "Registro de cambios de precio de productos a lo largo del tiempo.",
+  menuTitle: "Ajustes",
+  filterProductLabel: "Producto",
+  filterProductAll: "Todos los productos",
+  columnProduct: "PRODUCTO",
+  columnPriceBefore: "PRECIO ANTERIOR",
+  columnPriceAfter: "PRECIO NUEVO",
+  columnUser: "USUARIO",
+  columnDate: "FECHA",
+  emptyMessage: "No se encontraron cambios de precio registrados.",
+  errorLoading: "Error al cargar el historial de precios.",
+  detailTitle: "Detalle del Cambio de Precio",
+  detailReason: "Motivo",
+  noReason: "Sin motivo registrado",
+};

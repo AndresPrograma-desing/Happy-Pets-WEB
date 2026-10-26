@@ -33,6 +33,7 @@ import InDevelopment from "./components/InDevelopment/InDevelopment";
 import FacturasList from './components/FacturaDownloader/FacturaList/facturas';
 import Settings from './pages/AdminSystem/ConfigurationPanel/settings';
 import SystemLogs from './pages/AdminSystem/ConfigurationPanel/Components/Logs/Index';
+import WorkerProcessEvents from './pages/AdminSystem/ConfigurationPanel/Components/WorkerProcessEvents';
 import Users from "./components/Users/users";
 import StatusModal from "./components/common/statusWarning";
 import { getUserId } from "./context/LocalStorage";
@@ -45,6 +46,9 @@ import PortalClientes from '../PortalClientes/Index';
 import HistorialMedico from './components/HistorialMedico/Index';
 import PanelLayout from './components/GenericPanel/PanelLayout';
 import Vaccines from './components/Vacccines/Vaccines';
+import Services from './components/Services/Index';
+import Inventory from './pages/AdminSystem/ConfigurationPanel/Components/Inventory';
+import PriceHistory from './pages/AdminSystem/ConfigurationPanel/Components/PriceHistory';
 
 
 
@@ -55,7 +59,7 @@ function AppContent() {
   // Obtener el user_id usando la utilidad
   const userId = getUserId();
   
-  const isPublicRoute = ['/login', '/inicio', '/', '/espera', '/portal-cliente'].includes(location.pathname);
+  const isPublicRoute = ['/login', '/inicio', '/', '/espera', '/portal-cliente', '/portal-clientes'].includes(location.pathname);
 
   useEffect(() => {
     startTransition(() => setIsLoading(true));
@@ -99,18 +103,23 @@ function AppContent() {
             <Route path="/clientes" element={<ClientList />} />
             <Route path="/calendario" element={<Calendar />} />
             <Route path="/administracion/vacunas" element={<Vaccines />} />
+            <Route path="/administracion/eventos-workers" element={<WorkerProcessEvents />} />
+            <Route path="/administracion/registros" element={<SystemLogs />} />
+            <Route path="/administracion/servicios" element={<Services />} />
+            <Route path="/administracion/inventario" element={<Inventory />} />
+            <Route path="/administracion/historial-precios" element={<PriceHistory />} />
           </Route>
 
           <Route path="/consultas/crear" element={<Consultas />} />
           <Route path="/facturas/crear" element={<CreateFactura />} />
           <Route path="/factura-local" element={<FacturaLocal />} />
-          <Route path="/administracion/registros" element={<SystemLogs />} />
 
           <Route path="/salud" element={<Health />} />
 
           <Route path="/espera" element={<WaitingPage />} />
 
           <Route path="/portal-cliente" element={<PortalClientes />} />
+          <Route path="/portal-clientes" element={<PortalClientes />} />
 
           <Route path="/prueba" element={<VistaDesarrollo />} />
 

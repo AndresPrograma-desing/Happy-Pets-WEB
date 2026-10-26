@@ -151,7 +151,7 @@ export default function ChatWindow({
                 {renderMessageContent(m.content)}
               </div>
               <span className={styles.messageTime}>
-                {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
               </span>
             </div>
           );

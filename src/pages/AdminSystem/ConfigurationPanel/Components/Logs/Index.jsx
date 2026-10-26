@@ -1,226 +1,218 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, FileText, Lock, CheckCircle2 } from 'lucide-react';
-import Container from '../../../../../components/screens/components/Container/index';
-import Frame from '../../../../../components/screens/components/Frame/Index';
-import DesplegablePanel from '../../../../../components/screens/components/DesplegablePanel/index';
+import { TableA, Barnner, DateTag, Selector, DrawPanel, Callout } from 'anteriority-ui';
 import Input from '../../../../../components/screens/components/Input/Index';
-import Button from '../../../../../components/screens/components/Button/index';
-import Loading from '../../../../../components/screens/components/Loading/Index';
-import { getLogs } from '../../../../../services/api/index';
+import CalendarPicker from '../../../../../components/screens/components/CalendarPicker/Index';
+import usePanelHeader from '../../../../../components/GenericPanel/usePanelHeader';
+import { getLogs, getUsers } from '../../../../../services/api/index';
 import { TEXTS } from './constants';
-import { verifyPassword, formatDate, formatJsonData, getLogsActionColor } from './utils';
+import { formatDate, formatJsonData, getLogsActionBadgeVariant } from './utils';
 import styles from './Index.module.css';
 
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
+
 export default function SystemLogs() {
-  // Estado de autorización usando sessionStorage para retener el acceso durante la sesión actual
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    return sessionStorage.getItem('sys_logs_auth') === 'true';
-  });
-  
-  const [passwordInput, setPasswordInput] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  
   const [logs, setLogs] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
-  const [page, setPage] = useState(1);
-  const [pageCount, setPageCount] = useState(1);
-  const [expandedLogId, setExpandedLogId] = useState(null);
+  const [selectedLog, setSelectedLog] = useState(null);
 
-  // Carga de logs desde el servicio centralizado de la API
-  const fetchLogsData = async (targetPage) => {
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[1]);
+
+  // Filtros de auditoría (HU-02)
+  const [filterUserId, setFilterUserId] = useState('');
+  const [filterAction, setFilterAction] = useState('');
+  const [filterDateFrom, setFilterDateFrom] = useState('');
+  const [filterDateTo, setFilterDateTo] = useState('');
+  const [userOptions, setUserOptions] = useState([{ value: '', label: TEXTS.filterUserAll }]);
+
+  useEffect(() => {
+    getUsers()
+      .then((res) => {
+        const list = Array.isArray(res) ? res : res?.data || res?.items || [];
+        setUserOptions([
+          { value: '', label: TEXTS.filterUserAll },
+          ...list.map((u) => ({
+            value: String(u.id),
+            label: `${u.nombre || ''} ${u.apellido || ''}`.trim() || `Usuario ${u.id}`
+          }))
+        ]);
+      })
+      .catch(() => setUserOptions([{ value: '', label: TEXTS.filterUserAll }]));
+  }, []);
+
+  const fetchLogsData = async (targetPage, targetPageSize) => {
     setLoading(true);
     setError(null);
     try {
-      const pageSize = 10;
-      const data = await getLogs(targetPage, pageSize);
-      if (Array.isArray(data)) {
-        setLogs(data);
-        // Si recibimos el tamaño máximo de página, asumimos que puede haber una página siguiente
-        if (data.length === pageSize) {
-          setPageCount((prev) => Math.max(prev, targetPage + 1));
-        } else {
-          setPageCount((prev) => Math.max(prev, targetPage));
-        }
-      } else {
-        setLogs([]);
-      }
+      const data = await getLogs({
+        pageNumber: targetPage,
+        pageSize: targetPageSize,
+        userId: filterUserId || undefined,
+        action: filterAction || undefined,
+        dateFrom: filterDateFrom || undefined,
+        dateTo: filterDateTo || undefined
+      });
+
+      const list = Array.isArray(data) ? data : (data?.items || []);
+      setLogs(list);
+      setTotalCount(data?.total_count ?? list.length);
     } catch (err) {
-      setError(err?.message || TEXTS.incorrectPassword);
+      setLogs([]);
+      setTotalCount(0);
+      setError(err?.isNetworkError ? TEXTS.errorNetwork : (err?.message || TEXTS.errorLoading));
     } finally {
       setLoading(false);
     }
   };
 
-  // Cargar logs al autorizar o al cambiar la página
   useEffect(() => {
-    if (isAuthorized) {
-      fetchLogsData(page);
+    fetchLogsData(page, pageSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, filterUserId, filterAction, filterDateFrom, filterDateTo]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPage(1);
+    setPageSize(newPageSize);
+  };
+
+  usePanelHeader({
+    title: TEXTS.title,
+    message: TEXTS.description,
+    menuTitle: 'Ajustes',
+    showPagination: true,
+    paginationCount: totalPages,
+    paginationPage: page,
+    onPaginationChange: (_, p) => setPage(p),
+    pageSize,
+    pageSizeOptions: PAGE_SIZE_OPTIONS,
+    onPageSizeChange: handlePageSizeChange
+  });
+
+  const columns = [
+    {
+      header: TEXTS.actionLabel,
+      render: (row) => (
+        <Barnner type={getLogsActionBadgeVariant(row.accion)}>{row.accion}</Barnner>
+      )
+    },
+    {
+      header: TEXTS.tableLabel,
+      accessor: 'tabla_afectada'
+    },
+    {
+      header: TEXTS.userLabel,
+      render: (row) => row.usuario_nombre || 'N/A'
+    },
+    {
+      header: TEXTS.ipLabel,
+      accessor: 'ip_address'
+    },
+    {
+      header: TEXTS.dateLabel,
+      render: (row) => <DateTag date={row.created_at} />
     }
-  }, [isAuthorized, page]);
+  ];
 
-  // Manejador para el formulario de clave
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    setPasswordError('');
-
-    const isValid = verifyPassword(passwordInput, TEXTS.dummyPassword);
-    if (isValid) {
-      setIsAuthorized(true);
-      sessionStorage.setItem('sys_logs_auth', 'true');
-    } else {
-      setPasswordError(TEXTS.incorrectPassword);
-    }
-  };
-
-  // Manejador del cambio de página
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-    setExpandedLogId(null); // Colapsar todos los paneles al cambiar de página
-  };
-
-  // Manejador de toggling para los paneles desplegables
-  const handleToggleLog = (logId) => {
-    setExpandedLogId(expandedLogId === logId ? null : logId);
-  };
-
-  // Vista de Login/Acceso de Clave
-  if (!isAuthorized) {
-    const passwordForm = (
-      <form onSubmit={handlePasswordSubmit} className={styles.passwordForm}>
-        <Input
-          id="sys-logs-pwd"
-          label={TEXTS.passwordPlaceholder}
-          type="password"
-          value={passwordInput}
-          onChange={(e) => setPasswordInput(e.target.value)}
-          required
-          autoFocus
-          error={!!passwordError}
-          helperText={passwordError}
-        />
-        <Button 
-          type="submit" 
-          variant="primary" 
-          fullWidth 
-          icon={Lock}
-        >
-          {TEXTS.submitButton}
-        </Button>
-      </form>
-    );
-
-    return (
-      <div className={styles.passwordScreen}>
-        <div className={styles.passwordFrame}>
-          <Frame
-            title={TEXTS.passwordPromptTitle}
-            content={TEXTS.passwordPromptDesc}
-            icon={<ShieldAlert size={40} color="#f59e0b" />}
-          >
-            {passwordForm}
-          </Frame>
+  return (
+    <div className={styles.content}>
+      <div className={styles.filtersRow}>
+        <div className={styles.filterField}>
+          <Selector
+            label={TEXTS.filterUserLabel}
+            options={userOptions}
+            value={filterUserId}
+            onChange={(e) => { setPage(1); setFilterUserId(e.target.value); }}
+          />
+        </div>
+        <div className={styles.filterField}>
+          <Input
+            label={TEXTS.filterActionLabel}
+            value={filterAction}
+            onChange={(e) => { setPage(1); setFilterAction(e.target.value); }}
+            placeholder={TEXTS.filterActionPlaceholder}
+          />
+        </div>
+        <div className={styles.filterField}>
+          <CalendarPicker
+            label={TEXTS.filterDateFromLabel}
+            name="filterDateFrom"
+            value={filterDateFrom}
+            onChange={(e) => { setPage(1); setFilterDateFrom(e.target.value); }}
+          />
+        </div>
+        <div className={styles.filterField}>
+          <CalendarPicker
+            label={TEXTS.filterDateToLabel}
+            name="filterDateTo"
+            value={filterDateTo}
+            onChange={(e) => { setPage(1); setFilterDateTo(e.target.value); }}
+          />
         </div>
       </div>
-    );
-  }
 
-  // Vista del listado de Logs
-  return (
-    <div className={styles.logsWrapper}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>{TEXTS.title}</h1>
-        <p className={styles.description}>{TEXTS.description}</p>
+      <div className={styles.tableWrapper}>
+        <TableA
+          columns={columns}
+          data={logs}
+          loading={loading}
+          error={error}
+          onRetry={() => fetchLogsData(page, pageSize)}
+          keyExtractor={(row) => row.id}
+          onRowClick={(row) => setSelectedLog(row)}
+          emptyMessage={TEXTS.noLogs}
+        />
       </div>
 
-      <Container
-        showPagination={true}
-        paginationCount={pageCount}
-        paginationPage={page}
-        onPaginationChange={handlePageChange}
+      <DrawPanel
+        isOpen={!!selectedLog}
+        onClose={() => setSelectedLog(null)}
+        title={TEXTS.detailsTitle}
+        description={selectedLog ? `${selectedLog.accion} - ${selectedLog.tabla_afectada || 'N/A'}` : undefined}
+        showActions={false}
       >
-        {loading ? (
-          <Loading text={TEXTS.loading} />
-        ) : error ? (
-          <div className={styles.errorText} style={{ textAlign: 'center', padding: '2rem' }}>
-            {error}
-          </div>
-        ) : logs.length === 0 ? (
-          <div className={styles.noLogsMessage}>
-            {TEXTS.noLogs}
-          </div>
-        ) : (
-          <div className={styles.logsList}>
-            {logs.map((log) => {
-              const actionColor = getLogsActionColor(log.accion);
-              const badgeElement = (
-                <span className={`${styles.actionBadge} ${styles[actionColor]}`}>
-                  {log.accion}
-                </span>
-              );
+        {selectedLog && (
+          <div className={styles.detailSection}>
+            <div className={styles.detailGrid}>
+              <div className={styles.detailItem}>
+                <strong>ID Log</strong>
+                <span>{selectedLog.id}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <strong>{TEXTS.userLabel}</strong>
+                <span>{selectedLog.usuario_nombre || 'N/A'} (ID: {selectedLog.usuario_id ?? 'N/A'})</span>
+              </div>
+              <div className={styles.detailItem}>
+                <strong>{TEXTS.recordIdLabel}</strong>
+                <span>{selectedLog.registro_id || 'N/A'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <strong>{TEXTS.userAgentLabel}</strong>
+                <span>{selectedLog.user_agent || 'N/A'}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <strong>{TEXTS.dateLabel}</strong>
+                <span>{formatDate(selectedLog.created_at)}</span>
+              </div>
+            </div>
 
-              return (
-                <DesplegablePanel
-                  key={log.id}
-                  title={`${log.accion} - ${log.tabla_afectada}`}
-                  description={`${TEXTS.userLabel} ${log.usuario_nombre || 'N/A'} | ${TEXTS.dateLabel} ${formatDate(log.created_at)}`}
-                  icon={FileText}
-                  iconColorVariant={actionColor}
-                  isOpen={expandedLogId === log.id}
-                  onToggle={() => handleToggleLog(log.id)}
-                  action={badgeElement}
-                >
-                  <div className={styles.logDetailGrid}>
-                    <div className={styles.detailItem}>
-                      <strong>ID Log</strong>
-                      <span>{log.id}</span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <strong>{TEXTS.userLabel}</strong>
-                      <span>{log.usuario_nombre || 'N/A'} (ID: {log.usuario_id})</span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <strong>{TEXTS.tableLabel}</strong>
-                      <span>{log.tabla_afectada || 'N/A'}</span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <strong>{TEXTS.recordIdLabel}</strong>
-                      <span>{log.registro_id || 'N/A'}</span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <strong>{TEXTS.ipLabel}</strong>
-                      <span>{log.ip_address || 'N/A'}</span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <strong>{TEXTS.userAgentLabel}</strong>
-                      <span>{log.user_agent || 'N/A'}</span>
-                    </div>
-                    
-                    {log.datos_previos && (
-                      <div className={`${styles.detailItem} ${styles.fullWidthDetail}`}>
-                        <strong>{TEXTS.previousDataLabel}</strong>
-                        <pre className={styles.codeBlock}>
-                          {formatJsonData(log.datos_previos)}
-                        </pre>
-                      </div>
-                    )}
-                    
-                    {log.datos_nuevos && (
-                      <div className={`${styles.detailItem} ${styles.fullWidthDetail}`}>
-                        <strong>{TEXTS.newDataLabel}</strong>
-                        <pre className={styles.codeBlock}>
-                          {formatJsonData(log.datos_nuevos)}
-                        </pre>
-                      </div>
-                    )}
-                  </div>
-                </DesplegablePanel>
-              );
-            })}
+            {selectedLog.datos_previos && (
+              <Callout variant="neutral" title={TEXTS.previousDataLabel}>
+                <pre className={styles.codeBlock}>{formatJsonData(selectedLog.datos_previos)}</pre>
+              </Callout>
+            )}
+
+            {selectedLog.datos_nuevos && (
+              <Callout variant="neutral" title={TEXTS.newDataLabel}>
+                <pre className={styles.codeBlock}>{formatJsonData(selectedLog.datos_nuevos)}</pre>
+              </Callout>
+            )}
           </div>
         )}
-      </Container>
+      </DrawPanel>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import TextField from "../../../../../components/screens/components/Material-UI/
 import { SlidersHorizontal, FileText, Receipt, Info } from "lucide-react";
 import { getText } from "../../../../../constants";
 import { getWorkerConfigs, updateWorkerConfig } from "../../../../../services/api";
+import { getWorkerTaskName, getWorkerTaskDescription } from "../../constants";
 
 const WorkerCenter = ({ descriptions = {} }) => {
   const [workers, setWorkers] = useState([]);
@@ -72,16 +73,8 @@ const WorkerCenter = ({ descriptions = {} }) => {
 
     return {
       id: w.worker_name,
-      name: isReportsGen
-        ? "Generación de Reportes"
-        : isReportsDel
-        ? "Eliminación de Reportes"
-        : w.worker_name.replace(/Worker$/, "").replace(/([A-Z])/g, " $1").trim(),
-      description: isReportsGen
-        ? "Generación automática periódica de reportes de actividad."
-        : isReportsDel
-        ? "Eliminación automática de reportes expirados del almacenamiento."
-        : "Tarea de servicio en segundo plano del sistema.",
+      name: getWorkerTaskName(w.worker_name),
+      description: getWorkerTaskDescription(w.worker_name),
       status: w.is_enabled ? "Activo" : "Inactivo",
       icon: isReportsGen || isReportsDel ? FileText : Receipt,
       iconColor: isReportsGen ? "purple" : "red",
@@ -156,11 +149,7 @@ const WorkerCenter = ({ descriptions = {} }) => {
           setSelectedWorkerId(null);
           setEditConfig(null);
         }}
-        title={`Configuración de ${
-          editConfig?.worker_name === "AutoGenerateReportWorker"
-            ? "Generación de Reportes"
-            : "Eliminación de Reportes"
-        }`}
+        title={`Configuración de ${getWorkerTaskName(editConfig?.worker_name)}`}
         description={descriptions[editConfig?.worker_name]}
         descriptionPosition="bottom"
         showActions={true}

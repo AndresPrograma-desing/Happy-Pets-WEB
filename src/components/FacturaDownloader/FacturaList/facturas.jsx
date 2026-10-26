@@ -127,7 +127,7 @@ export default function Facturas() {
                 value={searchTerm}
                 onChange={setSearchTerm}
                 placeholder={TEXT_FACTURAS_LIST.searchPlaceholder}
-                label="Buscar Factura"
+                label="Buscar Recibo"
               />
             </div>
 

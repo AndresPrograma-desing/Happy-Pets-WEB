@@ -24,11 +24,11 @@ export const TEXT_PORTAL = {
     contacts: {
         buttonLabel: "Ver Contactos",
         panelTitle: "Contactos de la Veterinaria",
-        phone: "+1 234 567 8900",
-        email: "contacto@happypets.com",
-        address: "Av. Principal 123, Ciudad Veterinaria",
-        hours: "Lunes a Viernes: 8:00 AM - 6:00 PM | Sábados: 9:00 AM - 2:00 PM",
-        emergency: "Emergencias 24/7: +1 999 888 7777",
+        phone: "",
+        email: "",
+        address: "",
+        hours: "",
+        emergency: "",
         emailForm: {
             title: "Envíanos un Email",
             description: "Completa el formulario y nos pondremos en contacto contigo lo antes posible.",

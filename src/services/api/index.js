@@ -563,7 +563,7 @@ export async function getMedicalHistory(id) {
 }
 
 export async function refrestMedicalHistory(id) {
-  return request(`/MedicalHistory/mascota/${encodeURIComponent(id)}/refrescar`, { method: 'POST' });
+  return request(`/MedicalHistory/mascota/${encodeURIComponent(id)}/history`, { method: 'POST' });
 }
 export async function grop(pregunta, historial = []) {
   return request('/NowGrod/consultar', { 
@@ -610,8 +610,28 @@ export async function checkDoctorAvailability({ doctorId, date, time, durationMi
   return request(url, { method: 'GET' });
 }
 
-export async function getLogs(pageNumber = 1, pageSize = 10) {
-  return request(`/Logs/get-logs?pageNumber=${pageNumber}&pageSize=${pageSize}`, { method: 'GET' });
+export async function getLogs(params = {}) {
+  const query = new URLSearchParams();
+  query.append('pageNumber', params.pageNumber || 1);
+  query.append('pageSize', params.pageSize || 10);
+  if (params.userId) query.append('userId', params.userId);
+  if (params.action) query.append('action', params.action);
+  if (params.dateFrom) query.append('dateFrom', params.dateFrom);
+  if (params.dateTo) query.append('dateTo', params.dateTo);
+
+  return request(`/Logs/get-logs?${query.toString()}`, { method: 'GET' });
+}
+
+export async function getWorkerProcessEvents(filters = {}) {
+  const { pageNumber = 1, pageSize = 10, typeEvent, isResolved, fromDate, toDate } = filters;
+
+  const params = new URLSearchParams({ pageNumber, pageSize });
+  if (typeEvent) params.append('typeEvent', typeEvent);
+  if (isResolved !== undefined && isResolved !== null) params.append('isResolved', isResolved);
+  if (fromDate) params.append('fromDate', fromDate);
+  if (toDate) params.append('toDate', toDate);
+
+  return request(`/WorkerProcessEvents/get-events?${params.toString()}`, { method: 'GET' });
 }
 
 export async function getClientById(id) {
@@ -802,6 +822,58 @@ export async function getPendingVaccinationsThisWeek(params = {}) {
   return request(`/PetVaccination/pending-this-week${queryString}`, { method: 'GET' });
 }
 
+export async function getInventoryMovements(params = {}) {
+  const query = new URLSearchParams();
+  if (params.productId) query.append('productId', params.productId);
+  if (params.movementType) query.append('movementType', params.movementType);
+  if (params.pageNumber) query.append('pageNumber', params.pageNumber);
+  if (params.pageSize) query.append('pageSize', params.pageSize);
+
+  const queryString = query.toString() ? `?${query.toString()}` : '';
+  return request(`/MovimientosInventario${queryString}`, { method: 'GET' });
+}
+
+export async function getLowStockAlerts() {
+  return request('/MovimientosInventario/alertas-stock-minimo', { method: 'GET' });
+}
+
+export async function getPriceHistory(params = {}) {
+  const query = new URLSearchParams();
+  if (params.productId) query.append('productId', params.productId);
+  if (params.pageNumber) query.append('pageNumber', params.pageNumber);
+  if (params.pageSize) query.append('pageSize', params.pageSize);
+
+  const queryString = query.toString() ? `?${query.toString()}` : '';
+  return request(`/HistorialPrecio${queryString}`, { method: 'GET' });
+}
+
+export async function getServices(params = {}) {
+  const query = new URLSearchParams();
+  if (params.active !== undefined) query.append('active', params.active);
+  if (params.searchTerm) query.append('searchTerm', params.searchTerm);
+  if (params.pageNumber) query.append('pageNumber', params.pageNumber);
+  if (params.pageSize) query.append('pageSize', params.pageSize);
+
+  const queryString = query.toString() ? `?${query.toString()}` : '';
+  return request(`/Servicio${queryString}`, { method: 'GET' });
+}
+
+export async function createService(payload) {
+  return request('/Servicio/create', { method: 'POST', body: payload });
+}
+
+export async function updateService(id, payload) {
+  return request(`/Servicio/${encodeURIComponent(id)}`, { method: 'PUT', body: payload });
+}
+
+export async function deleteService(id) {
+  return request(`/Servicio/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export async function getClientAccount(clientId) {
+  return request(`/Facturas/client/${encodeURIComponent(clientId)}/account`, { method: 'GET' });
+}
+
 export async function getWorkerConfigs() {
   return request('/WorkerConfig', { method: 'GET' });
 }
@@ -902,5 +974,13 @@ export default {
   getUserPermissions,
   updateUserPermissions,
   getPermissionsCatalog,
+  getInventoryMovements,
+  getLowStockAlerts,
+  getPriceHistory,
+  getServices,
+  createService,
+  updateService,
+  deleteService,
+  getClientAccount,
   externalNowGrosWeb: externalNowGrodWeb
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import style from "./settings.module.css";
 import AlertModal from "../../../components/AlertModal/AlertModal";
 import usePanelHeader from "../../../components/GenericPanel/usePanelHeader";
-import { KeyRound, FileText, ClipboardIcon, CircleDollarSign, Mail, Eye, EyeOff, Sparkles, Briefcase } from "lucide-react";
+import { KeyRound, FileText, ClipboardIcon, CircleDollarSign, Mail, Eye, EyeOff, Sparkles, Briefcase, AlertTriangle } from "lucide-react";
 import Report from "./Components/Report/index";
 import { getText } from "../../../constants";
 import CurrencySelector from "./Components/MoneySettings/CurrencySelector";
@@ -10,7 +11,7 @@ import SettingResend from "./Components/SettingResend";
 // import GroqSettings from "./Components/NowGrodSettings/index";
 import { DesplegablePanel, DrawPanel } from "anteriority-ui";
 import PasswordResetPanel from "./Components/PasswordReset";
-import { CONFIG_PANEL_TEXTS } from "./constants";
+import { CONFIG_PANEL_TEXTS, WORKER_EVENTS_TEXTS } from "./constants";
 import WorkerCenter from "./Components/WorkerCenter";
 
 const workerDescriptions = {
@@ -19,6 +20,7 @@ const workerDescriptions = {
 };
 
 const Settings = () => {
+  const navigate = useNavigate();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showResendPanel, setShowResendPanel] = useState(false);
   const [showReportPanel, setShowReportPanel] = useState(false);
@@ -84,7 +86,16 @@ const Settings = () => {
               description={getText("setting.logsDesc")}
               icon={ClipboardIcon}
               iconColorVariant="purple"
-              onToggle={() => window.open('/administracion/registros', '_blank')}
+              onToggle={() => navigate('/administracion/registros')}
+              isOpen={false}
+            />
+
+            <DesplegablePanel
+              title={WORKER_EVENTS_TEXTS.panelTitle}
+              description={WORKER_EVENTS_TEXTS.panelDescription}
+              icon={AlertTriangle}
+              iconColorVariant="red"
+              onToggle={() => navigate('/administracion/eventos-workers')}
               isOpen={false}
             />
 

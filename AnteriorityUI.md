@@ -84,6 +84,75 @@ import AlertModal from '../AlertModal/AlertModal'; // export default
 
 ---
 
+### AppShell
+
+Plantilla de layout principal de una aplicación: compone `Sidebar` (columna fija a la izquierda, alto completo) + `TopBar` (barra superior) + un área de contenido central con scroll propio, para no tener que armar esa estructura a mano en cada proyecto. No redeclara las props de `Sidebar`/`TopBar` una por una — se les pasa un objeto (`sidebarProps`/`topBarProps`) que se spreadea tal cual sobre cada uno, así que cualquier prop que esos componentes acepten hoy o agreguen en el futuro ya es compatible sin tocar `AppShell`.
+
+**Import:**
+```jsx
+import AppShell from '../AppShell/index'; // export default, archivo index.jsx
+```
+
+**Uso básico:**
+```jsx
+<AppShell
+  sidebarProps={{
+    groups: [{ title: 'General', items: [{ id: 'home', label: 'Inicio', icon: Home }] }],
+    activeId: 'home',
+    onSelect: (item) => navigate(item.id),
+    headerContent: <Logo />, // evita el espacio vacío arriba del sidebar
+  }}
+  topBarProps={{ title: 'Panel de control', logo: <Logo /> }}
+  useContainer
+>
+  <h2>Contenido de la página</h2>
+</AppShell>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `sidebarProps` | object | `{}` | Spreadeado tal cual sobre el `Sidebar` interno (`groups`, `activeId`, `onSelect`, `user`, colores, etc. — ver [Sidebar](#sidebar)) |
+| `topBarProps` | object | `{}` | Spreadeado tal cual sobre el `TopBar` interno (`title`, `actions`, `user`, `searchProps`, colores, etc. — ver [TopBar](#topbar)) |
+| `children` | node | — | Contenido principal, renderizado dentro del área central con scroll propio |
+| `useContainer` | boolean | `false` | Envuelve `children` en un [Container](#container) (con `wattermark={false}`) para darle marco (card con borde/sombra) al contenido sin que el consumidor tenga que importarlo aparte |
+| `containerProps` | object | `{}` | Spreadeado tal cual sobre el `Container` interno cuando `useContainer` está activo (`borderColor`, `bgImage`, `showPagination`, etc. — ver [Container](#container)); ignorado si `useContainer` es `false` |
+| `contentBgColor` | string | `'#f8fafc'` | Color de fondo del área de contenido (no afecta a `Sidebar`/`TopBar`, que mantienen su propio fondo vía `sidebarProps`/`topBarProps`) |
+| `className` | string | `''` | Clase adicional en el contenedor raíz del layout |
+| `style` | object | — | Estilos inline adicionales para el contenedor raíz |
+
+**Ejemplos:**
+```jsx
+// Estado mobile del Sidebar manejado automáticamente: AppShell conecta por
+// defecto el botón hamburguesa de TopBar (onMenuClick) con isMobileOpen/
+// onCloseMobile de Sidebar. Pasar esas props dentro de sidebarProps/topBarProps
+// las sobreescribe si se necesita un control propio.
+<AppShell
+  sidebarProps={{
+    groups,
+    activeId,
+    onSelect: setActiveId,
+    user: { email: 'jane.doe@example.com' },
+    userMenuItems,
+  }}
+  topBarProps={{
+    title: 'Reportes',
+    actions: [{ key: 'notifications', icon: Bell, tooltip: 'Notificaciones', onClick: () => {} }],
+    user: { email: 'jane.doe@example.com' },
+  }}
+  contentBgColor="#eef2ff"
+  useContainer
+  containerProps={{ borderColor: '#6366f1' }}
+>
+  <ReportsPage />
+</AppShell>
+```
+
+**Notas:** Compone `Sidebar`, `TopBar`, `ScrollBar` y (con `useContainer`) `Container` internos del sistema — ver sus respectivas secciones para la lista completa de props disponibles vía `sidebarProps`/`topBarProps`/`containerProps`. El layout es `height: 100vh` (pensado para ocupar toda la ventana); el `Sidebar` ya trae su propio `height: 100vh` y el `TopBar` es `width: 100%` sin alto fijo, por lo que encajan sin ajustes adicionales. El área de `children` scrollea con el `ScrollBar` de la librería (track/thumb estilizados, auto-hide) en vez de la barra de scroll nativa del navegador — el scroll horizontal queda deshabilitado (`horizontal={false}`), ya que el área de contenido está pensada para crecer solo en alto. Si se pasa `onMenuClick`/`isMobileOpen`/`onCloseMobile` manualmente dentro de `topBarProps`/`sidebarProps`, reemplaza el manejo automático del estado mobile que `AppShell` provee por defecto. Ninguno de los dos trae un logo por defecto: sin `sidebarProps.headerContent` el bloque superior del sidebar queda vacío (o directamente no se renderiza, salvo que `collapsible` esté activo), y sin `topBarProps.logo` el `TopBar` arranca directo en el título — pasar el mismo logo a ambas props (`headerContent` y `logo`) es el uso esperado.
+
+---
+
 ### Avatar
 
 Componente de avatar nativo (sin dependencias de MUI) para fotos de perfil, iniciales de nombre o íconos, con generación automática de colores armoniosos basados en el texto/nombre e iniciales automáticas.
@@ -315,6 +384,9 @@ import { Breadcrumbs } from '../Breadcrumbs/index'; // named export (también de
 | `itemsAfterCollapse` | number | `1` | Cantidad de crumbs visibles después del colapso, incluyendo el actual (solo aplica si `maxItems` está seteado) |
 | `menuBgColor` | string | `'#1b1f27'` | Fondo del menú desplegable de crumbs colapsados |
 | `menuTextColor` | string | `'#e6e8ec'` | Color de texto del menú desplegable de crumbs colapsados |
+| `separatorColor` | string | — | Color del separador entre crumbs (`--crumb-separator-color`) |
+| `tooltipBgColor` | string | — | Fondo del tooltip que se muestra al pasar el mouse sobre un crumb truncado (pasa a `ModalTooltip.bgColor`) |
+| `tooltipTextColor` | string | — | Color de texto del tooltip de crumb truncado (pasa a `ModalTooltip.textColor`) |
 
 **Ejemplos:**
 ```jsx
@@ -359,6 +431,8 @@ Con colapso de crumbs intermedios detrás de un menú:
 
 **Notas:** Si un ítem no trae `icon`, el primer crumb cae por defecto en el ícono de casa (comportamiento sin cambios); los demás no muestran ícono salvo que se pase uno. Las animaciones de entrada usan `--crumb-index` y respetan `prefers-reduced-motion`. El botón "…" de crumbs colapsados reutiliza [MenuPopover](#menupopover) (`isCollapsed` + `triggerProps={{ circle: true }}` para el ícono redondo, `children` como render-prop para la lista de items ocultos con sus propios `MenuItem`) en vez de armar un `@mui/material/Menu` propio — así ambos componentes comparten el mismo mecanismo de dropdown y escalan juntos si ese diseño cambia. Se puede importar tanto como named export (`{ Breadcrumbs }`) o default.
 
+Cada crumb (clicable o actual) mide su propio ancho en runtime (`scrollWidth` vs. `clientWidth`) y, solo si el `text-overflow: ellipsis` realmente lo está cortando, se envuelve en [ModalTooltip](#modaltooltip) para revelar el label completo al pasar el mouse — en vez de dejarlo cortado sin forma de leerlo. Esto no agrega un tooltip en crumbs que ya entran completos. El link clicable trunca a `max-width: 200px` (antes no truncaba individualmente, solo el contenedor general con `overflow: hidden`); el crumb actual sigue truncando a `max-width: 360px` como antes.
+
 ---
 
 ### Button
@@ -384,7 +458,7 @@ import Button, { VARIANTS, SIZES, COLORS } from '../Button'; // export default +
 | `children` | node | — | Contenido del botón |
 | `variant` | `'primary' \| 'secondary' \| 'ghost' \| 'danger' \| 'outline' \| 'tab' \| 'list-item'` (`VARIANTS`) | `'primary'` | Estilo visual; mapea a `variant`/`color` de MUI |
 | `size` | `'small' \| 'medium' \| 'large'` (`SIZES`) | `'medium'` | Tamaño del botón e ícono |
-| `active` | boolean | `false` | Aplica un fondo levemente oscurecido (estado activo/seleccionado) |
+| `active` | boolean | `false` | Aplica el fondo de `activeColor` (estado activo/seleccionado) |
 | `fullWidth` | boolean | `false` | Ancho completo del contenedor |
 | `icon` | componente (lucide-react) | — | Ícono inicial (`startIcon`) o único contenido si `circle` |
 | `onClick` | function | — | Handler de click (no se dispara si está deshabilitado/loading) |
@@ -394,6 +468,8 @@ import Button, { VARIANTS, SIZES, COLORS } from '../Button'; // export default +
 | `color` | string (valor CSS o de `COLORS`) | — | Color custom o uno de los colores estándar MUI/`COLORS` |
 | `border` | string | — | Color de borde (fuerza variante `outlined`) |
 | `borderColor` | string | — | Igual que `border` |
+| `hoverColor` | string | `color-mix(in srgb, currentColor 10%, transparent)` | Fondo del hover. Por default se deriva de `currentColor`, así se adapta automáticamente al color de texto resultante (útil en botones `color="transparent"`/`ghost` cuyo fondo real lo define el contenedor, ej. filas de `Sidebar` o items de un popover oscuro — evita el hover blanco fijo de MUI sobre fondos de color) |
+| `activeColor` | string | `color-mix(in srgb, currentColor 16%, transparent)` | Fondo aplicado cuando `active={true}`. Mismo criterio de default que `hoverColor` |
 | `style` | object | `{}` | Estilos `sx` adicionales, se aplican al final (mayor prioridad) |
 | `loading` | boolean | `false` | Muestra un `CircularProgress` en lugar del contenido y deshabilita el botón |
 | `success` | boolean \| undefined | `undefined` | Si es `false`, deshabilita el botón |
@@ -415,9 +491,26 @@ import Button, { VARIANTS, SIZES, COLORS } from '../Button'; // export default +
   title="Marcar como favorito"
   onClick={handleFavorite}
 />
+
+{/* Botón "transparent" sobre un contenedor de color propio (ej. sidebar azul oscuro):
+    sin hoverColor/activeColor, el hover/active ya se adapta solo vía currentColor */}
+<Button color="transparent" active={isActive} onClick={handleSelect}>
+  Inicio
+</Button>
+
+{/* Override explícito del hover/active, ej. para un contraste puntual distinto al default */}
+<Button
+  color="transparent"
+  active={isActive}
+  hoverColor="rgba(13, 82, 248, 0.12)"
+  activeColor="rgba(13, 82, 248, 0.2)"
+  onClick={handleSelect}
+>
+  Inicio
+</Button>
 ```
 
-**Notas:** Es un `React.forwardRef`. Expone `Button.VARIANTS`, `Button.SIZES` y `Button.COLORS` como propiedades estáticas además de los named exports.
+**Notas:** Es un `React.forwardRef`. Expone `Button.VARIANTS`, `Button.SIZES` y `Button.COLORS` como propiedades estáticas además de los named exports. Para asignarle un atajo de teclado global, envolverlo con `KeyboardShortcut` (ver sección correspondiente) en vez de una prop propia — así el mismo wrapper sirve para `Button`, `Input` o cualquier otro elemento. El hover/active de los botones `color="transparent"` (y en general cualquiera con `muiColor` `inherit`) ya no usa el blanco/negro translúcido fijo de MUI — se deriva de `currentColor`, por lo que se adapta solo al color de texto resultante sobre cualquier fondo heredado del contenedor (ej. filas de `Sidebar`, items de un popover con fondo de color). Usar `hoverColor`/`activeColor` solo cuando se necesite un color puntual distinto a ese default.
 
 ---
 
@@ -471,7 +564,12 @@ import CustomDatePicker from '../CalendarComponent/CustomDatePicker'; // export 
 
 ### CalendarPicker
 
-Variante de selector de fecha equivalente a `CalendarComponent`, pero el calendario se renderiza dentro de un `Frame` (modal reutilizable) y usa los `Button`/`Selector` del sistema de diseño en vez de controles nativos.
+Selector de fecha con dos variantes (`variant`):
+
+- `'popover'` (default): un `TextField` que al clickearse abre un calendario chico (círculos) flotando debajo, anclado al input, con selectores rápidos de mes/año.
+- `'inline'`: sin `TextField` — se renderiza directo un calendario grande tipo "hoja de agenda" (celdas rectangulares, pensado para ocupar el ancho de un container, ej. una vista de citas/turnos).
+
+Internamente delega el grid de cada variante a un subcomponente propio (`components/CalendarGrid` para popover, `components/AgendaGrid` para inline) controlado por `CalendarPicker`, que mantiene todo el estado (mes visible, selección, rango, drag).
 
 **Import:**
 ```jsx
@@ -486,22 +584,48 @@ import CalendarPicker from '../CalendarPicker/index'; // export default
   value={birthDate}
   onChange={(e) => setBirthDate(e.target.value)}
 />
+
+// Modo agenda (sin TextField, calendario grande inline)
+<CalendarPicker
+  name="agendaDate"
+  variant="inline"
+  value={selectedDate}
+  onChange={(e) => setSelectedDate(e.target.value)}
+/>
 ```
 
 **Props:**
 
 | Prop | Tipo | Default | Descripción |
 |---|---|---|---|
-| `label` | string | — | Label del `TextField` |
+| `variant` | `'popover'` \| `'inline'` | `'popover'` | `'popover'`: `TextField` + calendario flotante chico. `'inline'`: calendario grande tipo agenda, sin `TextField`, ocupa el ancho del container (`max-width: 880px`). |
+| `label` | string | — | Label del `TextField` (solo aplica en `variant="popover"`) |
 | `name` | string | — | Nombre usado en el evento sintético `onChange` |
 | `value` | string (`YYYY-MM-DD`) \| Date | — | Fecha seleccionada (modo simple). Ignorado si `range` es `true`. |
 | `onChange` | function | — | Recibe un evento `{ target: { name, value, type } }`. `type` es `'date'` en modo simple o `'date-range'` en modo rango. |
-| `required` | boolean | `false` | Marca el campo como requerido |
-| `disabled` | boolean | `false` | Deshabilita la apertura del calendario |
-| `range` | boolean | `false` | Activa selección de rango. `value`/`onChange` pasan a usar `{ start, end }` (strings `YYYY-MM-DD`) en vez de una fecha suelta. |
-| `inputSx` | object | — | `sx` custom pasado al `TextField` interno |
+| `required` | boolean | `false` | Marca el campo como requerido (solo `variant="popover"`) |
+| `disabled` | boolean | `false` | Deshabilita la apertura del calendario (solo `variant="popover"`) |
+| `showFooter` | boolean | `false` | Solo `variant="popover"`. Muestra el footer con los botones "Borrar" (limpia el valor) y "Hoy" (selecciona la fecha actual) debajo del grid de días. Es opt-in: si no se pasa, el popover solo muestra el calendario, sin esos controles. |
+| `range` | boolean | `false` | Activa selección de rango. `value`/`onChange` pasan a usar `{ start, end }` (strings `YYYY-MM-DD`) en vez de una fecha suelta. Funciona igual en ambas variantes. |
+| `inputSx` | object | — | `sx` custom pasado al `TextField` interno (solo `variant="popover"`) |
+| `renderDay` | `function(date: Date) => ReactNode` | — | Solo `variant="inline"`. Contenido custom por celda (ej. eventos/citas de ese día + acciones). Si no se pasa, la celda entera es un único `Button` de la librería (click selecciona el día); si se pasa, la celda es un contenedor y solo el número de día es un `Button` circular aparte (un `<button>` no puede contener otro `<button>`, así que el contenido de `renderDay` puede incluir sus propios `Button`s — ver ejemplo). |
+| `country` | string | — | Código de país ISO 3166-1 (ej. `"AR"`, `"US"`) para calcular feriados/efemérides oficiales vía `date-holidays`. Funciona en ambas variantes. |
+| `showHolidays` | boolean | `Boolean(country)` | Marca los días con feriado/efeméride. Por default se activa solo si se pasó `country`. Funciona en ambas variantes (ver nota sobre cómo se ve en cada una). |
+| `extraHolidays` | `{ [yyyy-MM-dd]: string \| {label, type} \| Array<...> }` | — | Feriados/efemérides custom que `date-holidays` no cubre (ej. una efeméride internacional puntual), combinados con los oficiales de `country`. Funciona en ambas variantes. |
+| `showMoonPhases` | boolean | `false` | Marca los días con un ícono de fase lunar (react-icons/wi), calculada por ciclo sinódico (±1 día de margen). Funciona en ambas variantes. |
 | `selectedColor` | string | — | Color del día seleccionado (y de los extremos/relleno del rango) (`--cp-selected`) |
 | `accentColor` | string | — | Color de acento / botón "Hoy" (`--cp-accent`) |
+| `holidayBorderColor` | string | `#ef4444` (rojo) | Color del anillo/borde que marca la celda de un día con feriado/efeméride, en ambas variantes (`--cp-agenda-holiday-border` en inline, `--cp-holiday-border` en popover). Tiene un default visible (no solo el fallback del token CSS) porque el borde debe marcarse incluso sin personalizar nada. |
+| `moonPhaseColor` | string | — | Color del ícono/punto de fase lunar, en ambas variantes (`--cp-agenda-moon` en inline, `--cp-moon-dot` en popover). |
+| `tooltipBgColor` | string | — | Fondo del tooltip (`ModalTooltip`) que muestra el detalle de un feriado/fase lunar al hacer hover, en ambas variantes. |
+| `tooltipTextColor` | string | — | Color de texto de ese tooltip, en ambas variantes. |
+| `bgColor` | string | — | Solo `variant="inline"`. Fondo del calendario (`--cp-agenda-bg`). |
+| `textColor` | string | — | Solo `variant="inline"`. Color del texto principal (mes, números de día) (`--cp-agenda-text`). |
+| `mutedColor` | string | — | Solo `variant="inline"`. Color de texto secundario (año, nombres de día, días de otro mes) (`--cp-agenda-muted`/`--cp-agenda-year`). |
+| `mutedBgColor` | string | — | Solo `variant="inline"`. Fondo de las celdas de días fuera del mes actual (`--cp-agenda-muted-bg`). |
+| `borderColor` | string | — | Solo `variant="inline"`. Color de las líneas divisorias del grid (`--cp-agenda-border`). |
+| `hoverColor` | string | — | Solo `variant="inline"`. Fondo al pasar el mouse sobre una celda (`--cp-agenda-hover`). |
+| `holidayColor` | string | — | Solo `variant="inline"`. Color del nombre del feriado/efeméride en la celda (`--cp-agenda-holiday`) — el popover no tiene este, el nombre nunca se muestra como texto ahí (ver nota). |
 
 **Ejemplos:**
 ```jsx
@@ -517,11 +641,59 @@ import CalendarPicker from '../CalendarPicker/index'; // export default
   value={{ start: '2024-06-10', end: '2024-06-18' }}
   onChange={(e) => setStayRange(e.target.value)} // e.target.value = { start, end }
 />
+
+// Agenda con feriados de Argentina + fases lunares
+<CalendarPicker
+  name="agendaDate"
+  variant="inline"
+  country="AR"
+  showMoonPhases
+  value={selectedDate}
+  onChange={(e) => setSelectedDate(e.target.value)}
+/>
+
+// Agenda con eventos propios por día (usa el Button de la librería para cada acción)
+<CalendarPicker
+  name="agendaWithEvents"
+  variant="inline"
+  value={selectedDate}
+  onChange={(e) => setSelectedDate(e.target.value)}
+  renderDay={(day) => {
+    const events = getEventsForDay(day); // lógica del consumidor
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {events.map((ev) => (
+          <Button key={ev.id} variant="primary" size="small" onClick={(e) => { e.stopPropagation(); openEvent(ev); }}>
+            {ev.label}
+          </Button>
+        ))}
+      </div>
+    );
+  }}
+/>
 ```
 
-**Notas:** El calendario se abre dentro de `Frame` (`isModal`), a diferencia de `CalendarComponent` que usa su propio backdrop; ambos componentes son intercambiables en su API pero difieren en la implementación visual del modal.
+**Ejemplo (popover con feriados y fases lunares):**
+```jsx
+<CalendarPicker
+  label="Fecha de la cita"
+  name="popoverHolidays"
+  country="AR"
+  showMoonPhases
+  value={selectedDate}
+  onChange={(e) => setSelectedDate(e.target.value)}
+/>
+```
 
-En modo `range`, la selección soporta dos gestos, intercambiables: (1) click en el día de inicio → click en el día de fin (el panel queda abierto entre medio, permitiendo navegar de mes con las flechas sin perder el progreso), o (2) mousedown sobre el día de inicio + arrastrar + soltar sobre el día de fin (confirma al soltar, sin necesidad de un segundo click). Si el día de fin es anterior al de inicio, se reordenan automáticamente. Mientras se arrastra/pasa el mouse se previsualiza el rango con un resaltado tenue antes de confirmar.
+**Notas:**
+- En modo `range`, la selección soporta dos gestos, intercambiables: (1) click en el día de inicio → click en el día de fin (el panel queda abierto entre medio, permitiendo navegar de mes con las flechas sin perder el progreso), o (2) mousedown sobre el día de inicio + arrastrar + soltar sobre el día de fin (confirma al soltar, sin necesidad de un segundo click). Si el día de fin es anterior al de inicio, se reordenan automáticamente. Mientras se arrastra/pasa el mouse se previsualiza el rango con un resaltado tenue antes de confirmar.
+- `country`/`showHolidays`/`extraHolidays`/`showMoonPhases` funcionan en **ambas** variantes, pero se muestran distinto por el espacio disponible en cada una:
+  - `variant="inline"` (celda rectangular grande): el nombre del feriado se ve como texto (truncado si no entra) y la fase lunar como un ícono de `react-icons/wi`, ambos dentro de la celda.
+  - `variant="popover"` (círculo chico de 36px, tamaño fijo — nunca se agranda ni deforma): el feriado se marca con un anillo/borde de color alrededor del círculo (`holidayBorderColor`) y la fase lunar con un punto diminuto (`moonPhaseColor`); ninguno de los dos se muestra como texto/ícono visible ahí, porque no entra sin romper el tamaño fijo de la celda.
+  - En ambas variantes, pasar el mouse sobre el día revela el detalle completo (nombre del feriado, fase lunar + fecha) en un tooltip (`ModalTooltip`, vía portal a `document.body` — un tooltip `position: absolute` local no alcanza porque cada celda del grid es su propio stacking context y las celdas de filas siguientes, pintadas después en el DOM, lo taparían).
+- `holidayColor` (color del *texto* del nombre del feriado) solo existe en `variant="inline"`, porque el popover nunca muestra ese texto. `holidayBorderColor`/`moonPhaseColor`/`tooltipBgColor`/`tooltipTextColor` sí aplican a ambas variantes.
+- `bgColor`/`textColor`/`mutedColor`/`mutedBgColor`/`borderColor`/`hoverColor` (paleta general del calendario grande) solo existen en `variant="inline"` — el popover usa su propia paleta fija (ver `selectedColor`/`accentColor`).
+- El cálculo de feriados usa `date-holidays` (datos reales por país, no hardcodeados en la librería); el de fase lunar es un cálculo astronómico aproximado por ciclo sinódico (sin dependencia de red), con ±1 día de margen de error — no reemplaza una efeméride astronómica oficial.
 
 ---
 
@@ -817,6 +989,8 @@ import Container from '../Container'; // export default (index.jsx)
 | `pageSizeOptions` | array | `[5, 10, 20, 50]` | Opciones de tamaño de página |
 | `onPageSizeChange` | function | — | Handler de cambio de tamaño de página |
 | `borderColor` | string | `'rgba(0, 0, 0, 0.08)'` | Color del borde del contenedor (`--container-border`). Por defecto un negro claro sutil. |
+| `bgImage` | string | — | URL de una imagen de fondo, renderizada detrás del contenido (capa independiente del `backdrop-filter` existente) |
+| `blurBackground` | boolean | `false` | Difumina la imagen de `bgImage` (no afecta el `backdrop-filter` del contenido, que sigue activo siempre por compatibilidad) |
 | `...props` | — | — | Cualquier otra prop (ej. `onClick`, `id`, `style`) se pasa al `div` raíz |
 
 **Ejemplos:**
@@ -831,7 +1005,14 @@ import Container from '../Container'; // export default (index.jsx)
 >
   <p>Lista de resultados paginados.</p>
 </Container>
+
+<Container bgImage="/fondo.jpg" blurBackground style={{ minHeight: '100vh' }}>
+  <p>Contenedor usado como fondo de pantalla completa, con imagen difuminada detrás.</p>
+</Container>
 ```
+
+**Notas:**
+- Para usar `Container` como fondo de pantalla completa, combinar con `style={{ minHeight: '100vh', maxWidth: 'none' }}` (el `max-width: 1300px` por defecto está pensado para secciones de contenido, no para fondos).
 
 ---
 
@@ -1035,19 +1216,25 @@ import DrawPanel from '../DrawPanel'; // export default (index.jsx)
 | `isOpen` | boolean | — | Controla apertura/cierre (anima entrada/salida antes de desmontar) |
 | `onClose` | function | — | Handler de cierre (click en overlay, botón X o cancelar) |
 | `title` | string | — | Título del panel |
+| `closeIcon` | component | `XCircle` (lucide-react) | Ícono del botón de cerrar; recibe `size` y `color` como props (mismo contrato que cualquier ícono de lucide-react) |
 | `description` | string | — | Texto descriptivo, ubicado según `descriptionPosition` |
 | `descriptionPosition` | `'top' \| 'bottom'` | `'top'` | Dónde se muestra la descripción |
 | `children` | node | — | Contenido principal del panel |
 | `width` | string | `'400px'` | Ancho máximo del panel |
-| `showActions` | boolean | `false` | Muestra footer con botones cancelar/confirmar |
+| `showActions` | boolean | `true` | Muestra footer con botones cancelar/confirmar |
 | `onConfirm` | function | — | Handler del botón confirmar |
-| `confirmText` | string | `'Confirmar'` | Texto del botón confirmar |
-| `cancelText` | string | `'Cancelar'` | Texto del botón cancelar |
+| `confirmText` | string | `'Confirmar'` | Texto del botón confirmar (ignorado si `confirmButtonProps.children` viene definido) |
+| `cancelText` | string | `'Cancelar'` | Texto del botón cancelar (ignorado si `cancelButtonProps.children` viene definido) |
+| `confirmButtonProps` | object | — | Props adicionales spreadeadas sobre el `Button` de confirmar (override total: variant, color, icon, children, etc.) |
+| `cancelButtonProps` | object | — | Props adicionales spreadeadas sobre el `Button` de cancelar (override total: variant, color, icon, children, etc.) |
 | `formId` | string | — | Si se define, el botón confirmar es `type="submit"` con `form={formId}` |
 | `loading` | boolean | `false` | Estado de carga de los botones del footer |
+| `contentLoading` | boolean | `false` | Reemplaza `children` (y la descripción bottom) por un `Loading` centrado dentro del área de contenido |
+| `contentLoadingText` | string | — | Texto mostrado bajo el spinner cuando `contentLoading` está activo (pasado a `Loading` como `text`; ignorado si `typeLoading` es `'skeleton'`) |
+| `typeLoading` | string | `'default'` | Variante de `Loading` usada cuando `contentLoading` está activo. `'skeleton'`/`'Skeleton'` (sin distinguir mayúsculas) fuerza el placeholder de líneas; cualquier otro valor se pasa tal cual como `variant` a `Loading` (`'bars'`, `'bounce'`, `'box'`, o cualquier otro string, que cae al spinner `'default'` de `Loading` si no matchea ninguna variante) |
 | `success` | boolean \| undefined | `undefined` | Pasado al `Button` de confirmar |
 | `className` | string | `''` | Clase adicional en el panel |
-| `showCountdown` | boolean | `false` | Muestra una `CountdownBar` bajo el header |
+| `showCountdown` | boolean | `false` | Muestra una `CountdownBar` dentro del header (debajo del título), pegada a la línea divisoria |
 | `countdownActive` | boolean | `true` | Activa el temporizador de la `CountdownBar` |
 | `countdownDuration` | number | — | Duración pasada a `CountdownBar` |
 | `countdownOnComplete` | function | — | Callback al completar el countdown |
@@ -1098,9 +1285,122 @@ import DrawPanel from '../DrawPanel'; // export default (index.jsx)
 >
   <p>2 de 4 elementos seleccionados.</p>
 </DrawPanel>
+
+<DrawPanel
+  isOpen
+  onClose={handleClose}
+  title="Detalle del registro"
+  closeIcon={MedalIcon} // ícono propio (lucide-react) en vez del XCircle default
+>
+  <p>Contenido del panel lateral.</p>
+</DrawPanel>
+
+<DrawPanel
+  isOpen
+  onClose={handleClose}
+  title="Detalle del registro"
+  contentLoading={isFetching}
+  contentLoadingText="Cargando información..."
+>
+  <p>Este contenido no se muestra mientras contentLoading es true.</p>
+</DrawPanel>
+
+<DrawPanel
+  isOpen
+  onClose={handleClose}
+  title="Detalle del registro"
+  contentLoading={isFetching}
+  typeLoading="skeleton"
+>
+  <p>Este contenido no se muestra mientras contentLoading es true.</p>
+</DrawPanel>
 ```
 
-**Notas:** Se renderiza con `createPortal` en `document.body`. Si hay `formData` con valores (o `hasUnsavedChanges` es `true`), el primer click fuera del panel o en el botón cerrar solo muestra un aviso (`closeConfirmMessage`); un segundo click sí cierra. Compone `Button` y `CountdownBar` internos del sistema.
+**Notas:** Se renderiza con `createPortal` en `document.body`. Si hay `formData` con valores (o `hasUnsavedChanges` es `true`), el primer click fuera del panel o en el botón cerrar solo muestra un aviso (`closeConfirmMessage`); un segundo click sí cierra. Compone `Button`, `CountdownBar` y `Loading` internos del sistema. El header (título + `CountdownBar` si `showCountdown`) queda fijo (`flex-shrink: 0`) mientras solo el contenido (`children`) hace scroll; al scrollear el contenido aparece una sombra interna sutil bajo el header (color derivado de `borderColor`) como indicador de que hay más contenido arriba. En `anchor="top"` el panel queda acotado a la altura del viewport (`max-height: 100%`) para que el scroll ocurra siempre dentro del contenido, nunca en la página. `contentLoading` es independiente del `loading` de los botones del footer: se puede mostrar el panel con los botones habilitados mientras el contenido todavía carga, o viceversa.
+
+---
+
+### FileListItem
+
+Fila de lista de archivos: checkbox de selección opcional, ícono cuadrado de color según el tipo de archivo (mismo mapeo que [MediaViewer](#mediaviewer), ver [common/icons/fileType.js](#común-iconsfiletypejs)), nombre, metadata (tamaño · fecha) y acciones a la derecha. Las acciones por default son compartir/descargar/eliminar (solo se renderiza el botón cuyo callback se pasa); se pueden reemplazar completamente por botones propios (ej. "Editar") vía la prop `actions`. Pensado para listar varias instancias apiladas (ver story `ListaCompleta`). Responsive: en viewports angostos (`max-width: 480px`) reduce paddings, tamaño del ícono y de los botones de acción; el nombre siempre trunca con ellipsis en vez de desbordar.
+
+**Import:**
+```jsx
+import FileListItem from 'anteriority-ui/screens/components/FileListItem'; // export default, archivo index.jsx
+```
+
+**Uso básico:**
+```jsx
+<FileListItem name="Product Backlog - Happy Pets v2.pdf" size="114.7 KB" date="16/10/2026" />
+
+<FileListItem
+  name="Historias Usuario.docx"
+  size="30.8 KB"
+  date="15/10/2026"
+  selectable
+  selected={selected}
+  onSelectChange={setSelected}
+  onShare={() => share(file)}
+  onDownload={() => download(file)}
+  onDelete={() => remove(file)}
+/>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| name | string | — | Nombre de archivo a mostrar (también se usa para inferir el ícono/color por extensión). |
+| url | string | — | URL del archivo; si no se pasa `name`, se usa para inferir el tipo igual (no se renderiza como link por sí sola — ver `onClick`/`actions` para eso). |
+| size | string | — | Texto de tamaño ya formateado (ej. `'114.7 KB'`). El componente no formatea bytes — para eso usar `formatFileSize` auxiliar de ser necesario antes de pasarlo. |
+| date | string | — | Texto de fecha ya formateado (ej. `'16/10/2026'`). |
+| selectable | bool | `false` | Muestra el checkbox de selección (MUI `Checkbox`) a la izquierda. |
+| selected | bool | `false` | Estado controlado del checkbox. |
+| onSelectChange | function | — | Callback `(checked: bool)` al tildar/destildar. |
+| selectLabel | string | `'Seleccionar archivo'` | `aria-label` del checkbox. |
+| onShare | function | — | Si se pasa, renderiza el botón de compartir (ícono `Share2`) en las acciones default. |
+| onDownload | function | — | Si se pasa, renderiza el botón de descarga (ícono `Download`) en las acciones default. |
+| onDelete | function | — | Si se pasa, renderiza el botón de eliminar (ícono `Trash2`, se pinta rojo en hover) en las acciones default. |
+| shareLabel | string | `'Compartir'` | `aria-label`/`title` del botón de compartir. |
+| downloadLabel | string | `'Descargar'` | `aria-label`/`title` del botón de descargar. |
+| deleteLabel | string | `'Eliminar'` | `aria-label`/`title` del botón de eliminar. |
+| actions | node | — | Si se pasa (incluso `null`), reemplaza por completo el bloque de acciones default — útil para botones propios como "Editar". El click dentro de este bloque no dispara el `onClick` de la fila (`stopPropagation`). |
+| onClick | function | — | Si se pasa, toda la fila es clickeable (cursor pointer, hover, `role="button"`, accesible por teclado). |
+| bgColor | string | `'transparent'` | Color de fondo de la fila. |
+| borderColor | string | `'#e2e8f0'` | Color de borde de la fila. |
+| textColor | string | `'#1e293b'` | Color del nombre de archivo. |
+| metaColor | string | `'#64748b'` | Color del texto de metadata (tamaño/fecha) y de los íconos de acción. |
+| className | string | `''` | Clase adicional para la fila. |
+| style | object | — | Estilos inline adicionales para la fila. |
+
+**Ejemplos:**
+```jsx
+// Lista completa con selección individual y eliminar que saca el item del estado
+{files.map((file) => (
+  <FileListItem
+    key={file.id}
+    name={file.name}
+    size={file.size}
+    date={file.date}
+    selectable
+    selected={file.selected}
+    onSelectChange={(checked) => toggleSelected(file.id, checked)}
+    onShare={() => share(file)}
+    onDownload={() => download(file)}
+    onDelete={() => removeFile(file.id)}
+  />
+))}
+
+// Acciones completamente custom (ej. un botón "Editar" en vez de compartir/descargar/eliminar)
+<FileListItem
+  name="reporte-ventas.xlsx"
+  size="45 KB"
+  date="01/10/2026"
+  actions={<Button size="small" onClick={() => editFile(file)}>Editar</Button>}
+/>
+```
+
+**Notas:** El ícono cuadrado de color no tiene prop propia — viene del tipo de archivo detectado (mismo mapeo que `MediaViewer`), igual que su glifo blanco. No persiste selección ni hace llamadas de red — es puramente presentacional/controlado.
 
 ---
 
@@ -1371,6 +1671,24 @@ import HoursPicker from '../HoursPicker/index'; // export default, archivo index
 
 ---
 
+### Icons (lucide-react)
+
+No es un componente con props propias, sino un re-export: `anteriority-ui/lucide` expone [lucide-react](https://lucide.dev/) completo, para que un proyecto consumidor importe cualquier ícono de lucide **sin instalar `lucide-react` por su cuenta** — queda disponible transitivamente al instalar `anteriority-ui` (ya es una `dependency` de la librería, usada internamente por la mayoría de los componentes).
+
+**Import:**
+```jsx
+import { Home, Bell, Search } from 'anteriority-ui/lucide';
+```
+
+**Uso básico:**
+```jsx
+<Home size={24} color="#0ea5e9" />
+```
+
+**Notas:** Los nombres son exactamente los que exporta `lucide-react` — ver el [buscador oficial](https://lucide.dev/icons/). Es un re-export de 1 línea (`export * from 'lucide-react'`) en [lucide.js](lucide.js), en la raíz del paquete.
+
+---
+
 ### Icons (react-icons)
 
 No es un componente con props propias, sino un mecanismo de subpaths: `anteriority-ui` empaqueta [react-icons](https://react-icons.github.io/react-icons/) completo como dependency propia (igual que `lucide-react`), para que un proyecto consumidor use cualquier ícono de cualquier pack de react-icons (Simple Icons, Font Awesome, Material Design, Bootstrap Icons, Ionicons, etc.) **sin instalar `react-icons` por su cuenta** — queda disponible transitivamente al instalar `anteriority-ui`.
@@ -1445,6 +1763,53 @@ import { IconCatalog } from 'anteriority-ui';
 ```
 
 **Notas:** El selector de pack reutiliza [Selector](#selector) y el buscador de texto reutiliza [Search](#search) (en modo `freeSolo`, sin `options`, como `TextField` libre) en vez de elementos nativos — consistente con el resto de la librería. Muestra hasta 200 resultados por búsqueda (`MAX_RESULTS` en `constants.js`) para no renderizar packs completos de miles de íconos de una sola vez. Cada resultado incluye el ícono renderizado junto a su nombre exacto envuelto en [CopyText](#copytext), para copiarlo con un clic y pegarlo directo en un import. No expone `size`/`color` como props porque es una herramienta de exploración, no un ícono para usar en UI final — una vez encontrado el nombre, se importa directo desde el subpath del pack correspondiente (ver [Icons (react-icons)](#icons-react-icons)).
+
+---
+
+### ImagePastePreview
+
+Fila de chips (miniatura + badge con label + botón de quitar) para mostrar las imágenes extraídas por el hook `usePasteImage` (`common/hooks/usePasteImage.js`). Es la pieza visual compartida por [MultilinePlaceholder](#multilineplaceholder) y [PasteImageField](#pasteimagefield) para no duplicar ese bloque entre ambos — también puede usarse standalone si se arma una integración de paste propia con el hook.
+
+**Import:**
+```jsx
+import ImagePastePreview from 'anteriority-ui/screens/components/ImagePastePreview'; // export default, archivo index.jsx
+```
+
+**Uso básico:**
+```jsx
+const { onPaste, previews, clearPreview } = usePasteImage({ onImagePaste });
+
+<textarea onPaste={onPaste} />
+<ImagePastePreview previews={previews} onRemove={clearPreview} />
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| previews | array | — | Array de previews tal como los devuelve `usePasteImage` (`{ id, url, file }` por cada imagen). Si está vacío o es `undefined`, el componente no renderiza nada. |
+| onRemove | function | — | Callback `(id)` invocado al hacer click en el botón de quitar de un chip. |
+| label | string | `'Imagen pegada'` | Texto del badge (`Barnner`) de cada chip (y `alt` de la miniatura). |
+| removeLabel | string | `'Quitar imagen'` | `aria-label` del botón de quitar. |
+| borderColor | string | `'#e2e8f0'` | Color de borde del chip contenedor (miniatura + badge + botón). |
+| thumbBorderColor | string | `'#cbd5e1'` | Color de borde propio de la miniatura (el `<img>`). |
+| labelBgColor | string | `'#dbeafe'` | Color de fondo del badge del label (prop `bgColor` de `Barnner`). |
+| labelTextColor | string | `'#1e40af'` | Color de texto del badge del label (prop `textColor` de `Barnner`). |
+| className | string | `''` | Clase adicional para el contenedor de la lista. |
+| style | object | — | Estilos inline adicionales para el contenedor de la lista. |
+
+**Ejemplos:**
+```jsx
+<ImagePastePreview
+  previews={previews}
+  onRemove={clearPreview}
+  label="Adjunto"
+  labelBgColor="#fce7f3"
+  labelTextColor="#9d174d"
+/>
+```
+
+**Notas:** No sube ni persiste nada — es puramente presentacional; la extracción/estado vive en `usePasteImage`. El badge del label usa [Barnner](#barnner) (el mismo chip que usan las celdas de `TableB`) en vez de un chip reimplementado a mano.
 
 ---
 
@@ -1538,10 +1903,47 @@ import Input from '../Input/index'; // export default, forwardRef, archivo index
 **Notas:** Es un wrapper de `TextField` con `forwardRef`, por lo que la `ref` se reenvía al input nativo.
 
 ---
+[]()
+### KeyboardShortcut
+
+Envoltorio genérico que asigna un atajo de teclado global a **cualquier** `children` (`Button`, `Input`, un `<div>` propio, etc.) sin agregar markup propio al DOM — renderiza exactamente el `children` recibido, así que no altera layouts `flex`/`grid` del padre. Internamente usa el hook compartido `useKeyboardShortcut` (`common/hooks/useKeyboardShortcut.js`), el mismo que usan los atajos Ctrl/Cmd+K de `TopBar` y Ctrl/Cmd+B de `Sidebar`.
+
+**Import:**
+```jsx
+import KeyboardShortcut from 'anteriority-ui/screens/components/KeyboardShortcut'; // export default, archivo index.jsx
+```
+
+**Uso básico:**
+```jsx
+<KeyboardShortcut shortcut="ctrl+e" onTrigger={handleEdit}>
+  <Button onClick={handleEdit}>Editar</Button>
+</KeyboardShortcut>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| children | node | — | El elemento a envolver; se renderiza tal cual, sin wrapper adicional. |
+| shortcut | string | — | Combinación de teclas (ej. `'ctrl+e'`, `'ctrl+shift+a'`, `'cmd+k'`). `ctrl` y `cmd`/`meta` son equivalentes, para que el mismo atajo funcione en Windows/Linux y Mac sin distinguir el sistema operativo. |
+| enabled | boolean | `true` | Si es `false`, el atajo no se registra (útil para deshabilitarlo condicionalmente, ej. cuando el elemento envuelto está disabled). |
+| onTrigger | function | — | Callback invocado cuando se presiona la combinación. |
+| preventDefault | boolean | `true` | Si llama `event.preventDefault()` al disparar el atajo (evita comportamiento default del navegador en esa combinación). |
+
+**Ejemplos:**
+```jsx
+<KeyboardShortcut shortcut="ctrl+shift+f" onTrigger={() => inputRef.current?.focus()}>
+  <TextField inputRef={inputRef} label="Buscar" value={value} onChange={onChange} />
+</KeyboardShortcut>
+```
+
+**Notas:** Es intencionalmente un wrapper y no una prop de `Button` u otro componente puntual — así el mismo mecanismo sirve para cualquier elemento, incluso componentes ajenos a esta librería en un proyecto consumidor. No sube ni persiste nada; es puramente el registro/cleanup del listener de teclado vía `useKeyboardShortcut`.
+
+---
 
 ### Loading
 
-Indicador de carga con varias variantes visuales (spinner, barras, rebote, caja) y texto opcional, incluyendo rotación automática entre varias frases.
+Indicador de carga con varias variantes visuales (spinner, barras, rebote, caja, skeleton, y un set de loaders más elaborados: barra rebotando, barra continua, escáner neón, pulso líquido, órbita 3D, waveform, hélice ADN, cohete despegando) y texto opcional, incluyendo rotación automática entre varias frases.
 
 **Import:**
 ```jsx
@@ -1560,9 +1962,11 @@ import Loading from '../Loading/index'; // export default, archivo index.jsx
 | text | string | `''` | Texto fijo mostrado junto al loader (se ignora si se pasa `phrases`). |
 | phrases | string[] | `[]` | Frases que rotan automáticamente cada 3.5s con transición de fundido. |
 | size | `'small'` \| `'medium'` \| `'large'` \| `'giant'` | `'medium'` | Tamaño del loader. |
-| variant | `'default'` \| `'bars'` \| `'bounce'` \| `'box'` | `'default'` | Estilo visual del loader (`'default'` es el spinner circular). |
+| variant | `'default'` \| `'bars'` \| `'bounce'` \| `'box'` \| `'skeleton'` \| `'bounce-bar'` \| `'continuous-bar'` \| `'neon-scanner'` \| `'liquid-pulse'` \| `'orbit-3d'` \| `'waveform'` \| `'dna-helix'` \| `'rocket'` \| `'cube-3d'` \| `'prism-3d'` \| `'text-3d'` \| `'text-3d-static'` | `'default'` | Estilo visual del loader (`'default'` es el spinner circular; `'skeleton'` muestra 5 líneas de placeholder con shimmer, ver nota). Un valor no reconocido cae al spinner `'default'`. |
 | className | string | `''` | Clase(s) CSS adicionales. |
 | color | string | — | Color personalizado del loader (`--loading-color`). |
+| active | boolean | `true` | Controla la animación de salida (ver nota). Pasar `active={false}` cuando la carga termina en vez de desmontar `Loading` directamente — sigue renderizado un instante animando la salida y recién después retorna `null` por su cuenta. |
+| onExited | function | — | Callback disparado cuando termina la animación de salida (`active={false}`) y `Loading` ya se ocultó internamente — útil para desmontar el componente padre recién ahí. |
 
 **Ejemplos:**
 ```jsx
@@ -1571,14 +1975,45 @@ import Loading from '../Loading/index'; // export default, archivo index.jsx
 ```jsx
 <Loading text="Un momento..." size="large" variant="bars" />
 ```
+```jsx
+<Loading variant="skeleton" color="#94a3b8" />
+```
+```jsx
+<Loading text="Desplegando..." size="giant" variant="rocket" />
+```
+```jsx
+<Loading text="Cargando" variant="neon-scanner" />
+```
+```jsx
+<Loading text="Renderizando..." size="giant" variant="cube-3d" />
+```
+```jsx
+<Loading text="A" size="giant" variant="text-3d" />
+```
+```jsx
+<Loading text="AnteriorityUI" size="giant" variant="text-3d-static" />
+```
+```jsx
+// Al terminar la carga real, pasar active={false} en vez de dejar de renderizar
+// Loading de golpe: así alcanza a animar la salida antes de ocultarse.
+<Loading text="AnteriorityUI" size="giant" variant="text-3d" active={!loadingFinished} />
+```
 
-**Notas:** Es usado internamente por `Frame` (prop `isLoading`) con `size="giant"`.
+**Notas:** Es usado internamente por `Frame` (prop `isLoading`) con `size="giant"` y por `DrawPanel` (prop `contentLoading`, ver [DrawPanel](#drawpanel)). La variante `'skeleton'` ignora `text`/`phrases`/`size` (no tiene spinner ni texto) y usa `className` sobre su propio contenedor (`height: 100%`) en vez del de `loadingContainer` — para que ocupe el espacio disponible necesita que su contenedor padre tenga una altura definida (como el `.contentLoading` de `DrawPanel`, que estira el `Loading` con `height: 100%`).
+
+Las 12 variantes elaboradas (`'bounce-bar'`, `'continuous-bar'`, `'neon-scanner'`, `'liquid-pulse'`, `'orbit-3d'`, `'waveform'`, `'dna-helix'`, `'rocket'`, `'cube-3d'`, `'prism-3d'`, `'text-3d'`, `'text-3d-static'`) viven como sub-componentes propios en `screens/components/Loading/components/<Nombre>/` (mismo patrón de descomposición que [MediaViewer](#mediaviewer)): cada una es `index.jsx` + `index.module.css`, no son componentes públicos de la librería (no están en el barrel raíz). Todas aceptan `color` (mapeado a `--loading-color`, igual que el resto de variantes) para su tono principal, con el mismo azul (`#0d52f8`) como default en todas — consistente entre sí, no cada una con un color distinto; donde el diseño original tenía varios tonos fijos (ej. el segundo anillo de `'orbit-3d'`, las caras de `'cube-3d'`/`'prism-3d'`, antes cada una de un color del espectro), los tonos secundarios se derivan del `color` recibido con `color-mix()`/opacidad en vez de quedar completamente hardcodeados — excepción consciente: el fuego/humo de `'rocket'` mantiene su paleta de fuego (naranja/rojo) mezclada parcialmente con `color`, porque es un efecto físico, no el color del cohete en sí (que sí es 100% `color`, un solo tono para el casco completo). `'rocket'` agrupa el SVG del cohete y su fuego en un único elemento animado (`.ship`) para que viajen pegados durante el despegue, en vez de que el fuego quede fijo mientras el cuerpo se mueve. `'cube-3d'` (cubo isométrico con 6 caras `preserve-3d`) y `'prism-3d'` (octaedro flotante con 8 caras tipo `border-triangle`) son los dos loaders 3D más pesados en CSS del set — usan `perspective`/`transform-style: preserve-3d`, igual de livianos en JS que el resto (solo CSS, sin JS de animación). `'text-3d'` extruye el `text` recibido (sin límite de longitud) apilando 10 capas en `translateZ` que rotan 360° en Y a `3s` por vuelta; a propósito **no** usa `backface-visibility: hidden`, así que al cruzar 90°/180°/270° el texto se ve momentáneamente espejado — es el efecto elegido para esta variante, no un bug a corregir. `'text-3d-static'` usa la misma extrusión en capas pero sin rotación (ángulo fijo `rotateY(-22deg) rotateX(10deg)`, siempre legible); en su lugar, la capa frontal tiene un reflejo/shine que la recorre (`background-clip: text` con gradiente animado en `background-position`, mismo mecanismo que el shimmer de `'skeleton'` pero aplicado al glifo del texto en vez de a un bloque). Todas menos `'neon-scanner'`/`'text-3d'`/`'text-3d-static'` reutilizan el wrapper estándar de `Loading` (`text`/`phrases` animados debajo del loader, igual que `'bars'`/`'bounce'`/`'box'`); `'neon-scanner'` integra el texto dentro de su propio diseño (mayúsculas, estilo neón) en vez de usar el texto genérico de abajo, así que no muestra doble texto.
+
+**Animación de salida (`active`):** `'text-3d'` y `'text-3d-static'` tienen una animación de salida con estilo cuando `active` pasa a `false` — en vez de desaparecer de golpe (porque el padre dejó de renderizar `Loading`), el loader hace fade + scale-down + un giro de 90° en Y (`loadingExit`, 0.5s) antes de ocultarse. El patrón es el mismo que `DrawPanel.isOpen`: `Loading` sigue montado internamente durante la animación (estado `render` propio) y recién retorna `null` cuando termina (`onAnimationEnd` → `onExited`, si se pasó). El resto de variantes (`'default'`, `'bars'`, `'rocket'`, `'cube-3d'`, etc.) todavía no tienen esta animación de salida — `active={false}` en ellas no hace nada visible, simplemente no se les aplica la clase `.exiting`.
 
 ---
 
 ### MarkdownContent
 
 Renderiza una cadena markdown como HTML, con soporte GFM (tablas, listas de tareas, etc.) vía `react-markdown` + `remark-gfm`. Los bloques de código (` ``` `) y los encabezados (`#` a `######`) muestran, al pasar el mouse (o al enfocarlos con teclado), un botón con ícono de copiar en la esquina que copia respectivamente el código completo o el texto del título al portapapeles (con feedback visual de "copiado" por ~1.6s). El color de texto es `inherit` por default (hereda del contenedor donde se use), así que se puede soltar directamente dentro de cualquier componente (`Frame`, `DrawPanel`, `Callout`, burbujas de chat, etc.) sin quedar ilegible por un color fijo; usar `style`/`linkColor` para un color puntual.
+
+Las imágenes usan la sintaxis estándar de markdown (`![alt](url)`) — `react-markdown` las soporta nativamente, sin ninguna prop extra; el CSS ya las limita a `max-width: 100%` con `border-radius: 6px`. Además, **una URL http(s) pegada sola en su propia línea** (sin texto alrededor ni la sintaxis `![alt](url)`) se detecta automáticamente y se muestra como imagen — útil para URLs de Google Images u otros servicios que no terminan en una extensión reconocible (`.png`/`.jpg`/etc.), donde exigir extensión dejaría afuera el caso más común. Si la URL autodetectada en realidad no es una imagen y falla la carga, cae a un link clickeable normal (`<a target="_blank">`) en vez de mostrar un ícono de imagen rota.
+
+Para colorear texto puntual (markdown no tiene sintaxis nativa para esto) se soporta una convención propia del repo: `{color:X}texto{/color}`, donde `X` es cualquier color CSS válido (hex, `rgb()`, nombre). Internamente se reescribe a un link markdown con protocolo custom (`[texto](color:X)`) antes de pasarlo a `react-markdown`; como `react-markdown` sanea por default los `href` con protocolos no estándar (para prevenir XSS, ej. `javascript:`), se pasa un `urlTransform` propio que deja pasar `color:` intacto y delega el resto al saneo default. El renderer de `a` intercepta ese protocolo devolviendo un `<span style="color: X">` en vez de un `<a>` — por eso el contenido de bloques/inline code (` ``` ` o `` ` ``) queda exento tanto de este reemplazo como del de imágenes (un snippet que contenga ese texto literal no se toca). `MarkdownEditor` ya trae un botón de toolbar con selector de color que inserta esta sintaxis (ver [MarkdownEditor](#markdowneditor)).
 
 **Import:**
 ```jsx
@@ -1616,12 +2051,30 @@ import { MarkdownContent } from '../MarkdownContent/index'; // named export (tam
   {'# My Title\n\n```js\nconsole.log("hi");\n```'}
 </MarkdownContent>
 ```
+```jsx
+<MarkdownContent>{'![Logo](https://ejemplo.com/logo.png)'}</MarkdownContent>
+```
+```jsx
+{/* URL sola, pegada directamente sin escribir ![alt](url) — se autodetecta como imagen */}
+<MarkdownContent>{'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFvLKiCCYeL-dqH4i8rEAHVcLw9aMIxp3qFmMk-CMDjg&s=10'}</MarkdownContent>
+```
+```jsx
+<MarkdownContent>
+  {'Este texto tiene {color:#ef4444}una palabra en rojo{/color} en el medio.'}
+</MarkdownContent>
+```
+
+**Notas sobre imágenes pegadas (URL sola en su línea):** el criterio es deliberadamente amplio (cualquier línea que sea únicamente una URL `http(s)://`, sin exigir extensión de archivo) porque las URLs de imagen de Google Images y otros servicios casi nunca terminan en `.png`/`.jpg`. Esto significa que una URL que el usuario pegó pensando en un link normal (no una imagen) también se intentará mostrar como `<img>`; si la carga falla, el fallback a `<a target="_blank">` cubre ese caso sin dejar un ícono de imagen rota. El bloque de código (` ``` ` o `` ` ``) también queda exento de esta detección.
+
+**Notas sobre `{color:X}`:** el patrón solo soporta texto plano simple adentro (no anida otro `{color:}` dentro del mismo bloque); `X` acepta cualquier valor CSS de color (`#ef4444`, `rgb(239, 68, 68)`, `red`). Como se implementa reescribiendo a un link `[texto](color:X)`, un markdown que por casualidad contenga un link real cuya URL empiece literalmente con `color:` (muy improbable) se renderizaría como texto coloreado en vez de como link.
 
 ---
 
 ### MarkdownEditor
 
-Editor de texto markdown con barra de herramientas (negrita, cursiva, título, encabezados, listas, cita, código, enlace, tabla), atajos de teclado, modos Editor/Dividido/Vista previa y altura ajustable con arrastre. El botón de título inserta un encabezado `# ` y el de código un bloque ` ``` `; ambos, al previsualizarse (con `MarkdownContent`), muestran un botón de copiar rápido (ver [MarkdownContent](#markdowncontent)).
+Editor de texto markdown con barra de herramientas (negrita, cursiva, título, encabezados, listas, cita, código, enlace, imagen, tabla, color de texto), atajos de teclado, modos Editor/Dividido/Vista previa y altura ajustable con arrastre. El botón de título inserta un encabezado `# ` y el de código un bloque ` ``` `; ambos, al previsualizarse (con `MarkdownContent`), muestran un botón de copiar rápido (ver [MarkdownContent](#markdowncontent)).
+
+El botón de imagen (ícono de imagen) inserta `![descripción](url-de-la-imagen)` alrededor de la selección (o del texto placeholder si no hay selección) — mismo mecanismo que el botón de enlace. El botón de color (ícono de paleta) abre un popover con el panel de [ColorPicker](#colorpicker) (saturación/matiz + HEX/RGB/HSL); mientras se arrastra el selector solo cambia el color de preview del ícono de la paleta, y recién al tocar el botón "Aplicar" del popover se envuelve el texto seleccionado (o el texto placeholder) en `{color:HEX}...{/color}` y se cierra el popover — así evita insertar texto en cada frame del arrastre. Ver la sintaxis `{color:X}...{/color}` en [MarkdownContent](#markdowncontent).
 
 **Import:**
 ```jsx
@@ -1647,7 +2100,7 @@ const [value, setValue] = useState('# Hello world');
 | onChange | function | — | Se llama con un evento simulado `{ target: { value } }`. |
 | placeholder | string | `''` | Placeholder del textarea. |
 | defaultHeight | number | `320` | Alto inicial (px) del área de contenido; ajustable arrastrando el handle inferior (entre 180 y 1200px). |
-| labels | object | `{}` | Textos personalizables: `editorTab`, `splitTab`, `previewTab`, tooltips de cada botón (incluye `titleTooltip` para el botón de título), textos por defecto al insertar formato, encabezados de la tabla de ejemplo. |
+| labels | object | `{}` | Textos personalizables: `editorTab`, `splitTab`, `previewTab`, tooltips de cada botón (incluye `titleTooltip`, `imageTooltip`, `colorTooltip`), textos por defecto al insertar formato (incluye `imageAltDefaultText`, `imageUrlPlaceholder`, `colorDefaultText`), `applyColorLabel` (texto del botón "Aplicar" del popover de color), encabezados de la tabla de ejemplo. |
 | activeColor | string | — | Color de acento del modo/pestaña activa (`--markdown-editor-active`). |
 
 **Ejemplos:**
@@ -1667,7 +2120,132 @@ const [value, setValue] = useState('# Hello world');
 />
 ```
 
-**Notas:** Es un componente controlado (`value`/`onChange` obligatorios); el modo de vista es estado interno. Soporta atajos `Ctrl+B`, `Ctrl+I`, `Ctrl+K` y continuación automática de listas al presionar Enter. Usa `MarkdownContent` para la vista previa.
+**Notas:** Es un componente controlado (`value`/`onChange` obligatorios); el modo de vista es estado interno. Soporta atajos `Ctrl+B`, `Ctrl+I`, `Ctrl+K` y continuación automática de listas al presionar Enter. Usa `MarkdownContent` para la vista previa. El popover de color reutiliza directamente `ColorPickerPanel` (la pieza interna de [ColorPicker](#colorpicker), sin su botón trigger propio) dentro de un `Popper`/`ClickAwayListener` propio anclado al botón de paleta de la toolbar.
+
+---
+
+### MediaViewer
+
+Renderiza un archivo (imagen, video, audio, PDF o cualquier otro tipo) a partir de una `url`. El tipo de media se infiere automáticamente del `mimeType`/`type` o, si no se pasa, de la extensión del `name`/`url`; también se puede forzar explícitamente. Si no hay `type`/`mimeType` ni extensión reconocible (ej. una url de API del tipo `/api/files/42/raw`, o un CDN como `picsum.photos` que no incluye extensión), el componente prueba la `url` en cascada contra un `<img>`/`<video>`/`<audio>` real fuera del DOM visible (ver `autoDetectType` para desactivar esto) — a diferencia de `fetch()`, cargar estas etiquetas para mostrarse no está sujeto a CORS, así que funciona incluso contra CDNs que no mandan `Access-Control-Allow-Origin`. Si ni así se puede determinar el tipo, cae en una tarjeta genérica con ícono cuadrado de color según el tipo de archivo (PDF, Word, Excel, Zip, Markdown, código, etc.) + nombre + tamaño + botón de descarga — ese mapeo extensión → ícono/color vive en [common/icons/fileType.js](#común-iconsfiletypejs) y es compartido con [FileListItem](#filelistitem). Totalmente responsive: imagen/video/iframe de PDF se ajustan al ancho del contenedor padre, con tamaños reducidos en viewports angostos (`max-width: 480px`). Para imagen/video/audio se puede agregar opcionalmente un botón de acción genérico de ancho completo debajo del marco (ver `actionLabel`/`actionIcon`/`onAction`) — no viene activado por default, y no está atado a "descargar": el consumidor decide el texto, el ícono y qué hace al clickearlo (ej. abrir un panel de detalle externo, como el header con flecha de un visor de archivos).
+
+Cuando el tipo resuelve a video y `controls` es `true` (default), el `<video>` no usa los controles nativos del browser: renderiza un reproductor custom (`components/VideoPlayer`) con la paleta de la librería — play/pause central y en la barra inferior, seek bar con preview de tiempo al hover y buscador de tiempo por texto (`mm:ss` o segundos), control de volumen, velocidad de reproducción (0.5x–2x), fullscreen y Picture-in-Picture (si el browser lo soporta), overlay de buffering (usando el componente `Loading`) y overlay de error con reintento. La barra espaciadora pausa/reanuda mientras el mouse está sobre el player o en fullscreen (vía el componente `KeyboardShortcut`, sin capturar la tecla globalmente en el resto de la página). Pasar `controls={false}` devuelve el `<video>` nativo del browser sin ningún control (útil para videos de fondo/autoplay silencioso).
+
+**Import:**
+```jsx
+import MediaViewer from 'anteriority-ui/screens/components/MediaViewer'; // export default, archivo index.jsx
+```
+
+**Uso básico:**
+```jsx
+<MediaViewer url="https://ejemplo.com/foto.png" />
+<MediaViewer url="https://ejemplo.com/video.mp4" />
+<MediaViewer url="https://ejemplo.com/audio.mp3" name="nota-de-voz.mp3" />
+<MediaViewer url="https://ejemplo.com/contrato.docx" name="contrato.docx" size={512000} />
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| url / src | string | — | URL del archivo a mostrar. Si no se pasa ninguna de las dos, el componente no renderiza nada. `src` es alias de `url`. |
+| type / mimeType | string | — | Fuerza el tipo de media en vez de inferirlo. Acepta un mimeType real (`'image/png'`, `'application/pdf'`, etc.) o directamente uno de los valores de `MediaViewer.KIND` (`'image'`, `'video'`, `'audio'`, `'pdf'`, `'file'`). |
+| name | string | — | Nombre de archivo a mostrar (y a usar para inferir el tipo por extensión si no hay `mimeType`). Si no se pasa, se intenta extraer del final de la `url`. |
+| size | number | — | Tamaño en bytes, mostrado formateado (`KB`/`MB`/`GB`) en la tarjeta genérica de archivo. |
+| alt | string | nombre del archivo | Texto alternativo para imagen/video. |
+| poster | string | — | Poster del `<video>` (atributo nativo, también usado por el reproductor custom). |
+| controls | bool | `true` | Si es video, `true` usa el reproductor custom (`VideoPlayer`); `false` devuelve el `<video>` nativo del browser sin controles. Para audio sigue siendo el atributo `controls` nativo. |
+| autoPlay | bool | `false` | Autoplay nativo de `<video>`/`<audio>`. |
+| loop | bool | `false` | Loop nativo de `<video>`/`<audio>`. |
+| muted | bool | `false` | Mute nativo de `<video>`/`<audio>`. |
+| zoomable | bool | `true` | Si es imagen, permite hacer click para ampliarla a su tamaño natural manteniendo el contenedor en su alto normal (con scroll interno) — el componente no crece hacia afuera. Volver a hacer click la achica de nuevo. Cambia el cursor a `zoom-in`/`zoom-out`. |
+| actionLabel | string | — | Texto de un botón genérico de ancho completo debajo del marco (imagen/video/audio). No tiene acción propia — es puramente de presentación; qué hace se define con `onAction`. Solo se renderiza si `onAction` está definido. |
+| actionIcon | component | `Download` (lucide-react) | Ícono (componente, no elemento) que se muestra junto a `actionLabel` en el botón. Pasar `null` para que el botón se vea sin ícono. |
+| onAction | function | — | Callback del botón genérico. Si no se pasa, el botón no se renderiza (no es exclusivo de "descargar" — se usa para cualquier acción, ej. abrir un visor externo, compartir, etc., según lo que pase el consumidor). |
+| autoDetectType | bool | `true` | Si no se pudo inferir el tipo por `type`/`mimeType`/extensión, prueba la `url` contra un `<img>`/`<video>`/`<audio>` real (sin tocar el DOM visible) para determinar el tipo. Poner en `false` para evitar ese intento (ej. si ya se sabe que la URL no es un media reconocible, o para no generar carga innecesaria en listas largas). No se dispara si se pasó `type`/`mimeType` explícito. |
+| downloadable | bool | `true` | Muestra el botón de descarga en la tarjeta genérica de archivo (no aplica a imagen/video/audio/PDF). |
+| downloadLabel | string | `'Descargar'` | `aria-label`/`title` del botón de descarga. |
+| openLabel | string | `'Abrir'` | Texto del link "abrir en pestaña nueva" que acompaña al visor de PDF. |
+| bgColor | string | `'#f8fafc'` | Color de fondo del contenedor. |
+| borderColor | string | `'#e2e8f0'` | Color de borde del contenedor. |
+| textColor | string | `'#334155'` | Color de texto (nombre de archivo, metadata, nombre de audio). |
+| accentColor | string | `'#2563eb'` | Color del botón de descarga y del link "Abrir" del PDF. |
+| videoBgColor | string | `'#0d0f14'` | Color de fondo del reproductor de video custom (detrás del `<video>`, visible en los bordes si el aspect ratio no llena el contenedor). |
+| videoAccentColor | string | `'#7c9cff'` | Color de acento del reproductor de video custom: seek bar, slider de volumen y opción de velocidad activa. |
+| videoControlsColor | string | `'#f1f3f6'` | Color de los íconos/texto de los controles del reproductor de video custom (play, volumen, fullscreen, PiP, velocidad, buscador de tiempo) y del overlay de buffering. |
+| videoPip | bool | `true` | Muestra el botón de Picture-in-Picture en el reproductor de video custom (solo si el browser lo soporta). |
+| videoErrorLabel | string | `'No se pudo cargar el video'` | Texto del overlay de error del reproductor de video custom. |
+| videoRetryLabel | string | `'Reintentar'` | Texto del botón de reintento en el overlay de error del reproductor de video custom. |
+| videoLoadingVariant | string | `'bars'` | `variant` pasado al componente `Loading` del overlay de buffering del reproductor de video custom (`'default'`, `'bars'`, `'bounce'`, `'box'`). |
+| videoLoadingSize | string | `'medium'` | `size` pasado al componente `Loading` del overlay de buffering del reproductor de video custom. |
+| onError | function | — | Callback del evento `onError` nativo de `<img>`/`<video>`/`<audio>` (ej. para mostrar un fallback si la URL no carga). |
+| className | string | `''` | Clase adicional para el contenedor. |
+| style | object | — | Estilos inline adicionales para el contenedor. |
+
+**Ejemplos:**
+```jsx
+// Tipo forzado explícitamente (útil si la url no tiene extensión, ej. un endpoint de descarga)
+<MediaViewer url="/api/files/42/raw" type="image" name="foto-perfil" />
+
+// Imagen sin zoom al hacer click
+<MediaViewer url="/api/files/10/raw" name="banner.png" zoomable={false} />
+
+// Imagen con botón de acción debajo del marco (acción genérica, definida por el consumidor)
+import { Download } from 'lucide-react';
+
+<MediaViewer
+  url="/api/files/55/raw"
+  name="F1-Logo-black.jpeg"
+  actionLabel="Descargar"
+  actionIcon={Download}
+  onAction={() => downloadFile(fileId)}
+/>
+
+// Video con el reproductor custom repaletizado al branding del consumidor
+<MediaViewer
+  url="/api/files/77/raw"
+  name="presentacion.mp4"
+  poster="/api/files/77/poster"
+  videoBgColor="#1a0f2e"
+  videoAccentColor="#a855f7"
+  videoControlsColor="#f3e8ff"
+/>
+
+// Video sin PiP y con controles nativos del browser en vez del reproductor custom
+<MediaViewer url="/api/files/78/raw" name="clip.mp4" videoPip={false} />
+<MediaViewer url="/api/files/79/raw" name="fondo.mp4" controls={false} autoPlay loop muted />
+
+// Tarjeta de archivo genérico con colores personalizados
+<MediaViewer
+  url="/api/files/99/raw"
+  name="contrato.docx"
+  size={512000}
+  bgColor="#f5f3ff"
+  borderColor="#ddd6fe"
+  accentColor="#7c3aed"
+/>
+```
+
+**Notas:** No sube ni persiste nada — es puramente presentacional, recibe una URL ya resuelta. El PDF se muestra embebido en un `<iframe>` (sujeto a las políticas de same-origin/CSP del sitio que lo sirve) con un link "Abrir" como fallback — la story `PdfLocal` usa un PDF de prueba real servido desde `fixtures/MediaViewer/documento-de-prueba.pdf` (ver `.storybook/main.js`, `staticDirs: ["../fixtures"]`). `MediaViewer.KIND` expone las constantes de tipo (`MediaViewer.KIND.IMAGE`, etc.) para quien quiera forzar `type` sin hardcodear el string. El ícono cuadrado de la tarjeta genérica de archivo no tiene prop de color propia (su color viene del tipo de archivo detectado); usar `bgColor`/`borderColor`/`textColor`/`accentColor` para el resto del contenedor. El request de detección por `HEAD`/`GET` (ver `detectTypeByHead`) necesita que la `url` sea alcanzable por `fetch` desde el navegador con CORS permitido — si el servidor bloquea el origen, el intento falla silenciosamente y el componente se queda con el fallback por extensión/tarjeta genérica, sin romper el render.
+
+---
+
+### common/icons/fileType.js
+
+No es un componente — es el módulo compartido que mapea una extensión de archivo (`pdf`, `docx`, `xlsx`, `zip`, `md`, `mp3`, `png`, etc.) a `{ icon, bgColor, label }`, usado por [MediaViewer](#mediaviewer) y [FileListItem](#filelistitem) para no duplicar esa lógica. Los íconos son de `react-icons/bs` (set "file earmark"). Si se agrega soporte para una extensión nueva, se agrega en `FILE_TYPE_MAP` de este archivo y ambos componentes lo heredan automáticamente.
+
+**Import:**
+```jsx
+import { getFileTypeInfo, getExtension } from 'anteriority-ui/common/icons/fileType';
+```
+
+**API:**
+
+| Export | Tipo | Descripción |
+|---|---|---|
+| getFileTypeInfo(nameOrUrl) | function | Devuelve `{ icon: ComponentType, bgColor: string, label: string }` para la extensión detectada en `nameOrUrl`. Si no matchea ninguna extensión conocida, devuelve `DEFAULT_FILE_TYPE` (ícono genérico, gris, label `'Archivo'`). |
+| getExtension(value) | function | Extrae la extensión en minúsculas de un nombre de archivo o URL (ignora querystring/hash). Devuelve `''` si no hay extensión. |
+| FILE_TYPE_MAP | object | El mapa completo `extensión → { icon, bgColor, label }`, por si un consumidor necesita iterarlo o extenderlo localmente. |
+| DEFAULT_FILE_TYPE | object | El fallback usado cuando la extensión no matchea. |
 
 ---
 
@@ -1783,6 +2361,14 @@ import MultilinePlaceholder from '../Material-UI/Components/MultilinePlaceholder
 | fullWidth | boolean | `true` | Si ocupa el 100% del ancho disponible. |
 | placeholder | string | — | Placeholder del campo. |
 | bgColor | string | `'#fff'` | Color de fondo del input. |
+| onImagePaste | function | — | Callback `(files, event)` invocado cuando se pegan (Ctrl+V) una o más imágenes desde el clipboard; `files` es un array de `File` nativos listos para subir o guardar en cualquier storage (si se pega una sola imagen, el array tiene un elemento). Una imagen ya pegada antes (mismo archivo, detectado por nombre+tamaño+fecha+tipo) se ignora para no duplicarla. Si no se pasa, el paste de imágenes no se intercepta (se comporta como un textarea normal). |
+| showImagePreview | boolean | `true` | Si se muestran miniaturas de las imágenes pegadas debajo del textarea, cada una con su propio botón para quitarla. Solo aplica si se pasó `onImagePaste`. |
+| imagePreviewLabel | string | `'Imagen pegada'` | Texto del badge (`Barnner`) de cada imagen pegada (y `alt` de la miniatura). |
+| imageRemoveLabel | string | `'Quitar imagen'` | `aria-label` del botón de quitar. |
+| imagePreviewBorderColor | string | `'#e2e8f0'` | Color de borde del chip contenedor del preview (miniatura + badge + botón de quitar). |
+| imageThumbBorderColor | string | `'#cbd5e1'` | Color de borde propio de la miniatura de la imagen (el `<img>`). |
+| imageLabelBgColor | string | `'#dbeafe'` | Color de fondo del badge del label (prop `bgColor` de `Barnner`). |
+| imageLabelTextColor | string | `'#1e40af'` | Color de texto del badge del label (prop `textColor` de `Barnner`). |
 | ...props | any | — | Cualquier otra prop de `TextField` de Material-UI. |
 
 **Ejemplos:**
@@ -1792,6 +2378,16 @@ import MultilinePlaceholder from '../Material-UI/Components/MultilinePlaceholder
 ```jsx
 <MultilinePlaceholder label="Comentarios" error="Este campo es obligatorio" rows={3} value={value} onChange={onChange} />
 ```
+```jsx
+<MultilinePlaceholder
+  label="Descripción"
+  value={value}
+  onChange={onChange}
+  onImagePaste={(files) => files.forEach(saveToStorage)}
+/>
+```
+
+**Notas sobre `onImagePaste`:** la extracción de los `File` se apoya en el hook compartido `usePasteImage` (`common/hooks/usePasteImage.js`), el mismo que usa el wrapper genérico `PasteImageField`. Si el clipboard trae varias imágenes a la vez, se extraen todas (ninguna se descarta en silencio); si una imagen ya fue pegada antes (mismo archivo), se ignora para no duplicarla. El preview debajo del textarea se renderiza con [ImagePastePreview](#imagepastepreview) — el mismo componente que usa `PasteImageField` — en vez de reimplementar el chip acá; todas las props `image*` de esta tabla se reenvían a ese componente. El componente sigue aceptando `onPaste` propio (se encadena, no se pisa).
 
 ---
 
@@ -1926,9 +2522,9 @@ import Selector from '../Material-UI/Components/Selector/index'; // export defau
 | onChange | function | — | Se llama con un evento simulado `{ target: { value } }`, no con `(event, newValue)` de MUI. |
 | options | array | `[]` | Lista de opciones `{ value, label, icon? }` (`icon` es una URL de imagen mostrada en el listado). |
 | id | string | `'custom-autocomplete'` | id del `Autocomplete`. |
-| style | object | `{}` | Estilos adicionales (`sx`) del contenedor. |
+| style | object | `{}` | Estilo inline del `Autocomplete` (prop `style` nativa, no `sx`) — útil para pisar el ancho default sin pelear con `fullWidth` (ej. `style={{ width: 200 }}`). |
 | className | string | `''` | Clase CSS adicional. |
-| fullWidth | boolean | `true` | Si ocupa el 100% del ancho (si `false`, ancho fijo de 300px). |
+| fullWidth | boolean | `true` | Si ocupa el 100% del ancho (si `false`, ancho fijo de 300px). Para un ancho distinto que no sea 300px fijo, usar `style={{ width }}` junto con `fullWidth={false}`. |
 | placeholder | string | — | Placeholder del campo. |
 | required | boolean | — | Muestra un indicador `**` junto a la etiqueta. |
 | requiredColor | string | `'red'` | Color del indicador de requerido. |
@@ -1942,8 +2538,11 @@ import Selector from '../Material-UI/Components/Selector/index'; // export defau
 ```jsx
 <Selector label="Especie" options={options} value="gato" onChange={onChange} />
 ```
+```jsx
+<Selector label="Especie" options={options} value={value} onChange={onChange} fullWidth={false} style={{ width: 180 }} />
+```
 
-**Notas:** El matching de `value` contra `options` ignora mayúsculas, espacios, guiones y guiones bajos si no hay coincidencia exacta por `value`.
+**Notas:** El matching de `value` contra `options` ignora mayúsculas, espacios, guiones y guiones bajos si no hay coincidencia exacta por `value`. `fullWidth` default es `true` — si solo se pasa `className` para controlar el ancho sin `fullWidth={false}`, el `sx.width: '100%'` default sigue ganando; para un ancho custom, combinar `fullWidth={false}` con `style={{ width }}`.
 
 ---
 
@@ -2198,6 +2797,54 @@ import PasswordResetPanel from 'screens/components/PasswordResetPanel';
 
 ---
 
+### PasteImageField
+
+Wrapper genérico que agrega la capacidad de pegar (Ctrl+V) una o más imágenes desde el clipboard a **cualquier** campo de texto que se le pase como `children` (`MultilinePlaceholder`, `TextField`, un `<textarea>` plano, etc.), sin acoplar esa lógica a un componente de texto en particular. Si el clipboard pegado contiene al menos una imagen, se previene el paste normal (texto/base64) y se extraen todos los `File` nativos encontrados; si no, el campo recibe el paste normal sin cambios. Una imagen ya pegada antes (mismo archivo) se ignora para no duplicarla. La extracción/preview vive en el hook `usePasteImage` (`common/hooks/usePasteImage.js`), reutilizable también sin este wrapper.
+
+**Import:**
+```jsx
+import PasteImageField from 'anteriority-ui/screens/components/PasteImageField'; // export default, archivo index.jsx
+```
+
+**Uso básico:**
+```jsx
+<PasteImageField onImagePaste={(files) => files.forEach(saveToStorage)}>
+  <MultilinePlaceholder label="Descripción" value={value} onChange={onChange} />
+</PasteImageField>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| children | node | — | El campo de texto a envolver (debe aceptar/reenviar `onPaste`, como `MultilinePlaceholder`, `TextField` o un `<textarea>`/`<input>` nativo). |
+| onImagePaste | function | — | Callback `(files, event)` invocado cuando se pegan una o más imágenes; `files` es un array de `File` nativos listos para subir o guardar en cualquier storage (un elemento si se pegó una sola imagen). Una imagen ya pegada antes (mismo archivo, detectado por nombre+tamaño+fecha+tipo) se excluye del array. |
+| disabled | boolean | `false` | Si es `true`, ignora el paste de imágenes (el campo sigue aceptando paste de texto normal). |
+| showPreview | boolean | `true` | Si muestra una miniatura propia por cada imagen pegada, con botón para quitarla individualmente. |
+| previewLabel | string | `'Imagen pegada'` | Texto junto a cada miniatura (y `alt` de la imagen). |
+| removeLabel | string | `'Quitar imagen'` | `aria-label` del botón de quitar preview. |
+| borderColor | string | `'#e2e8f0'` | Color de borde del chip contenedor del preview (miniatura + label + botón de quitar). |
+| thumbBorderColor | string | `'#cbd5e1'` | Color de borde propio de la miniatura de la imagen (el `<img>`). |
+| labelBgColor | string | `'#dbeafe'` | Color de fondo del chip del label ("Imagen pegada"). |
+| labelTextColor | string | `'#1e40af'` | Color de texto del chip del label. |
+| ...props | any | — | Cualquier otra prop se pasa al `div` contenedor (`className`, `style`, etc.). |
+
+**Ejemplos:**
+```jsx
+<PasteImageField onImagePaste={(files) => setLastFiles(files)}>
+  <TextField label="Comentario" value={value} onChange={onChange} />
+</PasteImageField>
+```
+```jsx
+<PasteImageField showPreview={false} onImagePaste={(files) => files.forEach(uploadFile)}>
+  <MultilinePlaceholder label="Notas" rows={3} value={value} onChange={onChange} />
+</PasteImageField>
+```
+
+**Notas:** No sube ni persiste las imágenes por sí mismo — solo las extrae del clipboard y las entrega vía `onImagePaste` para que el consumidor decida qué hacer (subir a un backend, guardar en `localStorage`/IndexedDB, etc.). Si se pegan varias imágenes a la vez, se extraen todas (ninguna se descarta en silencio). El preview se renderiza con [ImagePastePreview](#imagepastepreview) — el mismo componente que usa `MultilinePlaceholder` — en vez de un chip reimplementado acá; todas las props de color/label de esta tabla se reenvían a ese componente. El hook subyacente `usePasteImage({ onImagePaste, disabled })` (`common/hooks/usePasteImage.js`) puede usarse directamente si se prefiere conectar `onPaste` a mano en vez de usar este wrapper.
+
+---
+
 ### PlaceholderButton
 
 Campo de configuración compuesto por un input (numérico, texto o multilínea) más un botón de guardado, con manejo de estado de carga, mensajes de éxito/error y validación.
@@ -2378,6 +3025,356 @@ import ScrollBar from 'screens/components/ScrollBar';
 
 ---
 
+### SchemaForm
+
+Renderiza un formulario completo a partir de un JSON Schema (+ `uiSchema` opcional), usando los widgets ya existentes de la librería (`Input`, `Checks`, `Swich`, `Selector`, `CalendarPicker`, `FormTextArea`) para cada tipo de campo, en vez de los inputs default de rjsf. Pensado para usarse como `children` de cualquier contenedor (ej. `DrawPanel`): el contenedor no sabe que adentro hay un `SchemaForm`, solo le llega el schema correspondiente a cada caso (login, alta de usuario, etc.).
+
+Es un wrapper de [`@rjsf/core`](https://rjsf-team.github.io/react-jsonschema-form/docs/) — requiere `@rjsf/core` como peer dependency (opcional: solo hace falta instalarlo si se usa este componente). El validador (`@rjsf/validator-ajv8`) ya viene empaquetado como dependency de `anteriority-ui` y se usa por default, así que no hace falta instalarlo ni pasarlo por prop; la prop `validator` queda disponible solo para quien quiera forzar otra versión/implementación.
+
+**Import:**
+```jsx
+import SchemaForm from '../SchemaForm'; // export default (index.jsx)
+```
+
+**Uso básico:**
+```jsx
+const schema = {
+  type: 'object',
+  required: ['email', 'password'],
+  properties: {
+    email: { type: 'string', title: 'Email', format: 'email' },
+    password: { type: 'string', title: 'Contraseña' },
+  },
+};
+
+<SchemaForm
+  schema={schema}
+  formData={formData}
+  onChange={setFormData}
+  onSubmit={(data) => login(data)}
+  submitText="Ingresar"
+/>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `schema` | object | — | JSON Schema que describe los campos del formulario |
+| `uiSchema` | object | — | `uiSchema` de rjsf: qué widget usar por campo (`'ui:widget'`), opciones de cada uno (`'ui:options'`), orden, etc. |
+| `formData` | object | — | Valores actuales del formulario (controlado) |
+| `validator` | object | validador ajv8 incluido | Validador de rjsf; solo hace falta pasarlo para reemplazar el default empaquetado |
+| `widgets` | object | — | Widgets adicionales/override, mergeados sobre los widgets default de `SchemaForm` |
+| `fields` | object | — | `fields` custom de rjsf (para `ObjectField`/`ArrayField` a medida) |
+| `formId` | string | — | `id` del `<form>`; útil para disparar el submit desde un botón externo (ej. el footer de `DrawPanel`) |
+| `onChange` | function | — | `(formData, rjsfEvent) => void`, en cada cambio de cualquier campo |
+| `onSubmit` | function | — | `(formData, rjsfEvent) => void`, al enviar el formulario válido |
+| `onError` | function | — | Callback de errores de validación de rjsf |
+| `showSubmitButton` | boolean | `true` | Si no hay `children`, muestra un botón de submit (`Button` primario) |
+| `submitText` | string | `'Enviar'` | Texto del botón de submit default |
+| `disabled` | boolean | `false` | Deshabilita todos los campos |
+| `readonly` | boolean | `false` | Vuelve todos los campos de solo lectura |
+| `className` | string | `''` | Clase adicional en el `<form>` |
+| `style` | object | — | Estilos inline en el `<form>` |
+| `children` | node | — | Si se define, reemplaza el botón de submit default (ej. para poner acciones propias, o nada si los botones ya los provee un contenedor externo como `DrawPanel`) |
+
+**Widgets incluidos** (seleccionables desde `uiSchema` con `'ui:widget': '<Nombre>'`):
+
+| Widget | Usa | Tipo de campo típico |
+|---|---|---|
+| `TextWidget` | `Input` | `string` (default) |
+| `NumberWidget` | `Input` (`numeric`) | `number` / `integer` (default) |
+| `TextareaWidget` | `FormTextArea` | `string` largo (ej. `'ui:widget': 'TextareaWidget'`) |
+| `CheckboxWidget` | `Swich` | `boolean` (default — ver nota debajo) |
+| `SwitchWidget` | `Swich` | `boolean` como toggle, alias explícito de `CheckboxWidget` |
+| `ChecksWidget` | `Checks` | `boolean` con el look de checkbox tachable (ej. `'ui:widget': 'ChecksWidget'`) |
+| `CheckboxesWidget` | `Checks` (uno por opción) | `array` de `string` con `enum` + `uniqueItems` (selección múltiple; ej. `'ui:widget': 'CheckboxesWidget'` con `'ui:options': { enumOptions }`) |
+| `SelectWidget` | `Selector` | `string` con `enum` (default cuando hay `enum`; **no soporta selección múltiple**, usar `CheckboxesWidget` para eso) |
+| `RadioWidget` | `RadioGroup` + `Radio` (uno por opción) | `string` con `enum` + `'ui:widget': 'radio'` (alternativa a `SelectWidget` cuando conviene mostrar todas las opciones visibles en vez de un dropdown) |
+| `DateWidget` | `CalendarPicker` | `string` con `format: 'date'` (ej. `'ui:widget': 'DateWidget'`) |
+| `ColorWidget` | `ColorPicker` | `string` con `format: 'color'` (convención estándar de rjsf) |
+| `RangeWidget` | `Slider` | `number` / `integer` con `'ui:widget': 'range'`; usa `minimum`/`maximum`/`multipleOf` del schema como `min`/`max`/`step` |
+| `FileWidget` | botón de subida + `ImagePastePreview` | `string` con `format: 'data-url'` (archivo/imagen única), o `array` de esos con `format: 'data-url'` (múltiples, detectado automáticamente por rjsf) — ver nota de archivos debajo |
+| `EmailWidget` / `URLWidget` | `Input` (`type="email"`/`"url"`) | `string` con `format: 'email'` / `format: 'uri'` (rjsf los resuelve por `format` con prioridad sobre `TextWidget`, por eso necesitan su propio mapeo) |
+| `PasswordWidget` | `Input` (`type="password"`) | `string` con `'ui:widget': 'password'` (shorthand de rjsf) |
+
+**Nota sobre `boolean`:** `Checks` tacha el label al marcarlo (pensado para listas de permisos/to-do), lo cual se ve mal en un campo booleano suelto de formulario. Por eso el widget registrado como `CheckboxWidget` (el que rjsf usa por default para todo `boolean`) es en realidad un `Swich`; para el look de checkbox clásico hay que pedirlo explícito con `'ui:widget': 'ChecksWidget'`.
+
+**Nota sobre archivos (`FileWidget`):** el valor que entrega `onChange` es un data-URL en base64 (string), o un array de data-URLs si el campo es `array`/`'ui:options': { multiple: true }` — no un `File` nativo del browser. Restringir el tipo de archivo con `'ui:options': { accept: 'image/*' }` (mismo formato que el atributo HTML `accept`). El preview reusa `ImagePastePreview` (el mismo chip que usan `PasteImageField`/`MultilinePlaceholder`).
+
+**Nota sobre theming de `ColorWidget`/`RadioWidget`/`RangeWidget`:** estos tres widgets no tienen ninguna prop de color directa en `SchemaForm` — `widgets.jsx` no inyecta un theme global a los widgets internos. Para tematizarlos hay que pasar las props de color del componente subyacente vía `'ui:options'` en el campo correspondiente del `uiSchema`, igual que `accept`/`multiple` en `FileWidget`:
+- `ColorWidget` → `'ui:options': { bgColor, textColor, borderColor, accentColor }` (mismas props que acepta `ColorPicker`, incluido el popover).
+- `RadioWidget` → `'ui:options': { color }` (prop `color` de `RadioGroup`/`Radio` de MUI: `'primary'` / `'secondary'` / etc., no un hex libre).
+- `RangeWidget` → `'ui:options': { accentColor }` (prop `accentColor` de `Slider`, sí acepta hex).
+
+Sin `ui:options`, los tres quedan con la paleta default de su componente (no heredan ningún color del resto del formulario).
+
+**Schema de referencia completo:** este `schema` + `uiSchema` ejercitan todos los tipos/formatos que `SchemaForm` sabe interpretar — útil como plantilla para armar uno propio o para ver de un vistazo qué forma de JSON Schema produce cada widget.
+
+```js
+const schema = {
+  type: 'object',
+  required: ['nombre', 'email'],
+  properties: {
+    nombre: {
+      type: 'string',
+      title: 'Nombre',
+      minLength: 2,
+      maxLength: 50,
+      description: 'Texto corto → TextWidget (Input)',
+    },
+    bio: {
+      type: 'string',
+      title: 'Biografía',
+      description: 'Texto largo → TextareaWidget si se pide en uiSchema (FormTextArea)',
+    },
+    edad: {
+      type: 'integer',
+      title: 'Edad',
+      minimum: 18,
+      maximum: 99,
+      description: 'number/integer → NumberWidget (Input numeric)',
+    },
+    email: {
+      type: 'string',
+      format: 'email',
+      title: 'Email',
+      description: "format: 'email' → EmailWidget (Input type=email)",
+    },
+    password: {
+      type: 'string',
+      title: 'Contraseña',
+      description: "ui:widget: 'password' → PasswordWidget (Input type=password)",
+    },
+    sitioWeb: {
+      type: 'string',
+      format: 'uri',
+      title: 'Sitio web',
+      description: "format: 'uri' → URLWidget (Input type=url)",
+    },
+    activo: {
+      type: 'boolean',
+      title: 'Cuenta activa',
+      default: true,
+      description: 'boolean (default) → CheckboxWidget, que en SchemaForm es un Swich',
+    },
+    recibirNotificaciones: {
+      type: 'boolean',
+      title: 'Recibir notificaciones',
+      description: "boolean + ui:widget: 'ChecksWidget' → look de checkbox clásico (Checks)",
+    },
+    pais: {
+      type: 'string',
+      title: 'País',
+      enum: ['ar', 'uy', 'br'],
+      description: 'string + enum → SelectWidget (Selector, single-select)',
+    },
+    plan: {
+      type: 'string',
+      title: 'Plan',
+      enum: ['free', 'pro', 'enterprise'],
+      description: "string + enum + ui:widget: 'radio' → RadioWidget (RadioGroup + Radio)",
+    },
+    roles: {
+      type: 'array',
+      title: 'Roles',
+      items: { type: 'string', enum: ['admin', 'editor', 'viewer'] },
+      minItems: 1,
+      uniqueItems: true,
+      description: "array de enum + ui:widget: 'CheckboxesWidget' → selección múltiple (Checks)",
+    },
+    nacimiento: {
+      type: 'string',
+      format: 'date',
+      title: 'Fecha de nacimiento',
+      description: "format: 'date' + ui:widget: 'DateWidget' → CalendarPicker",
+    },
+    avatar: {
+      type: 'string',
+      format: 'data-url',
+      title: 'Foto de perfil',
+      description: "format: 'data-url' → FileWidget, un solo archivo (data-URL en base64)",
+    },
+    adjuntos: {
+      type: 'array',
+      title: 'Archivos adjuntos',
+      items: { type: 'string', format: 'data-url' },
+      description: "array de format: 'data-url' → FileWidget con multiple=true (detectado solo por rjsf)",
+    },
+    colorFavorito: {
+      type: 'string',
+      format: 'color',
+      title: 'Color favorito',
+      default: '#2563eb',
+      description: "format: 'color' → ColorWidget (ColorPicker)",
+    },
+    satisfaccion: {
+      type: 'integer',
+      title: 'Satisfacción',
+      minimum: 0,
+      maximum: 10,
+      default: 5,
+      description: "number/integer + ui:widget: 'range' → RangeWidget (Slider), min/max desde minimum/maximum",
+    },
+    direccion: {
+      type: 'object',
+      title: 'Dirección',
+      properties: {
+        calle: { type: 'string', title: 'Calle' },
+        ciudad: { type: 'string', title: 'Ciudad' },
+        codigoPostal: {
+          type: 'string',
+          title: 'Código postal',
+          pattern: '^[0-9]{4,6}$',
+        },
+      },
+      required: ['calle', 'ciudad'],
+      description: 'object anidado → ObjectFieldTemplate, recursivo (cada property usa su propio widget)',
+    },
+  },
+};
+
+const uiSchema = {
+  bio: { 'ui:widget': 'TextareaWidget' },
+  password: { 'ui:widget': 'password' },
+  recibirNotificaciones: { 'ui:widget': 'ChecksWidget' },
+  roles: {
+    'ui:widget': 'CheckboxesWidget',
+    'ui:options': {
+      enumOptions: [
+        { value: 'admin', label: 'Admin' },
+        { value: 'editor', label: 'Editor' },
+        { value: 'viewer', label: 'Viewer' },
+      ],
+    },
+  },
+  plan: { 'ui:widget': 'radio', 'ui:options': { color: 'secondary' } },
+  nacimiento: { 'ui:widget': 'DateWidget' },
+  avatar: { 'ui:options': { accept: 'image/*' } },
+  adjuntos: { 'ui:options': { multiple: true } },
+  colorFavorito: { 'ui:options': { bgColor: '#1e293b', textColor: '#f1f5f9', borderColor: '#334155' } },
+  satisfaccion: { 'ui:widget': 'range', 'ui:options': { accentColor: '#f97316' } },
+};
+
+<SchemaForm schema={schema} uiSchema={uiSchema} formData={formData} onChange={setFormData} onSubmit={handleSave} />
+```
+
+**Ejemplos:**
+```jsx
+// Formulario de perfil con textarea, select y fecha, dentro de un DrawPanel
+const schema = {
+  type: 'object',
+  required: ['nombre'],
+  properties: {
+    nombre: { type: 'string', title: 'Nombre' },
+    bio: { type: 'string', title: 'Biografía' },
+    pais: { type: 'string', title: 'País', enum: ['ar', 'uy', 'br'] },
+    nacimiento: { type: 'string', title: 'Fecha de nacimiento', format: 'date' },
+  },
+};
+
+const uiSchema = {
+  bio: { 'ui:widget': 'TextareaWidget' },
+  pais: {
+    'ui:options': {
+      enumOptions: [
+        { value: 'ar', label: 'Argentina' },
+        { value: 'uy', label: 'Uruguay' },
+        { value: 'br', label: 'Brasil' },
+      ],
+    },
+  },
+};
+
+<DrawPanel isOpen={open} onClose={handleClose} title="Editar perfil" showActions formId="profile-form" onConfirm={() => {}}>
+  <SchemaForm
+    formId="profile-form"
+    schema={schema}
+    uiSchema={uiSchema}
+    formData={formData}
+    onChange={setFormData}
+    onSubmit={handleSave}
+    showSubmitButton={false}
+  />
+</DrawPanel>
+```
+
+**Notas:** El validador (`@rjsf/validator-ajv8`) viene empaquetado como dependency de `anteriority-ui` y se usa por default — no hace falta instalarlo ni pasarlo por prop; `validator` solo sirve para forzar otra implementación. Los widgets propios pueden extenderse o pisarse por campo vía la prop `widgets` (se mergean sobre los default) sin perder el resto. Al igual que el resto de componentes con `children` libre, no se acopla a `DrawPanel` ni a ningún contenedor — cualquier componente puede envolverlo. `templates.ButtonTemplates.SubmitButton` está pisado con un componente que no renderiza nada: `@rjsf/core` agrega su propio botón de submit nativo (sin estilo) además de cualquier `children`/botón que se le pase al `<Form>`, así que sin ese override quedarían dos submits — el de `SchemaForm` y el default de rjsf.
+
+---
+
+### RenderJsonSchema
+
+Vista de **solo lectura** de datos ya guardados a partir de un JSON Schema: a diferencia de `SchemaForm`, no renderiza un formulario editable ni depende de rjsf — recorre `schema.properties` y muestra cada valor de `formData` como texto (o imagen, para `format: 'data-url'`), resolviendo el `title`, `enum`/`enumNames` (o `anyOf` con `const`/`title`), `boolean` y `format: 'date'`/`'date-time'` del propio schema. Pensado para mostrar el detalle de una respuesta ya enviada (ej. lo que guardó un `<SchemaForm />`) sin tener que escribir a mano el mapeo de cada campo.
+
+Tolera datos guardados por un widget roto o una versión vieja (un valor que no matchea el `type` esperado, como un objeto en vez de un string): en lugar de romper o mostrar `"[object Object]"`, ese campo se muestra vacío (`"Sin datos"` por default).
+
+**Import:**
+```jsx
+import RenderJsonSchema from '../RenderJsonSchema'; // export default (index.jsx)
+```
+
+**Uso básico:**
+```jsx
+const schema = {
+  type: 'object',
+  properties: {
+    nombre: { type: 'string', title: 'Nombre' },
+    pais: { type: 'string', title: 'País', enum: ['ar', 'uy'], enumNames: ['Argentina', 'Uruguay'] },
+    nacimiento: { type: 'string', title: 'Fecha de nacimiento', format: 'date' },
+  },
+};
+
+<RenderJsonSchema schema={schema} formData={{ nombre: 'Ignacio', pais: 'ar', nacimiento: '1996-05-10' }} />
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `schema` | object | — | Mismo JSON Schema (`properties`, `title`, `enum`/`enumNames`, `anyOf`, `format`) que se le pasaría a `SchemaForm` |
+| `formData` | object | — | Datos ya guardados a mostrar; si falta una key o el schema no tiene `properties`, se muestra `emptyText` |
+| `emptyText` | string | `'Sin datos'` | Texto para un campo sin valor, o un valor que no matchea el tipo esperado por el schema |
+| `bordered` | boolean | `true` | Si `true`, envuelve las filas en un panel con fondo/borde propio (look de card). Un `object` anidado se renderiza internamente con `bordered={false}` para no anidar panel dentro de panel |
+| `bgColor` | string | — | Color de fondo del panel (solo visible si `bordered`) |
+| `textColor` | string | — | Color del texto de los valores |
+| `labelColor` | string | — | Color de los labels (nombre de cada campo) |
+| `borderColor` | string | — | Color del borde del panel y de la línea divisoria entre filas |
+| `className` | string | `''` | Clase adicional en el contenedor raíz |
+| `style` | object | — | Estilos inline en el contenedor raíz |
+
+**Ejemplos:**
+```jsx
+// object anidado → recursión (mismo componente, con indentación); array de enum → labels unidos por coma
+const schema = {
+  type: 'object',
+  properties: {
+    roles: {
+      type: 'array',
+      title: 'Roles',
+      items: { type: 'string', enum: ['admin', 'editor'], enumNames: ['Admin', 'Editor'] },
+    },
+    direccion: {
+      type: 'object',
+      title: 'Dirección',
+      properties: {
+        calle: { type: 'string', title: 'Calle' },
+        ciudad: { type: 'string', title: 'Ciudad' },
+      },
+    },
+  },
+};
+
+<RenderJsonSchema
+  schema={schema}
+  formData={{ roles: ['admin', 'editor'], direccion: { calle: 'Av. Siempre Viva 742', ciudad: 'Springfield' } }}
+/>
+```
+
+**Notas:** No usa ningún widget de `SchemaForm` ni acepta `uiSchema` — el mapeo de presentación (enum→label, boolean→Sí/No, fecha formateada `dd/MM/yyyy` con `date-fns`) está fijo y se resuelve solo con lo que ya describe el `schema`. Layout en una sola columna: cada campo es una fila (label en mayúsculas chico arriba, valor grande abajo) separada de la siguiente por una línea divisoria, todo dentro de un único panel — así es naturalmente responsive, sin media queries. Un `object` anidado recorre el mismo componente dentro de la fila del campo padre (sin repetir panel/borde), heredando los mismos props de color. Para `format: 'data-url'` (archivo/imagen, single o array) cada valor se renderiza con `MediaViewer` (detecta imagen/video/audio/PDF/archivo genérico solo), no con un `<img>` a mano; `bgColor`/`textColor`/`borderColor` se propagan también a ese `MediaViewer` interno (usa sus propios tokens CSS, no los hereda solo). Los colores son light por default (como el resto de la librería); para un panel oscuro (ej. para integrarlo en un contenedor con tema oscuro) usar `bgColor`/`textColor`/`labelColor`/`borderColor` en vez de CSS global, siguiendo la convención de props de color del resto de componentes — ver [Convención: props de color](#convención-props-de-color) en CLAUDE.md.
+
+---
+
 ### Sidebar
 
 Barra lateral de navegación colapsable con grupos de items, subitems anidados y colapsables (ej. "Vacunas" → Ver/Crear/Pendientes/Lotes), badges por método HTTP, menú de usuario, menú contextual por item (editar/eliminar/fijar/colaboradores) y reordenamiento por drag & drop.
@@ -2423,6 +3420,25 @@ import Sidebar from 'screens/components/Sidebar/index';
 | `avatarBgColor` | `string` | — | Color del avatar de usuario. |
 | `pinnedIconColor` | `string` | — | Color del icono de "fijado". |
 | `methodBadgeColors` | `{ post?, get?, put?, delete?, info?: { bg, color } }` | — | Sobrescribe los colores de badge por método HTTP. |
+| `subItemActiveBgColor` | `string` | — | Color de fondo de un subitem activo (dentro de un item con `subItems`). |
+| `subItemActiveTextColor` | `string` | — | Color de texto de un subitem activo. |
+| `isMobileOpen` | `boolean` | `false` | Controla la apertura del drawer en modo mobile (ver "Responsive" abajo). |
+| `onCloseMobile` | `function()` | — | Callback al cerrar el drawer mobile (backdrop, Escape, X, o al seleccionar un item). |
+| `style` | `object` | — | Estilos inline adicionales para el `<aside>` raíz; se mergea con las CSS custom properties que generan las props de color. |
+| `enableFilter` | `boolean` | `false` | Muestra el botón de filtro (ícono embudo) en el header, que despliega un popover con las opciones de `currentFilter`. |
+| `currentFilter` | `string`\|`null` | — | Key del filtro activo (`'date'`, `'name'`, `'recent'`); resalta esa opción en el popover con un check. |
+| `onFilterChange` | `function(filterKey \| null)` | — | Callback al elegir una opción del popover. Si se vuelve a elegir la opción ya activa, se llama con `null` (deselecciona). |
+| `filterIcon` | componente (lucide-react) \| `node` | `ArrowUpDown` | Ícono del botón de filtro. |
+| `filterBtnActiveBg` | `string` | `#eff6ff` | Fondo del botón de filtro cuando el popover está abierto o hay un filtro activo. |
+| `filterBtnActiveColor` | `string` | `#0d52f8` | Color de texto/ícono del botón de filtro en ese mismo estado. |
+| `filterPopoverBg` | `string` | `#ffffff` | Fondo del popover del filtro (vía portal, fuera del árbol del sidebar). |
+| `filterPopoverTextColor` | `string` | `--sidebar-text` (`#0f172a`) | Color de texto base de las opciones del popover. |
+| `filterPopoverTitleColor` | `string` | `--sidebar-text-muted` (`#64748b`) | Color del título "FILTRAR POR". |
+| `filterPopoverBorderColor` | `string` | `--sidebar-border` (`#e2e8f0`) | Color de borde del popover y del separador bajo el título. |
+| `filterPopoverHoverBg` | `string` | derivado de `filterPopoverTextColor` (ver Notas) | Fondo al pasar el mouse sobre una opción del popover. |
+| `filterPopoverActiveBg` | `string` | derivado de `filterPopoverTextColor` (ver Notas) | Fondo de la opción actualmente seleccionada (`currentFilter`). |
+| `filterPopoverActiveTextColor` | `string` | `--sidebar-text-active` (`#0d52f8`) | Color de texto de la opción seleccionada. |
+| `filterPopoverCheckColor` | `string` | = `filterPopoverActiveTextColor` | Color del ícono de check en la opción seleccionada. |
 
 **Ejemplos:**
 ```jsx
@@ -2473,9 +3489,28 @@ import Sidebar from 'screens/components/Sidebar/index';
   ]}
   userFooterAction={{ icon: Settings, tooltip: 'Configuración', onClick: () => navigate('/settings') }}
 />
+
+// Botón de filtro con popover personalizado por completo, incluyendo un fondo oscuro
+<Sidebar
+  groups={groups}
+  user={{ email: 'jane.doe@example.com' }}
+  enableFilter
+  currentFilter={currentFilter}
+  onFilterChange={setCurrentFilter}
+  filterPopoverBg="#140e46"
+  filterPopoverTextColor="#e6e8ec"
+  filterBtnActiveColor="#2207c4"
+  // filterPopoverHoverBg / filterPopoverActiveBg no se pasan a propósito:
+  // al quedar sin especificar, se derivan solos de filterPopoverTextColor
+  // (ver Notas) y ya se ven bien sobre el fondo oscuro de filterPopoverBg.
+/>
 ```
 
 **Notas:** Persiste el estado colapsado en `localStorage` bajo la clave `sidebar_collapsed`. Los subitems no soportan drag & drop (`onReorderItems`), menú contextual (`onItemEdit`/`onItemDelete`/`onItemPin`/`onItemCollaborators`) ni colapsado individual persistido — solo navegación simple vía `onSelect`. Cuando el sidebar está colapsado (`isCollapsed`), los grupos con `subItems` se muestran colapsados y sin chevron (igual que cualquier item simple, con tooltip); hay que expandir el sidebar para ver/navegar los subitems. `onSearch`/`filterMenuGroups` matchea por `label` del item padre o de cualquiera de sus `subItems`, pero si matchea, se muestra el item completo con **todos** sus subitems (no solo el que matcheó).
+
+**Popover de filtro — hover/active derivados por default:** si no se pasan `filterPopoverHoverBg`/`filterPopoverActiveBg` explícitamente, ya no caen en el tema claro fijo del propio Sidebar (`#f1f5f9`/`#eff6ff`) — eso producía un hover/active blanco o celeste pálido que se veía mal cuando `filterPopoverBg` se personalizaba a un color oscuro (el fondo quedaba oscuro pero el hover/active de las opciones seguía claro, sin relación con ese fondo). Ahora el fallback se deriva mezclando `filterPopoverTextColor` (el color de texto del propio popover, que normalmente ya contrasta con `filterPopoverBg`) con transparencia (`color-mix`), así se adapta solo a cualquier fondo de popover, claro u oscuro. `filterPopoverHoverBg`/`filterPopoverActiveBg` siguen existiendo para fijar un color puntual distinto a ese default.
+
+**Responsive (mobile):** por debajo de 767px de viewport, el sidebar se comporta como un drawer: queda oculto fuera de pantalla y aparece un botón flotante con ícono de hamburguesa (esquina superior izquierda) para abrirlo. Al abrirse, se desliza como overlay a ancho completo (280px, hasta 85vw) sobre un backdrop oscuro; se cierra al tocar el backdrop, al presionar Escape, al tocar la X del propio drawer, o automáticamente al seleccionar un item (`onSelect`). El botón de colapsar (`collapsible`) se oculta en este modo, ya que no aplica a un drawer full-width. No requiere ninguna prop nueva — la detección de mobile es automática vía `matchMedia`.
 
 ---
 
@@ -2701,6 +3736,7 @@ import TableA from 'screens/components/TableA';
 | `stickyFirstColumn` | `boolean` | `false` | Deja la primera columna fija a la izquierda mientras la tabla se desplaza en horizontal. Su celda necesita fondo opaco: por defecto usa `surfaceColor`; si pintás las filas con un tinte (`rowClassName`), el fondo de `td:first-child` debe seguir siendo opaco (ej. el tinte como `linear-gradient` sobre el color de superficie). |
 | `stickyHeader` | `boolean` | `false` | Encabezado siempre visible: la tabla pasa a scrollear en vertical por dentro (hasta `maxHeight`, sin barra vertical visible) y el `<th>` queda pegado arriba con `position: sticky`. Combina bien con `scrollFooter`, que queda siempre a la vista bajo la tabla. |
 | `maxHeight` | `string` \| `number` | `'70vh'` | Alto máximo del área de la tabla cuando `stickyHeader` está activo. |
+| `width` | `string` \| `number` | — | Ancho total de la tabla (`<table>`), ej. `'480px'` o `600`. Sin esta prop la tabla sigue ocupando el 100% del contenedor, igual que antes — es para el caso contrario, cuando se quiere que la tabla NO se estire a todo el ancho disponible. No afecta el ancho del contenedor/wrapper, que sigue siendo 100%. |
 | `scrollFooter` | `boolean` | `false` | Muestra un pie pegado al borde inferior de la pantalla (`position: sticky`) con un botón ◀, un slider y un botón ▶ para desplazar la tabla en horizontal sin bajar hasta su final. Solo aparece si la tabla es más ancha que su contenedor y reemplaza la barra de scroll horizontal propia de la tabla. Ningún ancestro de la tabla debe tener `overflow: hidden/auto` entre ella y el scroll de la página (usar `overflow: clip` si hace falta recortar). |
 | `scrollFooterBgColor` | `string` | `surfaceColor` | Fondo del pie de desplazamiento. |
 | `scrollFooterBorderColor` | `string` | `borderColor` | Borde del pie de desplazamiento. |
@@ -2770,9 +3806,12 @@ function UsersTable() {
 
   return <TableA columns={columns} data={filteredData} keyExtractor={(row) => row.id} />;
 }
+
+// Ancho total fijo en vez de ocupar todo el contenedor
+<TableA columns={columns} data={data} keyExtractor={(row) => row.id} width="480px" />
 ```
 
-> **Importante:** `TableA` usa columnas con forma `{ header, accessor, align, width, render, filter }` y filas como objetos planos accedidos por `accessor`. Ver `TableB` abajo — su forma es distinta, no son intercambiables.
+> **Importante:** `TableA` usa columnas con forma `{ header, accessor, align, width, render, filter }` y filas como objetos planos accedidos por `accessor`. Ver `TableB` abajo — su forma es distinta, no son intercambiables. No confundir `width` a nivel tabla (prop de arriba) con `width` a nivel columna (`col.width`, dentro de `columns`) — son dos cosas distintas.
 
 ---
 
@@ -2819,6 +3858,7 @@ import TableB from 'screens/components/TableB';
 | `stickyFirstColumn` | `boolean` | `false` | Deja la primera columna fija a la izquierda al desplazar en horizontal. Su celda usa `surfaceColor` como fondo opaco (si pintás las filas con un tinte, el fondo de `td:first-child` debe seguir siendo opaco). Las celdas con colSpan (vacío, error, fila expandida) no se fijan. |
 | `stickyHeader` | `boolean` | `false` | Encabezado siempre visible: la tabla pasa a scrollear en vertical por dentro (hasta `maxHeight`, sin barra vertical visible) y el `<th>` queda pegado arriba con `position: sticky`. Combina bien con `scrollFooter`, que queda siempre a la vista bajo la tabla. |
 | `maxHeight` | `string` \| `number` | `'70vh'` | Alto máximo del área de la tabla cuando `stickyHeader` está activo. |
+| `width` | `string` \| `number` | — | Ancho total de la tabla (`<table>`), ej. `'480px'` o `600`. Sin esta prop la tabla sigue ocupando el 100% del contenedor, igual que antes — es para el caso contrario, cuando se quiere que la tabla NO se estire a todo el ancho disponible. No afecta el ancho del contenedor/wrapper, que sigue siendo 100%. No confundir con `col.width` (ancho de una columna puntual, dentro de `columns`). |
 | `scrollFooter` | `boolean` | `false` | Pie `position: sticky` al borde inferior de la pantalla con ◀, slider y ▶ para desplazar la tabla sin bajar hasta su final. Solo aparece si la tabla es más ancha que su contenedor y reemplaza la barra horizontal propia. Ningún ancestro entre la tabla y el scroll de la página debe tener `overflow: hidden/auto` (usar `overflow: clip`). |
 | `scrollFooterBgColor`, `scrollFooterBorderColor` | `string` | `surfaceColor`, `borderColor` | Fondo y borde del pie. |
 | `scrollControlsColor` | `string` | `'#7c9cff'` (slider) / color por defecto de `Button` | Color de los botones ◀ ▶ y del slider. |
@@ -2931,6 +3971,72 @@ const [enabled, setEnabled] = useState(false);
 
 ---
 
+### Text
+
+Bloque de texto genérico (título o párrafo) para usar dentro de layouts como `Container` o `Frame` cuando se necesita meter texto suelto sin armar un componente nuevo. La `variant` define tanto el tag HTML semántico (`h1`/`h2`/`h3`/`p`/`span`) como su tamaño de fuente por defecto. Incluye además un set de animaciones de entrada/salida opcionales (`animate`) para títulos o textos destacados.
+
+**Import:**
+```jsx
+import Text from '../Text'; // export default (index.jsx)
+```
+
+**Uso básico:**
+```jsx
+<Text variant="h2">Título de la sección</Text>
+<Text>Texto de párrafo normal.</Text>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `children` | node | — | Contenido del texto. Solo se usa como texto plano (string) en las animaciones `typing` y `letter-fade-in`/`letter-fade-out`; con cualquier otro `animate` (o sin animación) puede ser cualquier `node`. |
+| `variant` | `'h1' \| 'h2' \| 'h3' \| 'body' \| 'caption'` | `'body'` | Define el tag HTML (`h1`/`h2`/`h3`/`p`/`span`) y el tamaño/peso de fuente |
+| `color` | string | — | Color del texto (`--text-color`; default `#0f172a`, `#64748b` en `caption`) |
+| `align` | `'left' \| 'center' \| 'right'` | `'left'` | Alineación del texto (`text-align`) |
+| `className` | string | `''` | Clase CSS adicional |
+| `style` | object | — | Estilos inline adicionales, mergeados con los internos |
+| `animate` | `'fade-in' \| 'fade-out' \| 'typing' \| 'letter-fade-in' \| 'letter-fade-out' \| 'rise-and-fade'` | — | Animación aplicada al montar. Sin esta prop, el texto se muestra estático. |
+| `duration` | number (ms) | `800` | Duración total de la animación para `fade-in`, `fade-out`, `letter-fade-in` y `letter-fade-out`. En las letter-fade, se reparte entre todas las letras (cada una anima con un delay escalonado). |
+| `typingSpeed` | number (ms) | `50` | Milisegundos entre cada letra en `animate="typing"`. |
+| `riseDuration` | number (ms) | `1000` | Duración de la animación en `animate="rise-and-fade"`. |
+| `riseDelay` | number (ms) | `400` | Espera antes de que arranque `rise-and-fade` (útil para encadenar varios `Text` en secuencia). |
+
+**Ejemplos:**
+```jsx
+<Text variant="h1">Título principal</Text>
+<Text variant="h3" color="#2563eb" align="center">Subtítulo centrado</Text>
+<Text variant="caption">Nota aclaratoria</Text>
+
+{/* Aparece letra por letra como si se tipeara */}
+<Text animate="typing" typingSpeed={30}>Escribiendo texto...</Text>
+
+{/* Fade-in del bloque completo */}
+<Text variant="h1" animate="fade-in" duration={1000} color="#0d52f8">
+  Apareciendo suavemente
+</Text>
+
+{/* Cada letra aparece/desaparece con su propio delay escalonado */}
+<Text animate="letter-fade-in" duration={1500}>Texto letra por letra...</Text>
+<Text animate="letter-fade-out" duration={1500}>Desaparece de atrás hacia adelante...</Text>
+
+{/* Sube y se desvanece tras un delay — útil para intros/splash */}
+<Text
+  variant="h1"
+  animate="rise-and-fade"
+  riseDelay={500}
+  riseDuration={1200}
+  color="#8b5cf6"
+  align="center"
+>
+  Palabra que sube y desaparece
+</Text>
+```
+
+**Notas:** `fade-in`/`fade-out`/`rise-and-fade` animan el bloque completo (el `Tag` resultante); `letter-fade-in`/`letter-fade-out` envuelven cada carácter en su propio `span` con `animationDelay` escalonado (de izquierda a derecha para `-in`, de derecha a izquierda para `-out`) — por eso solo soportan `children` como string, cualquier otro nodo se ignora en el cálculo de letras. `typing` reconstruye el string letra por letra con `setInterval` y muestra un cursor parpadeante (`border-right`) mientras dura la animación. Ninguna animación hace loop ni se revierte sola: son de una sola pasada al montar (controlar su repetición vía `key` desde el padre, como hace `KeyboardShortcut`/`ModalTooltip` en otros componentes del repo para resetear animaciones).
+
+---
+
 ### ToggleCard
 
 Tarjeta informativa/aviso con icono, título y descripción (con soporte de texto resaltado tipo `**negrita**`), acción custom y botón de cierre opcional.
@@ -3033,6 +4139,12 @@ import TopBar from '../TopBar/index'; // export default
 | `loading` | boolean | `false` | Activa el estado de carga utilizando el componente `Skeleton` para logo, breadcrumbs/título, buscador y acciones, conservando la estructura y layout sin saltos visuales. |
 | `isLoading` | boolean | `false` | Alias de conveniencia para `loading`. |
 | `skeletonActionsCount` | number | `3` (o `actions.length`) | Cantidad de botones de acción a mostrar como skeleton durante el estado de carga. |
+| `actionHover` | boolean | `true` | Controla si los botones de acción tienen efecto hover. Pasar `false` para quitar/desactivar el hover por completo. |
+| `actionHoverBgColor` | string | `'#e2e8f0'` | Color de fondo en hover para los botones de acción (`--topbar-action-hover-bg`). |
+| `actionHoverTextColor` | string | `'#0f172a'` | Color de texto/icono en hover para los botones de acción (`--topbar-action-hover-text`). |
+| `actionHoverBorderColor` | string | `'#e2e8f0'` | Color del borde en hover para los botones de acción (`--topbar-action-hover-border`). |
+| `actionRippleColor` | string | `'rgba(15, 23, 42, 0.28)'` | Color de la animación de onda (ripple/olas) al hacer click en los botones de acción (`--topbar-action-ripple`). |
+
 
 
 **Ejemplos:**
@@ -3057,7 +4169,9 @@ import TopBar from '../TopBar/index'; // export default
 />
 ```
 
-**Notas:** El menú de usuario se renderiza vía `createPortal` a `document.body` (mismo patrón que el menú de usuario de `Sidebar`), posicionado contra el botón del avatar. `actions` son completamente genéricas — no asume ningún set fijo de íconos (notificaciones, mensajes, ayuda, etc. quedan a elección del consumidor).
+**Notas:** El menú de usuario se renderiza vía `createPortal` a `document.body` (mismo patrón que el menú de usuario de `Sidebar`), posicionado contra el botón del avatar. `actions` son completamente genéricas — no asume ningún set fijo de íconos (notificaciones, mensajes, ayuda, etc. quedan a elección del consumidor). El atajo de teclado Ctrl/Cmd+K para abrir el `CommandPalette` (`useCommandPaletteShortcut` en `utils.js`) usa el hook genérico `useKeyboardShortcut` (`common/hooks/useKeyboardShortcut.js`), reutilizable para registrar cualquier otro atajo global (`{ key, ctrlOrMeta, shift, alt, enabled, onTrigger }`) sin reimplementar el listener de teclado a mano en cada componente nuevo.
+
+**Responsive:** `leftSection` (logo + breadcrumb/título) se encoge primero y trunca con ellipsis; `rightSection` (acciones + divisor + avatar + `ctaButton`) nunca se encoge, para que los botones nunca queden apretados ni se superpongan entre sí. Por debajo de 1023px el buscador central se angosta, por debajo de 767px se oculta por completo (el consumidor puede ofrecer una lupa en `actions` para ese breakpoint) y el header pasa a `flex-wrap` como red de seguridad si aun así no entra todo en una fila; por debajo de 479px se reducen aún más los paddings de los botones de acción y el ancho máximo de breadcrumb/título.
 
 ---
 
@@ -3100,3 +4214,71 @@ import UserEditPopover from 'screens/components/UserEditPopover';
 ```
 
 **Notas:** Al guardar, llama a `updateUserName` de `features/user-profile/api.js` y a `getUserId` de `common/storage/LocalStorage.js`. Para que la petición real funcione en una app consumidora es necesario tener configurado `configureApiClient` (`common/api/client.js`); si la llamada falla, el componente igual invoca `onSuccess` con el nombre local como fallback para pruebas.
+
+---
+
+### NotificationsPanel
+
+Panel de notificaciones y mensajes con soporte para scroll interno, descartado de ítems, acciones por ítem, estados de carga (Skeleton y Spinner) y un estado vacío (*empty state*) espacioso y personalizable. Si el título o el mensaje hacen referencia a mensajes/correo, detecta el contexto automáticamente y muestra los íconos de sobre correspondientes.
+
+**Import:**
+```jsx
+import NotificationsPanel from 'screens/components/NotificationsPanel';
+// o desde el barrel:
+import { NotificationsPanel } from 'anteriority-ui';
+```
+
+**Uso básico (con notificaciones):**
+```jsx
+<NotificationsPanel
+  title="Notificaciones"
+  notifications={[
+    {
+      id: 1,
+      title: 'Nueva cita agendada',
+      message: 'Se agendó una cita para mañana a las 15:00.',
+      timestamp: 'Hace 5 minutos',
+    },
+  ]}
+  onDismiss={(id) => handleDismiss(id)}
+/>
+```
+
+**Uso estado vacío (Mensajes / Screenshot):**
+```jsx
+<NotificationsPanel
+  title="Mensajes"
+  emptyMessage="No tienes mensajes."
+  notifications={[]}
+/>
+```
+
+**Props:**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `title` | `string` | `'Notificaciones'` | Título del panel. Si contiene palabras como "mensaje", "mail" o "chat", adapta los íconos por defecto a correo. |
+| `icon` | `ReactNode` | `<Bell size={20} />` \| `<Mail size={20} />` | Ícono del encabezado. Si no se pasa, se deduce según el contexto del título. |
+| `notifications` | `Array<NotificationItem>` | `[]` | Lista de notificaciones a mostrar. Si está vacía, muestra el contenedor de estado vacío. |
+| `onDismiss` | `function(id)` | — | Callback invocado cuando el usuario descarta una notificación. |
+| `emptyTitle` | `string` | — | Título opcional para el estado vacío (ej. `"Bandeja limpia"`). |
+| `emptyMessage` | `string` | `'No tenés notificaciones nuevas.'` | Mensaje descriptivo del estado vacío. |
+| `emptyIcon` | `ReactNode \| ReactComponent \| boolean` | Auto (`MailX` o `BellOff`) | Ícono central del estado vacío. Pasar `false` para ocultarlo. |
+| `emptyIconSize` | `number` | `46` | Tamaño en píxeles del ícono del estado vacío. |
+| `emptyIconColor` | `string` | `'#94a3b8'` | Color del ícono del estado vacío. |
+| `emptyTextColor` | `string` | `'#64748b'` | Color del texto del estado vacío. |
+| `emptyMinHeight` | `number \| string` | `200` | Altura mínima del contenedor de estado vacío en píxeles. |
+| `maxHeight` | `number \| string` | `380` | Altura máxima del contenido con scroll interno. |
+| `dismissLabel` | `string` | `'Quitar notificación'` | Tooltip/aria-label para el botón de descartar. |
+| `isModal` | `boolean` | `false` | Renderiza el panel dentro de un modal. |
+| `onClose` | `function` | — | Callback al cerrar el panel cuando se usa en modo modal. |
+| `isLoading` | `boolean` | `false` | Muestra estado de carga. |
+| `loadingType` | `'skeleton' \| 'spinner'` | `'skeleton'` | Tipo de indicador de carga. |
+| `loadingVariant` | `string` | — | Variante del spinner (`'bars'`, `'dots'`, etc.). |
+| `skeletonCount` | `number` | `3` | Cantidad de skeletons a renderizar. |
+| `bgColor` | `string` | — | Color de fondo del panel (`--frame-bg`). |
+| `iconColor` | `string` | — | Color del ícono del encabezado (`--frame-icon-color`). |
+| `itemBgColor` | `string` | — | Fondo por defecto de las tarjetas de notificación. |
+| `itemBorderColor` | `string` | — | Borde por defecto de las tarjetas de notificación. |
+| `itemIconColor` | `string` | — | Color del ícono por defecto de las tarjetas. |
+| `textColor` | `string` | — | Color de texto principal. |

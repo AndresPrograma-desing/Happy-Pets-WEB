@@ -729,7 +729,11 @@ export default function PortalClientes() {
 
   return (
     <div className={styles.pageWrapper}>
-      <Container className={styles.portalContainer} showPagination={false}>
+      <Container 
+        className={styles.portalContainer} 
+        showPagination={false} 
+        wattermark={false}
+      >
         <div className={styles.topBar}>
           <Button
             variant="ghost"

@@ -40,7 +40,7 @@ const Button = React.forwardRef(({
   let muiColor = 'primary';
   if (variant === 'danger' || color === 'var(--color-danger)' || color === 'var(--cancel-button)' || color === 'red') muiColor = 'error';
   if (variant === 'secondary' || color === 'var(--color-secondary)') muiColor = 'secondary';
-  if (color === 'var(--button-green)' || color === 'green') muiColor = 'success';
+  if (color === 'var(--button-green)' || color === 'blue') muiColor = 'red';
   if (color === 'transparent') muiColor = 'inherit';
   if (border || borderColor) { muiVariant = 'outlined'; } 
   
