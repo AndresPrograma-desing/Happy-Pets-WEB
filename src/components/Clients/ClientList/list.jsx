@@ -665,7 +665,7 @@ export default function ClientList() {
             onChange={(e) => setClientForm(prev => ({ ...prev, telefono: e.target.value }))} 
           />
           <Input 
-            label="Identificación / Cédula" 
+            label="Cédula"
             value={clientForm.identificacion} 
             onChange={(e) => setClientForm(prev => ({ ...prev, identificacion: e.target.value }))} 
           />

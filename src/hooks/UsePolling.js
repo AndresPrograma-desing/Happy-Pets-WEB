@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react';
  * @param {boolean} [active=true]
  */
 
-function usePolling(callback, delay, active = true) {
+function usePolling(callback, delay , active = true) {
     const saveCallback = useRef(() => {});
     const lastFiredAtRef = useRef(0);
 

@@ -16,6 +16,7 @@ import TextField from '../../../components/screens/components/Material-UI/Compon
 import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
 import Button from '../../../components/screens/components/Button';
 import Barnner from '../../../components/screens/components/Barnner';
+import { useCurrency } from '../../../hooks/moneyType';
 
 export default function CreatedCita() {
     const navigate = useNavigate();
@@ -34,6 +35,21 @@ export default function CreatedCita() {
     const [selectedCliente, setSelectedCliente] = useState(null);
     const [services, setServices] = useState([]);
     const [loadingServices, setLoadingServices] = useState(false);
+    const { currency } = useCurrency();
+    const esUSD = currency?.toUpperCase() === 'USD';
+
+    const formatServicePrice = (precio) => {
+        const n = Number(precio || 0);
+        try {
+            return new Intl.NumberFormat(esUSD ? 'en-US' : 'es-VE', {
+                style: 'currency',
+                currency: currency || 'VES',
+                maximumFractionDigits: 2
+            }).format(n);
+        } catch (err) {
+            return (esUSD ? '$ ' : 'Bs. ') + n.toLocaleString();
+        }
+    };
 
     const [form, setForm] = useState({
         mascota_id: '',
@@ -428,7 +444,7 @@ export default function CreatedCita() {
                                 label="Servicio"
                                 options={services.map((s) => ({
                                     value: String(s.id),
-                                    label: s.nombre + (s.precio ? ` — USD ${Number(s.precio).toFixed(2)}` : '')
+                                    label: s.nombre + (s.precio ? ` — ${formatServicePrice(s.precio)}` : '')
                                 }))}
                                 value={form.servicio_id}
                                 loading={loadingServices}

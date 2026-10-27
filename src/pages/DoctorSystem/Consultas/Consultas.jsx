@@ -24,6 +24,7 @@ import MultilinePlaceholder from '../../../components/screens/components/Materia
 import Input from '../../../components/screens/components/Input/Index';
 import Selector from '../../../components/screens/components/Material-UI/Components/Selector/Index';
 import TextField from '../../../components/screens/components/Material-UI/Components/TextField/Index';
+import { useCurrency } from '../../../hooks/moneyType';
 
 function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const { state } = useLocation();
@@ -36,6 +37,8 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const defaultMascotaNombre = cita?.Mascotum?.nombre || cita?.mascota?.nombre || state?.mascotaNombre || 'Paciente';
 
   const defaultServicioPrecio = cita?.servicio_precio ?? cita?.ServicioPrecio ?? '';
+
+  const { currency } = useCurrency();
 
   const [form, setForm] = useState({
     cita_id: defaultCitaId,
@@ -57,6 +60,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [showBadReqModal, setShowBadReqModal] = useState(false);
+  const [badReqMessage, setBadReqMessage] = useState('Debe completar los datos obligatorios de la consulta.');
   const [showConfirmSaveModal, setShowConfirmSaveModal] = useState(false);
   const [vaccines, setVaccines] = useState([]);
   const [loadingVaccines, setLoadingVaccines] = useState(false);
@@ -113,7 +117,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
         ...copy[idx],
         producto_id: product?.id || '',
         producto_nombre: product?.nombre || '',
-        precio_unitario: Number(product?.precio || 0),
+        precio_unitario: Number(product?.precioVenta ?? product?.precio_venta ?? 0),
       };
       return { ...s, productos: copy };
     });
@@ -182,6 +186,13 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.mascota_id || !form.sintomas.trim() || !form.diagnostico.trim()) {
+      setBadReqMessage('Debe completar los datos obligatorios de la consulta.');
+      setShowBadReqModal(true);
+      return;
+    }
+    const incompleteVacuna = form.vacunas.some(v => !v.vaccine_id || !v.vaccine_batch_id);
+    if (incompleteVacuna) {
+      setBadReqMessage('Debe seleccionar una vacuna y un lote en cada registro de vacunación agregado, o eliminarlo, antes de guardar. De lo contrario, no se guardará.');
       setShowBadReqModal(true);
       return;
     }
@@ -274,7 +285,7 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
               />
             </div>
             <FormInput
-              label={`Precio de Consulta (USD)${cita?.servicio_nombre || cita?.ServicioNombre ? ` — ${cita.servicio_nombre || cita.ServicioNombre}` : ''}`}
+              label={`Precio de Consulta (${currency || 'VES'})${cita?.servicio_nombre || cita?.ServicioNombre ? ` — ${cita.servicio_nombre || cita.ServicioNombre}` : ''}`}
               name="consulta_price"
               type="number"
               step="0.01"
@@ -535,9 +546,9 @@ function Consultas({ isDrawer = false, cita: propCita, onSuccess, onCancel }) {
         </div>
       </form>
 
-      <AlertModal open={showBadReqModal} 
-        title="Atención" 
-        message="Debe completar los datos obligatorios de la consulta."
+      <AlertModal open={showBadReqModal}
+        title="Atención"
+        message={badReqMessage}
         onClose={() => setShowBadReqModal(false)}
          />
       <AlertModal 
