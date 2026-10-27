@@ -13,7 +13,7 @@ const FIELD_LABELS = {
   email: 'Correo electronico',
   telefono: 'Telefono',
   direccion: 'Direccion',
-  identificacion: 'Identificacion',
+  identificacion: 'Cédula',
   mascota_nombre: 'Nombre de la mascota',
   especie: 'Especie',
   raza: 'Raza',

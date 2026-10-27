@@ -61,8 +61,8 @@ export default function ClientLogin({ onLoginSuccess }) {
     <div className={styles.wrapper}>
       <Frame title={step === 'request' ? T.requestTitle : T.verifyTitle}>
         <div className={styles.messageStack}>
-          {error && <Barnner type="danger">{error}</Barnner>}
-          {info && <Barnner type="success">{info}</Barnner>}
+          {error && <Barnner type="danger" className={styles.messageBanner}>{error}</Barnner>}
+          {info && <Barnner type="success" className={styles.messageBanner}>{info}</Barnner>}
         </div>
 
         {step === 'request' && (

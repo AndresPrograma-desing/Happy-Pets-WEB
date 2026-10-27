@@ -231,9 +231,9 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
                     required
                 />
                 <TextField
-                    label="Identificación"
+                    label="Cédula"
                     name="identificacion"
-                    placeholder="Identificación"
+                    placeholder="Cédula"
                     value={form.identificacion}
                     onChange={handleChange}
                     required
