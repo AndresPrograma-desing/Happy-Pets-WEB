@@ -340,7 +340,7 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
 
             <div className={styles.row}>
                 <TextField
-                    label="Nombre de mascota"
+                    label="mascota"
                     name="mascota_nombre"
                     placeholder="Nombre de mascota"
                     value={form.mascota_nombre}
