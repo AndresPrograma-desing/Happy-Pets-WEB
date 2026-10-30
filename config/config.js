@@ -43,6 +43,10 @@ const getClientPortalURL = () => {
 
 export const CLIENT_PORTAL_URL = getClientPortalURL();
 
+// Mantiene despierto el backend en Render (free tier duerme tras ~15 min
+// de inactividad) y detecta si está caído.
+export const HEALTH_CHECK_INTERVAL_MS = 5 * 60 * 1000;
+
 // Flag to use dummy data without a backend API (dynamic via localStorage)
 export const isDummyModeActive = () => {
     if (typeof window !== 'undefined') {
