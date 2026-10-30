@@ -16,6 +16,7 @@ import Barnner from '../../screens/components/Barnner';
 import MenuPopover from '../../screens/components/Material-UI/Components/MenuPopover/index.jsx';
 import ErrorMessage from '../../Notification/Error/ErrorMessage.jsx';
 import Input from '../../screens/components/Input/Index.jsx';
+import { isValidEmail, isValidTelefono } from '../../../utils/validation';
 import { 
   User, 
   Mail, 
@@ -192,6 +193,14 @@ export default function ClientList() {
   const handleSaveEditClient = async () => {
     if (!clientForm.nombre || !clientForm.apellido || !clientForm.email) {
       setClientEditError('Nombre, Apellido y Email son campos obligatorios.');
+      return;
+    }
+    if (!isValidEmail(clientForm.email)) {
+      setClientEditError('El correo electrónico no tiene un formato válido.');
+      return;
+    }
+    if (clientForm.telefono && !isValidTelefono(clientForm.telefono)) {
+      setClientEditError('El teléfono solo puede contener números, espacios y + - ( ).');
       return;
     }
     setClientSubmitting(true);

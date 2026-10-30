@@ -79,6 +79,21 @@ function extractErrorLines(raw) {
   if (typeof raw !== 'object') return [];
 
   const objectLines = [];
+
+  // ValidationProblemDetails de ASP.NET ({ errors: { Campo: ["msg1", "msg2"] } }): `errors` es un
+  // objeto por campo, no un array, así que no entra al forEach de abajo y el modal quedaba vacío.
+  const dictSources = [raw?.errors, raw?.body?.errors].filter((d) => d && typeof d === 'object' && !Array.isArray(d));
+  dictSources.forEach((dict) => {
+    Object.entries(dict).forEach(([field, messages]) => {
+      const fieldLabel = humanizeField(field);
+      const msgs = Array.isArray(messages) ? messages : [messages];
+      msgs.filter(Boolean).forEach((msg) => {
+        const translated = translateText(String(msg));
+        objectLines.push(fieldLabel ? `${fieldLabel}: ${translated}` : translated);
+      });
+    });
+  });
+
   const listSources = [raw?.errors, raw?.details, raw?.body?.errors, raw?.body?.details].filter(Boolean);
 
   listSources.forEach((list) => {

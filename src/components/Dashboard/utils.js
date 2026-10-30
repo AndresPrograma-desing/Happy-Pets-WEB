@@ -42,6 +42,21 @@ export const getStatusBreakdown = (citasPorEstado) =>
     .filter((status) => (citasPorEstado || {})[status] !== undefined)
     .map((status) => ({ status, count: citasPorEstado[status] }));
 
+const APPOINTMENT_STATUS_COLORS = {
+  completada: '#16a34a',
+  programada: '#d97706',
+  en_curso: '#7c3aed',
+  cancelada: '#dc2626',
+  no_asistida: '#991b1b',
+};
+
+export const getStatusPieData = (citasPorEstado) =>
+  getStatusBreakdown(citasPorEstado).map(({ status, count }) => ({
+    name: formatAppointmentStatusLabel(status),
+    value: count,
+    color: APPOINTMENT_STATUS_COLORS[status],
+  }));
+
 export const formatAlertDate = (isoDate) => {
   const date = new Date(isoDate);
   return Number.isNaN(date.getTime()) ? '' : format(date, "dd MMM yyyy, hh:mm a", { locale: es });

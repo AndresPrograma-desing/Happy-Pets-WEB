@@ -94,6 +94,8 @@
     lowStockColumnProduct: "Producto",
     lowStockColumnStock: "Stock / Mínimo",
     lowStockColumnPrice: "Precio",
+    lowStockSeriesStock: "Stock actual",
+    lowStockSeriesMin: "Stock mínimo",
     alertsTitle: "Alertas Recientes",
     alertsSubtitle: "Últimas notificaciones y alertas del sistema",
     alertsEmptyMessage: "No hay alertas recientes.",

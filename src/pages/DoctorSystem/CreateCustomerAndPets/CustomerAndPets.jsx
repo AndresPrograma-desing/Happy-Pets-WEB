@@ -16,6 +16,7 @@ import useSpecies from '../../../hooks/useSpecies';
 import { Input, ProfileAvatar } from 'anteriority-ui';
 import useImagePicker from '../../../hooks/useImagePicker';
 import { DrawPanelFooterContext } from '../../../components/screens/components/DrawPanel/FooterContext';
+import { isValidEmail, isValidTelefono, isNonNegativeNumber } from '../../../utils/validation';
 
 const FORM_ID = 'customerAndPetsForm';
 
@@ -81,10 +82,26 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             }
         });
 
-        if (missingDetails.length > 0) { 
+        if (missingDetails.length > 0) {
             setModalError({
                 errors: missingDetails
             });
+            setIsModalOpen(true);
+            return;
+        }
+
+        const formatErrors = [];
+        if (form.email && !isValidEmail(form.email)) {
+            formatErrors.push({ field: 'email', message: 'no tiene un formato válido' });
+        }
+        if (form.telefono && !isValidTelefono(form.telefono)) {
+            formatErrors.push({ field: 'telefono', message: 'solo puede contener números, espacios y + - ( )' });
+        }
+        if (form.peso !== '' && !isNonNegativeNumber(form.peso)) {
+            formatErrors.push({ field: 'peso', message: 'debe ser un número mayor o igual a cero' });
+        }
+        if (formatErrors.length > 0) {
+            setModalError({ errors: formatErrors });
             setIsModalOpen(true);
             return;
         }

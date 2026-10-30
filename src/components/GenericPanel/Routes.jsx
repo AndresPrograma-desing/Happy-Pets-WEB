@@ -57,154 +57,116 @@ export const filterMenuByPermissions = (items, permissions) => {
 
 // Este archivo ya NO define texto ni ícono de ningún item con permissionKey: eso vive en el
 // catálogo de permisos del backend (GET /Permissions/permission), agrupado por módulo y con keys
-// globales (sin prefijo de rol). Lo que queda acá es puramente ruteo/comportamiento de click,
-// indexado por esa misma key — ver resolveMenuFromCatalog.
+// globales (sin prefijo de rol). Lo que queda acá es puramente ruteo/comportamiento de click.
 //
-// Los items sin permissionKey (los "root" de cada panel: Panel/Dashboard) no tienen módulo
-// equivalente en el catálogo, así que llevan label/icon fijos acá y se muestran siempre,
-// sin gating por permiso.
-//
-// Un módulo se agrupa en `subItems` solo cuando sus permisos apuntan al mismo path (son
-// vistas/tabs de una misma pantalla, ej. vacunas o productos). Si apuntan a paths distintos
-// quedan como items planos separados, igual que antes.
-export const getDefaultMenus = ({ setShowNotificationModal, setShowWhatsAppModal, setShowCreateClientModal, setShowCreateUserModal }) => ({
-  user: [
-    { path: '/', label: 'Inicio', icon: 'Home' },
-    { path: '/projects', permissionKey: 'projects.view' },
-    { path: '/panel-mensajes', permissionKey: 'messages.view' },
-  ],
+// ROUTE_BY_KEY es un único mapa GLOBAL permissionKey -> { path/onClick/state }, sin duplicar por
+// rol. Antes había una lista de rutas por rol (admin/secretaria/doctor) y si una key del catálogo
+// no estaba copiada a mano en el bloque del rol del usuario, el permiso se guardaba bien en el
+// backend pero jamás aparecía en el sidebar (bug real: a un admin se le asignaba p.ej. "citas.list"
+// o "records.view" y no salían, porque esas keys solo estaban mapeadas para secretaria/doctor).
+// Con un solo mapa por key, cualquier rol que reciba cualquier key del catálogo la ve resuelta acá
+// sin tener que tocar este archivo cada vez que se reparte un permiso distinto.
+const buildRouteByKey = ({ setShowNotificationModal, setShowCreateClientModal, setShowCreateUserModal }) => ({
+  'projects.view': { path: '/projects' },
+  'messages.view': { path: '/panel-mensajes' },
+  'users.view': { path: '/administracion/usuarios' },
+  'users.create': { onClick: () => setShowCreateUserModal(true) },
+  'products.view': { path: '/administracion/productos', state: { view: 'list' } },
+  'products.manage': { path: '/administracion/productos', state: { view: 'manage' } },
+  'invoices.view': { path: '/recibos' },
+  'invoices.manage': { path: '/gestor-facturas' },
+  // 'invoices.account' (Cuenta de cliente) no tiene entrada: vive como acción dentro de la
+  // pantalla de Clientes (HU-27), no como ítem propio de sidebar.
+  'notifications.create': { onClick: () => setShowNotificationModal(true) },
+  'clients.view': { path: '/clientes' },
+  'clients.create': { onClick: () => setShowCreateClientModal && setShowCreateClientModal(true) },
+  'emails.manage': { path: '/administracion/correos' },
+  'vaccines.view': { path: '/administracion/vacunas', state: { view: 'list' } },
+  'vaccines.manage': { path: '/administracion/vacunas', state: { view: 'manage', openCreate: true } },
+  'vaccines.pending': { path: '/administracion/vacunas', state: { view: 'pending' } },
+  'vaccines.batches': { path: '/administracion/vacunas', state: { view: 'batches' } },
+  'settings.manage': { path: '/administracion/configuracion' },
+  'citas.list': { path: '/citas', state: { role: 'secretaria' } },
+  'citas.create': { path: '/citas/crear', state: { role: 'secretaria' } },
+  'citas.mine': { path: '/citas' },
+  'calendar.view': { path: '/calendario', state: { role: 'secretaria' } },
+  'recipes.manage': { path: '/doctor/recetas' },
+  'records.view': { path: '/doctor/pacientes' },
+  'services.view': { path: '/administracion/servicios' },
+  'services.manage': { path: '/administracion/servicios' },
+  'inventory.view': { path: '/administracion/inventario' },
+  'priceHistory.view': { path: '/administracion/historial-precios' },
+});
+
+// Ítems "root" de cada panel (Panel/Dashboard): no tienen módulo equivalente en el catálogo de
+// permisos, así que llevan label/icon fijos acá y se muestran siempre, sin gating por permiso.
+const ROOT_ITEMS_BY_ROLE = {
+  user: [{ path: '/', label: 'Inicio', icon: 'Home' }],
   admin: [
     { path: '/administracion', label: 'Panel', icon: 'Home' },
     { path: '/administracion/dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { path: '/administracion/usuarios', permissionKey: 'users.view' },
-    { onClick: () => setShowCreateUserModal(true), permissionKey: 'users.create' },
-    {
-      subItems: [
-        { path: '/administracion/productos', state: { view: 'list' }, permissionKey: 'products.view' },
-        { path: '/administracion/productos', state: { view: 'manage' }, permissionKey: 'products.manage' },
-      ],
-    },
-    { path: '/panel-mensajes', permissionKey: 'messages.view' },
-    { path: '/recibos', permissionKey: 'invoices.view' },
-    { onClick: () => setShowNotificationModal(true), permissionKey: 'notifications.create' },
-    { path: '/clientes', permissionKey: 'clients.view' },
-    { path: '/administracion/correos', permissionKey: 'emails.manage' },
-    {
-      subItems: [
-        { path: '/administracion/vacunas', state: { view: 'list' }, permissionKey: 'vaccines.view' },
-        { path: '/administracion/vacunas', state: { view: 'manage', openCreate: true }, permissionKey: 'vaccines.manage' },
-        { path: '/administracion/vacunas', state: { view: 'pending' }, permissionKey: 'vaccines.pending' },
-        { path: '/administracion/vacunas', state: { view: 'batches' }, permissionKey: 'vaccines.batches' },
-      ],
-    },
-    { path: '/administracion/servicios', permissionKey: 'services.view' },
-    { path: '/administracion/inventario', permissionKey: 'inventory.view' },
-    { path: '/administracion/historial-precios', permissionKey: 'priceHistory.view' },
-    { path: '/administracion/configuracion', permissionKey: 'settings.manage' },
   ],
-  secretaria: [
-    { path: '/secretaria', label: 'Panel', icon: 'Home' },
-    { path: '/citas', state: { role: 'secretaria' }, permissionKey: 'citas.list' },
-    { path: '/citas/crear', state: { role: 'secretaria' }, permissionKey: 'citas.create' },
-    { onClick: () => setShowCreateClientModal && setShowCreateClientModal(true), permissionKey: 'clients.create' },
-    { path: '/calendario', state: { role: 'secretaria' }, permissionKey: 'calendar.view' },
-    { path: '/gestor-facturas', permissionKey: 'invoices.manage' },
-    { path: '/panel-mensajes', permissionKey: 'messages.view' },
-    { path: '/recibos', permissionKey: 'invoices.view' },
-    {
-      subItems: [
-        { path: '/administracion/vacunas', state: { view: 'list' }, permissionKey: 'vaccines.view' },
-        { path: '/administracion/vacunas', state: { view: 'manage', openCreate: true }, permissionKey: 'vaccines.manage' },
-        { path: '/administracion/vacunas', state: { view: 'pending' }, permissionKey: 'vaccines.pending' },
-        { path: '/administracion/vacunas', state: { view: 'batches' }, permissionKey: 'vaccines.batches' },
-      ],
-    },
-    { path: '/doctor/recetas', permissionKey: 'recipes.manage' },
-    { onClick: () => setShowNotificationModal(true), permissionKey: 'notifications.create' },
-    { path: '/clientes', permissionKey: 'clients.view' },
-    { path: '/administracion/servicios', permissionKey: 'services.view' },
-    { path: '/administracion/inventario', permissionKey: 'inventory.view' },
-    { path: '/administracion/historial-precios', permissionKey: 'priceHistory.view' },
-  ],
-  doctor: [
-    { path: '/doctor', label: 'Panel', icon: 'Home' },
-    { path: '/citas', permissionKey: 'citas.mine' },
-    { path: '/calendario', permissionKey: 'calendar.view' },
-    { path: '/doctor/pacientes', permissionKey: 'records.view' },
-    { path: '/doctor/recetas', permissionKey: 'recipes.manage' },
-    {
-      subItems: [
-        { path: '/administracion/vacunas', state: { view: 'list' }, permissionKey: 'vaccines.view' },
-        { path: '/administracion/vacunas', state: { view: 'manage', openCreate: true }, permissionKey: 'vaccines.manage' },
-        { path: '/administracion/vacunas', state: { view: 'pending' }, permissionKey: 'vaccines.pending' },
-        { path: '/administracion/vacunas', state: { view: 'batches' }, permissionKey: 'vaccines.batches' },
-      ],
-    },
-    { path: '/panel-mensajes', permissionKey: 'messages.view' },
-    { path: '/recibos', permissionKey: 'invoices.view' },
-    { onClick: () => setShowNotificationModal(true), permissionKey: 'notifications.create' },
-    { path: '/administracion/servicios', permissionKey: 'services.view' },
-    { path: '/administracion/inventario', permissionKey: 'inventory.view' },
-    { path: '/administracion/historial-precios', permissionKey: 'priceHistory.view' },
-  ],
-});
+  secretaria: [{ path: '/secretaria', label: 'Panel', icon: 'Home' }],
+  doctor: [{ path: '/doctor', label: 'Panel', icon: 'Home' }],
+};
+
+// Arma la lista de items a resolver para un rol: los root items fijos de ese rol + un item por
+// cada key del catálogo que tenga ruta/acción definida en ROUTE_BY_KEY. resolveMenuFromCatalog ya
+// se encarga de filtrar por lo que el usuario realmente tiene y de agrupar por módulo.
+export const getDefaultMenus = (options) => {
+  const routeByKey = buildRouteByKey(options);
+  const roots = ROOT_ITEMS_BY_ROLE;
+  const keyedItems = Object.entries(routeByKey).map(([permissionKey, route]) => ({ ...route, permissionKey }));
+
+  return Object.keys(roots).reduce((acc, role) => {
+    acc[role] = [...roots[role], ...keyedItems];
+    return acc;
+  }, {});
+};
 
 // Cruza los items de ruteo (path/onClick) con el catálogo del backend, agrupado por módulo:
 // { [permissionKey]: { key, label, module, moduleLabel, moduleIcon } } (ver usePermissionsCatalog).
-// Un item con permissionKey SOLO aparece si esa key tiene entrada en el catálogo. Los items sin
-// permissionKey (root) ya traen su label/icon fijo y pasan siempre. Los grupos con subItems
-// resuelven cada subitem por su propia key y toman el label/icono del módulo para el header del
-// grupo; si ningún subitem resuelve, el grupo entero se descarta.
+// Un item con permissionKey SOLO aparece si esa key tiene entrada en el catálogo Y el usuario la
+// tiene asignada (ver filterMenuByPermissions, que corre antes). Los items sin permissionKey
+// (root) ya traen su label/icon fijo y pasan siempre.
+//
+// Varios items quedan agrupados en un mismo `subItems` cuando apuntan al mismo path (son
+// vistas/tabs de una misma pantalla, ej. las 4 vistas de vacunas o las 2 de productos); si solo
+// una key de ese grupo resuelve, queda como item plano. Items de un mismo módulo pero con paths
+// distintos (ej. users.view "/administracion/usuarios" vs users.create que abre un modal) quedan
+// planos y separados, igual que en el menú original.
 export const resolveMenuFromCatalog = (items, permissionsCatalog) => {
   const catalog = permissionsCatalog || {};
 
-  return items.reduce((acc, item) => {
-    if (item.subItems) {
-      const resolvedSubItems = item.subItems.reduce((subAcc, sub) => {
-        const entry = catalog[sub.permissionKey];
-        if (!entry) return subAcc;
-        subAcc.push({ ...sub, id: sub.permissionKey, label: entry.label, icon: resolveCatalogIcon(entry.moduleIcon) });
-        return subAcc;
-      }, []);
-      if (resolvedSubItems.length === 0) return acc;
-      const groupMeta = catalog[resolvedSubItems[0].id];
-      acc.push({
-        id: `group-${groupMeta.module}`,
-        label: groupMeta.moduleLabel,
-        icon: resolveCatalogIcon(groupMeta.moduleIcon),
-        subItems: resolvedSubItems,
-      });
-      return acc;
-    }
+  const rootItems = [];
+  const pathGroups = new Map(); // path -> resolved sub-items, en orden de aparición
 
+  items.forEach((item) => {
     if (!item.permissionKey) {
-      acc.push({ ...item, icon: resolveCatalogIcon(item.icon) });
-      return acc;
+      rootItems.push({ ...item, icon: resolveCatalogIcon(item.icon) });
+      return;
     }
 
     const entry = catalog[item.permissionKey];
-    if (!entry) return acc;
-    acc.push({ ...item, id: item.permissionKey, label: entry.label, icon: resolveCatalogIcon(entry.moduleIcon) });
-    return acc;
-  }, []);
-};
+    if (!entry) return;
 
-// Aplana el menú de un rol (incluyendo lo agrupado en subItems) en [{ key, label }] para la UI
-// de selección de permisos (crear usuario / editar permisos). Solo incluye claves que existan
-// en el catálogo.
-export const getAllPermissionKeysForRole = (role, options = {}, permissionsCatalog = {}) => {
-  const defaultMenus = getDefaultMenus(options);
-  const items = defaultMenus[role] || [];
-  const catalog = permissionsCatalog || {};
+    const resolved = { ...item, id: item.permissionKey, label: entry.label, icon: resolveCatalogIcon(entry.moduleIcon) };
+    const groupKey = item.path || item.permissionKey;
+    if (!pathGroups.has(groupKey)) pathGroups.set(groupKey, { meta: entry, subItems: [] });
+    pathGroups.get(groupKey).subItems.push(resolved);
+  });
 
-  const collect = (list) => list.reduce((acc, item) => {
-    if (item.subItems) return acc.concat(collect(item.subItems));
-    const entry = item.permissionKey ? catalog[item.permissionKey] : null;
-    if (entry) acc.push({ key: item.permissionKey, label: entry.label });
-    return acc;
-  }, []);
+  const groupedItems = Array.from(pathGroups.values()).map(({ meta, subItems }) => {
+    if (subItems.length === 1) return subItems[0];
+    return {
+      id: `group-${meta.module}`,
+      label: meta.moduleLabel,
+      icon: resolveCatalogIcon(meta.moduleIcon),
+      subItems,
+    };
+  });
 
-  return collect(items);
+  return [...rootItems, ...groupedItems];
 };
 
 // Aplana TODO el catálogo de permisos del sistema en [{ key, label }], sin filtrar por rol.
