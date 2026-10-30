@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { DEV_URL_API, isDummyModeActive } from '../../config/config';
+import { DEV_URL_API, isDummyModeActive, HEALTH_CHECK_INTERVAL_MS } from '../../config/config';
 
 export function useHealthCheck() {
   const isDummy = isDummyModeActive();
@@ -75,15 +75,26 @@ export function useHealthCheck() {
     window.addEventListener('online', setOnline);
     window.addEventListener('offline', setOffline);
 
+    // El navegador throttlea setInterval en background (hasta 1/min, o más
+    // espaciado aún con "intensive throttling" tras 5 min); al volver a
+    // visible forzamos un check inmediato para no depender de ese scheduler.
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkBackend();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     isMountedRef.current = true;
 
     Promise.resolve().then(checkBackend);
 
-    const interval = setInterval(checkBackend, 10000);
+    const interval = setInterval(checkBackend, HEALTH_CHECK_INTERVAL_MS);
 
     return () => {
       window.removeEventListener('online', setOnline);
       window.removeEventListener('offline', setOffline);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       clearInterval(interval);
       isMountedRef.current = false;
       controllerRef.current?.abort();
