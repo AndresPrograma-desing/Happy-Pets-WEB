@@ -146,7 +146,7 @@ export default function ClientList() {
 
   const handleSavePet = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    if (!petForm.nombre || !petForm.especie || !petForm.sexo) {
+    if (!String(petForm.nombre || '').trim() || !petForm.especie || !petForm.sexo) {
       setPetError('Nombre, Especie y Sexo son campos obligatorios.');
       return;
     }

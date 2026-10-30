@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createClienteMascota, uploadClientImage, uploadPetImage } from '../services/api';
+import { buildCedula } from '../utils/validation';
 
 export default function useClientAndPets() {
 	const [creating, setCreating] = useState(false);
@@ -15,7 +16,7 @@ export default function useClientAndPets() {
 				email: String(form.email || '').trim(),
 				telefono: String(form.telefono || '').trim(),
 				direccion: String(form.direccion || '').trim(),
-				identificacion: String(form.identificacion || '').trim(),
+				identificacion: buildCedula(form.tipo_cedula, form.identificacion),
 				nota: String(form.nota || '').trim(),
 				mascota: {
 					nombre: String(form.mascota_nombre || '').trim(),

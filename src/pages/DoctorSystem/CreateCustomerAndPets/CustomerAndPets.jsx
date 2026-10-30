@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import useClientAndPets from '../../../hooks/ClientAndPets';
+import { createPetForExistingClient } from '../../../services/api';
 import styles from './CustumerAndPets.module.css';
 import CalendarPicker from '../../../components/screens/components/CalendarPicker/Index';
 import AlertModal from '../../../components/AlertModal/AlertModal'; 
@@ -16,7 +17,7 @@ import useSpecies from '../../../hooks/useSpecies';
 import { Input, ProfileAvatar } from 'anteriority-ui';
 import useImagePicker from '../../../hooks/useImagePicker';
 import { DrawPanelFooterContext } from '../../../components/screens/components/DrawPanel/FooterContext';
-import { isValidEmail, isValidTelefono, isNonNegativeNumber } from '../../../utils/validation';
+import { isValidEmail, isValidTelefono, isNonNegativeNumber, isValidCedula, buildCedula, CEDULA_TIPOS, soloDigitos } from '../../../utils/validation';
 
 const FORM_ID = 'customerAndPetsForm';
 
@@ -26,6 +27,7 @@ const initialForm = {
     email: '',
     telefono: '',
     direccion: '',
+    tipo_cedula: 'V',
     identificacion: '',
     nota: '',
     mascota_nombre: '',
@@ -41,6 +43,16 @@ const initialForm = {
     esterilizado: false,
 };
  
+const SEXO_OPTIONS = [
+    { value: 'Macho', label: 'Macho' },
+    { value: 'Hembra', label: 'Hembra' },
+];
+
+const PET_REQUIRED_FIELDS = [
+    'mascota_nombre', 'especie', 'raza', 'color', 'sexo', 'fecha_nacimiento',
+    'peso', 'identeficacion_mascota'
+];
+
 const REQUIRED_FIELDS = [
     'nombre', 'apellido', 'email', 'telefono', 'direccion', 'identificacion',
     'mascota_nombre', 'especie', 'raza', 'color', 'sexo', 'fecha_nacimiento',
@@ -54,6 +66,7 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
     const [clientImage, setClientImage] = useState(null);
     const [petImage, setPetImage] = useState(null);
     const [pendingCreated, setPendingCreated] = useState(null);
+    const [clienteCreado, setClienteCreado] = useState(null);
     const clientPicker = useImagePicker(clientImage, setClientImage);
     const petPicker = useImagePicker(petImage, setPetImage);
     const { creating, createClientAndPet } = useClientAndPets();
@@ -72,6 +85,37 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
         e.preventDefault();
         setModalError(null);
  
+        if (clienteCreado) {
+            const faltantes = PET_REQUIRED_FIELDS.filter((f) => !String(form[f] ?? '').trim());
+            if (faltantes.length > 0) {
+                setModalError({ errors: faltantes.map((field) => ({ field, message: 'is required' })) });
+                setIsModalOpen(true);
+                return;
+            }
+            try {
+                await createPetForExistingClient({
+                    clienteId: clienteCreado.id,
+                    nombre: form.mascota_nombre.trim(),
+                    especie: form.especie.trim(),
+                    raza: form.raza.trim(),
+                    color: form.color.trim(),
+                    sexo: form.sexo.trim(),
+                    fechaNacimiento: form.fecha_nacimiento.trim(),
+                    peso: form.peso === '' ? null : Number(form.peso),
+                    identeficacionMascota: form.identeficacion_mascota.trim(),
+                    alergias: form.alergias.trim(),
+                    esterilizado: Boolean(form.esterilizado),
+                });
+                setForm((prev) => ({ ...prev, mascota_nombre: '', especie: '', raza: '', color: '', sexo: '', fecha_nacimiento: '', peso: '', identeficacion_mascota: '', alergias: '', condiciones_medicas: '', esterilizado: false }));
+                setModalError(`Mascota agregada a ${clienteCreado.nombre}.`);
+                setIsModalOpen(true);
+            } catch (err) {
+                setModalError(err?.body || err || 'No se pudo agregar la mascota');
+                setIsModalOpen(true);
+            }
+            return;
+        }
+
         const missingDetails = [];
         REQUIRED_FIELDS.forEach((field) => {
             if (!form[field] || String(form[field]).trim() === '') {
@@ -95,7 +139,10 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             formatErrors.push({ field: 'email', message: 'no tiene un formato válido' });
         }
         if (form.telefono && !isValidTelefono(form.telefono)) {
-            formatErrors.push({ field: 'telefono', message: 'solo puede contener números, espacios y + - ( )' });
+            formatErrors.push({ field: 'telefono', message: 'debe contener solo números' });
+        }
+        if (!isValidCedula(buildCedula(form.tipo_cedula, form.identificacion))) {
+            formatErrors.push({ field: 'identificacion', message: 'debe tener entre 6 y 8 dígitos' });
         }
         if (form.peso !== '' && !isNonNegativeNumber(form.peso)) {
             formatErrors.push({ field: 'peso', message: 'debe ser un número mayor o igual a cero' });
@@ -108,16 +155,15 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
 
         try {
             const created = await createClientAndPet(form, { clientImage, petImage });
-            setForm(initialForm);
             setClientImage(null);
             setPetImage(null);
             if (created?.imageWarning) {
                 setPendingCreated(created);
                 setModalError(created.imageWarning);
                 setIsModalOpen(true);
-                return;
             }
-            if (typeof onCreated === 'function') onCreated(created);
+            setClienteCreado({ id: created.clienteId, nombre: created.clienteNombre || form.nombre });
+            setForm((prev) => ({ ...initialForm, nombre: prev.nombre, apellido: prev.apellido, email: prev.email, telefono: prev.telefono, direccion: prev.direccion, tipo_cedula: prev.tipo_cedula, identificacion: prev.identificacion }));
         } catch (err) {
             const isConflict = err?.status === 409 || /conflict/i.test(String(err?.body?.message || err?.message || ''));
             const fallbackMessage = isConflict
@@ -231,9 +277,10 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
                 <TextField
                     label="Teléfono"
                     name="telefono"
-                    placeholder="Teléfono"
+                    placeholder="Solo números"
                     value={form.telefono}
-                    onChange={handleChange}
+                    onChange={(e) => setForm(prev => ({ ...prev, telefono: soloDigitos(e.target.value) }))}
+                    inputProps={{ inputMode: 'numeric' }}
                     required
                 />
             </div>
@@ -247,12 +294,20 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
                     onChange={handleChange}
                     required
                 />
+                <Selector
+                    label="Tipo de documento"
+                    value={form.tipo_cedula}
+                    onChange={(e) => setForm(prev => ({ ...prev, tipo_cedula: e.target.value }))}
+                    options={CEDULA_TIPOS}
+                    required
+                />
                 <TextField
                     label="Cédula"
                     name="identificacion"
-                    placeholder="Cédula"
+                    placeholder="Solo números"
                     value={form.identificacion}
-                    onChange={handleChange}
+                    onChange={(e) => setForm(prev => ({ ...prev, identificacion: e.target.value.replace(/\D/g, '') }))}
+                    inputProps={{ inputMode: 'numeric', maxLength: 8 }}
                     required
                 />
             </div>
@@ -321,12 +376,11 @@ export function CustomerAndPetsForm({ onCreated, onCancel, onError, submitting: 
             </div>
 
             <div className={styles.row}>
-                <TextField
+                <Selector
                     label="Sexo"
-                    name="sexo"
-                    placeholder="Sexo"
                     value={form.sexo}
-                    onChange={handleChange}
+                    onChange={(e) => setForm(prev => ({ ...prev, sexo: e.target.value }))}
+                    options={SEXO_OPTIONS}
                     required
                 />
                 <CalendarPicker
