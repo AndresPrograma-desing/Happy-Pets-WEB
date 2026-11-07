@@ -41,9 +41,9 @@ export default function Calendar() {
 
   const defaultDoctorId = useMemo(() => getDoctorIdFromLoginSession() || '', []);
 
-  // Redireccionar si no es doctor ni secretaria
+  // Redireccionar si no es doctor, secretaria ni admin
   useEffect(() => {
-    if (userRole && userRole !== 'doctor' && userRole !== 'secretaria') {
+    if (userRole && userRole !== 'doctor' && userRole !== 'secretaria' && userRole !== 'admin') {
       navigate('/inicio');
     }
   }, [userRole, navigate]);

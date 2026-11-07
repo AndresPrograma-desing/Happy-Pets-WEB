@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from "react";
-import { PlusCircle, Trash2, PackageSearch } from 'lucide-react';
+import { PlusCircle, Trash2, PackageSearch, CheckCircle2, Ban } from 'lucide-react';
 import styles from './ProductCreate.module.css';
 
 import {    
@@ -22,6 +22,10 @@ import ModalTooltip from '../../../../components/ModalTooltip/ModalTooltip';
 import { getIcon } from '../../../../assets/icons/ExportIcon/Index';
 
 import Button from "../../../../components/screens/components/Button";
+import { Badge } from 'anteriority-ui';
+import EditProducts from './EditProducts/EditProducts';
+import { PRODUCT_CREATE_CONFIG, PRODUCT_CREATE_TEXTS, STATUS_BADGE_COLORS } from './constants';
+import { PRODUCT_STATUS_FILTER, PRODUCT_STATUS_FILTER_LABEL, PRODUCT_STATUS_OPTIONS } from '../../../../components/ProductList/constants';
 
 function ProductFormContent({ form, onChange, onSelectChange, categoryOptions, loadingCats }) {
   return (
@@ -147,6 +151,7 @@ export default function ProductCreate({ hideHeader }) {
     searchTerm, setSearchTerm,
     filterCategory, setFilterCategory,
     maxPrice, setMaxPrice,
+    statusFilter, setStatusFilter,
     page, setPage,
     pageSize,
     handlePageSizeChange,
@@ -155,7 +160,13 @@ export default function ProductCreate({ hideHeader }) {
     error,
     fetchProducts,
     filteredProducts,
-    handleClearFilters
+    handleClearFilters,
+    selectedProduct, setSelectedProduct,
+    alertOpen: editOpen, setAlertOpen: setEditOpen,
+    alertTitle: editTitle,
+    setAlertMessage: setEditAlertMessage,
+    handleEditClick,
+    handleConfirmModal
   } = useProductListLogic({
     categoryMap,
     editFormRef
@@ -179,8 +190,9 @@ export default function ProductCreate({ hideHeader }) {
     if (searchTerm && searchTerm.trim() !== '') count++;
     if (filterCategory && String(filterCategory).trim() !== '') count++;
     if (maxPrice && String(maxPrice).trim() !== '') count++;
+    if (statusFilter !== PRODUCT_STATUS_FILTER.ACTIVE) count++;
     return count;
-  }, [searchTerm, filterCategory, maxPrice]);
+  }, [searchTerm, filterCategory, maxPrice, statusFilter]);
 
   const { currency, convertAmount, isLoading: currencyLoading } = useCurrency();
   const esUSD = currency?.toUpperCase() === 'USD';
@@ -282,17 +294,17 @@ export default function ProductCreate({ hideHeader }) {
     {
       label: 'NOMBRE',
       key: 'displayName',
-      width: '25%'
+      width: '22%'
     },
     {
       label: 'DESCRIPCIÓN',
       key: 'displayDesc',
-      width: '30%'
+      width: '25%'
     },
     {
       label: 'PRECIO',
       key: 'price',
-      width: '15%',
+      width: '13%',
       render: (row) => {
         const montoBase = row.normalizedPrice;
         const montoConvertido = convertAmount(montoBase, esUSD ? 'VES' : 'USD');
@@ -310,7 +322,7 @@ export default function ProductCreate({ hideHeader }) {
     {
       label: 'STOCK',
       key: 'stock',
-      width: '15%',
+      width: '12%',
       type: 'badge',
       badgeClass: (row) => {
         const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
@@ -332,6 +344,18 @@ export default function ProductCreate({ hideHeader }) {
       }
     },
     {
+      label: PRODUCT_CREATE_TEXTS.statusColumn,
+      key: 'status',
+      width: '13%',
+      render: (row) => (
+          <Badge
+              icon={row.isDisabled ? Ban : CheckCircle2}
+              value={row.isDisabled ? PRODUCT_CREATE_TEXTS.statusDisabled : PRODUCT_CREATE_TEXTS.statusActive}
+              {...STATUS_BADGE_COLORS[row.isDisabled ? 'disabled' : 'active']}
+          />
+      )
+    },
+    {
       label: 'ACCIONES',
       key: 'actions',
       type: 'actions',
@@ -339,11 +363,17 @@ export default function ProductCreate({ hideHeader }) {
       width: '15%',
       actions: [
         {
+          label: PRODUCT_CREATE_TEXTS.editAction,
+          icon: getIcon('pencil') || undefined,
+          onClick: (row) => handleEditClick(row),
+          className: styles.editActionBtn
+        },
+        ...(PRODUCT_CREATE_CONFIG.showDeleteAction ? [{
           label: 'Eliminar',
           icon: getIcon('trash') || Trash2,
           onClick: (row) => handleDeleteClick(row),
           className: styles.deleteActionBtn || 'danger'
-        }
+        }] : [])
       ]
     }
   ];
@@ -409,6 +439,14 @@ export default function ProductCreate({ hideHeader }) {
               onChange={(e) => setMaxPrice(e.target.value)} 
               placeholder="Ej. 150.00"
             />
+
+            <Selector
+              id="estado-create-select"
+              label={PRODUCT_STATUS_FILTER_LABEL}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              options={PRODUCT_STATUS_OPTIONS}
+            />
           </Filter>
 
           <div className={styles.tableWrapper}>
@@ -422,6 +460,7 @@ export default function ProductCreate({ hideHeader }) {
               emptyMessage="No se encontraron productos en el inventario."
               rowKey={(row) => row.id || row.nombre}
               rowClassName={(row) => {
+                if (row.isDisabled) return styles.disabledRow;
                 const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
                 return row.normalizedStock < stockMin ? styles.lowStockRow : '';
               }}
@@ -450,8 +489,31 @@ export default function ProductCreate({ hideHeader }) {
           />
         </DrawPanel>
 
-        <AlertModal 
-          open={deleteConfirmOpen} 
+        <DrawPanel
+          isOpen={editOpen && !!selectedProduct}
+          title={editTitle}
+          confirmText={PRODUCT_CREATE_TEXTS.updateConfirm}
+          cancelText={PRODUCT_CREATE_TEXTS.cancel}
+          onClose={() => { setEditOpen(false); setSelectedProduct(null); }}
+          onConfirm={handleConfirmModal}
+          showActions={true}
+        >
+          {selectedProduct && (
+            <EditProducts
+              ref={editFormRef}
+              productData={selectedProduct}
+              onUpdateSuccess={() => {
+                setEditOpen(false);
+                setSelectedProduct(null);
+                fetchProducts();
+              }}
+              onError={(err) => setEditAlertMessage(getAlertPayload(err))}
+            />
+          )}
+        </DrawPanel>
+
+        <AlertModal
+          open={deleteConfirmOpen}
           title="Confirmar Eliminación"
           message={`¿Estás seguro de que deseas eliminar permanentemente el producto "${productToDelete?.nombre || productToDelete?.name}"? Esta acción no se puede deshacer.`}
           onClose={() => { setDeleteConfirmOpen(false); setProductToDelete(null); }}

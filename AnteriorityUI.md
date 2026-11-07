@@ -626,6 +626,7 @@ import CalendarPicker from '../CalendarPicker/index'; // export default
 | `borderColor` | string | — | Solo `variant="inline"`. Color de las líneas divisorias del grid (`--cp-agenda-border`). |
 | `hoverColor` | string | — | Solo `variant="inline"`. Fondo al pasar el mouse sobre una celda (`--cp-agenda-hover`). |
 | `holidayColor` | string | — | Solo `variant="inline"`. Color del nombre del feriado/efeméride en la celda (`--cp-agenda-holiday`) — el popover no tiene este, el nombre nunca se muestra como texto ahí (ver nota). |
+| `selectorsPopperZIndex` | number | `100000` (default interno de `Selector`) | Solo `variant="popover"`. `z-index` del `Popper` de los `Selector` (Material-UI) de "Mes"/"Año" que se abren al clickear el título del calendario — ese `Popper` se renderiza vía portal al final de `<body>`, fuera del popover del calendario (`z-index: 20`). Ajustar si un modal/drawer propio del proyecto consumidor tiene un `z-index` mayor y "tapa" los clics del listado de años (ver nota). |
 
 **Ejemplos:**
 ```jsx
@@ -694,6 +695,8 @@ import CalendarPicker from '../CalendarPicker/index'; // export default
 - `holidayColor` (color del *texto* del nombre del feriado) solo existe en `variant="inline"`, porque el popover nunca muestra ese texto. `holidayBorderColor`/`moonPhaseColor`/`tooltipBgColor`/`tooltipTextColor` sí aplican a ambas variantes.
 - `bgColor`/`textColor`/`mutedColor`/`mutedBgColor`/`borderColor`/`hoverColor` (paleta general del calendario grande) solo existen en `variant="inline"` — el popover usa su propia paleta fija (ver `selectedColor`/`accentColor`).
 - El cálculo de feriados usa `date-holidays` (datos reales por país, no hardcodeados en la librería); el de fase lunar es un cálculo astronómico aproximado por ciclo sinódico (sin dependencia de red), con ±1 día de margen de error — no reemplaza una efeméride astronómica oficial.
+- El popover (`variant="popover"`) se reposiciona automáticamente para no desbordar el viewport: si el input está cerca del borde derecho (o dentro de un contenedor angosto), se desplaza hacia la izquierda lo necesario para quedar completo en pantalla, clampeando también por la izquierda si el contenedor es más angosto que el popover (320px). Se recalcula al abrir y en cada `resize` de la ventana — no requiere ninguna prop.
+- Si al abrir el selector de "Año"/"Mes" dentro de un modal/drawer propio (ej. un panel lateral) la lista se ve pero los clics no registran, es un conflicto de capas: el `Popper` de MUI vive en un portal a `<body>`, fuera de ese modal, y si el modal tiene su propio overlay con `z-index` mayor al default del `Popper` (`100000`), ese overlay intercepta los clics aunque visualmente el listado quede encima. Subir `selectorsPopperZIndex` por encima del `z-index` de ese overlay soluciona el bloqueo.
 
 ---
 
@@ -828,6 +831,195 @@ import CardV1 from '../CardV1'; // export default (index.jsx)
 ```
 
 **Notas:** El archivo `utils.js` del componente exporta helpers (`getPriorityData`, `getAppointmentColorByTime`) que no son usados directamente dentro de `CardV1`; están pensados para que el consumidor calcule colores/badges antes de pasarlos como props.
+
+---
+
+### Chart
+
+Gráficos con un componente único que delega a un motor distinto según `type`: `"line"` y `"bar"` usan [Recharts](https://recharts.org/), `"pie"` usa [@nivo/pie](https://nivo.rocks/pie/) y `"nivo-calendar"` (calendario de actividad estilo GitHub contributions) usa [@nivo/calendar](https://nivo.rocks/calendar/). La card exterior soporta `title`/`description` en Markdown (vía `MarkdownContent`) y un slot `actions` libre (cualquier `ReactNode`: `Search`, `Selector`, `Swich`, botones, etc.) en el header, al lado del título.
+
+**Import:**
+```jsx
+import Chart from '../Chart/index'; // export default
+```
+
+**Uso básico:**
+```jsx
+<Chart
+  type="line"
+  data={[{ month: 'Jan', revenue: 4200 }, { month: 'Feb', revenue: 5800 }]}
+  xKey="month"
+  lines={[{ dataKey: 'revenue' }]}
+/>
+```
+
+**Props comunes (`Chart`, el wrapper — aplican sin importar el `type`):**
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `type` | `'line'` \| `'pie'` \| `'bar'` \| `'nivo-calendar'` | `'line'` | Motor de gráfico a renderizar. También expuesto como `Chart.TYPE`. |
+| `title` | string (Markdown) | — | Título renderizado arriba del gráfico con `MarkdownContent` (soporta headings, negrita, links, etc.). |
+| `description` | string (Markdown) | — | Texto renderizado debajo del gráfico con `MarkdownContent`. |
+| `actions` | node | — | Contenido libre en el header, a la derecha del `title` (ej. `Search`, `Selector`, `Swich`, botones de ícono, filtros de fecha). El header solo se renderiza si hay `title` y/o `actions`. |
+| `bgColor` | string | `#ffffff` | Fondo de la card contenedora. |
+| `borderColor` | string | `#e5e7eb` | Color del borde (2px) de la card. El radio es fijo en 6px. |
+| `titleColor` | string | — | Color de texto del `title`. |
+| `descriptionColor` | string | — | Color de texto del `description`. |
+| `className` | string | `''` | Clase adicional en la card. |
+| `style` | object | — | Estilos inline adicionales en la card. |
+
+El resto de las props (`data`, colores específicos del motor, etc.) depende del `type` y se pasa directo al mini-componente correspondiente — ver cada uno abajo.
+
+---
+
+#### Chart (`type="line"`)
+
+Basado en Recharts `LineChart`. Soporta eje X categórico o numérico, múltiples líneas, referencias (línea/punto) y tick icons custom en el eje X.
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `data` | array | — | `[{ [xKey]: valor, [lines[i].dataKey]: number }]`. |
+| `lines` | array | — | `[{ dataKey, name?, color?, strokeWidth?, strokeDasharray? }]`. Color por default según `DEFAULT_LINE_COLORS` (ciclo de 5 colores) si no se pasa `color`. |
+| `xKey` | string | `'name'` | Key de `data` usada en el eje X. |
+| `xType` | `'category'` \| `'number'` | `'category'` | Tipo de eje X (default real de Recharts). |
+| `xTicks` | array de number | — | Valores fijos de los ticks del eje X. |
+| `xScale` | string | `'auto'` | Escala del eje X (`'auto'`, `'linear'`, `'symlog'`, etc. — cualquier escala válida de Recharts). |
+| `xTickIcon` | `function(value) => pathString` | — | Si se pasa, reemplaza el tick de texto del eje X por un ícono SVG (path `d`, viewBox 1024×1024). |
+| `xTickIconColor` | string | hereda `axisColor` | Color del ícono del tick. |
+| `xTickIconSize` | number | `24` | Tamaño (px) del ícono del tick. |
+| `xAxisHeight` | number | — | Alto del eje X (útil para dar espacio a `xTickIcon`). |
+| `yTicks` | array de number | — | Valores fijos de los ticks del eje Y. |
+| `yScale` | string | `'auto'` | Escala del eje Y. |
+| `showGrid` | bool | `true` | Muestra el `CartesianGrid`. |
+| `showTooltip` | bool | `true` | Muestra el tooltip al hover. |
+| `showLegend` | bool | `true` | Muestra la leyenda. |
+| `referenceLines` | array | `[]` | `[{ y, label?, labelPosition?, color?, strokeDasharray? }]` — línea horizontal en un valor de dato. |
+| `referenceDots` | array | `[]` | `[{ x, y, label?, labelPosition?, color?, radius? }]` — punto destacado en coordenadas de dato. |
+| `gridColor` | string | `#c7d2fe` | Color del grid. |
+| `axisColor` | string | `#4338ca` | Color de los ejes. |
+| `textColor` | string | `#1e1b4b` | Color del texto de ticks y del label del tooltip. |
+| `tooltipBgColor` | string | `#eef2ff` | Fondo del tooltip. |
+| `tooltipBorderColor` | string | `#4338ca` | Borde del tooltip. |
+| `tooltipTextColor` | string | — | Color de cada fila del tooltip (por default toma el color de su línea). |
+| `legendTextColor` | string | — | Color del texto de la leyenda (por default toma el color de su línea). |
+| `height` | number | `300` | Alto en px del gráfico. |
+
+---
+
+#### Chart (`type="bar"`)
+
+Basado en Recharts `BarChart`. Soporta múltiples series, color por serie o por item individual, labels encima de cada barra y ejes formateados.
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `data` | array | — | `[{ [xKey]: valor, [bars[i].dataKey]: number, color? }]`. `color` por item pisa el color de la serie en esa barra puntual (ej. un color distinto por categoría dentro de una única serie). |
+| `bars` | array | — | `[{ dataKey, name?, color?, unit?, showValueLabel?, labelFormatter? }]`. |
+| `xKey` | string | `'name'` | Key de `data` usada en el eje X. |
+| `xTickFormatter` | `function(value)` | — | Formatea el texto de cada tick del eje X. |
+| `yTickFormatter` | `function(value)` | — | Formatea el texto de cada tick del eje Y. |
+| `xAxisLabel` | string | — | Título del eje X (posición `insideBottomRight`). |
+| `yLabel` | string | — | Título del eje Y, rotado (posición `insideLeft`). |
+| `yDomain` | `[min, max]` | — | Dominio fijo del eje Y (activa `allowDataOverflow`). |
+| `yAxisWidth` | number | — | Ancho del eje Y (útil cuando `yLabel`/los ticks son largos). |
+| `showGrid` | bool | `true` | Muestra el `CartesianGrid`. |
+| `showTooltip` | bool | `true` | Muestra el tooltip al hover. |
+| `showLegend` | bool | `true` | Muestra la leyenda. |
+| `gridColor` | string | `#c7d2fe` | Color del grid. |
+| `axisColor` | string | `#4338ca` | Color de los ejes. |
+| `textColor` | string | `#1e1b4b` | Color del texto de ticks y del label del tooltip. |
+| `tooltipBgColor` | string | `#eef2ff` | Fondo del tooltip. |
+| `tooltipBorderColor` | string | `#4338ca` | Borde del tooltip. |
+| `tooltipTextColor` | string | — | Color de cada fila del tooltip. |
+| `legendTextColor` | string | — | Color del texto de la leyenda. |
+| `labelColor` | string | hereda `textColor` | Color del texto de `showValueLabel` encima de cada barra. |
+| `height` | number | `300` | Alto en px del gráfico. |
+
+---
+
+#### Chart (`type="pie"`)
+
+Basado en [@nivo/pie](https://nivo.rocks/pie/) — dona o torta llena con labels externos conectados por línea, color-matched al segmento, ícono configurable en el centro (si hay hueco) y porciones clickeables.
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `data` | array | — | `[{ name, value, color? }]`. `color` por item pisa el color de paleta para esa porción. |
+| `colors` | array de string | paleta de 12 colores | Paleta cíclica usada cuando el item no trae `color` propio. |
+| `innerRadius` | number (0–1) | `0.5` | Proporción del hueco central (`0` = torta llena, `~1` = anillo muy fino). |
+| `padAngle` | number | `0.6` | Separación angular entre porciones. |
+| `cornerRadius` | number | `2` | Redondeo de las esquinas de cada porción. |
+| `onSliceClick` | `function({ name, value, color }, index, event)` | — | Si se define, cada porción se vuelve clickeable (cursor pointer). |
+| `centerIcon` | node | `<FiPieChart />` (solo si `innerRadius > 0`) | Ícono/elemento en el centro de la dona. `null`/`false` lo oculta explícitamente; en torta llena (`innerRadius={0}`) no se muestra por default porque se superpondría con las porciones. |
+| `centerIconColor` | string | `#1e1b4b` | Color del ícono central default. |
+| `showTooltip` | bool | `true` | Muestra el tooltip al hover. |
+| `showLegend` | bool | `true` | Muestra la leyenda (abajo, símbolo circular). |
+| `sliceStrokeColor` | string | `#fff` | Color del borde entre porciones. |
+| `textColor` | string | `#1e1b4b` | Color del label del tooltip y de los links de las etiquetas externas (`arcLinkLabelsTextColor`). |
+| `arcLabelColor` | string/objeto | arco oscurecido (`darker`, 2) | Color del número dentro de cada porción. |
+| `tooltipBgColor` | string | `#eef2ff` | Fondo del tooltip. |
+| `tooltipBorderColor` | string | `#4338ca` | Borde del tooltip. |
+| `tooltipTextColor` | string | hereda `textColor` | Color del valor dentro del tooltip. |
+| `legendTextColor` | string | `#1e1b4b` | Color del texto de la leyenda. |
+| `height` | number | `400` | Alto en px del gráfico. |
+
+---
+
+#### Chart (`type="nivo-calendar"`)
+
+Basado en [@nivo/calendar](https://nivo.rocks/calendar/) — calendario de actividad por día (estilo GitHub contributions), con celdas clickeables.
+
+| Prop | Tipo | Default | Descripción |
+|---|---|---|---|
+| `data` | array | — | `[{ day: 'YYYY-MM-DD', value: number }]`. |
+| `from` | string/Date | — | Fecha de inicio del rango mostrado. |
+| `to` | string/Date | — | Fecha de fin del rango mostrado. |
+| `colors` | array de string | `['#61cdbb', '#97e3d5', '#e8c1a0', '#f47560']` | Escala de color según `value` (días sin dato usan `emptyColor`). |
+| `emptyColor` | string | `#eeeeee` | Color de los días sin dato en `data`. |
+| `monthBorderColor` | string | `#ffffff` | Color del borde entre meses. |
+| `dayBorderColor` | string | `#ffffff` | Color del borde entre días. |
+| `dayBorderWidth` | number | `2` | Grosor del borde entre días. |
+| `yearSpacing` | number | `40` | Espacio (px) entre filas de años, si el rango cruza más de un año. |
+| `margin` | object | `{ top: 40, right: 40, bottom: 40, left: 40 }` | Márgenes del gráfico. |
+| `showLegend` | bool | `true` | Muestra la leyenda de intensidad (abajo a la derecha). |
+| `onDayClick` | `function(day, event)` | — | Si se define, cada celda se vuelve clickeable (cursor pointer); `day` trae `day`/`value`/`date`/`color` del día (o solo `day`/`date` si no tiene dato). |
+| `height` | number | `300` | Alto en px del gráfico. |
+
+**Ejemplos:**
+```jsx
+// Barra con color por item individual y eje Y con dominio fijo
+<Chart
+  type="bar"
+  data={[
+    { name: 'Sun', massKg: 1.989e30, color: '#ffa700' },
+    { name: 'Mercury', massKg: 3.3e23, color: '#1a1a1a' },
+  ]}
+  xKey="name"
+  bars={[{ dataKey: 'massKg', unit: 'kg' }]}
+  yDomain={[1e23, 2e27]}
+  yLabel="Mass [kg]"
+/>
+
+// Torta clickeable con título/descripción en Markdown
+<Chart
+  type="pie"
+  title="## Distribución por categoría"
+  description="Hacé click en una porción para ver el detalle."
+  data={[{ name: 'A', value: 30 }, { name: 'B', value: 70 }]}
+  onSliceClick={(entry) => console.log(entry.name, entry.value)}
+/>
+
+// Calendario de actividad con acciones en el header (Search + botón)
+<Chart
+  type="nivo-calendar"
+  data={[{ day: '2024-03-01', value: 12 }]}
+  from="2024-03-01"
+  to="2024-07-12"
+  title="## Actividad del usuario"
+  actions={<button onClick={refresh}>Refrescar</button>}
+  onDayClick={(day) => openDrawPanel(day)}
+/>
+```
+
+**Notas:** `recharts`, `@nivo/core`, `@nivo/pie` y `@nivo/calendar` vienen empaquetados como `dependencies` de la librería — no hace falta instalarlos en el proyecto consumidor. `type="pie"` usa Nivo (reemplazó una implementación previa en Recharts); `type="line"`/`"bar"` siguen en Recharts. Choropleth (`@nivo/geo`) se evaluó pero no se implementó: requiere un GeoJSON de `features` que la librería no embebe (queda a criterio del consumidor agregarlo si lo necesita).
 
 ---
 
@@ -2015,6 +2207,10 @@ Las imágenes usan la sintaxis estándar de markdown (`![alt](url)`) — `react-
 
 Para colorear texto puntual (markdown no tiene sintaxis nativa para esto) se soporta una convención propia del repo: `{color:X}texto{/color}`, donde `X` es cualquier color CSS válido (hex, `rgb()`, nombre). Internamente se reescribe a un link markdown con protocolo custom (`[texto](color:X)`) antes de pasarlo a `react-markdown`; como `react-markdown` sanea por default los `href` con protocolos no estándar (para prevenir XSS, ej. `javascript:`), se pasa un `urlTransform` propio que deja pasar `color:` intacto y delega el resto al saneo default. El renderer de `a` intercepta ese protocolo devolviendo un `<span style="color: X">` en vez de un `<a>` — por eso el contenido de bloques/inline code (` ``` ` o `` ` ``) queda exento tanto de este reemplazo como del de imágenes (un snippet que contenga ese texto literal no se toca). `MarkdownEditor` ya trae un botón de toolbar con selector de color que inserta esta sintaxis (ver [MarkdownEditor](#markdowneditor)).
 
+Para marcar texto como copiable (con un botón de copiar al lado) se soporta `{copy}contenido{/copy}`, con dos formas según el contenido:
+- **Inline** (una línea, sin salto de línea ni ` ``` `): se resuelve con el mismo truco de link markdown que `{color:X}` (protocolo `copy:`), renderizando un `<span>` con el texto seguido de un botón de copiar.
+- **Bloque** (contiene saltos de línea y/o ` ``` `fences` ``` `, ej. una sección completa con headings + código + texto): se resuelve con un plugin remark propio (`remarkCopyBlocks`, en `copyBlocks.js`) que agrupa los nodos del AST entre marcadores en un `<div>` contenedor con un botón de copiar flotante — el markdown interno se sigue renderizando normal (headings, code fences, listas, etc.), y el botón copia el **markdown fuente** tal cual se escribió (no el HTML renderizado).
+
 **Import:**
 ```jsx
 import { MarkdownContent } from '../MarkdownContent/index'; // named export (también default export)
@@ -2038,6 +2234,9 @@ import { MarkdownContent } from '../MarkdownContent/index'; // named export (tam
 | copiedCodeLabel | string | `'Código copiado'` | Tooltip/aria-label del botón tras copiar un bloque de código. |
 | copyTitleLabel | string | `'Copiar título'` | Tooltip/aria-label del botón de copiar sobre encabezados (`h1`-`h6`). |
 | copiedTitleLabel | string | `'Título copiado'` | Tooltip/aria-label del botón tras copiar un encabezado. |
+| copyTextLabel | string | `'Copiar'` | Tooltip/aria-label del botón de copiar sobre texto marcado con `{copy}...{/copy}` (inline o bloque). |
+| copiedTextLabel | string | `'Copiado'` | Tooltip/aria-label del botón tras copiar ese texto. |
+| images | object | — | Mapa `id -> url/base64` para resolver tokens `[imagen:id]` (los inserta `MarkdownEditor` al pegar una captura del portapapeles). |
 
 **Ejemplos:**
 ```jsx
@@ -2063,6 +2262,18 @@ import { MarkdownContent } from '../MarkdownContent/index'; // named export (tam
   {'Este texto tiene {color:#ef4444}una palabra en rojo{/color} en el medio.'}
 </MarkdownContent>
 ```
+```jsx
+{/* {copy} inline: un valor puntual (email, ID, IP) */}
+<MarkdownContent>
+  {'El correo de soporte es {copy}soporte@ejemplo.com{/copy}.'}
+</MarkdownContent>
+```
+```jsx
+{/* {copy} como bloque: envuelve headings + código + texto, un solo botón copia todo el markdown fuente */}
+<MarkdownContent>
+  {'{copy}# Guía\n\n## Paso 1\n\n```js\nconst x = 1;\n```\n{/copy}\n\nEsto queda afuera del bloque.'}
+</MarkdownContent>
+```
 
 **Notas sobre imágenes pegadas (URL sola en su línea):** el criterio es deliberadamente amplio (cualquier línea que sea únicamente una URL `http(s)://`, sin exigir extensión de archivo) porque las URLs de imagen de Google Images y otros servicios casi nunca terminan en `.png`/`.jpg`. Esto significa que una URL que el usuario pegó pensando en un link normal (no una imagen) también se intentará mostrar como `<img>`; si la carga falla, el fallback a `<a target="_blank">` cubre ese caso sin dejar un ícono de imagen rota. El bloque de código (` ``` ` o `` ` ``) también queda exento de esta detección.
 
@@ -2072,7 +2283,9 @@ import { MarkdownContent } from '../MarkdownContent/index'; // named export (tam
 
 ### MarkdownEditor
 
-Editor de texto markdown con barra de herramientas (negrita, cursiva, título, encabezados, listas, cita, código, enlace, imagen, tabla, color de texto), atajos de teclado, modos Editor/Dividido/Vista previa y altura ajustable con arrastre. El botón de título inserta un encabezado `# ` y el de código un bloque ` ``` `; ambos, al previsualizarse (con `MarkdownContent`), muestran un botón de copiar rápido (ver [MarkdownContent](#markdowncontent)).
+Editor de texto markdown con barra de herramientas (negrita, cursiva, título, encabezados, listas, cita, código, enlace, imagen, tabla, texto copiable, color de texto), atajos de teclado, modos Editor/Dividido/Vista previa y altura ajustable con arrastre. El botón de título inserta un encabezado `# ` y el de código un bloque ` ``` `; ambos, al previsualizarse (con `MarkdownContent`), muestran un botón de copiar rápido (ver [MarkdownContent](#markdowncontent)).
+
+El botón de texto copiable (ícono `Copy`) envuelve la selección actual en `{copy}...{/copy}` — en la vista previa aparece con su propio botón de copiar al lado, sin afectar los copiables de título/código (ver la sintaxis en [MarkdownContent](#markdowncontent)).
 
 El botón de imagen (ícono de imagen) inserta `![descripción](url-de-la-imagen)` alrededor de la selección (o del texto placeholder si no hay selección) — mismo mecanismo que el botón de enlace. El botón de color (ícono de paleta) abre un popover con el panel de [ColorPicker](#colorpicker) (saturación/matiz + HEX/RGB/HSL); mientras se arrastra el selector solo cambia el color de preview del ícono de la paleta, y recién al tocar el botón "Aplicar" del popover se envuelve el texto seleccionado (o el texto placeholder) en `{color:HEX}...{/color}` y se cierra el popover — así evita insertar texto en cada frame del arrastre. Ver la sintaxis `{color:X}...{/color}` en [MarkdownContent](#markdowncontent).
 
@@ -2100,8 +2313,9 @@ const [value, setValue] = useState('# Hello world');
 | onChange | function | — | Se llama con un evento simulado `{ target: { value } }`. |
 | placeholder | string | `''` | Placeholder del textarea. |
 | defaultHeight | number | `320` | Alto inicial (px) del área de contenido; ajustable arrastrando el handle inferior (entre 180 y 1200px). |
-| labels | object | `{}` | Textos personalizables: `editorTab`, `splitTab`, `previewTab`, tooltips de cada botón (incluye `titleTooltip`, `imageTooltip`, `colorTooltip`), textos por defecto al insertar formato (incluye `imageAltDefaultText`, `imageUrlPlaceholder`, `colorDefaultText`), `applyColorLabel` (texto del botón "Aplicar" del popover de color), encabezados de la tabla de ejemplo. |
+| labels | object | `{}` | Textos personalizables: `editorTab`, `splitTab`, `previewTab`, tooltips de cada botón (incluye `titleTooltip`, `imageTooltip`, `colorTooltip`, `copyableTooltip`), textos por defecto al insertar formato (incluye `imageAltDefaultText`, `imageUrlPlaceholder`, `colorDefaultText`, `copyableDefaultText`), `applyColorLabel` (texto del botón "Aplicar" del popover de color), encabezados de la tabla de ejemplo. |
 | activeColor | string | — | Color de acento del modo/pestaña activa (`--markdown-editor-active`). |
+| scrollbarColor | string | — | Color del thumb del scrollbar del textarea (mismo estilo delgado que usa `Selector`). |
 
 **Ejemplos:**
 ```jsx
@@ -2443,7 +2657,7 @@ import Paginador from '../Material-UI/Components/Paginador/index'; // export def
 
 ### Search
 
-Campo de búsqueda basado en `Autocomplete` de Material-UI, con estado de carga y modo `freeSolo` (texto libre sin opciones).
+Campo de búsqueda basado en `Autocomplete` de Material-UI, con estado de carga, modo `freeSolo` (texto libre sin opciones) y un botón de limpiar (ícono `X` de lucide-react) activo por default en ambos modos — aparece automáticamente cuando hay texto/valor cargado, sin necesitar ninguna prop.
 
 **Import:**
 ```jsx
@@ -2480,6 +2694,13 @@ import Search from '../Material-UI/Components/Search/index'; // export default, 
 | label | string | `'Buscar'` | Etiqueta del `TextField` interno. |
 | placeholder | string | `'Buscar...'` | Placeholder del `TextField` interno. |
 | freeSolo | boolean | `false` | Si es `true` y `options` está vacío, renderiza un `TextField` simple (texto libre) en vez de `Autocomplete`. |
+| size | `'small'` \| `'medium'` | `'small'` | Tamaño del input. |
+| error | boolean | `false` | Estado de error del `TextField`. |
+| helperText | string | — | Texto de ayuda/error debajo del input. |
+| bgColor | string | — | Fondo del input. |
+| textColor | string | — | Color del texto del input. |
+| borderColor | string | — | Color del borde (variant outlined). |
+| iconColor | string | `rgba(0, 0, 0, 0.54)` | Color del ícono de limpiar (mismo gris que usa MUI por default para íconos de acción). |
 | ...props | any | — | Cualquier otra prop de `Autocomplete` de Material-UI. |
 
 **Ejemplos:**
@@ -2489,14 +2710,30 @@ import Search from '../Material-UI/Components/Search/index'; // export default, 
 ```jsx
 <Search freeSolo options={[]} label="Buscar" placeholder="Escribe texto libre..." value={value} onChange={setValue} />
 ```
+```jsx
+// Colores custom + error
+<Search
+  freeSolo
+  options={[]}
+  label="Buscar"
+  error
+  helperText="Ingresa al menos 3 caracteres"
+  bgColor="#0f172a"
+  textColor="#e2e8f0"
+  borderColor="#38bdf8"
+  iconColor="#38bdf8"
+  value={value}
+  onChange={setValue}
+/>
+```
 
-**Notas:** A diferencia del `Autocomplete` nativo de MUI, `onChange` y `onInputChange` reciben directamente el valor (no `(event, value)`).
+**Notas:** A diferencia del `Autocomplete` nativo de MUI, `onChange` y `onInputChange` reciben directamente el valor (no `(event, value)`). El botón de limpiar no requiere ninguna prop para activarse: en modo `freeSolo` aparece apenas hay texto escrito; en modo `Autocomplete` ya viene habilitado salvo que se pase `disableClearable`.
 
 ---
 
 ### Selector
 
-`Autocomplete` de Material-UI configurado como un select de opciones fijas, con matching flexible de valores (por `value` exacto o normalizado).
+`Autocomplete` de Material-UI configurado como un select de opciones fijas, con matching flexible de valores (por `value` exacto o normalizado). Soporta selección múltiple con checkbox (`multiSelect`), usando el componente `Checks` de la librería para el indicador visual de cada opción.
 
 **Import:**
 ```jsx
@@ -2529,7 +2766,15 @@ import Selector from '../Material-UI/Components/Selector/index'; // export defau
 | required | boolean | — | Muestra un indicador `**` junto a la etiqueta. |
 | requiredColor | string | `'red'` | Color del indicador de requerido. |
 | disableClearable | boolean | `false` | Si es `true`, oculta el botón de limpiar selección. |
-| hideScrollbar | boolean | `true` | Oculta la barra de scroll de la lista desplegable (el scroll con rueda/teclado/touch sigue funcionando). |
+| hideScrollbar | boolean | `true` | Oculta la barra de scroll de la lista desplegable (el scroll con rueda/teclado/touch sigue funcionando). Con `false`, la barra se muestra con una estética delgada propia (mismo grosor/color que `ScrollBar`) en vez del scrollbar crudo del navegador. |
+| multiSelect | boolean | `false` | Activa selección múltiple (`Autocomplete multiple`). En este modo `value` es un array de `value`s y `onChange` recibe `{ target: { value: nuevoArray } }`. Cada opción muestra un checkbox (`Checks`, modo `iconOnly`) como indicador de selección. |
+| checkedBgColor | string | — | Color de fondo del checkbox marcado (propaga a `Checks`, solo aplica con `multiSelect`). |
+| checkedLabelColor | string | — | Color del label del checkbox marcado (propaga a `Checks`). |
+| scrollbarColor | string | — | Color del thumb del scrollbar cuando `hideScrollbar={false}`. |
+| chipBgColor | string | — | Fondo de los chips de selección (modo `multiSelect`). |
+| chipTextColor | string | — | Color de texto de los chips. |
+| chipIconColor | string | — | Color del ícono "X" de cada chip. |
+| popperZIndex | number | `100000` | `z-index` del `Popper` del listado desplegable (se renderiza en un portal al final de `<body>`, fuera del árbol del componente). Ajustar si un overlay/modal propio del proyecto consumidor tiene un `z-index` mayor y tapa los clics del listado. |
 
 **Ejemplos:**
 ```jsx
@@ -2541,8 +2786,21 @@ import Selector from '../Material-UI/Components/Selector/index'; // export defau
 ```jsx
 <Selector label="Especie" options={options} value={value} onChange={onChange} fullWidth={false} style={{ width: 180 }} />
 ```
+```jsx
+// Selección múltiple con chips y checkbox personalizados
+<Selector
+  label="Especies"
+  options={options}
+  multiSelect
+  value={values}
+  onChange={(e) => setValues(e.target.value)}
+  checkedBgColor="#0369a1"
+  chipBgColor="#0369a1"
+  chipTextColor="#ffffff"
+/>
+```
 
-**Notas:** El matching de `value` contra `options` ignora mayúsculas, espacios, guiones y guiones bajos si no hay coincidencia exacta por `value`. `fullWidth` default es `true` — si solo se pasa `className` para controlar el ancho sin `fullWidth={false}`, el `sx.width: '100%'` default sigue ganando; para un ancho custom, combinar `fullWidth={false}` con `style={{ width }}`.
+**Notas:** El matching de `value` contra `options` ignora mayúsculas, espacios, guiones y guiones bajos si no hay coincidencia exacta por `value`. `fullWidth` default es `true` — si solo se pasa `className` para controlar el ancho sin `fullWidth={false}`, el `sx.width: '100%'` default sigue ganando; para un ancho custom, combinar `fullWidth={false}` con `style={{ width }}`. En `multiSelect`, `disableCloseOnSelect` se activa automáticamente (el dropdown no se cierra después de cada click). `popperZIndex`: el `Popper` de MUI se monta vía portal al final de `<body>`, fuera de cualquier contenedor con overflow/scroll o `z-index` local del componente padre (ej. el popover de `CalendarPicker`, con `z-index: 20`) — si el proyecto consumidor tiene un modal/drawer propio con `z-index` superior al default (`100000`), esa capa puede interceptar los clics sobre el listado aunque se vea visualmente encima; subir `popperZIndex` por encima de esa capa resuelve el bloqueo de clics.
 
 ---
 

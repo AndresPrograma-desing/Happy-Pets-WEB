@@ -34,7 +34,7 @@ const DrawPanel = ({
   countdownHeight,
   countdownColors,
   countdownIncrement = true,
-  progressMode = 'count',
+  progressMode,
   totalFields = 0,
   filledFields = 0,
   totalItems = [],
@@ -98,17 +98,21 @@ const DrawPanel = ({
   // Lógica Genérica de Cálculo de Progreso
   let calculatedProgress = countdownValue ?? 0;
 
-  if (progressMode === 'selection') {
+  // Sin progressMode explícito, pasar formData + requiredFields alcanza para medir el formulario.
+  const hasRequiredFields = Array.isArray(requiredFields) && requiredFields.length > 0;
+  const effectiveMode = progressMode ?? (formData && hasRequiredFields ? 'form' : 'count');
+
+  if (effectiveMode === 'selection') {
     const total = Array.isArray(totalItems) ? totalItems.length : Number(totalItems) || 0;
     const selected = Array.isArray(selectedItems) ? selectedItems.length : Number(selectedItems) || 0;
     calculatedProgress = total > 0 ? (selected / total) * 100 : 0;
-  } else if (progressMode === 'form' && formData && Array.isArray(requiredFields) && requiredFields.length > 0) {
+  } else if (effectiveMode === 'form' && formData && hasRequiredFields) {
     const filledCount = requiredFields.filter(field => {
       const val = formData[field];
       return val !== undefined && val !== null && String(val).trim() !== '';
     }).length;
     calculatedProgress = (filledCount / requiredFields.length) * 100;
-  } else if (progressMode === 'count' && totalFields > 0) {
+  } else if (effectiveMode === 'count' && totalFields > 0) {
     calculatedProgress = Math.min(100, Math.max(0, (filledFields / totalFields) * 100));
   }
 

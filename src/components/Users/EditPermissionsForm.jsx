@@ -16,25 +16,28 @@ export default function EditPermissionsForm({
   onSaveEnd
 }) {
   const [dataLoading, setDataLoading] = useState(true);
-  const [availableKeys, setAvailableKeys] = useState([]);
-  const [selectedKeys, setSelectedKeys] = useState([]);
+  // null = todavía no se cargó nada del servidor para este usuario (distinto de "cargó y no
+  // tiene permisos", que es []). Mientras sea null no se renderiza el checklist.
+  const [selectedKeys, setSelectedKeys] = useState(null);
   const [loading, setLoading] = useState(false);
   const { byKey: permissionsCatalog } = usePermissionsCatalog();
+  const availableKeys = getAllPermissionKeys(permissionsCatalog);
 
+  // Carga los permisos actuales del usuario UNA sola vez por userId. No depende del catálogo:
+  // si dependiera de `permissionsCatalog` (objeto recalculado cuando el catálogo termina de
+  // cargar), este efecto se repetiría y volvería a pisar `selectedKeys` con lo guardado en el
+  // servidor, descartando cualquier tilde que el usuario ya hubiera hecho en el checklist.
   useEffect(() => {
     let mounted = true;
+    setDataLoading(true);
+    setSelectedKeys(null);
     (async () => {
       try {
-        const keys = getAllPermissionKeys(permissionsCatalog);
-        if (!mounted) return;
-        setAvailableKeys(keys);
-
         const res = await getUserPermissions(userId);
         const permissions = res?.permissions ?? res?.data?.permissions ?? null;
         if (!mounted) return;
-        
-        const initialSelected = permissions ?? keys.map((k) => k.key);
-        setSelectedKeys(initialSelected);
+
+        setSelectedKeys(permissions);
       } catch (err) {
         console.error('Error cargando permisos del usuario:', err);
         if (onError) onError(EDIT_PERMISSIONS_TEXT.errorLoad);
@@ -43,7 +46,15 @@ export default function EditPermissionsForm({
       }
     })();
     return () => { mounted = false; };
-  }, [userId, permissionsCatalog]);
+  }, [userId]);
+
+  // Usuario sin registro de permisos todavía (permissions == null del backend): por defecto
+  // se le muestra/asigna todo el catálogo, una vez que el catálogo ya cargó.
+  useEffect(() => {
+    if (!dataLoading && selectedKeys === null && availableKeys.length > 0) {
+      setSelectedKeys(availableKeys.map((k) => k.key));
+    }
+  }, [dataLoading, selectedKeys, availableKeys]);
 
   const toggleKey = (key) => {
     setSelectedKeys((prev) => (
@@ -69,7 +80,7 @@ export default function EditPermissionsForm({
     }
   };
 
-  if (dataLoading) {
+  if (dataLoading || selectedKeys === null) {
     return (
       <div className={styles.loadingContainer}>
         <Loading size="large" text={EDIT_PERMISSIONS_TEXT.loading} />

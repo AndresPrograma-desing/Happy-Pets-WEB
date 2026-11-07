@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { getProducts } from '../../services/api';
 import { getAlertPayload } from '../../utils/apiErrors';
+import { PRODUCT_STATUS_FILTER } from './constants';
 
 export const useProductListLogic = ({
     categoryMap,
@@ -9,7 +10,8 @@ export const useProductListLogic = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
-    
+    const [statusFilter, setStatusFilter] = useState(PRODUCT_STATUS_FILTER.ACTIVE);
+
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10); // Estado dinámico de tamaño de página
     const [totalPages, setTotalPages] = useState(1);
@@ -56,7 +58,8 @@ export const useProductListLogic = ({
             normalizedPrice: price,
             normalizedCatId: catId,
             displayName: p.nombre || p.name || 'Sin nombre',
-            displayDesc: p.descripcion || p.description || '—'
+            displayDesc: p.descripcion || p.description || '—',
+            isDisabled: p.active === false
         };
     }, [categoryMap]);
 
@@ -71,7 +74,8 @@ export const useProductListLogic = ({
                 searchTerm: searchTerm || undefined,
                 maxPrice: maxPrice || undefined,
                 pageNumber: page,
-                pageSize: pageSize
+                pageSize: pageSize,
+                status: statusFilter
             });
             
             let list = [];
@@ -104,7 +108,7 @@ export const useProductListLogic = ({
             setLoading(false);
             setRefreshing(false);
         }
-    }, [filterCategory, searchTerm, maxPrice, page, pageSize, normalizeProduct]);
+    }, [filterCategory, searchTerm, maxPrice, statusFilter, page, pageSize, normalizeProduct]);
 
     useEffect(() => {
         fetchProducts();
@@ -113,7 +117,7 @@ export const useProductListLogic = ({
     // Reiniciar a la página 1 al cambiar cualquier filtro de búsqueda
     useEffect(() => {
         setPage(1);
-    }, [filterCategory, searchTerm, maxPrice]);
+    }, [filterCategory, searchTerm, maxPrice, statusFilter]);
 
     const handleEditClick = (product) => {
         setSelectedProduct(product);
@@ -137,6 +141,7 @@ export const useProductListLogic = ({
         setSearchTerm('');
         setFilterCategory('');
         setMaxPrice('');
+        setStatusFilter(PRODUCT_STATUS_FILTER.ACTIVE);
         setPage(1);
     };
 
@@ -144,6 +149,7 @@ export const useProductListLogic = ({
         searchTerm, setSearchTerm,
         filterCategory, setFilterCategory,
         maxPrice, setMaxPrice,
+        statusFilter, setStatusFilter,
         page, setPage,
         pageSize, setPageSize,
         handlePageSizeChange,

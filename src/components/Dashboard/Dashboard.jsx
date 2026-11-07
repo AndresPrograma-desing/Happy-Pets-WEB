@@ -15,20 +15,18 @@ import { getDashboardStats } from '../../services/api/Dashboard';
 import { downloadDashboardExcel } from '../../services/api/Excel';
 import { DASHBOARD_TEXT } from '../../constants/TEXT';
 import Loading from '../screens/components/Loading/Index';
-import CardV1 from '../screens/components/CardV1';
+import { CardV1, Chart } from 'anteriority-ui';
 import TableB from '../screens/components/TableB';
 import Button from '../screens/components/Button';
-import BarChart from '../screens/components/BarChart';
 import DrawPanel from '../screens/components/DrawPanel';
 import Filters from './components/Filters';
-import StatusBreakdown from './components/StatusBreakdown';
 import Alerts from './components/Alerts';
 import {
   formatCurrency,
   buildRevenueChartData,
   getAppointmentStatusBadgeType,
   formatAppointmentStatusLabel,
-  getStatusBreakdown,
+  getStatusPieData,
   buildFilterParams,
   getCurrencyCode,
 } from './utils';
@@ -131,8 +129,13 @@ export default function Dashboard() {
   const latestPeriodIndex = chartData.length - 1;
 
   const ultimasCitas = data.ultimas_citas || [];
-  const statusBreakdown = getStatusBreakdown(data.citas_por_estado);
+  const statusPieData = getStatusPieData(data.citas_por_estado);
   const lowStockProducts = data.productos_bajo_stock || [];
+  const lowStockChartData = lowStockProducts.map((p) => ({
+    nombre: p.nombre,
+    stock: p.stock,
+    stock_minimo: p.stock_minimo,
+  }));
   const recentAlerts = data.alertas_recientes || [];
 
   const kpiCards = [
@@ -299,10 +302,15 @@ export default function Dashboard() {
           <p className={styles.panelSubtitle}>{DASHBOARD_TEXT.statusBreakdownSubtitle}</p>
         </div>
         <div className={styles.chartBody}>
-          <StatusBreakdown
-            breakdown={statusBreakdown}
-            emptyMessage={DASHBOARD_TEXT.statusBreakdownEmptyMessage}
-          />
+          {statusPieData.length > 0 ? (
+            <Chart
+              type="pie"
+              data={statusPieData}
+              height={300}
+            />
+          ) : (
+            <p>{DASHBOARD_TEXT.statusBreakdownEmptyMessage}</p>
+          )}
         </div>
       </div>
 
@@ -312,12 +320,23 @@ export default function Dashboard() {
           <p className={styles.panelSubtitle}>{DASHBOARD_TEXT.chartSubtitle}</p>
         </div>
         <div className={styles.chartBody}>
-          <BarChart
-            data={chartData}
-            valueFormatter={(value) => formatCurrency(value, currencyCode)}
-            highlightIndex={latestPeriodIndex}
-            emptyMessage={DASHBOARD_TEXT.chartEmptyMessage}
-          />
+          {chartData.length > 0 ? (
+            <Chart
+              type="bar"
+              data={chartData.map((item, index) => ({
+                label: item.label,
+                ingresos: item.value,
+                ...(index === latestPeriodIndex ? { color: '#4338ca' } : {}),
+              }))}
+              xKey="label"
+              bars={[{ dataKey: 'ingresos', name: DASHBOARD_TEXT.chartTitle, unit: currencyCode }]}
+              yTickFormatter={(value) => formatCurrency(value, currencyCode)}
+              showValueLabel
+              height={300}
+            />
+          ) : (
+            <p>{DASHBOARD_TEXT.chartEmptyMessage}</p>
+          )}
         </div>
       </div>
 
@@ -326,6 +345,21 @@ export default function Dashboard() {
           <h2 className={styles.panelTitle}>{DASHBOARD_TEXT.lowStockTitle}</h2>
           <p className={styles.panelSubtitle}>{DASHBOARD_TEXT.lowStockSubtitle}</p>
         </div>
+        {lowStockChartData.length > 0 && (
+          <div className={styles.chartBody}>
+            <Chart
+              type="bar"
+              data={lowStockChartData}
+              xKey="nombre"
+              xTickFormatter={(name) => (name.length > 14 ? `${name.slice(0, 14)}…` : name)}
+              bars={[
+                { dataKey: 'stock', name: DASHBOARD_TEXT.lowStockSeriesStock, color: '#dc2626' },
+                { dataKey: 'stock_minimo', name: DASHBOARD_TEXT.lowStockSeriesMin, color: '#94a3b8' },
+              ]}
+              height={300}
+            />
+          </div>
+        )}
         <TableB
           columns={lowStockColumns}
           data={lowStockProducts}

@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useMemo } from 'react';
 import usePanelHeader from '../GenericPanel/usePanelHeader';
-import { PackageSearch } from 'lucide-react';
+import { PackageSearch, CheckCircle2, Ban } from 'lucide-react';
 import styles from './ProductList.module.css';
 import Filter from '../screens/components/Filter/Index';
 import TextField from '../screens/components/Material-UI/Components/TextField/Index';
@@ -15,6 +15,8 @@ import ModalTooltip from '../ModalTooltip/ModalTooltip';
 import { useCurrency } from '../../hooks/moneyType';
 import { useProductListLogic } from './utils';
 import TableB from '../screens/components/TableB';
+import { Badge } from 'anteriority-ui';
+import { PRODUCT_LIST_TEXTS, PRODUCT_LIST_CONFIG, STATUS_BADGE_COLORS, PRODUCT_STATUS_FILTER, PRODUCT_STATUS_FILTER_LABEL, PRODUCT_STATUS_OPTIONS } from './constants';
 
 export default function ProductList() {
     const { categories, categoryMap } = useCategories();
@@ -24,6 +26,7 @@ export default function ProductList() {
         searchTerm, setSearchTerm,
         filterCategory, setFilterCategory,
         maxPrice, setMaxPrice,
+        statusFilter, setStatusFilter,
         page, setPage,
         pageSize,
         handlePageSizeChange,
@@ -48,8 +51,9 @@ export default function ProductList() {
         if (searchTerm && searchTerm.trim() !== '') count++;
         if (filterCategory && String(filterCategory).trim() !== '') count++;
         if (maxPrice && String(maxPrice).trim() !== '') count++;
+        if (statusFilter !== PRODUCT_STATUS_FILTER.ACTIVE) count++;
         return count;
-    }, [searchTerm, filterCategory, maxPrice]);
+    }, [searchTerm, filterCategory, maxPrice, statusFilter]);
 
     const { currency, convertAmount, isLoading: currencyLoading } = useCurrency();
     const esUSD = currency?.toUpperCase() === 'USD';
@@ -122,6 +126,18 @@ export default function ProductList() {
             }
         },
         {
+            label: PRODUCT_LIST_TEXTS.statusColumn,
+            key: 'status',
+            width: '15%',
+            render: (row) => (
+                <Badge
+                    icon={row.isDisabled ? Ban : CheckCircle2}
+                    value={row.isDisabled ? PRODUCT_LIST_TEXTS.statusDisabled : PRODUCT_LIST_TEXTS.statusActive}
+                    {...STATUS_BADGE_COLORS[row.isDisabled ? 'disabled' : 'active']}
+                />
+            )
+        },
+        ...(PRODUCT_LIST_CONFIG.showEditAction ? [{
             label: 'ACCIONES',
             key: 'actions',
             type: 'actions',
@@ -135,7 +151,7 @@ export default function ProductList() {
                     className: styles.editActionBtn
                 }
             ]
-        }
+        }] : [])
     ];
 
     usePanelHeader({
@@ -186,6 +202,14 @@ export default function ProductList() {
                         onChange={(e) => setMaxPrice(e.target.value)} 
                         placeholder="Ej. 150.00"
                     />
+
+                    <Selector
+                        id="estado-select"
+                        label={PRODUCT_STATUS_FILTER_LABEL}
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        options={PRODUCT_STATUS_OPTIONS}
+                    />
                 </Filter>
 
                 <div className={styles.tableWrapper}>
@@ -199,6 +223,7 @@ export default function ProductList() {
                         emptyMessage="No se encontraron productos en el inventario."
                         rowKey={(row) => row.id || row.nombre}
                         rowClassName={(row) => {
+                            if (row.isDisabled) return styles.disabledRow;
                             const stockMin = row.stock_minimo ?? row.stockMin ?? row.min_stock ?? 0;
                             return row.normalizedStock < stockMin ? styles.lowStockRow : '';
                         }}

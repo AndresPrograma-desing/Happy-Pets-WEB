@@ -103,9 +103,10 @@ export async function getProducts(params = {}) {
   if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice);
   if (params.pageNumber) queryParams.append('pageNumber', params.pageNumber);
   if (params.pageSize) queryParams.append('pageSize', params.pageSize);
+  if (params.status) queryParams.append('status', params.status);
 
   const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-  
+
   const candidates = ['/products', '/Products', '/productos', '/Productos', '/admin/Products'];
   let lastError = null;
   for (const path of candidates) {
