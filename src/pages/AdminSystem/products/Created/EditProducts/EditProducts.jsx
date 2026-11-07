@@ -5,6 +5,8 @@ import style from './EditProducts.module.css';
 import TextField from '../../../../../components/screens/components/Material-UI/Components/TextField/Index';
 import Selector from '../../../../../components/screens/components/Material-UI/Components/Selector/Index';
 import useCategories from '../../../../../hooks/requestCategories';
+import { Checks } from 'anteriority-ui';
+import { EDIT_PRODUCT_TEXTS } from './constants';
 
 const ProductEditForm = forwardRef(({ productData, onUpdateSuccess, onError }, ref) => {
     const { categories } = useCategories();
@@ -23,7 +25,8 @@ const ProductEditForm = forwardRef(({ productData, onUpdateSuccess, onError }, r
         precioVenta: 0,
         stock: 0,
         stockMinimo: 10,
-        proveedor: ''
+        proveedor: '',
+        active: true
     });
 
     // Estado para mostrar mensajes de éxito o error al usuario
@@ -41,7 +44,8 @@ const ProductEditForm = forwardRef(({ productData, onUpdateSuccess, onError }, r
                 precioVenta: Number(productData.precioVenta || productData.precio_venta) || 0,
                 stock: Number(productData.stock) || 0,
                 stockMinimo: Number(productData.stockMinimo || productData.stock_minimo) || 10,
-                proveedor: productData.proveedor || ''
+                proveedor: productData.proveedor || '',
+                active: productData.active !== false
             });
         }
     }, [productData]);
@@ -61,7 +65,8 @@ const ProductEditForm = forwardRef(({ productData, onUpdateSuccess, onError }, r
                     precio_venta: parseFloat(formData.precioVenta) || 0,
                     stock: parseInt(formData.stock) || 0,
                     stock_minimo: parseInt(formData.stockMinimo) || 0,
-                    proveedor: formData.proveedor || null
+                    proveedor: formData.proveedor || null,
+                    active: formData.active
                 };
                 
                 const response = await updateProducts(productData.id, payload);
@@ -181,7 +186,14 @@ const ProductEditForm = forwardRef(({ productData, onUpdateSuccess, onError }, r
                             label="Stock Mínimo" 
                             name="stockMinimo" 
                             value={formData.stockMinimo} 
-                            onChange={handleChange} 
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className={style.inputGroupFull}>
+                        <Checks
+                            label={EDIT_PRODUCT_TEXTS.activeLabel}
+                            checked={formData.active}
+                            onChange={() => setFormData(prev => ({ ...prev, active: !prev.active }))}
                         />
                     </div>
                 </div>

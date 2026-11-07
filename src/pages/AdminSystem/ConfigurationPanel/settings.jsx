@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import style from "./settings.module.css";
 import AlertModal from "../../../components/AlertModal/AlertModal";
 import usePanelHeader from "../../../components/GenericPanel/usePanelHeader";
-import { KeyRound, FileText, ClipboardIcon, CircleDollarSign, Mail, Eye, EyeOff, Sparkles, Briefcase, AlertTriangle } from "lucide-react";
+import { KeyRound, FileText, ClipboardIcon, CircleDollarSign, Mail, Eye, EyeOff, Sparkles, Briefcase, AlertTriangle, Clock } from "lucide-react";
 import Report from "./Components/Report/index";
 import { getText } from "../../../constants";
 import CurrencySelector from "./Components/MoneySettings/CurrencySelector";
@@ -13,6 +13,8 @@ import { DesplegablePanel, DrawPanel } from "anteriority-ui";
 import PasswordResetPanel from "./Components/PasswordReset";
 import { CONFIG_PANEL_TEXTS, WORKER_EVENTS_TEXTS } from "./constants";
 import WorkerCenter from "./Components/WorkerCenter";
+import WorkingHours from "./Components/WorkingHours";
+import { WORKING_HOURS_TEXTS, WORKING_HOURS_FORM_ID } from "./Components/WorkingHours/constants";
 
 const workerDescriptions = {
   AutoGenerateReportWorker: "Este worker se encarga de ejecutar de forma periódica la autogeneración de reportes financieros y de actividad del sistema, asegurando que los reportes más recientes siempre estén disponibles.",
@@ -28,6 +30,8 @@ const Settings = () => {
   // const [showGroqPanel, setShowGroqPanel] = useState(false);
   // const [groqLoading, setGroqLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [showWorkingHoursPanel, setShowWorkingHoursPanel] = useState(false);
+  const [workingHoursLoading, setWorkingHoursLoading] = useState(false);
 
   // Password reset panel state is fully encapsulated in PasswordResetPanel now.
 
@@ -116,6 +120,15 @@ const Settings = () => {
               onToggle={() => setShowMoneyPanel(true)}
               isOpen={false}
             />
+
+            <DesplegablePanel
+              title={WORKING_HOURS_TEXTS.panelTitle}
+              description={WORKING_HOURS_TEXTS.panelDesc}
+              icon={Clock}
+              iconColorVariant="blue"
+              onToggle={() => setShowWorkingHoursPanel(true)}
+              isOpen={false}
+            />
           </div>
         </section>
 
@@ -150,6 +163,23 @@ const Settings = () => {
           onClose={() => setShowResendPanel(false)}
           onSaveStart={() => setResendLoading(true)}
           onSaveEnd={() => setResendLoading(false)}
+        />
+      </DrawPanel>
+
+      <DrawPanel
+        isOpen={showWorkingHoursPanel}
+        onClose={() => setShowWorkingHoursPanel(false)}
+        title={WORKING_HOURS_TEXTS.panelTitle}
+        showActions={true}
+        confirmText={WORKING_HOURS_TEXTS.saveChanges}
+        cancelText={WORKING_HOURS_TEXTS.cancel}
+        formId={WORKING_HOURS_FORM_ID}
+        loading={workingHoursLoading}
+      >
+        <WorkingHours
+          onClose={() => setShowWorkingHoursPanel(false)}
+          onSaveStart={() => setWorkingHoursLoading(true)}
+          onSaveEnd={() => setWorkingHoursLoading(false)}
         />
       </DrawPanel>
 
