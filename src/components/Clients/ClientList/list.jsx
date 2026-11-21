@@ -8,7 +8,8 @@ import AlertModal from '../../../components/AlertModal/AlertModal';
 import PetForm from './form/addpetsForm';
 import DrawPanel from '../../screens/components/DrawPanel';
 import styles from './List.module.css';
-import { INITIAL_PET_FORM, preparePetPayload } from './utils';
+import { INITIAL_PET_FORM, preparePetPayload, downloadPetReportPdf } from './utils';
+import { REPORT_TEXT } from './constants';
 import usePanelHeader from '../../GenericPanel/usePanelHeader';
 import TableB from '../../screens/components/TableB';
 import Button from '../../screens/components/Button/index.jsx';
@@ -90,7 +91,8 @@ export default function ClientList() {
   const [accountData, setAccountData] = useState(null);
   const [accountLoading, setAccountLoading] = useState(false);
   const [accountError, setAccountError] = useState('');
-  const canViewAccount = (getUserPermissions() || []).includes('invoices.account');
+  const [downloadingReportId, setDownloadingReportId] = useState(null);
+  const canViewAccount =(getUserPermissions() || []).includes('invoices.account');
 
   // Debounce para el input de búsqueda
   useEffect(() => {
@@ -351,6 +353,18 @@ export default function ClientList() {
     }
   };
 
+  const handleDownloadReport = async (pet) => {
+    if (!pet?.id || downloadingReportId) return;
+    setDownloadingReportId(pet.id);
+    try {
+      await downloadPetReportPdf(pet.id);
+    } catch (err) {
+      setError(err?.message || REPORT_TEXT.error);
+    } finally {
+      setDownloadingReportId(null);
+    }
+  };
+
   const handleOpenAccount = async (client) => {
     setAccountClient(client);
     setShowAccountModal(true);
@@ -391,6 +405,10 @@ export default function ClientList() {
         subItems.push({
           label: `Editar Mascota (${pet.nombre})`,
           onClick: () => handleOpenEditPet(pet)
+        });
+        subItems.push({
+          label: REPORT_TEXT.menuLabel(pet.nombre),
+          onClick: () => handleDownloadReport(pet)
         });
         subItems.push({
           label: `Eliminar Mascota (${pet.nombre})`,
@@ -524,6 +542,17 @@ export default function ClientList() {
                 </div>
 
                 <div className={styles.petActivity}>
+                  <Button
+                    variant={Button.VARIANTS.GHOST}
+                    color={Button.COLORS.GREEN}
+                    size={Button.SIZES.SMALL}
+                    onClick={() => handleDownloadReport(pet)}
+                    icon={FileText}
+                    disabled={downloadingReportId === pet.id}
+                    title={REPORT_TEXT.tooltip}
+                  >
+                    {downloadingReportId === pet.id ? REPORT_TEXT.generating : REPORT_TEXT.download}
+                  </Button>
                   <Button
                     variant={Button.VARIANTS.GHOST}
                     size={Button.SIZES.SMALL}

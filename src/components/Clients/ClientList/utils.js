@@ -1,3 +1,6 @@
+import { getMedicalHistoryPdf } from '../../../services/api/pdf';
+import { REPORT_TEXT } from './constants';
+
 export const INITIAL_PET_FORM = {
   nombre: '',
   especie: '',
@@ -35,4 +38,18 @@ export const preparePetPayload = (clienteId, form) => {
     condicionesMedicas: form.condicionesMedicas.trim() || 'Sano',
     esterilizado: Boolean(form.esterilizado)
   };
+};
+export const downloadPetReportPdf = async (mascotaId) => {
+  if (!mascotaId) return;
+  const res = await getMedicalHistoryPdf(mascotaId);
+  const { blob, filename } = res || {};
+  if (!blob) throw new Error(REPORT_TEXT.error);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename || REPORT_TEXT.fileFallback(mascotaId);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 };

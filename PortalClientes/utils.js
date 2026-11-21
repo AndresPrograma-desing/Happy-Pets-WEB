@@ -1,14 +1,15 @@
 import { getClientMeHistorialPdf } from '../src/services/api';
+import { TEXT_PORTAL } from './Constants';
 
 export async function downloadClientMedicalHistoryPdf(mascotaId) {
   if (!mascotaId) return;
   const res = await getClientMeHistorialPdf(mascotaId);
   const { blob, filename } = res || {};
-  if (!blob) throw new Error('No se pudo obtener el historial médico.');
+  if (!blob) throw new Error(TEXT_PORTAL.report.fetchError);
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = filename || `historial-medico-${mascotaId}.pdf`;
+  link.download = filename || TEXT_PORTAL.report.fileFallback(mascotaId);
   document.body.appendChild(link);
   link.click();
   link.remove();
