@@ -140,7 +140,7 @@ export default function PortalClientes() {
     try {
       await downloadClientMedicalHistoryPdf(mascotaId);
     } catch (err) {
-      setDataError(err?.message || 'No se pudo descargar el historial médico.');
+      setDataError(err?.message || TEXT_PORTAL.report.error);
     } finally {
       setDownloadingHistorialId(null);
     }
@@ -444,7 +444,7 @@ export default function PortalClientes() {
     { header: 'Raza', accessor: 'raza' },
     { header: 'Edad', render: (row) => row.edad || calculateAge(row.fechaNacimiento) },
     {
-      header: 'Historial Médico',
+      header: TEXT_PORTAL.report.columnHeader,
       render: (row) => (
         <Button
           variant={Button.VARIANTS.GHOST}
@@ -454,7 +454,7 @@ export default function PortalClientes() {
           disabled={downloadingHistorialId === row.id}
           onClick={() => handleDownloadHistorialPdf(row.id)}
         >
-          {downloadingHistorialId === row.id ? 'Generando...' : 'Descargar Pdf'}
+          {downloadingHistorialId === row.id ? TEXT_PORTAL.report.generating : TEXT_PORTAL.report.download}
         </Button>
       )
     }

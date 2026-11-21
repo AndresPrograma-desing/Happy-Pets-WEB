@@ -1,4 +1,12 @@
 export const TEXT_PORTAL = {
+  report: {
+    columnHeader: 'Reporte Completo',
+    download: 'Descargar Reporte',
+    generating: 'Generando...',
+    error: 'No se pudo descargar el reporte completo.',
+    fetchError: 'No se pudo obtener el reporte completo.',
+    fileFallback: (id) => `reporte-completo-${id}.pdf`
+  },
     title: "Bienvenido al Portal del Cliente",
     subtitle: "Consulta el estado de tus mascotas, historial clínico, citas y recetas médicas.",
     searchPlaceholder: "Ingresa tu número de Cédula o Email...",
